@@ -14,7 +14,12 @@ const Home: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <CategoryNav />
+      <div className="hidden md:block">
+        <CategoryNav type="resource" />
+      </div>
+      <div className="md:hidden">
+        <CategoryNav type="service" />
+      </div>
       
       <main className="flex-grow container mx-auto px-4 py-6">
         <HeroSection />
@@ -22,8 +27,6 @@ const Home: React.FC = () => {
         <FreeResources />
         <FeaturedProduct />
         <AIAssistant />
-        <ReverseAuction />
-        <SponsorshipBanner />
       </main>
       
       <Footer />

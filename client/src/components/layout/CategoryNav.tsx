@@ -107,18 +107,19 @@ interface CategoryNavProps {
   type: 'service' | 'resource';
 }
 
-const CategoryNav: React.FC<CategoryNavProps> = ({ type }) => {
+// 기본값을 제공하는 컴포넌트
+const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' }) => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
   
   // 타입에 따라 적절한 카테고리 선택
-  const categories = type === 'service' ? serviceCategories : resourceCategories;
+  const categoriesToShow = type === 'service' ? serviceCategories : resourceCategories;
 
   return (
     <div className={`bg-white ${type === 'resource' ? 'border-b' : ''}`}>
       <div className="container mx-auto px-4">
         <div className={`flex overflow-x-auto hide-scrollbar py-4 space-x-1 md:space-x-3 ${type === 'resource' ? 'md:justify-center' : ''}`}>
-          {categories.map((category) => {
+          {categoriesToShow.map((category: CategoryProps) => {
             const isActive = location === category.href;
             
             return (
