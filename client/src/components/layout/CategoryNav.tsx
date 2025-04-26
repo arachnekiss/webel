@@ -29,7 +29,7 @@ const serviceCategories: CategoryProps[] = [
     id: '3d_printer',
     label: '근처 3D 프린터',
     icon: <Printer className="h-5 w-5" />,
-    href: '/services/3d_printing'
+    href: '/services/type/3d_printing'
   },
   {
     id: 'ai_assistant',
@@ -47,7 +47,7 @@ const serviceCategories: CategoryProps[] = [
     id: 'manufacturers',
     label: '생산업체 찾기',
     icon: <Building2 className="h-5 w-5" />,
-    href: '/services/manufacturers'
+    href: '/services/type/manufacturers'
   },
   {
     id: 'sponsor',
@@ -69,31 +69,31 @@ const resourceCategories: CategoryProps[] = [
     id: 'hardware_design',
     label: '하드웨어 설계도',
     icon: <Upload className="h-5 w-5" />,
-    href: '/resources/hardware_design'
+    href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
     label: '소프트웨어 오픈소스',
     icon: <Code2 className="h-5 w-5" />,
-    href: '/resources/software'
+    href: '/resources/type/software'
   },
   {
     id: 'ai_model',
     label: '인공지능 모델',
     icon: <Cpu className="h-5 w-5" />,
-    href: '/resources/ai_model'
+    href: '/resources/type/ai_model'
   },
   {
     id: '3d_modeling',
     label: '3D 모델링 파일',
     icon: <Box className="h-5 w-5" />,
-    href: '/resources/3d_model'
+    href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
     label: '프리 콘텐츠',
     icon: <FileText className="h-5 w-5" />,
-    href: '/resources/free_content'
+    href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',

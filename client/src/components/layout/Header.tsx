@@ -24,31 +24,31 @@ const resourceCategories = [
     id: 'hardware_design',
     label: '하드웨어 설계도',
     icon: <Upload className="h-4 w-4" />,
-    href: '/resources/hardware_design'
+    href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
     label: '소프트웨어 오픈소스',
     icon: <Code2 className="h-4 w-4" />,
-    href: '/resources/software'
+    href: '/resources/type/software'
   },
   {
     id: 'ai_model',
     label: '인공지능 모델',
     icon: <Cpu className="h-4 w-4" />,
-    href: '/resources/ai_model'
+    href: '/resources/type/ai_model'
   },
   {
     id: '3d_modeling',
     label: '3D 모델링 파일',
     icon: <Box className="h-4 w-4" />,
-    href: '/resources/3d_model'
+    href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
     label: '프리 콘텐츠',
     icon: <FileText className="h-4 w-4" />,
-    href: '/resources/free_content'
+    href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
