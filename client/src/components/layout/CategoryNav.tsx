@@ -83,16 +83,16 @@ const CategoryNav: React.FC = () => {
             
             return (
               <Link key={category.id} href={category.href}>
-                <a
+                <div
                   className={`flex flex-col items-center px-3 py-2 text-sm font-medium rounded-lg ${
                     isActive 
                       ? 'bg-blue-50 text-primary' 
                       : 'text-gray-600 hover:bg-gray-50'
-                  } flex-shrink-0`}
+                  } flex-shrink-0 cursor-pointer`}
                 >
                   {category.icon}
                   <span className={isMobile ? 'text-xs' : ''}>{category.label}</span>
-                </a>
+                </div>
               </Link>
             );
           })}

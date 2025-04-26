@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Auction } from '@/types';
 import AuctionCard from '@/components/ui/AuctionCard';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import { Button } from '@/components/ui/button';
 
 const ReverseAuction: React.FC = () => {
   const { data: auctions, isLoading } = useQuery<Auction[]>({
@@ -26,7 +27,7 @@ const ReverseAuction: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">역경매 시스템</h2>
         <Link href="/auctions">
-          <a className="text-primary hover:underline text-sm font-medium">모든 프로젝트 보기</a>
+          <div className="text-primary hover:underline text-sm font-medium cursor-pointer">모든 프로젝트 보기</div>
         </Link>
       </div>
       

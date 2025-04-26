@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Download, Share, Phone } from 'lucide-react';
@@ -54,7 +55,9 @@ const FeaturedProduct: React.FC = () => {
       <section className="mb-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">인기 하드웨어 설계도</h2>
-          <a href="#" className="text-primary hover:underline text-sm font-medium">모두 보기</a>
+          <Link href="/resources">
+            <div className="text-primary hover:underline text-sm font-medium cursor-pointer">모두 보기</div>
+          </Link>
         </div>
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="md:flex h-96 animate-pulse">
@@ -74,7 +77,9 @@ const FeaturedProduct: React.FC = () => {
     <section className="mb-12">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">인기 하드웨어 설계도</h2>
-        <a href="/resources/hardware_design" className="text-primary hover:underline text-sm font-medium">모두 보기</a>
+        <Link href="/resources/hardware_design">
+          <div className="text-primary hover:underline text-sm font-medium cursor-pointer">모두 보기</div>
+        </Link>
       </div>
       
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
