@@ -64,7 +64,7 @@ const Header = () => {
   const { isMobile } = useDeviceDetect();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isResourceDropdownOpen, setIsResourceDropdownOpen] = useState(false);
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, isAdmin, logoutMutation } = useAuth();
 
   const toggleMobileMenu = () => {
@@ -73,6 +73,14 @@ const Header = () => {
 
   const toggleResourceDropdown = () => {
     setIsResourceDropdownOpen(!isResourceDropdownOpen);
+  };
+  
+  // 페이지 이동 시 모바일 메뉴를 닫는 함수
+  const handleNavigate = (path: string) => {
+    navigate(path);
+    if (isMobile) {
+      setIsMobileMenuOpen(false);
+    }
   };
 
   return (
@@ -218,35 +226,39 @@ const Header = () => {
             
             {/* 메뉴 아이템 */}
             <nav className="space-y-3">
-              <Link href="/">
-                <div className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
-                  홈
-                </div>
-              </Link>
+              <div 
+                onClick={() => handleNavigate('/')}
+                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}
+              >
+                홈
+              </div>
               
-              <Link href="/resources">
-                <div className={`flex items-center px-4 py-2 ${
+              <div 
+                onClick={() => handleNavigate('/resources')}
+                className={`flex items-center px-4 py-2 ${
                   location === '/resources'
                   ? 'bg-primary/10 text-primary' 
                   : 'text-slate-600 hover:bg-slate-50'
-                } rounded cursor-pointer`}>
-                  <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>모든 리소스</span>
-                </div>
-              </Link>
+                } rounded cursor-pointer`}
+              >
+                <span className="mr-2"><Layers className="h-4 w-4" /></span>
+                <span>모든 리소스</span>
+              </div>
               
               {/* 모바일용 리소스 카테고리 메뉴 */}
               {resourceCategories.map(category => (
-                <Link key={category.id} href={category.href}>
-                  <div className={`flex items-center px-4 py-2 ${
+                <div 
+                  key={category.id}
+                  onClick={() => handleNavigate(category.href)}
+                  className={`flex items-center px-4 py-2 ${
                     location === category.href || (category.href !== '/' && location.includes(category.href)) 
                     ? 'bg-primary/10 text-primary' 
                     : 'text-slate-600 hover:bg-slate-50'
-                  } rounded cursor-pointer`}>
-                    <span className="mr-2">{category.icon}</span>
-                    <span>{category.label}</span>
-                  </div>
-                </Link>
+                  } rounded cursor-pointer`}
+                >
+                  <span className="mr-2">{category.icon}</span>
+                  <span>{category.label}</span>
+                </div>
               ))}
               
               <div className="h-px bg-slate-100 my-2"></div>
@@ -257,16 +269,18 @@ const Header = () => {
               
               {/* 모바일용 서비스 카테고리 메뉴 */}
               {serviceItems.map(item => (
-                <Link key={item.id} href={item.href}>
-                  <div className={`flex items-center px-4 py-2 ${
+                <div 
+                  key={item.id} 
+                  onClick={() => handleNavigate(item.href)}
+                  className={`flex items-center px-4 py-2 ${
                     location === item.href || (item.href !== '/' && location.includes(item.href)) 
                     ? 'bg-primary/10 text-primary' 
                     : 'text-slate-600 hover:bg-slate-50'
-                  } rounded cursor-pointer`}>
-                    <span className="mr-2">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </div>
-                </Link>
+                  } rounded cursor-pointer`}
+                >
+                  <span className="mr-2">{item.icon}</span>
+                  <span>{item.label}</span>
+                </div>
               ))}
               <div className="h-px bg-slate-100 my-2"></div>
               {user ? (
@@ -276,7 +290,10 @@ const Header = () => {
                   </div>
                   <div 
                     className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
-                    onClick={() => logoutMutation.mutate()}
+                    onClick={() => {
+                      logoutMutation.mutate();
+                      if (isMobile) setIsMobileMenuOpen(false);
+                    }}
                   >
                     로그아웃
                   </div>
@@ -288,23 +305,26 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link href="/login">
-                    <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
-                      로그인
-                    </div>
-                  </Link>
-                  <Link href="/register">
-                    <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
-                      회원가입
-                    </div>
-                  </Link>
+                  <div 
+                    onClick={() => handleNavigate('/login')}
+                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                  >
+                    로그인
+                  </div>
+                  <div 
+                    onClick={() => handleNavigate('/register')}
+                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                  >
+                    회원가입
+                  </div>
                 </>
               )}
-              <Link href="/sponsor">
-                <div className="block px-4 py-2 bg-primary text-white rounded cursor-pointer">
-                  Webel 후원하기
-                </div>
-              </Link>
+              <div 
+                onClick={() => handleNavigate('/sponsor')}
+                className="block px-4 py-2 bg-primary text-white rounded cursor-pointer"
+              >
+                Webel 후원하기
+              </div>
             </nav>
           </div>
         </div>
