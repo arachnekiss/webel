@@ -8,8 +8,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 
-const Resources: React.FC = () => {
-  const { type } = useParams();
+interface ResourcesProps {
+  type?: string;
+  params?: any;
+}
+
+const Resources: React.FC<ResourcesProps> = (props) => {
+  const routeParams = useParams();
+  // Use props.type if provided directly, or from params prop, or from route params
+  const type = props.type || (props.params?.type) || routeParams.type;
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Define query key based on type parameter

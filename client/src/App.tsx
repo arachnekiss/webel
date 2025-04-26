@@ -52,16 +52,17 @@ function Router() {
             <Route path="/services/:id(\d+)" component={ServiceDetail}/>
             
             {/* Resource routes with resource type categories */}
-            <Route path="/resources/type/:type" component={Resources}/>
-            <Route path="/resources" component={Resources}/>
+            <Route path="/resources/type/:type">
+              {(params) => <Resources params={params} />}
+            </Route>
+            <Route path="/resources">
+              {() => <Resources />}
+            </Route>
             <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
             
-            {/* Flash Games redirect to resources */}
+            {/* Flash Games page */}
             <Route path="/flash-games">
-              {() => {
-                window.location.href = '/resources/type/flash_game';
-                return null;
-              }}
+              {() => <Resources type="flash_game" />}
             </Route>
             
             {/* Auctions routes */}
