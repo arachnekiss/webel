@@ -26,6 +26,12 @@ export const services = pgTable("services", {
   ratingCount: integer("rating_count").default(0),
   tags: text("tags").array(),
   imageUrl: text("image_url"),
+  // 3D 프린터 관련 정보 추가
+  printerModel: text("printer_model"), // 3D 프린터 모델명
+  contactPhone: text("contact_phone"), // 연락처 전화번호
+  contactEmail: text("contact_email"), // 연락처 이메일
+  pricing: text("pricing"), // 이용 비용 (무료 가능)
+  isIndividual: boolean("is_individual").default(false), // true면 개인, false면 사업자
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -34,12 +40,13 @@ export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content
+  resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
   tags: text("tags").array(),
   imageUrl: text("image_url"),
   downloadUrl: text("download_url").notNull(),
   downloadCount: integer("download_count").default(0),
   materialsList: jsonb("materials_list"), // Array of materials needed
+  recipe: jsonb("recipe"), // Step by step assembly or usage instructions
   createdAt: timestamp("created_at").defaultNow(),
   isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
   sourceSite: text("source_site"), // Original source if crawled
@@ -102,3 +109,7 @@ export type Location = {
   city?: string;
   country?: string;
 };
+
+// Service and Resource types
+export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing';
+export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content' | 'ai_model' | 'flash_game';
