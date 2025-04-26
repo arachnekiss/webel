@@ -26,7 +26,7 @@ const HeroSection: React.FC = () => {
           </div>
           
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            창작자와 메이커를 위한<br/>
+            창작자와 엔지니어를 위한<br/>
             <span className="text-cyan-300">오픈 리소스 플랫폼</span>
           </h1>
           

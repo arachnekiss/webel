@@ -96,7 +96,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
                 <h3 className="font-bold text-slate-800 mb-2 group-hover:text-primary transition-colors">{item.title}</h3>
                 <p className="text-slate-500 text-sm mb-4 line-clamp-2">{item.description}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {item.tags && item.tags.slice(0, 3).map((tag, tagIdx) => (
+                  {item.tags && item.tags.slice(0, 3).map((tag: string, tagIdx: number) => (
                     <span key={tagIdx} className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full">
                       {tag}
                     </span>
@@ -226,40 +226,37 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoa
 
 const Home: React.FC = () => {
   // 하드웨어 설계도 데이터 가져오기
-  const { data: hardwareDesigns, isLoading: isHardwareLoading } = useQuery({
+  const { data: hardwareDesigns = [], isLoading: isHardwareLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/hardware_design'],
     enabled: true,
   });
 
   // 소프트웨어 오픈소스 데이터 가져오기
-  const { data: softwareResources, isLoading: isSoftwareLoading } = useQuery({
+  const { data: softwareResources = [], isLoading: isSoftwareLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/software'],
     enabled: true,
   });
 
   // 인공지능 모델 데이터 가져오기
-  const { data: aiModels, isLoading: isAILoading } = useQuery({
+  const { data: aiModels = [], isLoading: isAILoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/ai_model'],
     enabled: true,
   });
 
   // 3D 모델링 파일 데이터 가져오기
-  const { data: modelingFiles, isLoading: isModelingLoading } = useQuery({
+  const { data: modelingFiles = [], isLoading: isModelingLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/3d_model'],
     enabled: true,
   });
 
   // 프리 콘텐츠 데이터 가져오기
-  const { data: freeContents, isLoading: isFreeContentLoading } = useQuery({
+  const { data: freeContents = [], isLoading: isFreeContentLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/free_content'],
     enabled: true,
   });
 
   return (
     <div className="pb-16">
-      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white">
-        <CategoryNav type="resource" />
-      </div>
       <HeroSection />
       
       {/* 하드웨어 설계도 섹션 */}

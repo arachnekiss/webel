@@ -73,7 +73,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full">
+    <header className="relative z-50 w-full">
       {/* 메인 헤더 */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="container mx-auto px-4">
@@ -271,10 +271,7 @@ const Header = () => {
         </div>
       )}
       
-      {/* 카테고리 네비게이션 - 메인 페이지에서만 표시 */}
-      {location === '/' && (
-        <CategoryNav type="resource" />
-      )}
+      {/* 중복 제거: 카테고리 네비게이션은 Home.tsx에서 필요한 경우에만 추가 */}
     </header>
   );
 };
