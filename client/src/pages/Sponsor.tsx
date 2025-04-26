@@ -43,19 +43,19 @@ const Sponsor: React.FC = () => {
         </div>
       </section>
       
-      {/* Sponsor benefits */}
+      {/* 후원 의미 */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">후원 혜택</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">후원의 의미</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader className="pb-2">
               <Star className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>스페셜 배지</CardTitle>
+              <CardTitle>오픈 소스 지원</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                후원자 전용 프로필 배지로 커뮤니티 내에서 특별한 지위를 표시합니다.
+                여러분의 후원은 Webel이 더 많은 오픈 소스 하드웨어 및 소프트웨어 프로젝트를 지원하는 데 사용됩니다.
               </p>
             </CardContent>
           </Card>
@@ -63,11 +63,11 @@ const Sponsor: React.FC = () => {
           <Card>
             <CardHeader className="pb-2">
               <Zap className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>프리미엄 기능</CardTitle>
+              <CardTitle>커뮤니티 성장</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                후원 등급에 따라 추가 스토리지, 우선 지원, 고급 검색 기능 등 프리미엄 기능을 이용할 수 있습니다.
+                엔지니어와 소비자를 연결하는 커뮤니티 플랫폼을 운영하고 발전시키는 데 도움이 됩니다.
               </p>
             </CardContent>
           </Card>
@@ -75,11 +75,11 @@ const Sponsor: React.FC = () => {
           <Card>
             <CardHeader className="pb-2">
               <Gift className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>독점 콘텐츠</CardTitle>
+              <CardTitle>서비스 안정성</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                후원자만을 위한 독점 리소스와 교육 자료에 접근할 수 있습니다.
+                Webel 서비스의 안정적인 운영과 지속 가능한 발전을 위한 인프라 유지에 기여합니다.
               </p>
             </CardContent>
           </Card>
@@ -237,43 +237,32 @@ const Sponsor: React.FC = () => {
         </Card>
       </section>
       
-      {/* Testimonials */}
+      {/* 후원 코멘트 */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">후원자 소감</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">후원 시 코멘트 남기기</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-full mr-4"></div>
-                <div>
-                  <h3 className="font-semibold">김민수</h3>
-                  <p className="text-sm text-gray-500">파트너 등급 · 6개월째 후원 중</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "Webel의 후원자가 된 후 독점 리소스를 통해 프로젝트 진행이 훨씬 수월해졌습니다. 
-                특히 우선 지원 서비스는 막히는 부분이 있을 때 정말 큰 도움이 됩니다."
+        <Card>
+          <CardContent className="p-6">
+            <div className="mb-5">
+              <p className="text-gray-700 mb-4">
+                원하신다면 후원과 함께 코멘트를 남겨주세요. 여러분의 격려와 피드백은 Webel 팀에게 큰 힘이 됩니다.
               </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-full mr-4"></div>
-                <div>
-                  <h3 className="font-semibold">이지현</h3>
-                  <p className="text-sm text-gray-500">혁신가 등급 · 1년째 후원 중</p>
-                </div>
-              </div>
-              <p className="text-gray-600">
-                "개발팀과의 직접 미팅을 통해 제 아이디어가 실제 기능으로 구현되는 것을 보는 것이 가장 큰 보람입니다. 
-                Webel과 함께 성장하는 느낌이 정말 좋습니다."
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+              <Textarea
+                placeholder="후원 코멘트를 남겨주세요 (선택사항)"
+                className="w-full min-h-[120px]"
+              />
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-end">
+              <Button variant="outline" className="sm:w-auto w-full">
+                코멘트 없이 후원하기
+              </Button>
+              <Button className="sm:w-auto w-full bg-primary hover:bg-blue-600">
+                코멘트와 함께 후원하기
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </section>
     </main>
   );
