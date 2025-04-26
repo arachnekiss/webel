@@ -1,66 +1,71 @@
-import React, { useState } from 'react';
-import { useLocation } from 'wouter';
-import { z } from 'zod';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
+import { z } from 'zod';
+import { useLocation } from 'wouter';
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+} from '@/components/ui/card';
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from '@/components/ui/form';
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
-// 로그인 폼 스키마
+// 로그인 폼 유효성 검사를 위한 스키마
 const loginSchema = z.object({
-  username: z.string().min(1, { message: '사용자 이름을 입력해주세요.' }),
-  password: z.string().min(1, { message: '비밀번호를 입력해주세요.' }),
+  username: z.string().min(3, '사용자 이름은 최소 3자 이상이어야 합니다.'),
+  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
 });
 
-// 회원가입 폼 스키마
+// 회원가입 폼 유효성 검사를 위한 스키마
 const registerSchema = z.object({
-  username: z.string().min(3, { message: '사용자 이름은 최소 3자 이상이어야 합니다.' }),
-  email: z.string().email({ message: '유효한 이메일 주소를 입력해주세요.' }),
-  fullName: z.string().min(2, { message: '이름을 입력해주세요.' }),
-  password: z.string().min(6, { message: '비밀번호는 최소 6자 이상이어야 합니다.' }),
-  confirmPassword: z.string().min(1, { message: '비밀번호 확인을 입력해주세요.' }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "비밀번호가 일치하지 않습니다.",
-  path: ["confirmPassword"],
+  username: z.string().min(3, '사용자 이름은 최소 3자 이상이어야 합니다.'),
+  email: z.string().email('유효한 이메일 주소를 입력해주세요.'),
+  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.'),
+  fullName: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.')
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const AuthPage: React.FC = () => {
-  const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const [isLoginLoading, setIsLoginLoading] = useState(false);
-  const [isRegisterLoading, setIsRegisterLoading] = useState(false);
+const AuthPage = () => {
+  const [activeTab, setActiveTab] = useState('login');
+  const [, navigate] = useLocation();
+  const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
-  // 현재 로그인된 사용자 정보 확인
-  const { data: user, isLoading: isUserLoading } = useQuery({
-    queryKey: ['/api/user'],
-    queryFn: async () => {
-      try {
-        const res = await apiRequest('GET', '/api/user');
-        if (res.status === 401) return null;
-        return await res.json();
-      } catch (error) {
-        return null;
-      }
-    },
-  });
+  // 로그인 상태라면 메인 페이지로 리디렉션
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   // 로그인 폼 설정
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: '',
-      password: '',
-    },
+      password: ''
+    }
   });
 
   // 회원가입 폼 설정
@@ -69,295 +74,213 @@ const AuthPage: React.FC = () => {
     defaultValues: {
       username: '',
       email: '',
-      fullName: '',
       password: '',
-      confirmPassword: '',
-    },
+      fullName: ''
+    }
   });
 
   // 로그인 처리
   const handleLogin = async (values: LoginFormValues) => {
-    setIsLoginLoading(true);
-    try {
-      const res = await apiRequest('POST', '/api/login', values);
-      
-      if (!res.ok) {
-        throw new Error('로그인에 실패했습니다. 사용자 이름과 비밀번호를 확인해주세요.');
-      }
-      
-      toast({
-        title: '로그인 성공',
-        description: '환영합니다!',
-      });
-      
-      setLocation('/');
-    } catch (error) {
-      toast({
-        title: '로그인 실패',
-        description: error instanceof Error ? error.message : '오류가 발생했습니다. 다시 시도해주세요.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoginLoading(false);
-    }
+    loginMutation.mutate(values);
   };
 
   // 회원가입 처리
   const handleRegister = async (values: RegisterFormValues) => {
-    setIsRegisterLoading(true);
-    try {
-      // confirmPassword 제거
-      const { confirmPassword, ...registerData } = values;
-      
-      const res = await apiRequest('POST', '/api/register', registerData);
-      
-      if (!res.ok) {
-        throw new Error('회원가입에 실패했습니다. 다시 시도해주세요.');
-      }
-      
-      toast({
-        title: '회원가입 성공',
-        description: '환영합니다! 로그인하여 Webel의 모든 기능을 이용해보세요.',
-      });
-      
-      // 로그인 탭으로 전환
-      document.getElementById('login-tab')?.click();
-      
-      // 로그인 폼에 사용자 이름 자동 채우기
-      loginForm.setValue('username', values.username);
-    } catch (error) {
-      toast({
-        title: '회원가입 실패',
-        description: error instanceof Error ? error.message : '오류가 발생했습니다. 다시 시도해주세요.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsRegisterLoading(false);
-    }
+    registerMutation.mutate(values);
   };
 
-  // 사용자가 이미 로그인한 경우 홈페이지로 리다이렉트
-  if (user && !isUserLoading) {
-    setLocation('/');
-    return null;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="flex flex-col md:flex-row gap-8 items-center">
-        {/* 왼쪽: 인증 폼 */}
-        <div className="w-full md:w-1/2 max-w-md mx-auto">
-          <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger id="login-tab" value="login">로그인</TabsTrigger>
-              <TabsTrigger value="register">회원가입</TabsTrigger>
-            </TabsList>
-            
-            {/* 로그인 폼 */}
-            <TabsContent value="login">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl">Webel에 로그인</CardTitle>
-                  <CardDescription>
-                    계정 정보를 입력하여 로그인하세요.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...loginForm}>
-                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                      <FormField
-                        control={loginForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>사용자 이름</FormLabel>
-                            <FormControl>
-                              <Input placeholder="사용자 이름을 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={loginForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>비밀번호</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="비밀번호를 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full" disabled={isLoginLoading}>
-                        {isLoginLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            로그인 중...
-                          </>
-                        ) : (
-                          '로그인'
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            {/* 회원가입 폼 */}
-            <TabsContent value="register">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-2xl">Webel 회원가입</CardTitle>
-                  <CardDescription>
-                    계정을 만들어 Webel의 모든 기능을 이용해보세요.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Form {...registerForm}>
-                    <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
-                      <FormField
-                        control={registerForm.control}
-                        name="username"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>사용자 이름</FormLabel>
-                            <FormControl>
-                              <Input placeholder="사용자 이름을 입력하세요" {...field} />
-                            </FormControl>
-                            <FormDescription>
-                              로그인에 사용할 사용자 이름입니다.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>이메일</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="이메일을 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>이름</FormLabel>
-                            <FormControl>
-                              <Input placeholder="이름을 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="password"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>비밀번호</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="비밀번호를 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={registerForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>비밀번호 확인</FormLabel>
-                            <FormControl>
-                              <Input type="password" placeholder="비밀번호를 다시 입력하세요" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <Button type="submit" className="w-full" disabled={isRegisterLoading}>
-                        {isRegisterLoading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            가입 중...
-                          </>
-                        ) : (
-                          '회원가입'
-                        )}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-        
-        {/* 오른쪽: 소개 섹션 */}
-        <div className="w-full md:w-1/2 space-y-6">
-          <div className="text-center md:text-left">
-            <h1 className="text-3xl font-bold text-primary mb-2">Webel에 오신 것을 환영합니다</h1>
-            <p className="text-lg text-gray-600 mb-6">
-              엔지니어, 소비자, 제조업체를 연결하는 지능형 플랫폼
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">리소스 접근</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">
-                  하드웨어 설계도, 소프트웨어, AI 모델, 3D 모델링 파일 등 다양한 리소스에 접근하고 공유할 수 있습니다.
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-green-50 to-teal-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">위치 기반 서비스</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">
-                  가까운 3D 프린팅 서비스와 제조업체를 쉽게 찾고 연결할 수 있습니다.
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">AI 조립 비서</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">
-                  OpenAI의 최신 GPT-4o 모델을 활용한 AI 비서가 조립과 제작 과정을 도와드립니다.
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-gradient-to-br from-amber-50 to-yellow-50">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">전문가 지원</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-600">
-                  Webel 커뮤니티의 전문가들에게 실시간으로 도움을 요청하고 받을 수 있습니다.
-                </p>
-              </CardContent>
-            </Card>
+    <div className="flex min-h-screen bg-slate-50">
+      {/* 왼쪽 인증 폼 영역 */}
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">환영합니다!</CardTitle>
+            <CardDescription className="text-center">
+              {activeTab === 'login' ? '계정에 로그인하세요' : '새 계정을 생성하세요'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid grid-cols-2 mb-4">
+                <TabsTrigger value="login">로그인</TabsTrigger>
+                <TabsTrigger value="register">회원가입</TabsTrigger>
+              </TabsList>
+              
+              {/* 로그인 폼 */}
+              <TabsContent value="login">
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>사용자 이름</FormLabel>
+                          <FormControl>
+                            <Input placeholder="사용자 이름" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>비밀번호</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="비밀번호" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={loginMutation.isPending}
+                    >
+                      {loginMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      로그인
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+              
+              {/* 회원가입 폼 */}
+              <TabsContent value="register">
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                    <FormField
+                      control={registerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>사용자 이름</FormLabel>
+                          <FormControl>
+                            <Input placeholder="사용자 이름" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>이메일</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="이메일" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>이름</FormLabel>
+                          <FormControl>
+                            <Input placeholder="이름" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>비밀번호</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="비밀번호" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button 
+                      type="submit" 
+                      className="w-full" 
+                      disabled={registerMutation.isPending}
+                    >
+                      {registerMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      회원가입
+                    </Button>
+                  </form>
+                </Form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* 오른쪽 소개 영역 */}
+      <div className="hidden md:flex flex-1 flex-col bg-primary text-white p-8 items-center justify-center">
+        <div className="max-w-md">
+          <h2 className="text-3xl font-bold mb-4">Webel 플랫폼에 오신 것을 환영합니다</h2>
+          <p className="mb-6 text-lg">
+            엔지니어, 소비자, 제조업체를 연결하는 지능형 리소스 매칭과 적응형 서비스 발견을 통해 
+            전자공학 및 하드웨어 커뮤니티를 위한 통합 생태계를 경험하세요.
+          </p>
+          <div className="space-y-4">
+            <div className="flex items-start">
+              <div className="bg-white/20 p-2 rounded-full mr-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold">리소스 공유</h3>
+                <p>하드웨어 설계도, 소프트웨어, AI 모델, 3D 모델링 파일까지 다양한 엔지니어링 리소스를 공유하고 발견하세요.</p>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="bg-white/20 p-2 rounded-full mr-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 5.02944 7.02944 1 12 1C16.9706 1 21 5.02944 21 10Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold">위치 기반 서비스</h3>
+                <p>가까운 3D 프린터, 전자 수리 서비스, 제작 워크숍을 지도에서 쉽게 찾고 이용하세요.</p>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="bg-white/20 p-2 rounded-full mr-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M16 8V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 8V13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M3 5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <h3 className="font-semibold">AI 조립 비서</h3>
+                <p>GPT-4o 기반 인공지능이 하드웨어 조립, 문제 해결, 부품 선택에 대한 실시간 도움을 제공합니다.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

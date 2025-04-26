@@ -4,6 +4,7 @@ import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
+import { useAuth } from '@/hooks/use-auth';
 import { 
   Search, 
   MenuIcon, 
@@ -63,6 +64,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isResourceDropdownOpen, setIsResourceDropdownOpen] = useState(false);
   const [location] = useLocation();
+  const { user, isAdmin, logoutMutation } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -129,14 +131,34 @@ const Header = () => {
               </div>
             </div>
             
-            {/* 로그인/회원가입 버튼 - Desktop */}
+            {/* 로그인/회원가입 또는 사용자 메뉴 - Desktop */}
             <div className="hidden md:flex items-center space-x-4">
-              <Link href="/login">
-                <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">로그인</div>
-              </Link>
-              <Link href="/register">
-                <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">회원가입</div>
-              </Link>
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <div className="text-slate-600 font-medium">
+                    {user.fullName || user.username}님
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="border-slate-200 text-slate-600"
+                    onClick={() => logoutMutation.mutate()}
+                  >
+                    로그아웃
+                  </Button>
+                  {isAdmin && (
+                    <Button variant="secondary">관리자 메뉴</Button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">로그인</div>
+                  </Link>
+                  <Link href="/register">
+                    <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">회원가입</div>
+                  </Link>
+                </>
+              )}
               <Link href="/sponsor">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
                   Webel 후원하기
@@ -217,16 +239,37 @@ const Header = () => {
                 </div>
               </Link>
               <div className="h-px bg-slate-100 my-2"></div>
-              <Link href="/login">
-                <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
-                  로그인
-                </div>
-              </Link>
-              <Link href="/register">
-                <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
-                  회원가입
-                </div>
-              </Link>
+              {user ? (
+                <>
+                  <div className="px-4 py-2 text-slate-600 font-medium">
+                    {user.fullName || user.username}님
+                  </div>
+                  <div 
+                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                    onClick={() => logoutMutation.mutate()}
+                  >
+                    로그아웃
+                  </div>
+                  {isAdmin && (
+                    <div className="block px-4 py-2 bg-slate-200 text-slate-800 rounded cursor-pointer">
+                      관리자 메뉴
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
+                      로그인
+                    </div>
+                  </Link>
+                  <Link href="/register">
+                    <div className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer">
+                      회원가입
+                    </div>
+                  </Link>
+                </>
+              )}
               <Link href="/sponsor">
                 <div className="block px-4 py-2 bg-primary text-white rounded cursor-pointer">
                   Webel 후원하기

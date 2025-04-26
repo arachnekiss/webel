@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
+import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 
 // Components
@@ -103,8 +104,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LocationProvider>
-          <Toaster />
-          <Router />
+          <AuthProvider>
+            <Toaster />
+            <Router />
+          </AuthProvider>
         </LocationProvider>
       </TooltipProvider>
     </QueryClientProvider>
