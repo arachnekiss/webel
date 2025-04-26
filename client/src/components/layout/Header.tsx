@@ -97,56 +97,17 @@ const Header = () => {
                   </div>
                 </Link>
                 
-                {/* 리소스 드롭다운 */}
-                <div className="relative">
-                  <div 
-                    className={`flex items-center px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${
-                      location.includes('/resources') || location.includes('/flash-games') 
-                        ? 'text-primary' 
-                        : 'text-slate-600 hover:text-primary'
-                    }`}
-                    onClick={toggleResourceDropdown}
-                  >
-                    <span>리소스</span>
-                    <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${isResourceDropdownOpen ? 'rotate-180' : ''}`} />
-                  </div>
-                  
-                  {isResourceDropdownOpen && (
-                    <div className="absolute left-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                      <div className="py-2 px-3">
-                        <Link href="/resources">
-                          <div className="flex items-center px-3 py-2 text-sm rounded-md hover:bg-slate-50 cursor-pointer">
-                            <Layers className="h-4 w-4 mr-2 text-primary" />
-                            <span>모든 리소스</span>
-                          </div>
-                        </Link>
-                        <div className="h-px bg-slate-100 my-2"></div>
-                        {resourceCategories.map(category => (
-                          <Link key={category.id} href={category.href}>
-                            <div className={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-slate-50 cursor-pointer ${
-                              location === category.href ? 'text-primary font-medium bg-slate-50' : 'text-slate-700'
-                            }`}>
-                              <span className="mr-2">{category.icon}</span>
-                              <span>{category.label}</span>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
+                {/* 직접 리소스 카테고리 링크 (드롭다운 대신) */}
+                {resourceCategories.map(category => (
+                  <Link key={category.id} href={category.href}>
+                    <div className={`flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
+                      location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
+                    }`}>
+                      <span className="mr-1">{category.icon}</span>
+                      <span>{category.label}</span>
                     </div>
-                  )}
-                </div>
-                
-                <Link href="/services">
-                  <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location.includes('/services') ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
-                    서비스
-                  </div>
-                </Link>
-                
-                <Link href="/ai-assembly">
-                  <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location.includes('/ai-assembly') ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
-                    AI 조립 비서
-                  </div>
-                </Link>
+                  </Link>
+                ))}
               </nav>
             )}
             
@@ -230,11 +191,21 @@ const Header = () => {
                   홈
                 </div>
               </Link>
-              <Link href="/resources">
-                <div className={`block px-4 py-2 ${location.includes('/resources') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
-                  리소스
-                </div>
-              </Link>
+              
+              {/* 모바일용 리소스 카테고리 메뉴 */}
+              {resourceCategories.map(category => (
+                <Link key={category.id} href={category.href}>
+                  <div className={`flex items-center px-4 py-2 ${
+                    location === category.href || (category.href !== '/' && location.includes(category.href)) 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-slate-600 hover:bg-slate-50'
+                  } rounded cursor-pointer`}>
+                    <span className="mr-2">{category.icon}</span>
+                    <span>{category.label}</span>
+                  </div>
+                </Link>
+              ))}
+              
               <Link href="/services">
                 <div className={`block px-4 py-2 ${location.includes('/services') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
                   서비스
@@ -243,11 +214,6 @@ const Header = () => {
               <Link href="/ai-assembly">
                 <div className={`block px-4 py-2 ${location.includes('/ai-assembly') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
                   AI 조립 비서
-                </div>
-              </Link>
-              <Link href="/flash-games">
-                <div className={`block px-4 py-2 ${location.includes('/flash-games') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
-                  플래시 게임
                 </div>
               </Link>
               <div className="h-px bg-slate-100 my-2"></div>
