@@ -1,8 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { 
   CheckCircle, 
   Camera, 
@@ -11,9 +12,65 @@ import {
   HelpCircle, 
   ArrowRight, 
   Send, 
-  Sparkles
+  Sparkles,
+  UploadCloud,
+  XCircle,
+  Loader,
+  Image
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { sendChatMessage, analyzeImage, fileToBase64 } from '@/lib/api';
+
+// Simple class for handling audio recording
+class SimpleAudioRecorder {
+  mediaRecorder: MediaRecorder | null = null;
+  audioChunks: Blob[] = [];
+  
+  async start(): Promise<void> {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new MediaRecorder(stream);
+      this.audioChunks = [];
+      
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          this.audioChunks.push(event.data);
+        }
+      };
+      
+      this.mediaRecorder.start();
+    } catch (error) {
+      console.error('음성 녹음 오류:', error);
+      throw new Error('마이크 접근 권한이 필요합니다.');
+    }
+  }
+  
+  stop(): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.mediaRecorder) {
+        reject(new Error('녹음이 시작되지 않았습니다.'));
+        return;
+      }
+      
+      this.mediaRecorder.onstop = async () => {
+        try {
+          const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            resolve(reader.result as string);
+          };
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      this.mediaRecorder.stop();
+      // 스트림 트랙 종료
+      this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+    });
+  }
+}
 
 // 메시지 인터페이스
 interface Message {
@@ -36,6 +93,41 @@ const AiAssembly = () => {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
   };
 
+  // 파일 업로드 상태 관리
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  // 오디오 녹음 상태 관리
+  const [isRecording, setIsRecording] = useState(false);
+  const audioRecorder = useRef<SimpleAudioRecorder>(new SimpleAudioRecorder());
+
+  // 스크롤 처리
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  // 진행 표시줄 애니메이션
+  useEffect(() => {
+    if (isUploadingImage) {
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 100);
+      
+      return () => clearInterval(interval);
+    } else {
+      setUploadProgress(0);
+    }
+  }, [isUploadingImage]);
+
   // 메시지 전송 처리
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -53,40 +145,163 @@ const AiAssembly = () => {
     setIsLoading(true);
 
     try {
-      // 실제 API 호출 대신 임시 지연 추가
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // OpenAI API 호출을 위한 메시지 형식 변환
+      const apiMessages = messages.concat(userMessage).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      // 시스템 메시지 추가 (없을 경우)
+      if (!apiMessages.some(msg => msg.role === 'system')) {
+        apiMessages.unshift({
+          role: 'system',
+          content: '당신은 Webel의 AI 조립 비서입니다. 다양한 부품과 장치의 조립과 관련된 질문에 전문적이고 친절하게 답변해야 합니다. 조립 과정에서 발생할 수 있는 문제점들에 대해 해결책을 제시하고, 안전하고 정확한 조립 방법을 안내해 주세요.'
+        });
+      }
 
-      // AI 응답 메시지 (실제로는 OpenAI API 호출 필요)
+      // API 호출
+      const response = await sendChatMessage(apiMessages);
+
+      // AI 응답 메시지
       const aiResponse: Message = {
         id: generateId(),
         role: 'assistant',
-        content: generateAIResponse(),
+        content: response,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "오류 발생",
-        description: "메시지 전송 중 문제가 발생했습니다. 다시 시도해주세요.",
+        description: error.message || "메시지 전송 중 문제가 발생했습니다. 다시 시도해주세요.",
         variant: "destructive"
       });
     } finally {
       setIsLoading(false);
     }
   };
-
-  // 임시 AI 응답 생성 (실제로는 OpenAI API 사용)
-  const generateAIResponse = () => {
-    const responses = [
-      "이 부품은 먼저 메인보드의 PCI 슬롯에 딸깍 소리가 날 때까지 꽂아주세요. 그 다음 전원 케이블을 연결해주세요.",
-      "배선을 연결할 때는 색상 코드를 확인하세요. 빨간색은 양극(+), 검은색은 음극(-)에 연결합니다.",
-      "나사를 조일 때는 너무 세게 조이지 마세요. 부품이 손상될 수 있습니다.",
-      "이 단계에서는 방열 그리스를 CPU 표면에 적당량 바른 후 쿨러를 장착해야 합니다.",
-      "조립 순서는 일반적으로 메인보드 → CPU → 메모리 → 저장장치 → 그래픽카드 순입니다."
-    ];
+  
+  // 이미지 파일 처리
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+  
+  // 이미지 업로드 및 분석
+  const handleImageUpload = async () => {
+    if (!selectedFile) return;
     
-    return responses[Math.floor(Math.random() * responses.length)];
+    setIsUploadingImage(true);
+    
+    try {
+      // 파일을 base64로 변환
+      const base64String = await fileToBase64(selectedFile);
+      
+      // 사용자 메시지 (이미지 첨부) 추가
+      const userMessage: Message = {
+        id: generateId(),
+        role: 'user',
+        content: `이미지를 업로드했습니다: ${selectedFile.name}`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      setIsLoading(true);
+      
+      // 이미지 분석 API 호출
+      const prompt = "이 이미지는 조립 중인 부품이나 장치를 보여주고 있습니다. 부품을 확인하고 조립 방법에 대해 조언해 주세요. 문제점이 있다면 지적해 주시고 해결 방법도 알려주세요.";
+      const analysis = await analyzeImage(base64String, prompt);
+      
+      // AI 응답 메시지
+      const aiResponse: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: analysis,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error: any) {
+      toast({
+        title: "이미지 분석 오류",
+        description: error.message || "이미지 분석 중 문제가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      setIsUploadingImage(false);
+      setSelectedFile(null);
+    }
+  };
+  
+  // 음성 녹음 시작
+  const startRecording = async () => {
+    try {
+      await audioRecorder.current.start();
+      setIsRecording(true);
+      toast({
+        title: "녹음 시작",
+        description: "말씀하시는 내용을 녹음 중입니다...",
+      });
+    } catch (error: any) {
+      toast({
+        title: "녹음 오류",
+        description: error.message || "음성 녹음을 시작할 수 없습니다.",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // 음성 녹음 종료 및 처리
+  const stopRecording = async () => {
+    if (!isRecording) return;
+    
+    try {
+      setIsLoading(true);
+      const audioBase64 = await audioRecorder.current.stop();
+      setIsRecording(false);
+      
+      // 실제로는 녹음된 음성을 텍스트로 변환하는 API 호출이 필요하지만,
+      // 지금은 OpenAI Whisper API를 직접 호출하기는 어려우므로 임시 텍스트 사용
+      const transcribedText = "음성 인식 결과: 이 부품을 어떻게 조립해야 할까요?";
+      
+      // 사용자 메시지 추가
+      const userMessage: Message = {
+        id: generateId(),
+        role: 'user',
+        content: transcribedText,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      
+      // 이후 일반 텍스트 메시지처럼 처리
+      const apiMessages = messages.concat(userMessage).map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      
+      const response = await sendChatMessage(apiMessages);
+      
+      const aiResponse: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: response,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error: any) {
+      toast({
+        title: "음성 처리 오류",
+        description: error.message || "음성을 처리하는 중 문제가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 채팅 인터페이스 표시
@@ -176,7 +391,84 @@ const AiAssembly = () => {
           
           {/* 입력 영역 */}
           <div className="border border-slate-200 rounded-lg bg-white p-3">
+            {/* 이미지 업로드 진행 상태 표시 */}
+            {isUploadingImage && (
+              <div className="mb-3">
+                <p className="text-sm text-slate-500 mb-1">이미지 업로드 중... {uploadProgress}%</p>
+                <Progress value={uploadProgress} className="h-2" />
+              </div>
+            )}
+            
+            {/* 파일 선택 표시 */}
+            {selectedFile && !isUploadingImage && (
+              <div className="mb-3 bg-slate-100 rounded p-2 flex items-center justify-between">
+                <div className="flex items-center">
+                  <Image className="h-4 w-4 mr-2" />
+                  <span className="text-sm text-slate-700 truncate">{selectedFile.name}</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 py-1"
+                    onClick={() => setSelectedFile(null)}
+                  >
+                    <XCircle className="h-3.5 w-3.5 mr-1" />
+                    취소
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="h-7 px-2 py-1"
+                    onClick={handleImageUpload}
+                    disabled={isLoading}
+                  >
+                    <UploadCloud className="h-3.5 w-3.5 mr-1" />
+                    업로드
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-end gap-2">
+              <div className="flex gap-2">
+                {/* 이미지 업로드 버튼 */}
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={isLoading || isRecording}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-10 w-10 rounded-full"
+                    disabled={isLoading || isRecording || !!selectedFile}
+                    aria-label="Upload image"
+                    asChild
+                  >
+                    <div>
+                      <Camera className="h-5 w-5 text-slate-500" />
+                    </div>
+                  </Button>
+                </label>
+                
+                {/* 음성 녹음 버튼 */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className={`h-10 w-10 rounded-full ${isRecording ? 'bg-red-50 border-red-200' : ''}`}
+                  onClick={isRecording ? stopRecording : startRecording}
+                  disabled={isLoading || !!selectedFile}
+                  aria-label={isRecording ? "Stop recording" : "Start recording"}
+                >
+                  <Mic className={`h-5 w-5 ${isRecording ? 'text-red-500 animate-pulse' : 'text-slate-500'}`} />
+                </Button>
+              </div>
+              
               <div className="relative flex-1">
                 <Textarea
                   placeholder="메시지를 입력하세요..."
@@ -190,12 +482,14 @@ const AiAssembly = () => {
                   }}
                   className="resize-none pr-10"
                   rows={1}
+                  disabled={isLoading || isRecording}
                 />
               </div>
+              
               <Button
                 type="button"
                 onClick={handleSendMessage}
-                disabled={isLoading || !inputValue.trim()}
+                disabled={isLoading || !inputValue.trim() || isRecording}
                 className="h-10 w-10 rounded-full p-2"
                 aria-label="Send message"
               >

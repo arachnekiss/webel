@@ -2,6 +2,9 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
+import { getChatResponse, analyzeImage } from "./openai";
+import * as fs from 'fs';
+import * as path from 'path';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
@@ -168,6 +171,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     const bids = await storage.getBidsByAuctionId(auctionId);
     res.json(bids);
+  });
+
+  // AI Assembly 관련 엔드포인트
+  app.post('/api/assembly/chat', async (req: Request, res: Response) => {
+    try {
+      const { messages } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ message: '유효한 메시지 형식이 아닙니다.' });
+      }
+      
+      const response = await getChatResponse(messages);
+      res.json({ response });
+    } catch (error: any) {
+      console.error('AI 어셈블리 채팅 에러:', error);
+      res.status(500).json({ message: error.message || '서버 오류가 발생했습니다.' });
+    }
+  });
+
+  // 이미지 분석 엔드포인트
+  app.post('/api/assembly/analyze-image', async (req: Request, res: Response) => {
+    try {
+      const { imageData, prompt } = req.body;
+      
+      if (!imageData || !prompt) {
+        return res.status(400).json({ message: '이미지 데이터와 프롬프트가 필요합니다.' });
+      }
+      
+      // Base64 형식 확인
+      const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+      
+      const analysis = await analyzeImage(base64Data, prompt);
+      res.json({ analysis });
+    } catch (error: any) {
+      console.error('이미지 분석 에러:', error);
+      res.status(500).json({ message: error.message || '이미지 분석 중 오류가 발생했습니다.' });
+    }
   });
 
   const httpServer = createServer(app);
