@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -98,6 +98,10 @@ const Sponsor: React.FC = () => {
     setShowPaymentDialog(true);
   };
   
+  // 후원 완료 효과를 위한 상태
+  const [activatedAmount, setActivatedAmount] = useState<number | null>(null);
+  const [activationTimer, setActivationTimer] = useState<NodeJS.Timeout | null>(null);
+  
   // 결제 완료 처리
   const handlePaymentComplete = () => {
     // 실제로는 여기서 서버에 결제 정보와 코멘트를 전송
@@ -123,11 +127,19 @@ const Sponsor: React.FC = () => {
         setComments(prev => [newComment, ...prev]);
       }
       
-      // 결제 완료 알림
-      toast({
-        title: "후원해주셔서 감사합니다!",
-        description: `${selectedTier} (₩${selectedAmount.toLocaleString()}) 후원이 완료되었습니다. Webel이 더 좋은 서비스를 제공할 수 있도록 도와주셔서 감사합니다.`,
-      });
+      // 결제 완료 알림 (토스트는 제거하고 캐릭터 애니메이션으로 대체)
+      setActivatedAmount(selectedAmount);
+      
+      // 5초 후에 활성화된 캐릭터 상태 초기화
+      if (activationTimer) {
+        clearTimeout(activationTimer);
+      }
+      
+      const timer = setTimeout(() => {
+        setActivatedAmount(null);
+      }, 5000);
+      
+      setActivationTimer(timer);
       
       // 폼 초기화
       setComment('');
@@ -262,15 +274,42 @@ const Sponsor: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               
               <CardContent className="p-4 relative">
-                <div className="w-full aspect-square flex items-center justify-center mb-3 relative">
+                <div className="w-full aspect-square flex items-center justify-center mb-3 relative overflow-hidden">
+                  {/* 기본 캐릭터 이미지 */}
                   <img 
                     src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}`} 
                     alt={`${amount}원 캐릭터`} 
-                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                    className={`w-full h-full object-contain transition-all duration-300 ${activatedAmount === amount ? 'opacity-0 scale-90' : 'group-hover:scale-110'}`}
                   />
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="bg-white/70 backdrop-blur-sm rounded-full px-3 py-1 text-amber-600 font-bold text-sm">
-                      +{amount / 100} 포인트
+                  
+                  {/* 호버 시 변화된 표정 */}
+                  <img 
+                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}&mouth=smile&eyes=happy`} 
+                    alt={`${amount}원 캐릭터 (호버)`} 
+                    className={`w-full h-full object-contain absolute inset-0 transition-all duration-300 ${activatedAmount === amount ? 'opacity-0 scale-90' : 'opacity-0 group-hover:opacity-100'}`}
+                  />
+                  
+                  {/* 후원 완료 시 표시되는 극적인 변화 */}
+                  {activatedAmount === amount && (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500">
+                      <img 
+                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}&mouth=laughing&eyes=wink&backgroundColor=ffedd5`} 
+                        alt={`${amount}원 캐릭터 (감사!)`} 
+                        className="w-full h-full object-contain animate-bounce"
+                      />
+                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 animate-float">
+                        <div className="bg-amber-500 text-white text-lg font-bold px-3 py-1 rounded-full shadow-lg">
+                          감사합니다!
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 bg-amber-300/30 animate-pulse rounded-full"></div>
+                    </div>
+                  )}
+                  
+                  {/* 호버 시 보이는 안내 */}
+                  <div className={`absolute -bottom-10 ${activatedAmount === amount ? 'bottom-0 opacity-0' : 'group-hover:bottom-0'} left-0 right-0 bg-gradient-to-t from-amber-500/80 to-amber-500/0 h-16 transition-all duration-300 flex items-center justify-center`}>
+                    <div className="animate-bounce text-white font-bold text-sm">
+                      클릭해서 후원하기!
                     </div>
                   </div>
                 </div>
