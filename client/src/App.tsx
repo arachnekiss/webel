@@ -25,6 +25,7 @@ import AiAssembly from '@/pages/AiAssembly';
 import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
 import FlashGames from '@/pages/FlashGames';
+import AuthPage from '@/pages/auth-page';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
@@ -54,9 +55,13 @@ function Router() {
             <Route path="/resources" component={Resources}/>
             <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
             
-            {/* Flash Games routes */}
-            <Route path="/flash-games" component={FlashGames}/>
-            <Route path="/flash-games/:id" component={ResourceDetail}/>
+            {/* Flash Games redirect to resources */}
+            <Route path="/flash-games">
+              {() => {
+                window.location.href = '/resources/type/flash_game';
+                return null;
+              }}
+            </Route>
             
             {/* Auctions routes */}
             <Route path="/auctions" component={Auctions}/>
@@ -66,6 +71,21 @@ function Router() {
             <Route path="/ai-assembly" component={AiAssembly}/>
             <Route path="/remote-support" component={RemoteSupport}/>
             <Route path="/sponsor" component={Sponsor}/>
+            
+            {/* Auth pages */}
+            <Route path="/auth" component={AuthPage}/>
+            <Route path="/login">
+              {() => {
+                window.location.href = '/auth';
+                return null;
+              }}
+            </Route>
+            <Route path="/register">
+              {() => {
+                window.location.href = '/auth';
+                return null;
+              }}
+            </Route>
             
             {/* Fallback to 404 */}
             <Route component={NotFound} />

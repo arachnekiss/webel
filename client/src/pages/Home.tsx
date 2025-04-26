@@ -134,7 +134,13 @@ interface FlashGamesSectionProps {
 }
 
 // 플래시 게임 섹션 컴포넌트
-const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoading = false }) => {
+const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false }) => {
+  // 플래시 게임 데이터 가져오기
+  const { data: flashGames = [], isLoading: isGamesLoading } = useQuery<any[]>({
+    queryKey: ['/api/resources/type/flash_game'],
+    enabled: true,
+  });
+
   return (
     <section className="rounded-3xl shadow-sm border border-slate-100 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden mb-16">
       <div className="px-6 py-6 border-b border-indigo-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -147,7 +153,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoa
             <p className="text-slate-500 text-sm mt-1">인기 플래시 게임을 Webel에서 바로 즐겨보세요</p>
           </div>
         </div>
-        <Link href="/flash-games">
+        <Link href="/resources/type/flash_game">
           <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
             더 많은 게임
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -156,7 +162,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoa
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-6">
-        {isLoading ? (
+        {isGamesLoading || isLoading ? (
           // 로딩 스켈레톤
           Array(5).fill(0).map((_, idx) => (
             <div key={idx} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-indigo-100 flex flex-col animate-pulse">
@@ -165,40 +171,9 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoa
               <div className="h-4 bg-slate-200 rounded w-2/3"></div>
             </div>
           ))
-        ) : (
-          [
-            { 
-              id: 'game1', 
-              title: '테트리스', 
-              description: '클래식 블록 퍼즐 게임', 
-              imageUrl: 'https://images.unsplash.com/photo-1599409637219-c73b0d432145?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' 
-            },
-            { 
-              id: 'game2', 
-              title: '스네이크', 
-              description: '뱀 키우기 게임', 
-              imageUrl: 'https://images.unsplash.com/photo-1551103782-8ab07afd45c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' 
-            },
-            { 
-              id: 'game3', 
-              title: '팩맨', 
-              description: '미로 속 먹이 먹기', 
-              imageUrl: 'https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' 
-            },
-            { 
-              id: 'game4', 
-              title: '스페이스 인베이더', 
-              description: '외계인 침략을 막아라', 
-              imageUrl: 'https://images.unsplash.com/photo-1506718468845-7578aa47600b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' 
-            },
-            { 
-              id: 'game5', 
-              title: '플래피 버드', 
-              description: '장애물 피하기 게임', 
-              imageUrl: 'https://images.unsplash.com/photo-1513002433973-e449363d9a68?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80' 
-            }
-          ].map((game, idx) => (
-            <Link key={idx} href={`/flash-games/${game.id}`}>
+        ) : flashGames.length > 0 ? (
+          flashGames.slice(0, 5).map((game, idx) => (
+            <Link key={idx} href={`/resources/${game.id}`}>
               <div className="group bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl p-4 border border-indigo-100 hover:border-indigo-300 flex flex-col cursor-pointer transition-all hover:shadow-md">
                 <div className="w-full aspect-square bg-indigo-50 rounded mb-3 overflow-hidden">
                   {game.imageUrl ? (
@@ -218,6 +193,12 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ games = [], isLoa
               </div>
             </Link>
           ))
+        ) : (
+          <div className="col-span-5 text-center py-10">
+            <Gamepad2 className="h-12 w-12 mx-auto text-indigo-200 mb-4" />
+            <h3 className="text-lg font-bold mb-2">아직 등록된 게임이 없습니다</h3>
+            <p className="text-slate-500">곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!</p>
+          </div>
         )}
       </div>
     </section>

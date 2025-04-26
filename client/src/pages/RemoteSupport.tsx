@@ -210,7 +210,7 @@ const RemoteSupport: React.FC = () => {
         </div>
         
         <Card className="border-2 border-discord overflow-hidden">
-          <div className="bg-discord text-white p-6">
+          <div className="bg-[#5865F2] text-white p-6">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-6 md:mb-0 md:mr-8">
                 <h3 className="text-2xl font-bold mb-2">전문가와 소비자의 순환 구조</h3>
@@ -231,10 +231,12 @@ const RemoteSupport: React.FC = () => {
                 </div>
               </div>
               <div className="w-full md:w-auto">
-                <Button className="bg-white text-discord hover:bg-white/90 flex gap-2 w-full md:w-auto" size="lg">
-                  <ExternalLink className="h-5 w-5" />
-                  디스코드 서버 참여하기
-                </Button>
+                <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer">
+                  <Button className="bg-white text-[#5865F2] hover:bg-white/90 flex gap-2 w-full md:w-auto" size="lg">
+                    <ExternalLink className="h-5 w-5" />
+                    디스코드 서버 참여하기
+                  </Button>
+                </a>
               </div>
             </div>
           </div>
