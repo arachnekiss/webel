@@ -6,7 +6,11 @@ import { getChatResponse, analyzeImage } from "./openai";
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { setupAuth } from './auth';
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // 인증 관련 라우트 설정
+  setupAuth(app);
   // User routes
   app.get('/api/users/:id', async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
