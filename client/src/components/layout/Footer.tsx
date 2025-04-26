@@ -36,33 +36,33 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">서비스</h3>
             <ul className="space-y-2">
-              <li><Link href="/services/3d_printing"><a className="text-gray-400 hover:text-white transition-colors">근처 3D 프린터 찾기</a></Link></li>
-              <li><Link href="/ai-assembly"><a className="text-gray-400 hover:text-white transition-colors">AI 조립 비서</a></Link></li>
-              <li><Link href="/remote-support"><a className="text-gray-400 hover:text-white transition-colors">조립 원격 지원</a></Link></li>
-              <li><Link href="/services/manufacturers"><a className="text-gray-400 hover:text-white transition-colors">생산업체 찾기</a></Link></li>
-              <li><Link href="/sponsor"><a className="text-gray-400 hover:text-white transition-colors">Webel 후원하기</a></Link></li>
+              <li><Link href="/services/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></Link></li>
+              <li><Link href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></Link></li>
+              <li><Link href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></Link></li>
+              <li><Link href="/services/manufacturers"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
+              <li><Link href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">리소스</h3>
             <ul className="space-y-2">
-              <li><Link href="/resources/hardware_design"><a className="text-gray-400 hover:text-white transition-colors">하드웨어 설계도</a></Link></li>
-              <li><Link href="/resources/software"><a className="text-gray-400 hover:text-white transition-colors">소프트웨어 오픈소스</a></Link></li>
-              <li><Link href="/resources/3d_model"><a className="text-gray-400 hover:text-white transition-colors">3D 모델링 파일</a></Link></li>
-              <li><Link href="/resources/free_content"><a className="text-gray-400 hover:text-white transition-colors">프리 콘텐츠</a></Link></li>
-              <li><Link href="/resources/games"><a className="text-gray-400 hover:text-white transition-colors">플래시게임</a></Link></li>
+              <li><Link href="/resources/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></Link></li>
+              <li><Link href="/resources/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></Link></li>
+              <li><Link href="/resources/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></Link></li>
+              <li><Link href="/resources/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></Link></li>
+              <li><Link href="/flash-games"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">회사 정보</h3>
             <ul className="space-y-2">
-              <li><Link href="/about"><a className="text-gray-400 hover:text-white transition-colors">Webel 소개</a></Link></li>
-              <li><Link href="/blog"><a className="text-gray-400 hover:text-white transition-colors">블로그</a></Link></li>
-              <li><Link href="/api-docs"><a className="text-gray-400 hover:text-white transition-colors">API 문서</a></Link></li>
-              <li><Link href="/privacy"><a className="text-gray-400 hover:text-white transition-colors">개인정보 처리방침</a></Link></li>
-              <li><Link href="/terms"><a className="text-gray-400 hover:text-white transition-colors">이용약관</a></Link></li>
+              <li><Link href="/about"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</div></Link></li>
+              <li><Link href="/blog"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</div></Link></li>
+              <li><Link href="/api-docs"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</div></Link></li>
+              <li><Link href="/privacy"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</div></Link></li>
+              <li><Link href="/terms"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</div></Link></li>
             </ul>
           </div>
         </div>

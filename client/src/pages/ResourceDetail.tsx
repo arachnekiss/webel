@@ -100,9 +100,11 @@ const ResourceDetail: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-4">리소스를 찾을 수 없습니다</h2>
             <p className="text-gray-600 mb-6">요청하신 리소스가 존재하지 않거나 삭제되었을 수 있습니다.</p>
             <Link href="/resources">
-              <Button className="bg-primary text-white hover:bg-blue-600">
-                리소스 목록으로 돌아가기
-              </Button>
+              <div>
+                <Button className="bg-primary text-white hover:bg-blue-600">
+                  리소스 목록으로 돌아가기
+                </Button>
+              </div>
             </Link>
           </div>
         </main>
@@ -119,10 +121,10 @@ const ResourceDetail: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-6">
           <Link href="/resources">
-            <a className="inline-flex items-center text-primary hover:underline">
+            <div className="inline-flex items-center text-primary hover:underline cursor-pointer">
               <ArrowLeft className="h-4 w-4 mr-1" />
               리소스 목록으로 돌아가기
-            </a>
+            </div>
           </Link>
         </div>
         
