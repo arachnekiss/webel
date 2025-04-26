@@ -225,13 +225,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // 최근 가입 사용자 (최대 5명)
       const recentUsers = users
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort((a: any, b: any) => {
+          const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+          const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+          return dateB - dateA;
+        })
         .slice(0, 5)
-        .map(({ password, ...user }) => user); // 비밀번호 제외
+        .map(({ password, ...user }: any) => user); // 비밀번호 제외
       
       // 최근 등록된 리소스 (최대 5개)
       const recentResources = resources
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .sort((a: any, b: any) => {
+          const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
+          const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
+          return dateB - dateA;
+        })
         .slice(0, 5);
       
       // 대시보드 데이터 응답
