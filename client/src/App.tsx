@@ -39,7 +39,7 @@ function Router() {
       <div className="flex-1 flex relative">
         {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
         {!isMobile && (
-          <div className="fixed left-0 top-[4rem] bottom-0 z-30">
+          <div className="fixed left-0 top-[4rem] bottom-0 z-30 overflow-y-auto no-scrollbar">
             <Sidebar />
           </div>
         )}

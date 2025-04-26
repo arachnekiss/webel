@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
   return (
-    <aside className="hidden md:block w-72 bg-white border-r border-slate-200 shadow-sm h-[calc(100vh-4rem)] overflow-auto">
+    <aside className="hidden md:block w-72 bg-white border-r border-slate-200 shadow-sm h-[calc(100vh-4rem)]">
       <div className="px-6 py-6">
         <h2 className="text-lg font-bold text-slate-800">서비스</h2>
         <p className="text-slate-500 text-sm mt-1">하드웨어 및 조립 관련 서비스</p>
