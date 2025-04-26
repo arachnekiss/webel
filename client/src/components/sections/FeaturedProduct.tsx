@@ -7,8 +7,8 @@ import { Download, Share, Phone, Award, Sparkles, Star, FileCode, ChevronRight, 
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
-// We'll assume resource ID 5 is the featured product based on our seed data
-const FEATURED_RESOURCE_ID = 5;
+// 씨드 데이터에서 리소스 ID를 가져옵니다 (ID 1 사용)
+const FEATURED_RESOURCE_ID = 1;
 
 const FeaturedProduct: React.FC = () => {
   const { toast } = useToast();
@@ -58,7 +58,7 @@ const FeaturedProduct: React.FC = () => {
     resourceType: 'hardware_design',
     tags: ['라즈베리 파이', 'IoT', '스마트 농업', 'AI'],
     imageUrl: 'https://images.unsplash.com/photo-1638815401319-690010ac2ffc',
-    downloadUrl: '/api/resources/5/download',
+    downloadUrl: '/api/resources/1/download',
     downloadCount: 3400,
     materialsList: [
       '라즈베리 파이 4B',
@@ -78,11 +78,20 @@ const FeaturedProduct: React.FC = () => {
     },
     createdAt: new Date().toISOString(),
     isCrawled: false,
-    sourceSite: null
+    sourceSite: ""
   };
 
   // 로딩 중이거나 에러 발생 시 실제 리소스 또는 대체 리소스 사용
   const displayResource = isLoading || error ? fallbackResource : (resource || fallbackResource);
+
+  // Recipe 타입을 위한 인터페이스 정의
+  interface RecipeStep {
+    title: string;
+    description: string;
+  }
+  
+  // type 단언으로 recipe steps 타입 처리
+  const recipeSteps = displayResource.recipe?.steps as RecipeStep[] || [];
 
   if (isLoading) {
     return (
@@ -229,16 +238,16 @@ const FeaturedProduct: React.FC = () => {
           )}
           
           {/* Recipe steps preview */}
-          {displayResource.recipe && displayResource.recipe.steps && (
+          {recipeSteps.length > 0 && (
             <div className="mb-8">
               <h4 className="text-lg font-semibold text-slate-800 mb-3 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-                조립 단계 ({displayResource.recipe.steps.length}단계)
+                조립 단계 ({recipeSteps.length}단계)
               </h4>
               <div className="overflow-hidden rounded-xl border border-slate-200">
-                {displayResource.recipe.steps.slice(0, 2).map((step, index) => (
+                {recipeSteps.slice(0, 2).map((step, index) => (
                   <div 
                     key={index} 
                     className={`p-3 ${index % 2 === 0 ? 'bg-white' : 'bg-slate-50'} ${index !== 0 ? 'border-t border-slate-200' : ''}`}
@@ -254,9 +263,9 @@ const FeaturedProduct: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                {displayResource.recipe.steps.length > 2 && (
+                {recipeSteps.length > 2 && (
                   <div className="bg-slate-50 p-3 border-t border-slate-200 text-center">
-                    <span className="text-sm text-slate-500">+ {displayResource.recipe.steps.length - 2}단계 더 보기</span>
+                    <span className="text-sm text-slate-500">+ {recipeSteps.length - 2}단계 더 보기</span>
                   </div>
                 )}
               </div>
