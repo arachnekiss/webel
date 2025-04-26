@@ -8,16 +8,16 @@ const HeroSection: React.FC = () => {
   const { isMobile } = useDeviceDetect();
   
   return (
-    <section className="relative overflow-hidden rounded-3xl">
+    <section className="relative overflow-hidden rounded-3xl hero-section w-full">
       {/* 배경 그라데이션 */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581094794329-c8112a89f47e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80')] opacity-15 mix-blend-overlay bg-center bg-cover"></div>
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581094794329-c8112a89f47e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80')] opacity-15 mix-blend-overlay bg-center bg-cover"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
       </div>
       
       {/* 메인 컨텐츠 */}
-      <div className="relative z-10 container py-16 md:py-24">
-        <div className="md:max-w-2xl">
+      <div className="relative z-10 container py-16 md:py-24 lg:py-32">
+        <div className="md:max-w-3xl">
           <div className="inline-block px-3 py-1 mb-6 rounded-full bg-blue-400/20 backdrop-blur-sm border border-blue-300/20">
             <span className="text-xs font-medium text-white flex items-center">
               <Sparkles className="h-3 w-3 mr-1" />
@@ -30,7 +30,7 @@ const HeroSection: React.FC = () => {
             <span className="text-cyan-300">오픈 리소스 플랫폼</span>
           </h1>
           
-          <p className="text-blue-50 text-lg md:text-xl mb-8 max-w-xl">
+          <p className="text-blue-50 text-lg md:text-xl mb-8 max-w-2xl">
             Webel에서 다양한 리소스를 찾고 근처의 3D 프린터와 제작 서비스에 쉽게 연결하세요. 
             만들고 싶은 모든 것을 가능하게 하는 커뮤니티에 참여하세요.
           </p>

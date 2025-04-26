@@ -40,7 +40,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
   bg = "bg-white"
 }) => {
   return (
-    <section className={`rounded-3xl shadow-sm border border-slate-100 ${bg} overflow-hidden mb-20`}>
+    <section className={`rounded-3xl shadow-sm border border-slate-100 ${bg} overflow-hidden mb-20 w-full`}>
       <div className="px-6 py-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 mr-3">
@@ -51,7 +51,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
             <p className="text-slate-500 text-sm mt-1">{description}</p>
           </div>
         </div>
-        <Link href={`/resources/${category}`}>
+        <Link href={`/resources/type/${category}`}>
           <Button variant="outline" className="group md:self-start rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
             더 보기
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -59,7 +59,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
         </Link>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6 p-6">
         {isLoading ? (
           // 로딩 스켈레톤
           Array(3).fill(0).map((_, idx) => (
@@ -142,7 +142,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
   });
 
   return (
-    <section className="rounded-3xl shadow-sm border border-slate-100 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden mb-16">
+    <section className="rounded-3xl shadow-sm border border-slate-100 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden mb-16 w-full">
       <div className="px-6 py-6 border-b border-indigo-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center">
           <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 mr-3">
@@ -161,7 +161,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
         </Link>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 p-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 p-6">
         {isGamesLoading || isLoading ? (
           // 로딩 스켈레톤
           Array(5).fill(0).map((_, idx) => (
