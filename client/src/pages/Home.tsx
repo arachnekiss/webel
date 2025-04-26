@@ -5,6 +5,7 @@ import HeroSection from '@/components/sections/HeroSection';
 import LocationBasedServices from '@/components/sections/LocationBasedServices';
 import FeaturedProduct from '@/components/sections/FeaturedProduct';
 import AIAssistant from '@/components/sections/AIAssistant';
+import CategoryNav from '@/components/layout/CategoryNav';
 import { 
   ArrowRight, 
   Box, 
@@ -256,6 +257,9 @@ const Home: React.FC = () => {
 
   return (
     <div className="pb-16">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white">
+        <CategoryNav type="resource" />
+      </div>
       <HeroSection />
       
       {/* 하드웨어 설계도 섹션 */}
