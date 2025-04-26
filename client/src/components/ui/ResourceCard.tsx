@@ -65,48 +65,74 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   };
 
   return (
-    <Card className="h-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
-        {resource.imageUrl ? (
-          <img 
-            src={resource.imageUrl} 
-            alt={resource.title} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-300 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-            <span className="text-gray-500">이미지 없음</span>
+    <Card className="h-full bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-all duration-200 group border border-slate-200">
+      <Link href={`/resources/${resource.id}`}>
+        <div className="w-full cursor-pointer">
+          {/* Image Section */}
+          <div className="relative h-52 bg-slate-100 overflow-hidden">
+            {resource.imageUrl ? (
+              <img 
+                src={resource.imageUrl} 
+                alt={resource.title} 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center group-hover:opacity-90 transition-opacity duration-300">
+                <span className="text-slate-400">이미지 없음</span>
+              </div>
+            )}
+            
+            {/* Type Badge - Steam/Tindie Style */}
+            <div className={`absolute top-3 left-3 ${getTypeColor(resource.resourceType)} text-white text-xs font-medium px-2.5 py-1 rounded`}>
+              {getTypeName(resource.resourceType)}
+            </div>
+            
+            {/* Source Badge - If crawled */}
+            {resource.isCrawled && resource.sourceSite && (
+              <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded">
+                {resource.sourceSite}
+              </div>
+            )}
           </div>
-        )}
-        <div className={`absolute top-0 left-0 ${getTypeColor(resource.resourceType)} text-white px-3 py-1 text-xs font-medium`}>
-          {getTypeName(resource.resourceType)}
+          
+          {/* Content Section */}
+          <CardContent className="p-4">
+            <h3 className="text-base font-semibold text-slate-800 mb-1.5 group-hover:text-blue-600 line-clamp-2">{resource.title}</h3>
+            <p className="text-slate-600 text-sm mb-3 line-clamp-2">{resource.description}</p>
+            
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {resource.tags && resource.tags.slice(0, 3).map((tag, index) => (
+                <Badge key={index} variant="outline" className="text-xs bg-slate-100 border-slate-200 text-slate-700 px-2 py-0.5 rounded-full">
+                  {tag}
+                </Badge>
+              ))}
+              {resource.tags && resource.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs bg-slate-100 border-slate-200 text-slate-700 px-2 py-0.5 rounded-full">
+                  +{resource.tags.length - 3}
+                </Badge>
+              )}
+            </div>
+          </CardContent>
         </div>
+      </Link>
+      
+      {/* Action Footer - Outside the Link area */}
+      <div className="px-4 py-3 border-t border-slate-100 bg-slate-50 flex justify-between items-center">
+        <div className="flex items-center">
+          <Download className="h-4 w-4 text-slate-500" />
+          <span className="text-xs text-slate-600 ml-1.5">{resource.downloadCount.toLocaleString()}회 다운로드</span>
+        </div>
+        <Button 
+          size="sm"
+          variant="outline"
+          className="h-8 px-3 py-1 text-xs bg-white border-slate-300 text-slate-700 hover:bg-slate-100 rounded-md"
+          onClick={handleDownload}
+        >
+          <Download className="mr-1.5 h-3.5 w-3.5" />
+          다운로드
+        </Button>
       </div>
-      <CardContent className="p-4">
-        <Link href={`/resources/${resource.id}`}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2 hover:text-primary">{resource.title}</h3>
-        </Link>
-        <p className="text-gray-600 text-sm mb-3">{resource.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {resource.tags && resource.tags.map((tag, index) => (
-            <Badge key={index} variant="outline" className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <Download className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-500 ml-1">{resource.downloadCount.toLocaleString()}</span>
-          </div>
-          <Button 
-            className="px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
-            onClick={handleDownload}
-          >
-            다운로드
-          </Button>
-        </div>
-      </CardContent>
     </Card>
   );
 };

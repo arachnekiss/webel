@@ -89,7 +89,7 @@ const serviceCategories: CategoryProps[] = [
   }
 ];
 
-// 리소스 카테고리 (상단 네비게이션용)
+// 리소스 카테고리 (상단 네비게이션용) - 요청한 순서대로 배치
 const resourceCategories: CategoryProps[] = [
   {
     id: 'all_resources',
@@ -111,12 +111,12 @@ const resourceCategories: CategoryProps[] = [
   },
   {
     id: 'ai_model',
-    label: '인공지능 모델',
+    label: 'AI 모델',
     icon: <BrainCircuit className="h-4 w-4" />,
     href: '/resources/ai_model'
   },
   {
-    id: '3d_modeling',
+    id: '3d_model',
     label: '3D 모델링 파일',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/3d_model'
@@ -156,8 +156,8 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
   // Steam/Tindie 스타일 네비게이션
   if (type === 'resource') {
     return (
-      <div className="bg-slate-800 text-white border-b border-slate-700">
-        <div className="max-w-screen-xl mx-auto">
+      <div className="bg-slate-900 text-white border-b border-slate-700">
+        <div className="max-w-screen-2xl mx-auto">
           <div className="flex overflow-x-auto no-scrollbar">
             {categoriesToShow.map((category) => {
               const isActive = location === category.href;
@@ -165,12 +165,16 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
               return (
                 <Link key={category.id} href={category.href}>
                   <div className={cn(
-                    "px-4 py-3 flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors",
+                    "px-4 py-2.5 flex items-center gap-2 text-sm whitespace-nowrap transition-colors relative",
                     isActive 
-                      ? "bg-slate-700 text-blue-400 border-b-2 border-blue-500" 
-                      : "hover:bg-slate-700/50 text-slate-200 hover:text-white border-b-2 border-transparent"
+                      ? "text-blue-300 font-medium" 
+                      : "text-slate-300 hover:text-white"
                   )}>
-                    <span className="hidden md:inline">{category.icon}</span>
+                    {/* Steam 스타일 액티브 인디케이터 */}
+                    {isActive && (
+                      <div className="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
+                    )}
+                    <span className="hidden md:inline-flex">{category.icon}</span>
                     <span className={isMobile ? "text-xs" : ""}>{category.label}</span>
                   </div>
                 </Link>

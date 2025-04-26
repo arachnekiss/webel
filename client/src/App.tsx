@@ -33,50 +33,54 @@ function Router() {
   const showSidebar = !isMobile && !isTablet;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* 상단 헤더 영역 */}
-      <div className="sticky top-0 z-50 bg-white shadow-sm">
+    <div className="min-h-screen flex flex-col bg-slate-100">
+      {/* 상단 헤더 영역 - Fixed position to mimic Steam/Tindie */}
+      <div className="sticky top-0 z-50 shadow-sm">
         <Header />
         <CategoryNav type="resource" />
       </div>
       
       {/* 메인 콘텐츠 영역 */}
-      <div className="flex flex-1 w-full mx-auto">
-        {/* 데스크톱에서만 사이드바 표시 */}
-        {showSidebar && (
-          <div className="w-60 flex-shrink-0 sticky top-[105px] self-start h-[calc(100vh-105px)]">
-            <Sidebar />
-          </div>
-        )}
-        
-        {/* 메인 콘텐츠 */}
-        <div className={`flex-1 ${showSidebar ? 'border-l border-slate-200' : ''}`}>
-          <div className="min-h-[calc(100vh-105px)]">
-            <Switch>
-              <Route path="/" component={Home}/>
-              
-              {/* Services routes */}
-              <Route path="/services" component={Services}/>
-              <Route path="/services/:id" component={ServiceDetail}/>
-              <Route path="/services/:type" component={Services}/>
-              
-              {/* Resources routes */}
-              <Route path="/resources" component={Resources}/>
-              <Route path="/resources/:id" component={ResourceDetail}/>
-              <Route path="/resources/:type" component={Resources}/>
-              
-              {/* Auctions routes */}
-              <Route path="/auctions" component={Auctions}/>
-              <Route path="/auctions/:id" component={AuctionDetail}/>
-              
-              {/* Other pages */}
-              <Route path="/ai-assembly" component={AiAssembly}/>
-              <Route path="/remote-support" component={RemoteSupport}/>
-              <Route path="/sponsor" component={Sponsor}/>
-              
-              {/* Fallback to 404 */}
-              <Route component={NotFound} />
-            </Switch>
+      <div className="flex-1 mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+        <div className="flex">
+          {/* 데스크톱에서만 사이드바 표시 */}
+          {showSidebar && (
+            <div className="w-64 flex-shrink-0">
+              <div className="sticky top-[105px] h-[calc(100vh-115px)] overflow-y-auto pr-4">
+                <Sidebar />
+              </div>
+            </div>
+          )}
+          
+          {/* 메인 콘텐츠 */}
+          <div className={`flex-1 ${showSidebar ? 'pl-6' : ''}`}>
+            <div className="rounded-lg bg-white shadow-sm min-h-[calc(100vh-130px)]">
+              <Switch>
+                <Route path="/" component={Home}/>
+                
+                {/* Services routes */}
+                <Route path="/services" component={Services}/>
+                <Route path="/services/:id" component={ServiceDetail}/>
+                <Route path="/services/:type" component={Services}/>
+                
+                {/* Resources routes */}
+                <Route path="/resources" component={Resources}/>
+                <Route path="/resources/:id" component={ResourceDetail}/>
+                <Route path="/resources/:type" component={Resources}/>
+                
+                {/* Auctions routes */}
+                <Route path="/auctions" component={Auctions}/>
+                <Route path="/auctions/:id" component={AuctionDetail}/>
+                
+                {/* Other pages */}
+                <Route path="/ai-assembly" component={AiAssembly}/>
+                <Route path="/remote-support" component={RemoteSupport}/>
+                <Route path="/sponsor" component={Sponsor}/>
+                
+                {/* Fallback to 404 */}
+                <Route component={NotFound} />
+              </Switch>
+            </div>
           </div>
         </div>
       </div>
