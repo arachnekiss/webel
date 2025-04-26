@@ -28,31 +28,31 @@ const serviceCategories: CategoryProps[] = [
   {
     id: '3d_printer',
     label: '근처 3D 프린터',
-    icon: <Printer className="h-6 w-6" />,
+    icon: <Printer className="h-5 w-5" />,
     href: '/services/3d_printing'
   },
   {
     id: 'ai_assistant',
     label: 'AI 조립 비서',
-    icon: <Lightbulb className="h-6 w-6" />,
+    icon: <Lightbulb className="h-5 w-5" />,
     href: '/ai-assembly'
   },
   {
     id: 'remote_support',
     label: '조립 원격 지원',
-    icon: <Video className="h-6 w-6" />,
+    icon: <Video className="h-5 w-5" />,
     href: '/remote-support'
   },
   {
     id: 'manufacturers',
     label: '생산업체 찾기',
-    icon: <Building2 className="h-6 w-6" />,
+    icon: <Building2 className="h-5 w-5" />,
     href: '/services/manufacturers'
   },
   {
     id: 'sponsor',
     label: 'Webel 후원하기',
-    icon: <Heart className="h-6 w-6" />,
+    icon: <Heart className="h-5 w-5" />,
     href: '/sponsor'
   }
 ];
@@ -62,44 +62,44 @@ const resourceCategories: CategoryProps[] = [
   {
     id: 'all_resources',
     label: '전체 리소스',
-    icon: <Layers className="h-6 w-6" />,
+    icon: <Layers className="h-5 w-5" />,
     href: '/resources'
   },
   {
     id: 'hardware_design',
     label: '하드웨어 설계도',
-    icon: <Upload className="h-6 w-6" />,
+    icon: <Upload className="h-5 w-5" />,
     href: '/resources/hardware_design'
   },
   {
     id: 'software',
     label: '소프트웨어 오픈소스',
-    icon: <Code2 className="h-6 w-6" />,
+    icon: <Code2 className="h-5 w-5" />,
     href: '/resources/software'
   },
   {
     id: 'ai_model',
     label: '인공지능 모델',
-    icon: <Cpu className="h-6 w-6" />,
+    icon: <Cpu className="h-5 w-5" />,
     href: '/resources/ai_model'
   },
   {
     id: '3d_modeling',
     label: '3D 모델링 파일',
-    icon: <Box className="h-6 w-6" />,
+    icon: <Box className="h-5 w-5" />,
     href: '/resources/3d_model'
   },
   {
     id: 'free_content',
     label: '프리 콘텐츠',
-    icon: <FileText className="h-6 w-6" />,
+    icon: <FileText className="h-5 w-5" />,
     href: '/resources/free_content'
   },
   {
     id: 'flash_game',
     label: '플래시 게임',
-    icon: <Gamepad2 className="h-6 w-6" />,
-    href: '/resources/flash_game'
+    icon: <Gamepad2 className="h-5 w-5" />,
+    href: '/flash-games'
   }
 ];
 
@@ -116,23 +116,25 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
   const categoriesToShow = type === 'service' ? serviceCategories : resourceCategories;
 
   return (
-    <div className={`bg-white ${type === 'resource' ? 'border-b' : ''}`}>
+    <div className="bg-white border-b border-slate-200">
       <div className="container mx-auto px-4">
-        <div className={`flex overflow-x-auto hide-scrollbar py-4 space-x-1 md:space-x-3 ${type === 'resource' ? 'md:justify-center' : ''}`}>
+        <div className={`flex overflow-x-auto hide-scrollbar py-3 space-x-1 md:space-x-1 ${type === 'resource' ? 'md:justify-center' : ''}`}>
           {categoriesToShow.map((category: CategoryProps) => {
             const isActive = location === category.href;
             
             return (
               <Link key={category.id} href={category.href}>
                 <div
-                  className={`flex ${type === 'service' ? 'flex-row' : 'flex-col'} items-center px-3 py-2 text-sm font-medium rounded-lg ${
-                    isActive 
-                      ? 'bg-blue-50 text-primary' 
-                      : 'text-gray-600 hover:bg-gray-50'
-                  } flex-shrink-0 cursor-pointer`}
+                  className={`flex ${type === 'service' ? 'flex-row' : 'flex-col'} items-center px-4 py-2 text-sm font-medium rounded-lg 
+                    ${isActive 
+                      ? 'bg-primary/5 text-primary border border-primary/20' 
+                      : 'text-slate-600 hover:bg-slate-50 border border-transparent'}
+                    flex-shrink-0 cursor-pointer transition-all duration-200`}
                 >
-                  {category.icon}
-                  <span className={`${type === 'service' ? 'ml-2' : ''} ${isMobile ? 'text-xs' : ''}`}>
+                  <div className={`${isActive ? 'text-primary' : 'text-slate-500'} mb-1`}>
+                    {category.icon}
+                  </div>
+                  <span className={`${type === 'service' ? 'ml-2' : ''} ${isMobile ? 'text-xs' : 'text-xs'}`}>
                     {category.label}
                   </span>
                 </div>
