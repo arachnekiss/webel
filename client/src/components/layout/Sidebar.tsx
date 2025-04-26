@@ -13,23 +13,13 @@ import {
   Users,
   RotateCcw,
   Newspaper,
-  Tool,
   Map
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 
-interface SidebarItemProps {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  href: string;
-  badge?: string | number;
-  subItems?: Array<{ id: string; label: string; href: string }>;
-}
-
 // 서비스 카테고리
-const serviceItems: SidebarItemProps[] = [
+const serviceItems = [
   {
     id: 'printing_services',
     label: '프린팅 서비스',
@@ -84,7 +74,7 @@ const serviceItems: SidebarItemProps[] = [
 ];
 
 // 추가 카테고리
-const additionalItems: SidebarItemProps[] = [
+const additionalItems = [
   {
     id: 'community',
     label: '커뮤니티',
@@ -111,15 +101,15 @@ const additionalItems: SidebarItemProps[] = [
   }
 ];
 
-const Sidebar: React.FC = () => {
+const Sidebar = () => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
+  const [expandedItems, setExpandedItems] = useState({
     printing_services: true
   });
   
   // 카테고리 확장/축소 토글
-  const toggleExpand = (id: string) => {
+  const toggleExpand = (id) => {
     setExpandedItems(prev => ({
       ...prev,
       [id]: !prev[id]
@@ -135,39 +125,59 @@ const Sidebar: React.FC = () => {
       
       <nav className="space-y-0.5">
         {serviceItems.map((item) => {
-          const isActive = location === item.href || (item.subItems && item.subItems.some(sub => location === sub.href));
+          const isActive = location === item.href || 
+            (item.subItems && item.subItems.some(sub => location === sub.href));
           const isExpanded = expandedItems[item.id];
           
           return (
             <div key={item.id}>
-              <div 
-                className={`flex items-center justify-between px-4 py-2.5 mx-2 rounded-md cursor-pointer transition-colors
-                  ${isActive 
-                    ? 'bg-blue-50 text-blue-700' 
-                    : 'text-gray-700 hover:bg-gray-100'}`}
-                onClick={() => item.subItems && toggleExpand(item.id)}
-              >
-                <div className="flex items-center">
-                  <div className={`mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
-                    {item.icon}
-                  </div>
-                  
-                  <Link href={item.href}>
+              {/* 메인 아이템 */}
+              {item.subItems ? (
+                <div 
+                  className={`flex items-center justify-between px-4 py-2.5 mx-2 rounded-md cursor-pointer transition-colors
+                    ${isActive 
+                      ? 'bg-blue-50 text-blue-700' 
+                      : 'text-gray-700 hover:bg-gray-100'}`}
+                  onClick={() => toggleExpand(item.id)}
+                >
+                  <div className="flex items-center">
+                    <div className={`mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {item.icon}
+                    </div>
                     <span className="text-sm font-medium">{item.label}</span>
-                  </Link>
-                  
-                  {item.badge && (
-                    <span className={`ml-2 px-1.5 py-0.5 text-xs font-medium rounded 
-                      ${item.badge === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                      {item.badge}
-                    </span>
-                  )}
+                    {item.badge && (
+                      <span className={`ml-2 px-1.5 py-0.5 text-xs font-medium rounded 
+                        ${item.badge === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronRight 
+                    className={`h-4 w-4 text-gray-400 transform transition-transform duration-200 
+                      ${isExpanded ? 'rotate-90' : ''}`} 
+                  />
                 </div>
-                
-                {item.subItems && (
-                  <ChevronRight className={`h-4 w-4 text-gray-400 transform transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
-                )}
-              </div>
+              ) : (
+                <Link href={item.href}>
+                  <div 
+                    className={`flex items-center px-4 py-2.5 mx-2 rounded-md cursor-pointer transition-colors
+                      ${isActive 
+                        ? 'bg-blue-50 text-blue-700' 
+                        : 'text-gray-700 hover:bg-gray-100'}`}
+                  >
+                    <div className={`mr-3 ${isActive ? 'text-blue-600' : 'text-gray-500'}`}>
+                      {item.icon}
+                    </div>
+                    <span className="text-sm font-medium">{item.label}</span>
+                    {item.badge && (
+                      <span className={`ml-2 px-1.5 py-0.5 text-xs font-medium rounded 
+                        ${item.badge === 'NEW' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              )}
               
               {/* 서브 아이템 */}
               {item.subItems && isExpanded && (
