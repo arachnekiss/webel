@@ -57,6 +57,7 @@ export const serviceItems: SidebarItemProps[] = [
 const Sidebar: React.FC = () => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
+  const { isAdmin } = useAuth();
   
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
@@ -89,6 +90,28 @@ const Sidebar: React.FC = () => {
             </Link>
           );
         })}
+        
+        {/* 관리자 메뉴 */}
+        {isAdmin && (
+          <>
+            <div className="mt-6 mb-3 px-4">
+              <div className="h-px bg-slate-200"></div>
+              <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
+            </div>
+            <Link href="/admin/dashboard">
+              <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
+                location === '/admin/dashboard' 
+                  ? 'bg-primary/5 text-primary font-medium' 
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
+              } cursor-pointer transition-all`}>
+                <div className={`mr-3 transition-transform duration-300 ${location === '/admin/dashboard' ? 'text-primary scale-110' : 'text-slate-500'}`}>
+                  <GanttChart className="h-5 w-5" />
+                </div>
+                <span>관리자 대시보드</span>
+              </div>
+            </Link>
+          </>
+        )}
       </nav>
       
       <div className="px-6 mt-2">
