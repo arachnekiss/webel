@@ -155,7 +155,9 @@ const Header: React.FC = () => {
                     로그아웃
                   </Button>
                   {isAdmin && (
-                    <Button variant="secondary">관리자 메뉴</Button>
+                    <Link href="/admin/dashboard">
+                      <Button variant="secondary">관리자 대시보드</Button>
+                    </Link>
                   )}
                 </div>
               ) : (
@@ -289,8 +291,11 @@ const Header: React.FC = () => {
                     로그아웃
                   </div>
                   {isAdmin && (
-                    <div className="block px-4 py-2 bg-slate-200 text-slate-800 rounded cursor-pointer">
-                      관리자 메뉴
+                    <div 
+                      onClick={() => handleNavigate('/admin/dashboard')}
+                      className="block px-4 py-2 bg-slate-200 text-slate-800 rounded cursor-pointer"
+                    >
+                      관리자 대시보드
                     </div>
                   )}
                 </>

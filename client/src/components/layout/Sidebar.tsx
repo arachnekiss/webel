@@ -5,10 +5,12 @@ import {
   Lightbulb, 
   Video, 
   Building2, 
-  Heart
+  Heart,
+  GanttChart
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import { useAuth } from '@/hooks/use-auth';
 
 // 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
 export interface SidebarItemProps {
