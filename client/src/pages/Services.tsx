@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Service } from '@/types';
-import CategoryNav from '@/components/layout/CategoryNav';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
@@ -49,8 +48,6 @@ const Services: React.FC = () => {
   
   return (
     <>
-      <CategoryNav type="resource" />
-      
       <div className="container mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
