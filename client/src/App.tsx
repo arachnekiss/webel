@@ -7,6 +7,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
+import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 
 // Components
 import Header from '@/components/layout/Header';
@@ -27,6 +28,7 @@ import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
 import FlashGames from '@/pages/FlashGames';
 import AuthPage from '@/pages/auth-page';
+import AdminDashboard from '@/pages/AdminDashboard';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
@@ -91,6 +93,9 @@ function Router() {
                 return null;
               }}
             </Route>
+            
+            {/* Admin pages */}
+            <AdminRoute path="/admin/dashboard" component={AdminDashboard} />
             
             {/* Fallback to 404 */}
             <Route component={NotFound} />

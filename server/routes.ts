@@ -6,7 +6,7 @@ import { getChatResponse, analyzeImage } from "./openai";
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { setupAuth } from './auth';
+import { setupAuth, isAdmin } from './auth';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // 인증 관련 라우트 설정
@@ -211,6 +211,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('이미지 분석 에러:', error);
       res.status(500).json({ message: error.message || '이미지 분석 중 오류가 발생했습니다.' });
+    }
+  });
+
+  // 관리자 대시보드 API
+  app.get('/api/admin/dashboard', isAdmin, async (req: Request, res: Response) => {
+    try {
+      // 대시보드에 필요한 데이터 취합
+      const users = await storage.getUsers();
+      const services = await storage.getServices();
+      const resources = await storage.getResources();
+      const auctions = await storage.getAuctions();
+      
+      // 최근 가입 사용자 (최대 5명)
+      const recentUsers = users
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5)
+        .map(({ password, ...user }) => user); // 비밀번호 제외
+      
+      // 최근 등록된 리소스 (최대 5개)
+      const recentResources = resources
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5);
+      
+      // 대시보드 데이터 응답
+      res.json({
+        usersCount: users.length,
+        servicesCount: services.length,
+        resourcesCount: resources.length,
+        auctionsCount: auctions.length,
+        recentUsers,
+        recentResources
+      });
+    } catch (error: any) {
+      console.error('관리자 대시보드 데이터 조회 에러:', error);
+      res.status(500).json({ message: error.message || '서버 오류가 발생했습니다.' });
     }
   });
 

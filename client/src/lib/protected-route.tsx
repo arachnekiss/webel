@@ -64,6 +64,16 @@ export function AdminRoute({
 
   // 사용자가 로그인하지 않았거나 관리자가 아닌 경우
   if (!user || !isAdmin) {
+    const { toast } = useToast();
+    const [, setLocation] = useLocation();
+    
+    // 접근 제한 메시지 표시
+    toast({
+      title: "접근 제한",
+      description: "관리자 권한이 필요한 페이지입니다.",
+      variant: "destructive",
+    });
+    
     return (
       <Route path={path}>
         <Redirect to="/" />
