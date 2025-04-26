@@ -58,24 +58,25 @@ const Sidebar: React.FC = () => {
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
   return (
-    <div className="hidden md:block w-56 bg-white border-r min-h-screen pt-6">
-      <div className="px-4 mb-6">
-        <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">서비스</h2>
+    <div className="hidden md:block w-64 bg-gradient-to-b from-slate-50 to-white shadow-sm min-h-screen pt-8">
+      <div className="px-6 mb-6">
+        <h2 className="text-base font-semibold text-slate-800">서비스</h2>
+        <div className="mt-2 h-px bg-gradient-to-r from-primary/20 to-transparent"></div>
       </div>
-      <nav className="space-y-1 px-2">
-        {serviceItems.map((item) => {
+      <nav className="px-4">
+        {serviceItems.map((item, index) => {
           const isActive = location === item.href;
           
           return (
             <Link key={item.id} href={item.href}>
               <div
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
+                className={`flex items-center px-4 py-3 text-sm ${
                   isActive 
-                    ? 'bg-blue-50 text-primary' 
-                    : 'text-gray-600 hover:bg-gray-50'
-                } cursor-pointer transition-colors`}
+                    ? 'text-primary font-medium' 
+                    : 'text-slate-600 hover:text-primary'
+                } cursor-pointer transition-all border-l-2 ${isActive ? 'border-primary' : 'border-transparent'}`}
               >
-                <div className="mr-3">
+                <div className={`mr-3 transition-transform duration-300 ${isActive ? 'text-primary scale-110' : 'text-slate-500'}`}>
                   {item.icon}
                 </div>
                 <span>{item.label}</span>
