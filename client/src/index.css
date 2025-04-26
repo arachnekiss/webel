@@ -62,19 +62,28 @@
 
 @layer components {
   .container {
-    @apply px-4 md:px-6 lg:px-8 w-full mx-auto;
-    max-width: 100%;
+    @apply px-4 md:px-6 lg:px-8 mx-auto;
+    width: 100% !important;
   }
   
   @media (min-width: 768px) {
     .container {
-      max-width: 90%;
+      width: 90% !important;
+      max-width: 90% !important;
     }
   }
   
-  @media (min-width: 1280px) {
+  @media (min-width: 1024px) {
     .container {
-      max-width: 1280px;
+      width: 85% !important;
+      max-width: 1400px !important;
+    }
+  }
+  
+  /* 헤더 내의 카테고리 메뉴 */
+  @media (min-width: 1024px) {
+    header nav.hidden {
+      display: flex !important;
     }
   }
 }

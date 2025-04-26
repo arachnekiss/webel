@@ -30,18 +30,18 @@ const resourceCategories = [
   },
   {
     id: 'software',
-    label: '소프트웨어 오픈소스',
+    label: '소프트웨어',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: '인공지능 모델',
+    label: 'AI 모델',
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
-    id: '3d_modeling',
+    id: '3d_model',
     label: '3D 모델링 파일',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
@@ -56,31 +56,24 @@ const resourceCategories = [
     id: 'flash_game',
     label: '플래시 게임',
     icon: <Gamepad2 className="h-4 w-4" />,
-    href: '/flash-games'
+    href: '/resources/type/flash_game'
   }
 ];
 
-const Header = () => {
+const Header: React.FC = () => {
+  const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isResourceDropdownOpen, setIsResourceDropdownOpen] = useState(false);
-  const [location, navigate] = useLocation();
-  const { user, isAdmin, logoutMutation } = useAuth();
-
+  const { user, logoutMutation, isAdmin } = useAuth();
+  
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const toggleResourceDropdown = () => {
-    setIsResourceDropdownOpen(!isResourceDropdownOpen);
+    setIsMobileMenuOpen(prev => !prev);
   };
   
-  // 페이지 이동 시 모바일 메뉴를 닫는 함수
   const handleNavigate = (path: string) => {
-    navigate(path);
-    if (isMobile) {
-      setIsMobileMenuOpen(false);
-    }
+    // 페이지 이동 후 메뉴 닫기
+    if (isMobile) setIsMobileMenuOpen(false);
+    window.location.href = path;
   };
 
   return (
@@ -100,36 +93,34 @@ const Header = () => {
             </Link>
             
             {/* 데스크톱 메뉴 */}
-            {!isMobile && (
-              <nav className="hidden md:flex items-center space-x-6 ml-10">
-                <Link href="/">
-                  <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
-                    홈
+            <nav className="hidden md:flex items-center space-x-6 ml-10">
+              <Link href="/">
+                <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+                  홈
+                </div>
+              </Link>
+              
+              <Link href="/resources">
+                <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+                  <div className="flex items-center">
+                    <Layers className="h-4 w-4 mr-1" />
+                    모든 리소스
+                  </div>
+                </div>
+              </Link>
+              
+              {/* 직접 리소스 카테고리 링크 (데스크탑) */}
+              {resourceCategories.map(category => (
+                <Link key={category.id} href={category.href}>
+                  <div className={`flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
+                    location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
+                  }`}>
+                    <span className="mr-1">{category.icon}</span>
+                    <span>{category.label}</span>
                   </div>
                 </Link>
-                
-                <Link href="/resources">
-                  <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
-                    <div className="flex items-center">
-                      <Layers className="h-4 w-4 mr-1" />
-                      모든 리소스
-                    </div>
-                  </div>
-                </Link>
-                
-                {/* 직접 리소스 카테고리 링크 (데스크탑) */}
-                {resourceCategories.map(category => (
-                  <Link key={category.id} href={category.href}>
-                    <div className={`flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
-                      location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
-                    }`}>
-                      <span className="mr-1">{category.icon}</span>
-                      <span>{category.label}</span>
-                    </div>
-                  </Link>
-                ))}
-              </nav>
-            )}
+              ))}
+            </nav>
             
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-xl mx-8">
