@@ -89,56 +89,54 @@ const RemoteSupport: React.FC = () => {
         </div>
       </section>
       
-      {/* Pricing */}
+      {/* 지원 옵션 */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">이용 요금</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">지원 방식</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border-2 border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="border-2 border-primary">
             <CardHeader>
-              <CardTitle>기본 세션</CardTitle>
-              <CardDescription>간단한 문제 해결에 적합</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩15,000</span>
-                <span className="text-gray-600"> / 30분</span>
-              </div>
+              <div className="py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-medium w-fit mb-2">추천</div>
+              <CardTitle>디스코드를 통한 커뮤니티 지원</CardTitle>
+              <CardDescription>무료 지원 서비스</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>30분 1:1 화상 지원</span>
+                  <span>커뮤니티 기반 지원 (지식 공유 중심)</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>화면 공유 기능</span>
+                  <span>음성, 화상, 채팅 지원 가능</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>세션 녹화 (옵션)</span>
+                  <span>다양한 전문가와 소통 기회</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                  <span>24/7 자료 공유 및 질문 가능</span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full">선택하기</Button>
+              <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full">
+                <Button className="w-full bg-discord hover:bg-discord-dark">디스코드 참여하기</Button>
+              </a>
             </CardFooter>
           </Card>
           
-          <Card className="border-2 border-primary">
+          <Card className="border-2 border-gray-200">
             <CardHeader>
-              <div className="py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-medium w-fit mb-2">인기 선택</div>
-              <CardTitle>표준 세션</CardTitle>
-              <CardDescription>대부분의 조립 프로젝트에 적합</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩25,000</span>
-                <span className="text-gray-600"> / 60분</span>
-              </div>
+              <CardTitle>1:1 원격 화상 지원</CardTitle>
+              <CardDescription>지정된 시간에 전문가와 연결</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>60분 1:1 화상 지원</span>
+                  <span>1:1 전담 화상 지원 (전문가 직접 연결)</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
@@ -146,54 +144,16 @@ const RemoteSupport: React.FC = () => {
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>세션 녹화 및 요약본 제공</span>
+                  <span>세션 녹화 및 후속 문서 제공</span>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>추가 7일간 이메일 지원</span>
+                  <span>예약 기반 서비스 (사전 스케줄 조정)</span>
                 </li>
               </ul>
             </CardContent>
             <CardFooter>
-              <Button className="w-full bg-primary hover:bg-blue-600">선택하기</Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-2 border-gray-200">
-            <CardHeader>
-              <CardTitle>프리미엄 세션</CardTitle>
-              <CardDescription>복잡한 프로젝트에 적합</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩45,000</span>
-                <span className="text-gray-600"> / 120분</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>120분 1:1 화상 지원</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>모든 표준 기능 포함</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>우선 예약 및 전문가 선택</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>추가 14일간 이메일 및 채팅 지원</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>맞춤형 문서 제공</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">선택하기</Button>
+              <Button className="w-full" onClick={handleRequestSession}>예약 요청하기</Button>
             </CardFooter>
           </Card>
         </div>

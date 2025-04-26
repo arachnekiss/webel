@@ -117,17 +117,8 @@ const Header = () => {
                   </div>
                 </Link>
                 
-                {/* 직접 리소스 카테고리 링크 (드롭다운 대신) */}
-                {resourceCategories.map(category => (
-                  <Link key={category.id} href={category.href}>
-                    <div className={`flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
-                      location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
-                    }`}>
-                      <span className="mr-1">{category.icon}</span>
-                      <span>{category.label}</span>
-                    </div>
-                  </Link>
-                ))}
+                {/* 직접 리소스 카테고리 링크 (드롭다운 대신) - 데스크탑에서는 표시하지 않음 */}
+                {/* 모바일 메뉴로 이동했기 때문에 데스크톱에서는 숨김 처리 */}
               </nav>
             )}
             
