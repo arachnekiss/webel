@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Service } from '@/types';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import CategoryNav from '@/components/layout/CategoryNav';
 import LocationCard from '@/components/ui/LocationCard';
+import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
-import { MapPin, AlertTriangle } from 'lucide-react';
+import { MapPin, AlertTriangle, List, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Services: React.FC = () => {
   const { type } = useParams();
@@ -48,11 +48,10 @@ const Services: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <CategoryNav />
+    <>
+      <CategoryNav type="resource" />
       
-      <main className="flex-grow container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
           <p className="text-gray-600">
@@ -109,36 +108,100 @@ const Services: React.FC = () => {
             </div>
           )}
         </div>
-        
-        {/* Services grid */}
-        {servicesLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array(8).fill(0).map((_, i) => (
-              <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
-            ))}
-          </div>
-        ) : services && services.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {services.map((service) => (
-              <LocationCard key={service.id} service={service} />
-            ))}
-          </div>
+
+        {/* 3D 프린터 페이지에서는 지도/리스트 토글 옵션을 표시 */}
+        {type === '3d_printing' ? (
+          <Tabs defaultValue="map" className="mb-6">
+            <div className="flex justify-end mb-4">
+              <TabsList>
+                <TabsTrigger value="map" className="flex items-center gap-1">
+                  <Map className="h-4 w-4" />
+                  <span>지도 보기</span>
+                </TabsTrigger>
+                <TabsTrigger value="list" className="flex items-center gap-1">
+                  <List className="h-4 w-4" />
+                  <span>목록 보기</span>
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value="map">
+              {servicesLoading ? (
+                <div className="h-[500px] bg-gray-200 rounded-lg animate-pulse"></div>
+              ) : services && services.length > 0 ? (
+                <ServiceMap services={services} />
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-lg text-center">
+                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 3D 프린터 서비스가 없습니다.</p>
+                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 거리 필터를 조정해보세요.</p>
+                  <Button 
+                    className="bg-primary text-white hover:bg-blue-600"
+                    onClick={() => getLocation()}
+                  >
+                    위치 새로고침
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="list">
+              {servicesLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {Array(8).fill(0).map((_, i) => (
+                    <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                  ))}
+                </div>
+              ) : services && services.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {services.map((service) => (
+                    <LocationCard key={service.id} service={service} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-lg text-center">
+                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 3D 프린터 서비스가 없습니다.</p>
+                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 거리 필터를 조정해보세요.</p>
+                  <Button 
+                    className="bg-primary text-white hover:bg-blue-600"
+                    onClick={() => getLocation()}
+                  >
+                    위치 새로고침
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         ) : (
-          <div className="bg-gray-50 p-8 rounded-lg text-center">
-            <p className="text-gray-600 mb-4">이 지역에 이용 가능한 서비스가 없습니다.</p>
-            <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 거리 필터를 조정해보세요.</p>
-            <Button 
-              className="bg-primary text-white hover:bg-blue-600"
-              onClick={() => getLocation()}
-            >
-              위치 새로고침
-            </Button>
-          </div>
+          // 다른 서비스 유형은 일반 목록 뷰만 표시
+          <>
+            {servicesLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {Array(8).fill(0).map((_, i) => (
+                  <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
+            ) : services && services.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {services.map((service) => (
+                  <LocationCard key={service.id} service={service} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-gray-50 p-8 rounded-lg text-center">
+                <p className="text-gray-600 mb-4">이 지역에 이용 가능한 서비스가 없습니다.</p>
+                <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 거리 필터를 조정해보세요.</p>
+                <Button 
+                  className="bg-primary text-white hover:bg-blue-600"
+                  onClick={() => getLocation()}
+                >
+                  위치 새로고침
+                </Button>
+              </div>
+            )}
+          </>
         )}
-      </main>
-      
-      <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 
