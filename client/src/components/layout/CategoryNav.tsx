@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import { cn } from '@/lib/utils';
 import { 
   Printer, 
   Lightbulb, 
@@ -11,9 +12,16 @@ import {
   Code2, 
   Box, 
   FileText,
-  Layers,
   Cpu,
-  Gamepad2
+  Gamepad2,
+  Hammer,
+  PanelLeft,
+  ShoppingCart,
+  LayoutGrid,
+  CircuitBoard,
+  BrainCircuit,
+  BookOpen,
+  Joystick
 } from 'lucide-react';
 
 interface CategoryProps {
@@ -28,31 +36,55 @@ const serviceCategories: CategoryProps[] = [
   {
     id: '3d_printer',
     label: '근처 3D 프린터',
-    icon: <Printer className="h-6 w-6" />,
+    icon: <Printer className="h-5 w-5" />,
     href: '/services/3d_printing'
+  },
+  {
+    id: 'electronics',
+    label: '전자 제품 조립',
+    icon: <CircuitBoard className="h-5 w-5" />,
+    href: '/services/electronics'
+  },
+  {
+    id: 'woodworking',
+    label: '목공 서비스',
+    icon: <Hammer className="h-5 w-5" />,
+    href: '/services/woodworking'
+  },
+  {
+    id: 'metalworking',
+    label: '금속 가공',
+    icon: <PanelLeft className="h-5 w-5" />,
+    href: '/services/metalworking'
+  },
+  {
+    id: 'manufacturing',
+    label: '생산업체 찾기',
+    icon: <Building2 className="h-5 w-5" />,
+    href: '/services/manufacturing'
   },
   {
     id: 'ai_assistant',
     label: 'AI 조립 비서',
-    icon: <Lightbulb className="h-6 w-6" />,
+    icon: <Lightbulb className="h-5 w-5" />,
     href: '/ai-assembly'
   },
   {
     id: 'remote_support',
     label: '조립 원격 지원',
-    icon: <Video className="h-6 w-6" />,
+    icon: <Video className="h-5 w-5" />,
     href: '/remote-support'
   },
   {
-    id: 'manufacturers',
-    label: '생산업체 찾기',
-    icon: <Building2 className="h-6 w-6" />,
-    href: '/services/manufacturers'
+    id: 'request_service',
+    label: '제작 견적 요청',
+    icon: <ShoppingCart className="h-5 w-5" />,
+    href: '/auctions'
   },
   {
     id: 'sponsor',
     label: 'Webel 후원하기',
-    icon: <Heart className="h-6 w-6" />,
+    icon: <Heart className="h-5 w-5" />,
     href: '/sponsor'
   }
 ];
@@ -61,45 +93,51 @@ const serviceCategories: CategoryProps[] = [
 const resourceCategories: CategoryProps[] = [
   {
     id: 'all_resources',
-    label: '전체 리소스',
-    icon: <Layers className="h-6 w-6" />,
-    href: '/resources'
+    label: '스토어 홈',
+    icon: <LayoutGrid className="h-4 w-4" />,
+    href: '/'
   },
   {
     id: 'hardware_design',
     label: '하드웨어 설계도',
-    icon: <Upload className="h-6 w-6" />,
+    icon: <CircuitBoard className="h-4 w-4" />,
     href: '/resources/hardware_design'
   },
   {
     id: 'software',
     label: '소프트웨어 오픈소스',
-    icon: <Code2 className="h-6 w-6" />,
+    icon: <Code2 className="h-4 w-4" />,
     href: '/resources/software'
   },
   {
     id: 'ai_model',
     label: '인공지능 모델',
-    icon: <Cpu className="h-6 w-6" />,
+    icon: <BrainCircuit className="h-4 w-4" />,
     href: '/resources/ai_model'
   },
   {
     id: '3d_modeling',
     label: '3D 모델링 파일',
-    icon: <Box className="h-6 w-6" />,
+    icon: <Box className="h-4 w-4" />,
     href: '/resources/3d_model'
   },
   {
     id: 'free_content',
     label: '프리 콘텐츠',
-    icon: <FileText className="h-6 w-6" />,
+    icon: <BookOpen className="h-4 w-4" />,
     href: '/resources/free_content'
   },
   {
     id: 'flash_game',
     label: '플래시 게임',
-    icon: <Gamepad2 className="h-6 w-6" />,
+    icon: <Joystick className="h-4 w-4" />,
     href: '/resources/flash_game'
+  },
+  {
+    id: 'services',
+    label: '서비스 찾기',
+    icon: <Printer className="h-4 w-4" />,
+    href: '/services'
   }
 ];
 
@@ -115,26 +153,57 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
   // 타입에 따라 적절한 카테고리 선택
   const categoriesToShow = type === 'service' ? serviceCategories : resourceCategories;
 
+  // Steam/Tindie 스타일 네비게이션
+  if (type === 'resource') {
+    return (
+      <div className="bg-slate-800 text-white border-b border-slate-700">
+        <div className="max-w-screen-xl mx-auto">
+          <div className="flex overflow-x-auto no-scrollbar">
+            {categoriesToShow.map((category) => {
+              const isActive = location === category.href;
+              
+              return (
+                <Link key={category.id} href={category.href}>
+                  <div className={cn(
+                    "px-4 py-3 flex items-center gap-2 text-sm font-medium whitespace-nowrap transition-colors",
+                    isActive 
+                      ? "bg-slate-700 text-blue-400 border-b-2 border-blue-500" 
+                      : "hover:bg-slate-700/50 text-slate-200 hover:text-white border-b-2 border-transparent"
+                  )}>
+                    <span className="hidden md:inline">{category.icon}</span>
+                    <span className={isMobile ? "text-xs" : ""}>{category.label}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 서비스용 사이드바 스타일 (기존 유지)
   return (
-    <div className={`bg-white ${type === 'resource' ? 'border-b' : ''}`}>
-      <div className="container mx-auto px-4">
-        <div className={`flex overflow-x-auto hide-scrollbar py-4 space-x-1 md:space-x-3 ${type === 'resource' ? 'md:justify-center' : ''}`}>
-          {categoriesToShow.map((category: CategoryProps) => {
+    <div className="bg-white">
+      <div className="py-2">
+        <div className="flex flex-col space-y-1">
+          {categoriesToShow.map((category) => {
             const isActive = location === category.href;
             
             return (
               <Link key={category.id} href={category.href}>
                 <div
-                  className={`flex ${type === 'service' ? 'flex-row' : 'flex-col'} items-center px-3 py-2 text-sm font-medium rounded-lg ${
+                  className={cn(
+                    "flex items-center px-4 py-2.5 text-sm font-medium border-l-2",
                     isActive 
-                      ? 'bg-blue-50 text-primary' 
-                      : 'text-gray-600 hover:bg-gray-50'
-                  } flex-shrink-0 cursor-pointer`}
+                      ? "bg-blue-50 text-blue-700 border-l-blue-500" 
+                      : "text-slate-700 hover:bg-slate-50 hover:text-slate-900 border-l-transparent"
+                  )}
                 >
-                  {category.icon}
-                  <span className={`${type === 'service' ? 'ml-2' : ''} ${isMobile ? 'text-xs' : ''}`}>
-                    {category.label}
-                  </span>
+                  <div className="w-6 h-6 flex items-center justify-center mr-3 text-slate-600">
+                    {category.icon}
+                  </div>
+                  <span>{category.label}</span>
                 </div>
               </Link>
             );
