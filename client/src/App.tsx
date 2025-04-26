@@ -20,6 +20,7 @@ import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
+import FlashGameDetail from '@/pages/FlashGameDetail';
 import Auctions from '@/pages/Auctions';
 import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
@@ -65,6 +66,7 @@ function Router() {
                 
                 {/* Resources routes */}
                 <Route path="/resources" component={Resources}/>
+                <Route path="/resources/flash_game/:id" component={FlashGameDetail}/>
                 <Route path="/resources/:id" component={ResourceDetail}/>
                 <Route path="/resources/:type" component={Resources}/>
                 

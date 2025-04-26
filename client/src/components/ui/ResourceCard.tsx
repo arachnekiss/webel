@@ -4,7 +4,7 @@ import { Resource } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Gamepad2 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
@@ -43,6 +43,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         return 'bg-blue-500';
       case 'free_content':
         return 'bg-purple-500';
+      case 'flash_game':
+        return 'bg-orange-500';
+      case 'ai_model':
+        return 'bg-pink-500';
       default:
         return 'bg-gray-500';
     }
@@ -59,6 +63,10 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         return '소프트웨어';
       case 'free_content':
         return '프리 콘텐츠';
+      case 'flash_game':
+        return '플래시 게임';
+      case 'ai_model':
+        return 'AI 모델';
       default:
         return type;
     }
@@ -66,7 +74,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
 
   return (
     <Card className="h-full bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-all duration-200 group border border-slate-200">
-      <Link href={`/resources/${resource.id}`}>
+      {/* Use a special route for Flash games */}
+      <Link href={resource.resourceType === 'flash_game' ? 
+        `/resources/flash_game/${resource.id}` : 
+        `/resources/${resource.id}`
+      }>
         <div className="w-full cursor-pointer">
           {/* Image Section */}
           <div className="relative h-52 bg-slate-100 overflow-hidden">
@@ -91,6 +103,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
             {resource.isCrawled && resource.sourceSite && (
               <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded">
                 {resource.sourceSite}
+              </div>
+            )}
+            
+            {/* Play button overlay for Flash games */}
+            {resource.resourceType === 'flash_game' && (
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                <div className="bg-blue-600 text-white rounded-full w-16 h-16 flex items-center justify-center">
+                  <Gamepad2 className="h-8 w-8" />
+                </div>
               </div>
             )}
           </div>
