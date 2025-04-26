@@ -11,6 +11,7 @@ export const users = pgTable("users", {
   fullName: text("full_name"),
   location: jsonb("location"), // { lat: number, long: number, address: string }
   isServiceProvider: boolean("is_service_provider").default(false),
+  isAdmin: boolean("is_admin").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

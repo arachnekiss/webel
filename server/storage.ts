@@ -16,6 +16,8 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
+  setAdminStatus(id: number, isAdmin: boolean): Promise<User | undefined>;
   
   // Service operations
   getServices(): Promise<Service[]>;
@@ -96,9 +98,22 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id, createdAt: new Date() };
+    const user: User = { ...insertUser, id, isAdmin: false, createdAt: new Date() };
     this.users.set(id, user);
     return user;
+  }
+  
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    
+    const updatedUser = { ...user, ...userData };
+    this.users.set(id, updatedUser);
+    return updatedUser;
+  }
+  
+  async setAdminStatus(id: number, isAdmin: boolean): Promise<User | undefined> {
+    return this.updateUser(id, { isAdmin });
   }
 
   // Service operations
@@ -642,8 +657,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
+    const [user] = await db.insert(users).values({
+      ...insertUser,
+      isAdmin: false
+    }).returning();
     return user;
+  }
+  
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    const [updatedUser] = await db
+      .update(users)
+      .set(userData)
+      .where(eq(users.id, id))
+      .returning();
+    return updatedUser;
+  }
+  
+  async setAdminStatus(id: number, isAdmin: boolean): Promise<User | undefined> {
+    return this.updateUser(id, { isAdmin });
   }
 
   // Service operations
