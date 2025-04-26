@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { Redirect, Route } from "wouter";
+import { Redirect, Route, useLocation } from "wouter";
 
 // 인증이 필요한 라우트를 위한 컴포넌트
 export function ProtectedRoute({

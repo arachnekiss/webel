@@ -14,6 +14,7 @@ interface User {
   email: string;
   fullName: string | null;
   isServiceProvider: boolean | null;
+  isAdmin: boolean | null;
   createdAt: string;
 }
 
@@ -60,8 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     retry: false,
   });
 
-  // 관리자 여부 확인 (id가 1인 사용자는 관리자로 간주)
-  const isAdmin = user?.id === 1;
+  // 관리자 여부 확인
+  const isAdmin = user?.isAdmin === true;
 
   // 로그인 뮤테이션
   const loginMutation = useMutation({

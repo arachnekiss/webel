@@ -5,6 +5,9 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
+import { db } from "./db";
+import { users, services, resources, auctions } from "@shared/schema";
+import { desc } from "drizzle-orm";
 import type { User } from "@shared/schema";
 import createMemoryStore from "memorystore";
 
@@ -167,4 +170,117 @@ export function setupAuth(app: Express): void {
     }
     res.status(200).json(req.user);
   });
+
+  // 관리자 권한 설정 라우트 (관리자만 접근 가능)
+  app.post("/api/admin/set-admin", isAdmin, async (req: Request, res: Response) => {
+    try {
+      const { userId, isAdmin } = req.body;
+      
+      if (!userId || typeof isAdmin !== 'boolean') {
+        return res.status(400).json({ message: "유효하지 않은 요청입니다." });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+      }
+
+      const updatedUser = await storage.setAdminStatus(userId, isAdmin);
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      console.error("Admin setting error:", error);
+      res.status(500).json({ message: "관리자 권한 설정 중 오류가 발생했습니다." });
+    }
+  });
+
+  // 시드 관리자 생성 라우트 (최초 관리자 계정 생성용)
+  app.post("/api/create-admin", async (req: Request, res: Response) => {
+    try {
+      const { username, password, email } = req.body;
+      
+      // 필수 필드 검증
+      if (!username || !password || !email) {
+        return res.status(400).json({ message: "모든 필드를 입력해주세요." });
+      }
+
+      // 기존 관리자 확인
+      const usersList = await db.select().from(users);
+      const adminExists = usersList.some(user => user.isAdmin);
+      
+      // 이미 관리자가 있는 경우 접근 거부
+      if (adminExists) {
+        return res.status(403).json({ message: "이미 관리자 계정이 존재합니다." });
+      }
+
+      // 사용자 중복 확인
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "이미 사용 중인 사용자 이름입니다." });
+      }
+
+      // 이메일 중복 확인
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "이미 사용 중인 이메일입니다." });
+      }
+
+      // 관리자 계정 생성
+      const hashedPassword = await hashPassword(password);
+      const adminUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        email,
+        isAdmin: true,
+        fullName: "관리자"
+      });
+
+      // 로그인 처리
+      req.login(adminUser, (err) => {
+        if (err) throw err;
+        return res.status(201).json(adminUser);
+      });
+    } catch (error) {
+      console.error("Admin creation error:", error);
+      res.status(500).json({ message: "관리자 생성 중 오류가 발생했습니다." });
+    }
+  });
+
+  // 관리자 대시보드 데이터 라우트
+  app.get("/api/admin/dashboard", isAdmin, async (req: Request, res: Response) => {
+    try {
+      // 여기서 관리자 대시보드에 필요한 데이터를 가져옵니다
+      const usersCount = (await db.select().from(users)).length;
+      const servicesCount = (await db.select().from(services)).length;
+      const resourcesCount = (await db.select().from(resources)).length;
+      const auctionsCount = (await db.select().from(auctions)).length;
+
+      res.status(200).json({
+        usersCount,
+        servicesCount,
+        resourcesCount,
+        auctionsCount,
+        recentUsers: await db.select().from(users).orderBy(desc(users.createdAt)).limit(5),
+        recentResources: await db.select().from(resources).orderBy(desc(resources.createdAt)).limit(5)
+      });
+    } catch (error) {
+      console.error("Admin dashboard error:", error);
+      res.status(500).json({ message: "대시보드 데이터 조회 중 오류가 발생했습니다." });
+    }
+  });
+}
+
+// 인증 확인 미들웨어
+export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).json({ message: "로그인이 필요합니다." });
+}
+
+// 관리자 권한 확인 미들웨어
+export function isAdmin(req: Request, res: Response, next: NextFunction) {
+  if (req.isAuthenticated() && req.user && req.user.isAdmin) {
+    return next();
+  }
+  res.status(403).json({ message: "관리자 권한이 필요합니다." });
 }
