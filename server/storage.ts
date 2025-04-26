@@ -6,6 +6,8 @@ import {
   bids, type Bid, type InsertBid,
   type Location
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -558,4 +560,212 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database implementation of storage interface
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(insertUser).returning();
+    return user;
+  }
+
+  // Service operations
+  async getServices(): Promise<Service[]> {
+    return db.select().from(services).orderBy(desc(services.createdAt));
+  }
+
+  async getServiceById(id: number): Promise<Service | undefined> {
+    const [service] = await db.select().from(services).where(eq(services.id, id));
+    return service;
+  }
+
+  async getServicesByType(type: string): Promise<Service[]> {
+    return db.select().from(services).where(eq(services.serviceType, type));
+  }
+
+  async getServicesByLocation(location: Location, maxDistance: number): Promise<Service[]> {
+    // 먼저 모든 서비스를 가져온 다음 거리 계산
+    const allServices = await this.getServices();
+    
+    return allServices.filter(service => {
+      if (!service.location) return false;
+      const serviceLocation = service.location as Location;
+      
+      // 하버사인 공식으로 거리 계산
+      const distance = this.calculateDistance(
+        location.lat,
+        location.long,
+        serviceLocation.lat,
+        serviceLocation.long
+      );
+      
+      return distance <= maxDistance;
+    });
+  }
+
+  async createService(insertService: InsertService): Promise<Service> {
+    const [service] = await db.insert(services).values({
+      ...insertService,
+      rating: 0,
+      ratingCount: 0
+    }).returning();
+    return service;
+  }
+
+  async updateService(id: number, serviceUpdate: Partial<Service>): Promise<Service | undefined> {
+    const [updatedService] = await db
+      .update(services)
+      .set(serviceUpdate)
+      .where(eq(services.id, id))
+      .returning();
+    return updatedService;
+  }
+
+  // Resource operations
+  async getResources(): Promise<Resource[]> {
+    return db.select().from(resources).orderBy(desc(resources.createdAt));
+  }
+
+  async getResourceById(id: number): Promise<Resource | undefined> {
+    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+    return resource;
+  }
+
+  async getResourcesByType(type: string): Promise<Resource[]> {
+    return db.select().from(resources).where(eq(resources.resourceType, type));
+  }
+
+  async createResource(insertResource: InsertResource): Promise<Resource> {
+    const [resource] = await db.insert(resources).values({
+      ...insertResource,
+      downloadCount: 0
+    }).returning();
+    return resource;
+  }
+
+  async updateResource(id: number, resourceUpdate: Partial<Resource>): Promise<Resource | undefined> {
+    const [updatedResource] = await db
+      .update(resources)
+      .set(resourceUpdate)
+      .where(eq(resources.id, id))
+      .returning();
+    return updatedResource;
+  }
+
+  async incrementDownloadCount(id: number): Promise<Resource | undefined> {
+    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+    if (!resource) return undefined;
+
+    const [updatedResource] = await db
+      .update(resources)
+      .set({
+        downloadCount: (resource.downloadCount || 0) + 1
+      })
+      .where(eq(resources.id, id))
+      .returning();
+    return updatedResource;
+  }
+
+  // Auction operations
+  async getAuctions(): Promise<Auction[]> {
+    return db.select().from(auctions).orderBy(desc(auctions.createdAt));
+  }
+
+  async getAuctionById(id: number): Promise<Auction | undefined> {
+    const [auction] = await db.select().from(auctions).where(eq(auctions.id, id));
+    return auction;
+  }
+
+  async getAuctionsByType(type: string): Promise<Auction[]> {
+    return db.select().from(auctions).where(eq(auctions.auctionType, type));
+  }
+
+  async getActiveAuctions(): Promise<Auction[]> {
+    return db
+      .select()
+      .from(auctions)
+      .where(
+        and(
+          eq(auctions.status, 'active'),
+          sql`${auctions.deadline} > NOW()`
+        )
+      );
+  }
+
+  async createAuction(insertAuction: InsertAuction): Promise<Auction> {
+    const [auction] = await db.insert(auctions).values({
+      ...insertAuction,
+      bidCount: 0,
+      status: 'active'
+    }).returning();
+    return auction;
+  }
+
+  async updateAuction(id: number, auctionUpdate: Partial<Auction>): Promise<Auction | undefined> {
+    const [updatedAuction] = await db
+      .update(auctions)
+      .set(auctionUpdate)
+      .where(eq(auctions.id, id))
+      .returning();
+    return updatedAuction;
+  }
+
+  // Bid operations
+  async getBidsByAuctionId(auctionId: number): Promise<Bid[]> {
+    return db
+      .select()
+      .from(bids)
+      .where(eq(bids.auctionId, auctionId))
+      .orderBy(asc(bids.amount));
+  }
+
+  async createBid(insertBid: InsertBid): Promise<Bid> {
+    const [bid] = await db.insert(bids).values(insertBid).returning();
+    
+    // Update auction with new bid info
+    const auction = await this.getAuctionById(insertBid.auctionId);
+    if (auction) {
+      const bidCount = auction.bidCount || 0;
+      const currentLowestBid = auction.currentLowestBid;
+      
+      await this.updateAuction(auction.id, {
+        bidCount: bidCount + 1,
+        currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
+          ? insertBid.amount
+          : currentLowestBid
+      });
+    }
+    
+    return bid;
+  }
+
+  // Helper functions
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radius of the earth in km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    const d = R * c; // Distance in km
+    return d;
+  }
+  
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
+  }
+}
+
+// Use Database Storage instead of MemStorage
+export const storage = new DatabaseStorage();

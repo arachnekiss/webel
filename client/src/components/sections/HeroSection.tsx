@@ -11,21 +11,22 @@ const HeroSection: React.FC = () => {
       <div className="md:flex">
         <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
           <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
-            엔지니어, 소비자, 제조업체를 연결하는 혁신적인 생태계
+            창작자와 메이커를 위한 오픈 리소스 플랫폼
           </h2>
           <p className="text-blue-50 mb-6">
-            Webel은 AI 기반 실시간 매칭으로 가까운 3D 프린터, 엔지니어, 제조업체와 연결해 드립니다. 
-            자동화된 리소스 관리와 커스터마이징으로 원하는 서비스를 쉽고 빠르게 찾아보세요.
+            Webel에서 다양한 하드웨어 설계도, 소프트웨어, 3D 모델 등의 리소스를 찾고 
+            근처의 3D 프린터와 제작 서비스에 쉽게 연결하세요. 
+            만들고 싶은 모든 것을 가능하게 하는 커뮤니티에 참여하세요.
           </p>
           <div className="flex flex-wrap gap-4">
-            <Link href="/services/3d_printing">
+            <Link href="/resources">
               <Button className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors">
-                서비스 시작하기
+                리소스 찾기
               </Button>
             </Link>
-            <Link href="/about">
+            <Link href="/services/3d_printing">
               <Button variant="outline" className="px-6 py-3 bg-blue-400 bg-opacity-30 text-white font-medium rounded-lg border border-white border-opacity-30 hover:bg-opacity-40 transition-colors">
-                더 알아보기
+                근처 3D 프린터 찾기
               </Button>
             </Link>
           </div>
