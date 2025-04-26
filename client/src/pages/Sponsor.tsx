@@ -91,19 +91,10 @@ const Sponsor: React.FC = () => {
     });
   };
   
-  // 선택한 등급에 따라 결제 대화상자 표시
-  const handleSponsorTier = (tier: string, tierAmount: number) => {
-    if (!user) {
-      toast({
-        title: "로그인이 필요합니다",
-        description: "후원하려면 먼저 로그인해 주세요.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setSelectedTier(tier);
-    setSelectedAmount(tierAmount);
+  // 선택한 금액에 따라 결제 대화상자 표시
+  const handleSponsorAmount = (amount: number) => {
+    setSelectedTier('후원');
+    setSelectedAmount(amount);
     setShowPaymentDialog(true);
   };
   
@@ -220,128 +211,82 @@ const Sponsor: React.FC = () => {
         </div>
       </section>
       
-      {/* Sponsorship tiers */}
+      {/* 계좌 정보 표시 */}
+      <section className="mb-8">
+        <Card className="border-2 border-amber-200 bg-amber-50">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+              <div className="flex items-center gap-2 min-w-[210px]">
+                <Building className="h-5 w-5 text-amber-600" />
+                <span className="font-semibold text-amber-900">직접 계좌이체로 후원하기:</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-wrap">
+                <div className="flex items-center gap-1">
+                  <span className="text-gray-600">신한은행</span>
+                  <span className="font-medium">110-123-456789</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="p-0 h-6 w-6 ml-1"
+                    onClick={() => {
+                      navigator.clipboard.writeText('110-123-456789');
+                      toast({
+                        title: "복사됨",
+                        description: "계좌번호가 클립보드에 복사되었습니다.",
+                      });
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                <div className="text-gray-700">
+                  <span className="text-gray-600 mr-1">예금주:</span>
+                  <span className="font-medium">홍길동</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+      
+      {/* 후원 금액 버튼 */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">후원 등급</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">바로 후원하기</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border-2 border-gray-200">
-            <CardHeader>
-              <CardTitle>서포터</CardTitle>
-              <CardDescription>Webel을 응원하는 첫 걸음</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩5,000</span>
-                <span className="text-gray-600"> / 월</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>서포터 배지</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>월간 뉴스레터</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>후원자 디스코드 채널 액세스</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full"
-                onClick={() => handleSponsorTier('서포터', 5000)}
-              >
-                후원하기
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-2 border-amber-500">
-            <CardHeader>
-              <div className="py-1 px-3 rounded-full bg-amber-100 text-amber-700 text-xs font-medium w-fit mb-2">인기 선택</div>
-              <CardTitle>파트너</CardTitle>
-              <CardDescription>Webel과 함께 성장하기</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩15,000</span>
-                <span className="text-gray-600"> / 월</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>모든 서포터 혜택 포함</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>파트너 배지 업그레이드</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>우선 고객 지원</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>월간 독점 리소스 패키지</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full bg-amber-500 hover:bg-amber-600"
-                onClick={() => handleSponsorTier('파트너', 15000)}
-              >
-                후원하기
-              </Button>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-2 border-gray-200">
-            <CardHeader>
-              <CardTitle>혁신가</CardTitle>
-              <CardDescription>Webel의 미래를 함께 만들기</CardDescription>
-              <div className="mt-4">
-                <span className="text-3xl font-bold">₩30,000</span>
-                <span className="text-gray-600"> / 월</span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>모든 파트너 혜택 포함</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>혁신가 배지 업그레이드</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>직접 개발팀과 월간 미팅</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>새로운 기능 베타 테스트 참여</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>개인 맞춤형 프로젝트 컨설팅</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button 
-                className="w-full"
-                onClick={() => handleSponsorTier('혁신가', 30000)}
-              >
-                후원하기
-              </Button>
-            </CardFooter>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[500, 1000, 5000, 10000, 50000, 100000].map((amount) => (
+            <Card 
+              key={amount} 
+              className="border-2 transition-all duration-300 hover:shadow-lg overflow-hidden group relative"
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-amber-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <CardContent className="p-4 relative">
+                <div className="w-full aspect-square flex items-center justify-center mb-3 relative">
+                  <img 
+                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}`} 
+                    alt={`${amount}원 캐릭터`} 
+                    className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-white/70 backdrop-blur-sm rounded-full px-3 py-1 text-amber-600 font-bold text-sm">
+                      +{amount / 100} 포인트
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-center">
+                  <div className="text-xl font-bold mb-2">₩{amount.toLocaleString()}</div>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-amber-500 to-pink-500 hover:from-amber-600 hover:to-pink-600"
+                    onClick={() => handleSponsorAmount(amount)}
+                  >
+                    후원하기
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
       
@@ -371,7 +316,7 @@ const Sponsor: React.FC = () => {
                 className="bg-primary hover:bg-blue-600"
                 onClick={() => {
                   if (customAmount && typeof customAmount === 'number' && customAmount >= 1000) {
-                    handleSponsorTier('사용자 지정', customAmount);
+                    handleSponsorAmount(customAmount);
                   } else {
                     toast({
                       title: "금액을 확인해주세요",
@@ -411,17 +356,8 @@ const Sponsor: React.FC = () => {
                 variant="outline" 
                 className="sm:w-auto w-full"
                 onClick={() => {
-                  if (!user) {
-                    toast({
-                      title: "로그인이 필요합니다",
-                      description: "후원하려면 먼저 로그인해 주세요.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  setSelectedTier('사용자 지정');
+                  setSelectedTier('후원 코멘트');
                   setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
-                  setComment('');
                   setShowPaymentDialog(true);
                 }}
               >
@@ -630,18 +566,18 @@ const Sponsor: React.FC = () => {
                     <p className="font-medium mb-2">계좌 정보</p>
                     <div className="flex justify-between mb-1">
                       <span className="text-gray-600">은행:</span>
-                      <span>우리은행</span>
+                      <span>신한은행</span>
                     </div>
                     <div className="flex justify-between mb-1">
                       <span className="text-gray-600">계좌번호:</span>
                       <div className="flex items-center">
-                        <span>1002-123-456789</span>
+                        <span>110-123-456789</span>
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           className="p-0 h-4 w-4 ml-1"
                           onClick={() => {
-                            navigator.clipboard.writeText('1002-123-456789');
+                            navigator.clipboard.writeText('110-123-456789');
                             toast({
                               title: "복사됨",
                               description: "계좌번호가 클립보드에 복사되었습니다.",
@@ -654,7 +590,7 @@ const Sponsor: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">예금주:</span>
-                      <span>(주)웨벨</span>
+                      <span>홍길동</span>
                     </div>
                   </div>
                 </div>
