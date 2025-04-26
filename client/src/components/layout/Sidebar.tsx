@@ -23,7 +23,7 @@ const serviceItems: SidebarItemProps[] = [
     id: '3d_printer',
     label: '근처 3D 프린터',
     icon: <Printer className="h-5 w-5" />,
-    href: '/services/3d_printing'
+    href: '/services/type/3d_printing'
   },
   {
     id: 'ai_assistant',
@@ -41,7 +41,7 @@ const serviceItems: SidebarItemProps[] = [
     id: 'manufacturers',
     label: '생산업체 찾기',
     icon: <Building2 className="h-5 w-5" />,
-    href: '/services/manufacturers'
+    href: '/services/type/manufacturers'
   },
   {
     id: 'sponsor',

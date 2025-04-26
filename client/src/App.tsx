@@ -45,18 +45,13 @@ function Router() {
             
             {/* Services routes */}
             <Route path="/services" component={Services}/>
-            <Route path="/services/:id" component={ServiceDetail}/>
-            <Route path="/services/:type" component={Services}/>
+            <Route path="/services/type/:type" component={Services}/>
+            <Route path="/services/:id(\d+)" component={ServiceDetail}/>
             
             {/* Resource routes with resource type categories */}
-            <Route path="/resources/hardware_design" component={Resources}/>
-            <Route path="/resources/software" component={Resources}/>
-            <Route path="/resources/3d_model" component={Resources}/>
-            <Route path="/resources/free_content" component={Resources}/>
-            <Route path="/resources/ai_model" component={Resources}/>
-            <Route path="/resources/flash_game" component={Resources}/>
+            <Route path="/resources/type/:type" component={Resources}/>
             <Route path="/resources" component={Resources}/>
-            <Route path="/resources/:id" component={ResourceDetail}/>
+            <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
             
             {/* Flash Games routes */}
             <Route path="/flash-games" component={Resources}/>
