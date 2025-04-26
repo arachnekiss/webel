@@ -29,12 +29,19 @@ function Router() {
   const { isMobile } = useDeviceDetect();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* 상단 네비게이션 영역 */}
       <Header />
       
-      <div className="flex flex-1">
-        {!isMobile && <Sidebar />}
-        <div className="flex-1">
+      {/* 메인 컨텐츠 영역 */}
+      <div className="flex flex-1 w-full max-w-[1920px] mx-auto">
+        {/* 사이드바는 모바일에서만 숨김 */}
+        <div className="flex-shrink-0 hidden md:block w-64 pt-4 bg-white border-r border-slate-200 min-h-screen">
+          <Sidebar />
+        </div>
+        
+        {/* 메인 콘텐츠 */}
+        <div className="flex-1 min-w-0 pb-10">
           <Switch>
             <Route path="/" component={Home}/>
             
@@ -51,6 +58,9 @@ function Router() {
             {/* Auctions routes */}
             <Route path="/auctions" component={Auctions}/>
             <Route path="/auctions/:id" component={AuctionDetail}/>
+            
+            {/* Flash Games route */}
+            <Route path="/flash-games" component={Resources}/>
             
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>
