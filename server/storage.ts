@@ -343,6 +343,11 @@ export class MemStorage implements IStorage {
       ratingCount: 12,
       tags: ['PCB 제작', '회로 설계', '소량 생산'],
       imageUrl: 'https://images.unsplash.com/photo-1580983556037-a543ccce3417',
+      printerModel: null,
+      contactPhone: '010-2345-6789',
+      contactEmail: 'guroelectronics@example.com',
+      pricing: '50,000원 ~ 300,000원',
+      isIndividual: false,
       createdAt: new Date()
     };
     this.services.set(service2.id, service2);
@@ -358,6 +363,11 @@ export class MemStorage implements IStorage {
       ratingCount: 23,
       tags: ['가구 제작', '레이저 커팅', 'CNC 가공'],
       imageUrl: 'https://images.unsplash.com/photo-1624913503273-5f9c4e980ddd',
+      printerModel: null,
+      contactPhone: '010-3456-7890',
+      contactEmail: 'woodshop@example.com',
+      pricing: '100,000원 ~ 500,000원',
+      isIndividual: false,
       createdAt: new Date()
     };
     this.services.set(service3.id, service3);
@@ -373,6 +383,11 @@ export class MemStorage implements IStorage {
       ratingCount: 18,
       tags: ['금속 가공', 'CNC 밀링', '용접'],
       imageUrl: 'https://images.unsplash.com/photo-1621046260073-28cf109e4e7c',
+      printerModel: null,
+      contactPhone: '010-4567-8901',
+      contactEmail: 'metalworks@example.com',
+      pricing: '200,000원 ~ 1,000,000원',
+      isIndividual: false,
       createdAt: new Date()
     };
     this.services.set(service4.id, service4);
@@ -419,6 +434,13 @@ export class MemStorage implements IStorage {
         'PLA 필라멘트 500g',
         '3D 프린터'
       ],
+      recipe: {
+        steps: [
+          { title: '파일 다운로드', description: '제공된 STL 파일을 다운로드합니다.' },
+          { title: '3D 프린팅', description: '기본 PLA 필라멘트를 사용하여 0.2mm 레이어 높이로 출력합니다.' },
+          { title: '조립', description: '출력된 모듈을 설명서에 따라 조립합니다.' }
+        ]
+      },
       createdAt: new Date(),
       isCrawled: true,
       sourceSite: 'Thingiverse'
@@ -435,6 +457,13 @@ export class MemStorage implements IStorage {
       downloadUrl: '/api/resources/3/download',
       downloadCount: 3200,
       materialsList: null,
+      recipe: {
+        steps: [
+          { title: '설치', description: 'npm install data-viz-lib' },
+          { title: '초기화', description: 'import DataViz from "data-viz-lib"; const visualizer = new DataViz(config);' },
+          { title: '데이터 연결', description: 'visualizer.connect(dataSource);' }
+        ]
+      },
       createdAt: new Date(),
       isCrawled: true,
       sourceSite: 'GitHub'
@@ -451,6 +480,13 @@ export class MemStorage implements IStorage {
       downloadUrl: '/api/resources/4/download',
       downloadCount: 5700,
       materialsList: null,
+      recipe: {
+        steps: [
+          { title: '다운로드', description: 'ZIP 파일을 다운로드하고 압축을 풉니다.' },
+          { title: '오디오 편집기 열기', description: '원하는 오디오 편집 소프트웨어에서 파일을 엽니다.' },
+          { title: '사용', description: '프로젝트에 적용하면 됩니다. 라이센스는 CC0입니다.' }
+        ]
+      },
       createdAt: new Date(),
       isCrawled: true,
       sourceSite: 'Freesound'
@@ -475,6 +511,14 @@ export class MemStorage implements IStorage {
         '물 펌프 및 릴레이 모듈',
         '광량 센서'
       ],
+      recipe: {
+        steps: [
+          { title: '하드웨어 조립', description: '라즈베리 파이에 센서들을 연결 다이어그램에 따라 연결합니다.' },
+          { title: 'OS 및 소프트웨어 설치', description: 'Raspberry Pi OS를 설치하고 제공된 Python 스크립트를 복사합니다.' },
+          { title: '알고리즘 설정', description: '작물 유형에 따라 config.json 파일의 매개변수를 조정합니다.' },
+          { title: '시스템 가동', description: '자동 실행 스크립트를 설정하고 시스템을 테스트합니다.' }
+        ]
+      },
       createdAt: new Date(),
       isCrawled: false,
       sourceSite: null
