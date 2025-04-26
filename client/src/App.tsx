@@ -30,9 +30,6 @@ function Router() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* 헤더 영역 */}
-      <Header />
-      
       <div className="flex-1 flex relative">
         {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
         {!isMobile && <Sidebar />}
@@ -47,10 +44,15 @@ function Router() {
             <Route path="/services/:id" component={ServiceDetail}/>
             <Route path="/services/:type" component={Services}/>
             
-            {/* Resources routes */}
+            {/* Resource routes with resource type categories */}
+            <Route path="/resources/hardware_design" component={Resources}/>
+            <Route path="/resources/software" component={Resources}/>
+            <Route path="/resources/3d_model" component={Resources}/>
+            <Route path="/resources/free_content" component={Resources}/>
+            <Route path="/resources/ai_model" component={Resources}/>
+            <Route path="/resources/flash_game" component={Resources}/>
             <Route path="/resources" component={Resources}/>
             <Route path="/resources/:id" component={ResourceDetail}/>
-            <Route path="/resources/:type" component={Resources}/>
             
             {/* Flash Games routes */}
             <Route path="/flash-games" component={Resources}/>
@@ -70,8 +72,6 @@ function Router() {
           </Switch>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 }

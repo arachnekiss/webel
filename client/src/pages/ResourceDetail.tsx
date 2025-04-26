@@ -75,7 +75,6 @@ const ResourceDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <CategoryNav />
         <main className="flex-grow container mx-auto px-4 py-6">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -94,7 +93,6 @@ const ResourceDetail: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <CategoryNav />
         <main className="flex-grow container mx-auto px-4 py-6">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">리소스를 찾을 수 없습니다</h2>
@@ -116,7 +114,6 @@ const ResourceDetail: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <CategoryNav />
       
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-6">

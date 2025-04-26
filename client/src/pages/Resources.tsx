@@ -52,7 +52,6 @@ const Resources: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <CategoryNav />
       
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-8">

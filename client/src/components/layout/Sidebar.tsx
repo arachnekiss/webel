@@ -67,7 +67,7 @@ const Sidebar: React.FC = () => {
       
       <nav className="px-4 pb-8">
         {serviceItems.map((item) => {
-          const isActive = location === item.href;
+          const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
           
           return (
             <Link key={item.id} href={item.href}>
