@@ -10,7 +10,8 @@ import {
 import { Link } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 
-interface SidebarItemProps {
+// 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
+export interface SidebarItemProps {
   id: string;
   label: string;
   icon: React.ReactNode;
@@ -18,7 +19,7 @@ interface SidebarItemProps {
 }
 
 // 서비스 카테고리
-const serviceItems: SidebarItemProps[] = [
+export const serviceItems: SidebarItemProps[] = [
   {
     id: '3d_printer',
     label: '근처 3D 프린터',

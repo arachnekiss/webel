@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
+import { serviceItems } from './Sidebar';
 import { 
   Search, 
   MenuIcon, 
@@ -248,16 +249,25 @@ const Header = () => {
                 </Link>
               ))}
               
-              <Link href="/services">
-                <div className={`block px-4 py-2 ${location.includes('/services') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
-                  서비스
-                </div>
-              </Link>
-              <Link href="/ai-assembly">
-                <div className={`block px-4 py-2 ${location.includes('/ai-assembly') ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
-                  AI 조립 비서
-                </div>
-              </Link>
+              <div className="h-px bg-slate-100 my-2"></div>
+              
+              <div className="px-4 py-2 text-slate-800 font-semibold">
+                서비스
+              </div>
+              
+              {/* 모바일용 서비스 카테고리 메뉴 */}
+              {serviceItems.map(item => (
+                <Link key={item.id} href={item.href}>
+                  <div className={`flex items-center px-4 py-2 ${
+                    location === item.href || (item.href !== '/' && location.includes(item.href)) 
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-slate-600 hover:bg-slate-50'
+                  } rounded cursor-pointer`}>
+                    <span className="mr-2">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </div>
+                </Link>
+              ))}
               <div className="h-px bg-slate-100 my-2"></div>
               {user ? (
                 <>
