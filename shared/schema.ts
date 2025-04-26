@@ -1,0 +1,104 @@
+import { pgTable, text, serial, integer, boolean, timestamp, jsonb, doublePrecision } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+// User schema
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(),
+  email: text("email").notNull().unique(),
+  fullName: text("full_name"),
+  location: jsonb("location"), // { lat: number, long: number, address: string }
+  isServiceProvider: boolean("is_service_provider").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Services schema
+export const services = pgTable("services", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  serviceType: text("service_type").notNull(), // 3d_printing, electronics, woodworking, etc.
+  location: jsonb("location").notNull(), // { lat: number, long: number, address: string }
+  rating: doublePrecision("rating"),
+  ratingCount: integer("rating_count").default(0),
+  tags: text("tags").array(),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Resources schema
+export const resources = pgTable("resources", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content
+  tags: text("tags").array(),
+  imageUrl: text("image_url"),
+  downloadUrl: text("download_url").notNull(),
+  downloadCount: integer("download_count").default(0),
+  materialsList: jsonb("materials_list"), // Array of materials needed
+  createdAt: timestamp("created_at").defaultNow(),
+  isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
+  sourceSite: text("source_site"), // Original source if crawled
+});
+
+// Auctions schema
+export const auctions = pgTable("auctions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id), // Creator of the auction
+  title: text("title").notNull(),
+  description: text("description").notNull(), 
+  auctionType: text("auction_type").notNull(), // 3d_printing, electronics, woodworking, etc.
+  location: jsonb("location"), // Preferred location if any
+  tags: text("tags").array(),
+  deadline: timestamp("deadline").notNull(),
+  currentLowestBid: integer("current_lowest_bid"),
+  bidCount: integer("bid_count").default(0),
+  status: text("status").default("active"), // active, completed, cancelled
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Bids schema
+export const bids = pgTable("bids", {
+  id: serial("id").primaryKey(),
+  auctionId: integer("auction_id").references(() => auctions.id),
+  userId: integer("user_id").references(() => users.id), // Bidder
+  amount: integer("amount").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schemas using zod
+export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
+export const insertServiceSchema = createInsertSchema(services).omit({ id: true, createdAt: true, rating: true, ratingCount: true });
+export const insertResourceSchema = createInsertSchema(resources).omit({ id: true, createdAt: true, downloadCount: true });
+export const insertAuctionSchema = createInsertSchema(auctions).omit({ id: true, createdAt: true, currentLowestBid: true, bidCount: true, status: true });
+export const insertBidSchema = createInsertSchema(bids).omit({ id: true, createdAt: true });
+
+// Types
+export type User = typeof users.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type Service = typeof services.$inferSelect;
+export type InsertService = z.infer<typeof insertServiceSchema>;
+
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = z.infer<typeof insertResourceSchema>;
+
+export type Auction = typeof auctions.$inferSelect;
+export type InsertAuction = z.infer<typeof insertAuctionSchema>;
+
+export type Bid = typeof bids.$inferSelect;
+export type InsertBid = z.infer<typeof insertBidSchema>;
+
+// Location type used across schemas
+export type Location = {
+  lat: number;
+  long: number;
+  address: string;
+  city?: string;
+  country?: string;
+};
