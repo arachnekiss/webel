@@ -323,6 +323,11 @@ export class MemStorage implements IStorage {
       ratingCount: 15,
       tags: ['FDM', 'SLA', '빠른 배송'],
       imageUrl: 'https://images.unsplash.com/photo-1566287448846-b6d60cf420cf',
+      printerModel: 'Prusa i3 MK3S+',
+      contactPhone: '010-1234-5678',
+      contactEmail: 'daelim3d@example.com',
+      pricing: '10,000원 ~ 50,000원',
+      isIndividual: true,
       createdAt: new Date()
     };
     this.services.set(service1.id, service1);
@@ -388,6 +393,13 @@ export class MemStorage implements IStorage {
         'PIR 모션 센서',
         '릴레이 모듈'
       ],
+      recipe: {
+        steps: [
+          { title: '회로 연결', description: 'Arduino와 센서를 설계도에 따라 연결합니다.' },
+          { title: '코드 업로드', description: '제공된 소스코드를 Arduino IDE를 통해 업로드합니다.' },
+          { title: '케이스 조립', description: '3D 프린팅한 케이스에 부품들을 조립합니다.' }
+        ]
+      },
       createdAt: new Date(),
       isCrawled: false,
       sourceSite: null

@@ -46,6 +46,7 @@ export interface Resource {
   downloadUrl: string;
   downloadCount: number;
   materialsList?: string[];
+  recipe?: any; // Step by step assembly or usage instructions
   createdAt: string;
   isCrawled: boolean;
   sourceSite?: string;

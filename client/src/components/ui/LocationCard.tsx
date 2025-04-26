@@ -43,6 +43,25 @@ const LocationCard: React.FC<LocationCardProps> = ({ service }) => {
         </div>
         <p className="text-gray-600 text-sm mb-3">{service.description}</p>
         <div className="flex flex-wrap gap-2 mb-4">
+          {service.serviceType === '3d_printing' && (
+            <>
+              {service.isIndividual !== undefined && (
+                <Badge variant="secondary" className={`text-xs ${service.isIndividual ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'} px-2 py-1 rounded-full`}>
+                  {service.isIndividual ? '개인' : '비즈니스'}
+                </Badge>
+              )}
+              {service.printerModel && (
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                  {service.printerModel}
+                </Badge>
+              )}
+              {service.pricing && (
+                <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full">
+                  {service.pricing}
+                </Badge>
+              )}
+            </>
+          )}
           {service.tags && service.tags.map((tag, index) => (
             <Badge key={index} variant="secondary" className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
               {tag}
