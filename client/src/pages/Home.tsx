@@ -241,7 +241,7 @@ const Home: React.FC = () => {
       <HeroSection />
       
       {/* 하드웨어 설계도 섹션 */}
-      <div className="container pt-12">
+      <div className="pt-8">
         <ResourceCategorySection 
           title="하드웨어 설계도" 
           description="혁신적인 하드웨어 설계도를 살펴보세요" 
@@ -297,7 +297,7 @@ const Home: React.FC = () => {
         <FlashGamesSection isLoading={false} />
       </div>
       
-      <div className="container space-y-16">
+      <div className="space-y-12">
         <LocationBasedServices />
         <AIAssistant />
       </div>

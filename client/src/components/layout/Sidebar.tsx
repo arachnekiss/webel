@@ -59,14 +59,14 @@ const Sidebar: React.FC = () => {
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
   return (
-    <aside className="hidden md:block w-72 bg-white border-r border-slate-200 shadow-sm h-[calc(100vh-4rem)]">
-      <div className="px-6 py-6">
+    <aside className="hidden md:block w-full py-4 rounded-xl">
+      <div className="px-6">
         <h2 className="text-lg font-bold text-slate-800">서비스</h2>
         <p className="text-slate-500 text-sm mt-1">하드웨어 및 조립 관련 서비스</p>
         <div className="mt-3 h-px bg-gradient-to-r from-primary/20 to-transparent"></div>
       </div>
       
-      <nav className="px-4 pb-8">
+      <nav className="px-4 py-4">
         {serviceItems.map((item) => {
           const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
           
@@ -76,7 +76,7 @@ const Sidebar: React.FC = () => {
                 className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
                   isActive 
                     ? 'bg-primary/5 text-primary font-medium' 
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-primary'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
                 } cursor-pointer transition-all`}
               >
                 <div className={`mr-3 transition-transform duration-300 ${isActive ? 'text-primary scale-110' : 'text-slate-500'}`}>
@@ -89,7 +89,7 @@ const Sidebar: React.FC = () => {
         })}
       </nav>
       
-      <div className="px-6 mt-4">
+      <div className="px-6 mt-2">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
           <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
           <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
