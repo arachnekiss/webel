@@ -13,7 +13,8 @@ import {
   FileText,
   Layers,
   Cpu,
-  Gamepad2
+  Gamepad2,
+  Home
 } from 'lucide-react';
 
 interface CategoryProps {
@@ -59,6 +60,12 @@ const serviceCategories: CategoryProps[] = [
 
 // 리소스 카테고리 (상단 네비게이션용)
 const resourceCategories: CategoryProps[] = [
+  {
+    id: 'home',
+    label: '홈',
+    icon: <Home className="h-5 w-5" />,
+    href: '/'
+  },
   {
     id: 'all_resources',
     label: '전체 리소스',

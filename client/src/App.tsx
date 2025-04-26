@@ -24,6 +24,7 @@ import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
 import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
+import FlashGames from '@/pages/FlashGames';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
@@ -54,7 +55,7 @@ function Router() {
             <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
             
             {/* Flash Games routes */}
-            <Route path="/flash-games" component={Resources}/>
+            <Route path="/flash-games" component={FlashGames}/>
             <Route path="/flash-games/:id" component={ResourceDetail}/>
             
             {/* Auctions routes */}
