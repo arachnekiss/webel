@@ -99,6 +99,15 @@ const Header = () => {
                   </div>
                 </Link>
                 
+                <Link href="/resources">
+                  <div className={`px-3 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+                    <div className="flex items-center">
+                      <Layers className="h-4 w-4 mr-1" />
+                      모든 리소스
+                    </div>
+                  </div>
+                </Link>
+                
                 {/* 직접 리소스 카테고리 링크 (드롭다운 대신) */}
                 {resourceCategories.map(category => (
                   <Link key={category.id} href={category.href}>
@@ -211,6 +220,17 @@ const Header = () => {
               <Link href="/">
                 <div className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}>
                   홈
+                </div>
+              </Link>
+              
+              <Link href="/resources">
+                <div className={`flex items-center px-4 py-2 ${
+                  location === '/resources'
+                  ? 'bg-primary/10 text-primary' 
+                  : 'text-slate-600 hover:bg-slate-50'
+                } rounded cursor-pointer`}>
+                  <span className="mr-2"><Layers className="h-4 w-4" /></span>
+                  <span>모든 리소스</span>
                 </div>
               </Link>
               
