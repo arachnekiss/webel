@@ -9,7 +9,6 @@ import { useDeviceDetect } from './lib/useDeviceDetect';
 
 // Components
 import Header from '@/components/layout/Header';
-import CategoryNav from '@/components/layout/CategoryNav';
 import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 
@@ -20,7 +19,6 @@ import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
-import FlashGameDetail from '@/pages/FlashGameDetail';
 import Auctions from '@/pages/Auctions';
 import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
@@ -28,62 +26,50 @@ import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
 
 function Router() {
-  const { isMobile, isTablet } = useDeviceDetect();
-  
-  // 모바일 기기에서는 사이드바를 표시하지 않음
-  const showSidebar = !isMobile && !isTablet;
+  const { isMobile } = useDeviceDetect();
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-100">
-      {/* 상단 헤더 영역 - Fixed position to mimic Steam/Tindie */}
-      <div className="sticky top-0 z-50 shadow-sm">
-        <Header />
-        <CategoryNav type="resource" />
-      </div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      {/* 상단 네비게이션 영역 */}
+      <Header />
       
-      {/* 메인 콘텐츠 영역 */}
-      <div className="flex-1 mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
-        <div className="flex">
-          {/* 데스크톱에서만 사이드바 표시 */}
-          {showSidebar && (
-            <div className="w-64 flex-shrink-0">
-              <div className="sticky top-[105px] h-[calc(100vh-115px)] overflow-y-auto pr-4">
-                <Sidebar />
-              </div>
-            </div>
-          )}
-          
-          {/* 메인 콘텐츠 */}
-          <div className={`flex-1 ${showSidebar ? 'pl-6' : ''}`}>
-            <div className="rounded-lg bg-white shadow-sm min-h-[calc(100vh-130px)]">
-              <Switch>
-                <Route path="/" component={Home}/>
-                
-                {/* Services routes */}
-                <Route path="/services" component={Services}/>
-                <Route path="/services/:id" component={ServiceDetail}/>
-                <Route path="/services/:type" component={Services}/>
-                
-                {/* Resources routes */}
-                <Route path="/resources" component={Resources}/>
-                <Route path="/resources/flash_game/:id" component={FlashGameDetail}/>
-                <Route path="/resources/:id" component={ResourceDetail}/>
-                <Route path="/resources/:type" component={Resources}/>
-                
-                {/* Auctions routes */}
-                <Route path="/auctions" component={Auctions}/>
-                <Route path="/auctions/:id" component={AuctionDetail}/>
-                
-                {/* Other pages */}
-                <Route path="/ai-assembly" component={AiAssembly}/>
-                <Route path="/remote-support" component={RemoteSupport}/>
-                <Route path="/sponsor" component={Sponsor}/>
-                
-                {/* Fallback to 404 */}
-                <Route component={NotFound} />
-              </Switch>
-            </div>
-          </div>
+      {/* 메인 컨텐츠 영역 */}
+      <div className="flex flex-1 w-full max-w-[1920px] mx-auto">
+        {/* 사이드바는 모바일에서만 숨김 */}
+        <div className="flex-shrink-0 hidden md:block w-64 pt-4 bg-white border-r border-slate-200 min-h-screen">
+          <Sidebar />
+        </div>
+        
+        {/* 메인 콘텐츠 */}
+        <div className="flex-1 min-w-0 pb-10">
+          <Switch>
+            <Route path="/" component={Home}/>
+            
+            {/* Services routes */}
+            <Route path="/services" component={Services}/>
+            <Route path="/services/:id" component={ServiceDetail}/>
+            <Route path="/services/:type" component={Services}/>
+            
+            {/* Resources routes */}
+            <Route path="/resources" component={Resources}/>
+            <Route path="/resources/:id" component={ResourceDetail}/>
+            <Route path="/resources/:type" component={Resources}/>
+            
+            {/* Auctions routes */}
+            <Route path="/auctions" component={Auctions}/>
+            <Route path="/auctions/:id" component={AuctionDetail}/>
+            
+            {/* Flash Games route */}
+            <Route path="/flash-games" component={Resources}/>
+            
+            {/* Other pages */}
+            <Route path="/ai-assembly" component={AiAssembly}/>
+            <Route path="/remote-support" component={RemoteSupport}/>
+            <Route path="/sponsor" component={Sponsor}/>
+            
+            {/* Fallback to 404 */}
+            <Route component={NotFound} />
+          </Switch>
         </div>
       </div>
       
