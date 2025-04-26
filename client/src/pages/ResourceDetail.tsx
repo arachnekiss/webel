@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const ResourceDetail: React.FC = () => {
   const { id } = useParams();
-  const resourceId = parseInt(id);
+  const resourceId = id ? parseInt(id) : 0;
   const { toast } = useToast();
   
   const { data: resource, isLoading } = useQuery<Resource>({
