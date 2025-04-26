@@ -1,10 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link } from 'wouter';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle, 
@@ -14,14 +11,7 @@ import {
   HelpCircle, 
   ArrowRight, 
   Send, 
-  Image as ImageIcon, 
-  FileText, 
-  Sparkles,
-  RefreshCw, 
-  X, 
-  Paperclip, 
-  Upload,
-  Video
+  Sparkles
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -31,34 +21,193 @@ interface Message {
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
-  attachmentType?: 'image' | 'video' | 'audio' | 'file';
-  attachmentUrl?: string;
 }
 
-// AI 모델 정보
-interface AIModel {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
-}
+const AiAssembly = () => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showChatInterface, setShowChatInterface] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
-const aiModels: AIModel[] = [
-  {
-    id: 'gpt4o',
-    name: 'GPT-4o',
-    description: '최신 다중 모달 AI 모델',
-    icon: <Sparkles className="h-4 w-4 text-yellow-500" />
-  },
-  {
-    id: 'assembly-expert',
-    name: '조립 전문가',
-    description: '하드웨어 조립에 특화된 모델',
-    icon: <Lightbulb className="h-4 w-4 text-blue-500" />
+  // 고유 ID 생성
+  const generateId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  };
+
+  // 메시지 전송 처리
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
+
+    // 사용자 메시지 추가
+    const userMessage: Message = {
+      id: generateId(),
+      role: 'user',
+      content: inputValue,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
+
+    try {
+      // 실제 API 호출 대신 임시 지연 추가
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // AI 응답 메시지 (실제로는 OpenAI API 호출 필요)
+      const aiResponse: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: generateAIResponse(),
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, aiResponse]);
+    } catch (error) {
+      toast({
+        title: "오류 발생",
+        description: "메시지 전송 중 문제가 발생했습니다. 다시 시도해주세요.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 임시 AI 응답 생성 (실제로는 OpenAI API 사용)
+  const generateAIResponse = () => {
+    const responses = [
+      "이 부품은 먼저 메인보드의 PCI 슬롯에 딸깍 소리가 날 때까지 꽂아주세요. 그 다음 전원 케이블을 연결해주세요.",
+      "배선을 연결할 때는 색상 코드를 확인하세요. 빨간색은 양극(+), 검은색은 음극(-)에 연결합니다.",
+      "나사를 조일 때는 너무 세게 조이지 마세요. 부품이 손상될 수 있습니다.",
+      "이 단계에서는 방열 그리스를 CPU 표면에 적당량 바른 후 쿨러를 장착해야 합니다.",
+      "조립 순서는 일반적으로 메인보드 → CPU → 메모리 → 저장장치 → 그래픽카드 순입니다."
+    ];
+    
+    return responses[Math.floor(Math.random() * responses.length)];
+  };
+
+  // 채팅 인터페이스 표시
+  const handleStartChat = () => {
+    setShowChatInterface(true);
+    const systemMessage: Message = {
+      id: generateId(),
+      role: 'system',
+      content: '안녕하세요! Webel AI 조립 비서입니다. 제품 조립에 도움이 필요하신가요?',
+      timestamp: new Date()
+    };
+    setMessages([systemMessage]);
+  };
+
+  if (showChatInterface) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col h-[calc(100vh-120px)]">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold flex items-center">
+              <Lightbulb className="h-6 w-6 text-primary mr-2" />
+              AI 조립 비서
+            </h1>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 flex items-center gap-1">
+                <Sparkles className="h-4 w-4 text-yellow-500" />
+                <span>GPT-4o</span>
+              </Badge>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowChatInterface(false)}
+                className="text-gray-500"
+              >
+                <ArrowRight className="h-4 w-4 mr-1" />
+                종료
+              </Button>
+            </div>
+          </div>
+          
+          {/* 채팅 메시지 영역 */}
+          <div className="flex-1 bg-slate-50 rounded-lg p-4 overflow-y-auto mb-4 border border-slate-200">
+            {messages.map(message => (
+              <div
+                key={message.id}
+                className={`mb-4 ${message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}`}
+              >
+                <div
+                  className={`max-w-[75%] p-3 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-primary text-white'
+                      : message.role === 'system'
+                      ? 'bg-slate-200 text-slate-700'
+                      : 'bg-white text-slate-700 border border-slate-200'
+                  }`}
+                >
+                  <p className="whitespace-pre-line">{message.content}</p>
+                  <div
+                    className={`text-xs mt-1 ${
+                      message.role === 'user' ? 'text-blue-100' : 'text-slate-400'
+                    }`}
+                  >
+                    {message.timestamp.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+            
+            {/* 로딩 상태 표시 */}
+            {isLoading && (
+              <div className="flex justify-start mb-4">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 flex items-center">
+                  <div className="flex space-x-1">
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                  </div>
+                  <span className="text-sm text-slate-500 ml-2">AI가 응답 준비 중...</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* 입력 영역 */}
+          <div className="border border-slate-200 rounded-lg bg-white p-3">
+            <div className="flex items-end gap-2">
+              <div className="relative flex-1">
+                <Textarea
+                  placeholder="메시지를 입력하세요..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  className="resize-none pr-10"
+                  rows={1}
+                />
+              </div>
+              <Button
+                type="button"
+                onClick={handleSendMessage}
+                disabled={isLoading || !inputValue.trim()}
+                className="h-10 w-10 rounded-full p-2"
+                aria-label="Send message"
+              >
+                <Send className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
-];
 
-const AiAssembly: React.FC = () => {
   return (
     <main className="container mx-auto px-4 py-6">
       {/* Hero section */}
@@ -72,7 +221,10 @@ const AiAssembly: React.FC = () => {
               복잡한 조립 과정을 AI가 단계별로 안내해드립니다. 실시간으로 진행 상황을 분석하고 
               피드백을 제공하여 실수 없이 완성할 수 있습니다.
             </p>
-            <Button className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors w-full md:w-auto text-center">
+            <Button 
+              onClick={handleStartChat}
+              className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors w-full md:w-auto text-center"
+            >
               지금 시작하기
             </Button>
           </div>
@@ -141,62 +293,6 @@ const AiAssembly: React.FC = () => {
         </div>
       </section>
       
-      {/* How it works */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">이용 방법</h2>
-        
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="p-6 md:p-8">
-            <ol className="relative border-l border-gray-200 ml-3">
-              <li className="mb-10 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-4 ring-white">
-                  <span className="text-blue-600 font-bold">1</span>
-                </span>
-                <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                  프로젝트 선택
-                </h3>
-                <p className="mb-4 text-base font-normal text-gray-500">
-                  조립하려는 제품이나 프로젝트를 선택하거나, 새로운 프로젝트를 시작합니다.
-                </p>
-              </li>
-              <li className="mb-10 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-4 ring-white">
-                  <span className="text-blue-600 font-bold">2</span>
-                </span>
-                <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                  카메라 및 마이크 설정
-                </h3>
-                <p className="mb-4 text-base font-normal text-gray-500">
-                  AI가 작업을 인식할 수 있도록 카메라와 마이크 접근 권한을 허용합니다.
-                </p>
-              </li>
-              <li className="mb-10 ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-4 ring-white">
-                  <span className="text-blue-600 font-bold">3</span>
-                </span>
-                <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                  AI 가이드 시작
-                </h3>
-                <p className="mb-4 text-base font-normal text-gray-500">
-                  AI가 단계별로 조립 과정을 안내합니다. 필요한 도구와 부품을 준비하세요.
-                </p>
-              </li>
-              <li className="ml-6">
-                <span className="absolute flex items-center justify-center w-8 h-8 bg-blue-100 rounded-full -left-4 ring-4 ring-white">
-                  <span className="text-blue-600 font-bold">4</span>
-                </span>
-                <h3 className="flex items-center text-lg font-semibold text-gray-900">
-                  조립 완료 및 검증
-                </h3>
-                <p className="mb-4 text-base font-normal text-gray-500">
-                  모든 단계를 완료한 후, AI가 최종 결과물을 검증하고 피드백을 제공합니다.
-                </p>
-              </li>
-            </ol>
-          </div>
-        </div>
-      </section>
-      
       {/* CTA */}
       <section className="mb-12">
         <div className="bg-gray-50 rounded-xl p-8 md:flex items-center justify-between">
@@ -208,7 +304,10 @@ const AiAssembly: React.FC = () => {
             </p>
           </div>
           <div>
-            <Button className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-md w-full md:w-auto flex items-center justify-center gap-2">
+            <Button 
+              className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-md w-full md:w-auto flex items-center justify-center gap-2"
+              onClick={handleStartChat}
+            >
               <span>시작하기</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
