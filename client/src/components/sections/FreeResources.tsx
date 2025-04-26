@@ -26,7 +26,7 @@ const FreeResources: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">인기 무료 리소스</h2>
         <Link href="/resources">
-          <a className="text-primary hover:underline text-sm font-medium">모두 보기</a>
+          <div className="text-primary hover:underline text-sm font-medium cursor-pointer">모두 보기</div>
         </Link>
       </div>
       

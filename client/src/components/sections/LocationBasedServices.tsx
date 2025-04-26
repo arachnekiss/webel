@@ -5,6 +5,7 @@ import { useLocation } from '@/contexts/LocationContext';
 import { Service } from '@/types';
 import LocationCard from '@/components/ui/LocationCard';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import { Button } from '@/components/ui/button';
 
 const LocationBasedServices: React.FC = () => {
   const { currentLocation, isLoading: locationLoading, error: locationError } = useLocation();
@@ -28,7 +29,7 @@ const LocationBasedServices: React.FC = () => {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">내 근처 서비스</h2>
         <Link href="/services">
-          <a className="text-primary hover:underline text-sm font-medium">모두 보기</a>
+          <div className="text-primary hover:underline text-sm font-medium cursor-pointer">모두 보기</div>
         </Link>
       </div>
       
