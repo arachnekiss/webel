@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 
 import ResourceCard from '@/components/ui/ResourceCard';
 import { Input } from '@/components/ui/input';
@@ -54,9 +52,7 @@ const Resources: React.FC = () => {
   });
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <div>
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-3">{getResourceTypeName()}</h1>
@@ -122,8 +118,6 @@ const Resources: React.FC = () => {
           </div>
         )}
       </main>
-      
-      <Footer />
     </div>
   );
 };
