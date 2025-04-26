@@ -106,7 +106,7 @@ const resourceCategories: CategoryProps[] = [
     id: 'flash_game',
     label: '플래시 게임',
     icon: <Gamepad2 className="h-5 w-5" />,
-    href: '/flash-games'
+    href: '/resources/type/flash_game'
   }
 ];
 
