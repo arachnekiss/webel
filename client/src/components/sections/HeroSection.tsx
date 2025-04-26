@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
       </div>
       
       {/* 메인 컨텐츠 */}
-      <div className="relative z-10 container mx-auto px-6 py-16 md:py-24">
+      <div className="relative z-10 container py-16 md:py-24">
         <div className="md:max-w-2xl">
           <div className="inline-block px-3 py-1 mb-6 rounded-full bg-blue-400/20 backdrop-blur-sm border border-blue-300/20">
             <span className="text-xs font-medium text-white flex items-center">
@@ -69,7 +69,7 @@ const HeroSection: React.FC = () => {
       
       {/* 하단 부분에 추가된 브랜드 로고나 신뢰 지표 */}
       <div className="relative z-10 bg-white/10 backdrop-blur-lg border-t border-white/10 py-4">
-        <div className="container mx-auto px-6">
+        <div className="container">
           <div className="text-center text-white/70 text-sm">
             <span>다양한 업체와 개인 제작자 참여 중</span>
             <div className="mt-2 flex justify-center items-center space-x-8 opacity-70">
