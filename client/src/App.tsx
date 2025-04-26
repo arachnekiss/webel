@@ -38,11 +38,15 @@ function Router() {
       
       <div className="flex-1 flex relative">
         {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
-        {!isMobile && <Sidebar />}
+        {!isMobile && (
+          <div className="fixed left-0 top-[4rem] bottom-0 z-30">
+            <Sidebar />
+          </div>
+        )}
         
         {/* 메인 콘텐츠 영역 */}
         <div className="flex-1 flex flex-col w-full overflow-x-hidden"
-             style={{ paddingLeft: !isMobile ? '240px' : '0' }}>
+             style={{ marginLeft: !isMobile ? '288px' : '0' }}>
           <Switch>
             <Route path="/" component={Home}/>
             
