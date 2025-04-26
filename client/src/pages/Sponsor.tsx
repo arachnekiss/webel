@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Heart, Star, Zap, Shield, CheckCircle, Gift } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -247,9 +248,9 @@ const Sponsor: React.FC = () => {
               <p className="text-gray-700 mb-4">
                 원하신다면 후원과 함께 코멘트를 남겨주세요. 여러분의 격려와 피드백은 Webel 팀에게 큰 힘이 됩니다.
               </p>
-              <Textarea
+              <Input
                 placeholder="후원 코멘트를 남겨주세요 (선택사항)"
-                className="w-full min-h-[120px]"
+                className="w-full h-20"
               />
             </div>
             

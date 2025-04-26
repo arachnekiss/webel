@@ -60,3 +60,9 @@
   }
 }
 
+@layer components {
+  .container {
+    @apply px-4 md:px-6 lg:px-8 w-full max-w-none md:max-w-6xl mx-auto;
+  }
+}
+

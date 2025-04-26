@@ -87,7 +87,7 @@ const Header = () => {
     <header className="relative z-50 w-full">
       {/* 메인 헤더 */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="container mx-auto px-4">
+        <div className="container">
           <div className="flex items-center justify-between py-3 md:py-4">
             {/* Logo */}
             <Link href="/">
@@ -117,8 +117,17 @@ const Header = () => {
                   </div>
                 </Link>
                 
-                {/* 직접 리소스 카테고리 링크 (드롭다운 대신) - 데스크탑에서는 표시하지 않음 */}
-                {/* 모바일 메뉴로 이동했기 때문에 데스크톱에서는 숨김 처리 */}
+                {/* 직접 리소스 카테고리 링크 (데스크탑) */}
+                {resourceCategories.map(category => (
+                  <Link key={category.id} href={category.href}>
+                    <div className={`flex items-center px-3 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
+                      location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
+                    }`}>
+                      <span className="mr-1">{category.icon}</span>
+                      <span>{category.label}</span>
+                    </div>
+                  </Link>
+                ))}
               </nav>
             )}
             
