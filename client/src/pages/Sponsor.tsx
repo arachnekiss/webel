@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Heart, Star, Zap, Shield, CheckCircle, Gift, 
-  MessageSquare, User, Calendar, Copy, ExternalLink 
+  MessageSquare, User, Calendar, Copy, ExternalLink,
+  CreditCard, Building, Smartphone, DollarSign, Globe
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -30,7 +31,7 @@ interface SponsorComment {
 }
 
 // 결제 수단 타입 정의
-type PaymentMethod = 'card' | 'bank' | 'kakaopay' | 'naverpay' | 'payco' | 'tosspay' | 'phone' | 'virtualaccount' | 'foreigncard';
+type PaymentMethod = 'card' | 'bank' | 'kakaopay' | 'naverpay' | 'payco' | 'tosspay' | 'phone' | 'virtualaccount' | 'foreigncard' | 'paypal' | 'alipay';
 
 const Sponsor: React.FC = () => {
   const { toast } = useToast();
@@ -508,89 +509,162 @@ const Sponsor: React.FC = () => {
             
             <div>
               <h4 className="text-sm font-medium mb-3">결제 수단 선택</h4>
-              <div className="grid grid-cols-3 gap-2">
-                <Button 
-                  variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => handlePaymentMethodChange('card')}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  신용카드
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'foreigncard' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => handlePaymentMethodChange('foreigncard')}
-                >
-                  <CreditCard className="h-4 w-4 mr-2" />
-                  해외카드
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'bank' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => handlePaymentMethodChange('bank')}
-                >
-                  <Building className="h-4 w-4 mr-2" />
-                  계좌이체
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'virtualaccount' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => handlePaymentMethodChange('virtualaccount')}
-                >
-                  <Building className="h-4 w-4 mr-2" />
-                  가상계좌
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'phone' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start"
-                  onClick={() => handlePaymentMethodChange('phone')}
-                >
-                  <Smartphone className="h-4 w-4 mr-2" />
-                  휴대폰
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'kakaopay' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start text-yellow-500"
-                  onClick={() => handlePaymentMethodChange('kakaopay')}
-                >
-                  <span className="mr-2 font-bold">K</span>
-                  카카오페이
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'naverpay' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start text-green-600"
-                  onClick={() => handlePaymentMethodChange('naverpay')}
-                >
-                  <span className="mr-2 font-bold">N</span>
-                  네이버페이
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'payco' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start text-red-500"
-                  onClick={() => handlePaymentMethodChange('payco')}
-                >
-                  <span className="mr-2 font-bold">P</span>
-                  페이코
-                </Button>
-                <Button 
-                  variant={selectedPaymentMethod === 'tosspay' ? 'default' : 'outline'} 
-                  size="sm"
-                  className="justify-start text-blue-500"
-                  onClick={() => handlePaymentMethodChange('tosspay')}
-                >
-                  <span className="mr-2 font-bold">T</span>
-                  토스페이
-                </Button>
+              
+              <div className="mb-4">
+                <h5 className="text-xs text-gray-500 mb-2">국내 결제</h5>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <Button 
+                    variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handlePaymentMethodChange('card')}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    국내카드
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'kakaopay' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-yellow-600"
+                    onClick={() => handlePaymentMethodChange('kakaopay')}
+                  >
+                    <span className="mr-2 font-bold">K</span>
+                    카카오페이
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'naverpay' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-green-600"
+                    onClick={() => handlePaymentMethodChange('naverpay')}
+                  >
+                    <span className="mr-2 font-bold">N</span>
+                    네이버페이
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'tosspay' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-blue-600"
+                    onClick={() => handlePaymentMethodChange('tosspay')}
+                  >
+                    <span className="mr-2 font-bold">T</span>
+                    토스페이
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'payco' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-red-600"
+                    onClick={() => handlePaymentMethodChange('payco')}
+                  >
+                    <span className="mr-2 font-bold">P</span>
+                    페이코
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'phone' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handlePaymentMethodChange('phone')}
+                  >
+                    <Smartphone className="h-4 w-4 mr-2" />
+                    휴대폰
+                  </Button>
+                </div>
+                
+                <h5 className="text-xs text-gray-500 mb-2">계좌 결제</h5>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                  <Button 
+                    variant={selectedPaymentMethod === 'bank' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handlePaymentMethodChange('bank')}
+                  >
+                    <Building className="h-4 w-4 mr-2" />
+                    계좌이체
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'virtualaccount' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handlePaymentMethodChange('virtualaccount')}
+                  >
+                    <Building className="h-4 w-4 mr-2" />
+                    가상계좌
+                  </Button>
+                </div>
+                
+                <h5 className="text-xs text-gray-500 mb-2">해외 결제</h5>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button 
+                    variant={selectedPaymentMethod === 'foreigncard' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start"
+                    onClick={() => handlePaymentMethodChange('foreigncard')}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    해외카드
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'paypal' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-blue-600"
+                    onClick={() => handlePaymentMethodChange('paypal')}
+                  >
+                    <span className="mr-2 font-bold">P</span>
+                    PayPal
+                  </Button>
+                  <Button 
+                    variant={selectedPaymentMethod === 'alipay' ? 'default' : 'outline'} 
+                    size="sm"
+                    className="justify-start text-blue-500"
+                    onClick={() => handlePaymentMethodChange('alipay')}
+                  >
+                    <span className="mr-2 font-bold">A</span>
+                    Alipay
+                  </Button>
+                </div>
               </div>
+              
+              {/* 선택된 결제 수단에 따른 추가 정보 표시 */}
+              {selectedPaymentMethod === 'bank' && (
+                <div className="bg-gray-50 p-3 rounded-md border border-gray-200 mt-2">
+                  <div className="text-sm">
+                    <p className="font-medium mb-2">계좌 정보</p>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-600">은행:</span>
+                      <span>우리은행</span>
+                    </div>
+                    <div className="flex justify-between mb-1">
+                      <span className="text-gray-600">계좌번호:</span>
+                      <div className="flex items-center">
+                        <span>1002-123-456789</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-0 h-4 w-4 ml-1"
+                          onClick={() => {
+                            navigator.clipboard.writeText('1002-123-456789');
+                            toast({
+                              title: "복사됨",
+                              description: "계좌번호가 클립보드에 복사되었습니다.",
+                            });
+                          }}
+                        >
+                          <Copy className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">예금주:</span>
+                      <span>(주)웨벨</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {selectedPaymentMethod === 'paypal' && (
+                <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm text-blue-700">
+                  PayPal을 통해 안전하게 국제 결제를 진행할 수 있습니다. 결제하기 버튼을 클릭하면 PayPal 결제 페이지로 연결됩니다.
+                </div>
+              )}
             </div>
           </div>
           
