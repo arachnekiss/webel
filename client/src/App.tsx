@@ -30,12 +30,16 @@ function Router() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* 헤더 영역 */}
+      <Header />
+      
       <div className="flex-1 flex relative">
         {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
         {!isMobile && <Sidebar />}
         
         {/* 메인 콘텐츠 영역 */}
-        <div className="flex-1 flex flex-col w-full overflow-x-hidden">
+        <div className="flex-1 flex flex-col w-full overflow-x-hidden"
+             style={{ paddingLeft: !isMobile ? '240px' : '0' }}>
           <Switch>
             <Route path="/" component={Home}/>
             
@@ -72,6 +76,8 @@ function Router() {
           </Switch>
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 }

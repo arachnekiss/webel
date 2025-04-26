@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import CategoryNav from '@/components/layout/CategoryNav';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Download, Share, ArrowLeft, CheckCircle } from 'lucide-react';
@@ -61,11 +61,15 @@ const ResourceDetail: React.FC = () => {
       case 'hardware_design':
         return '하드웨어 설계도';
       case '3d_model':
-        return '3D 모델링';
+        return '3D 모델링 파일';
       case 'software':
-        return '소프트웨어';
+        return '소프트웨어 오픈소스';
       case 'free_content':
         return '프리 콘텐츠';
+      case 'ai_model':
+        return '인공지능 모델';
+      case 'flash_game':
+        return '플래시 게임';
       default:
         return type;
     }
