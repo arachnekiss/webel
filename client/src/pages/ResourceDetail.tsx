@@ -75,8 +75,7 @@ const ResourceDetail: React.FC = () => {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
+      <div>
         <main className="flex-grow container mx-auto px-4 py-6">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
@@ -86,15 +85,13 @@ const ResourceDetail: React.FC = () => {
             <div className="h-10 bg-gray-200 rounded w-1/4"></div>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
   
   if (!resource) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
+      <div>
         <main className="flex-grow container mx-auto px-4 py-6">
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">리소스를 찾을 수 없습니다</h2>
@@ -108,15 +105,12 @@ const ResourceDetail: React.FC = () => {
             </Link>
           </div>
         </main>
-        <Footer />
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      
+    <div>
       <main className="flex-grow container mx-auto px-4 py-6">
         <div className="mb-6">
           <Link href="/resources">
@@ -212,8 +206,6 @@ const ResourceDetail: React.FC = () => {
         
         {/* Related resources section would go here */}
       </main>
-      
-      <Footer />
     </div>
   );
 };
