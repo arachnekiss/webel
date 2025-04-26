@@ -27,6 +27,12 @@ export interface Service {
   ratingCount?: number;
   tags: string[];
   imageUrl?: string;
+  // 3D 프린터 관련 정보
+  printerModel?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  pricing?: string;
+  isIndividual?: boolean;
   createdAt: string;
 }
 
@@ -69,5 +75,5 @@ export interface Bid {
   createdAt: string;
 }
 
-export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking';
-export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content';
+export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing';
+export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content' | 'ai_model' | 'flash_game';

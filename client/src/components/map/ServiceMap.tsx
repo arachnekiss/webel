@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { Icon } from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { Icon, LatLngExpression } from 'leaflet';
 import { useLocation as useGeoLocation } from '@/contexts/LocationContext';
 import { Service } from '@/types';
 import { Link } from 'wouter';
@@ -33,6 +33,15 @@ const printerIcon = new Icon({
   shadowSize: [41, 41]
 });
 
+// 지도 중앙 위치를 동적으로 변경하기 위한 컴포넌트
+function ChangeView({ center }: { center: LatLngExpression }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, 13);
+  }, [center, map]);
+  return null;
+}
+
 const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
   const { currentLocation, getLocation } = useGeoLocation();
 
@@ -43,7 +52,7 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
   }, [currentLocation, getLocation]);
 
   // 기본 위치 (사용자 위치를 못 가져올 경우 서울시청)
-  const defaultPosition: [number, number] = currentLocation 
+  const defaultPosition: LatLngExpression = currentLocation 
     ? [currentLocation.lat, currentLocation.long] 
     : [37.5665, 126.9780];
   
@@ -57,18 +66,21 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
       )}
       
       <MapContainer 
-        center={defaultPosition} 
-        zoom={13} 
         style={{ height: '100%', width: '100%' }}
+        zoom={13}
       >
+        <ChangeView center={defaultPosition} />
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
         {/* 현재 위치 마커 */}
         {currentLocation && (
-          <Marker position={[currentLocation.lat, currentLocation.long]} icon={customIcon}>
+          <Marker 
+            position={[currentLocation.lat, currentLocation.long] as LatLngExpression} 
+            icon={customIcon}
+          >
             <Popup>
               현재 위치
             </Popup>
@@ -79,7 +91,7 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
         {services.map(service => {
           if (!service.location) return null;
           
-          const position: [number, number] = [
+          const position: LatLngExpression = [
             service.location.lat, 
             service.location.long
           ];
@@ -94,17 +106,20 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
                 <div className="p-1">
                   <h3 className="font-bold text-lg">{service.title}</h3>
                   <p className="text-gray-600 text-sm mb-2">{service.description}</p>
-                  <div className="mb-2">
-                    {service.isIndividual ? 
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">개인</span> : 
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">비즈니스</span>
-                    }
-                    {service.printerModel && (
-                      <span className="ml-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-                        {service.printerModel}
-                      </span>
-                    )}
-                  </div>
+                  {service.serviceType === '3d_printing' && (
+                    <div className="mb-2">
+                      {service.isIndividual !== undefined && (
+                        service.isIndividual ? 
+                          <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">개인</span> : 
+                          <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">비즈니스</span>
+                      )}
+                      {service.printerModel && (
+                        <span className="ml-2 bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
+                          {service.printerModel}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {service.pricing && (
                     <p className="text-sm mb-2">
                       <span className="font-semibold">가격:</span> {service.pricing}
