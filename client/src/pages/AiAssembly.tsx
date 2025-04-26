@@ -1,8 +1,62 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Camera, Lightbulb, Mic, HelpCircle, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { 
+  CheckCircle, 
+  Camera, 
+  Lightbulb, 
+  Mic, 
+  HelpCircle, 
+  ArrowRight, 
+  Send, 
+  Image as ImageIcon, 
+  FileText, 
+  Sparkles,
+  RefreshCw, 
+  X, 
+  Paperclip, 
+  Upload,
+  Video
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+// 메시지 인터페이스
+interface Message {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: Date;
+  attachmentType?: 'image' | 'video' | 'audio' | 'file';
+  attachmentUrl?: string;
+}
+
+// AI 모델 정보
+interface AIModel {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+}
+
+const aiModels: AIModel[] = [
+  {
+    id: 'gpt4o',
+    name: 'GPT-4o',
+    description: '최신 다중 모달 AI 모델',
+    icon: <Sparkles className="h-4 w-4 text-yellow-500" />
+  },
+  {
+    id: 'assembly-expert',
+    name: '조립 전문가',
+    description: '하드웨어 조립에 특화된 모델',
+    icon: <Lightbulb className="h-4 w-4 text-blue-500" />
+  }
+];
 
 const AiAssembly: React.FC = () => {
   return (

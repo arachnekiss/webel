@@ -23,7 +23,10 @@
 --destructive-foreground: 60 9.1% 97.8%;
 --ring: 20 14.3% 4.1%;
 --radius: 0.5rem;
+--discord: 235 86% 65%;
+--discord-dark: 235 86% 55%;
   }
+  
   .dark {
       --background: 240 10% 3.9%;
 --foreground: 0 0% 98%;

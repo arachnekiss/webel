@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Video, Users, Monitor, Clock, Calendar, ArrowRight, CheckCircle } from 'lucide-react';
+import { Video, Users, Monitor, Clock, Calendar, ArrowRight, CheckCircle, MessageSquare, Share2, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const RemoteSupport: React.FC = () => {
   const { toast } = useToast();
@@ -197,6 +199,150 @@ const RemoteSupport: React.FC = () => {
         </div>
       </section>
       
+      {/* Discord Community */}
+      <section className="mb-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Webel 디스코드 커뮤니티</h2>
+          <Badge variant="outline" className="bg-indigo-50 text-indigo-600 border-indigo-200 flex items-center">
+            <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-2"></span>
+            온라인 (5,210명)
+          </Badge>
+        </div>
+        
+        <Card className="border-2 border-discord overflow-hidden">
+          <div className="bg-discord text-white p-6">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-6 md:mb-0 md:mr-8">
+                <h3 className="text-2xl font-bold mb-2">전문가와 소비자의 순환 구조</h3>
+                <p className="opacity-90 mb-4">
+                  Webel 디스코드 커뮤니티에 참여하여 엔지니어링 전문 지식을 공유하고 도움을 받아보세요.
+                  수익 창출이 목적이 아닌, 전문가와 비전문가를 연결하는 열린 커뮤니티입니다.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <Users className="h-3 w-3" /> 다양한 분야 전문가
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" /> 실시간 문제 해결
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <Share2 className="h-3 w-3" /> 자료 공유
+                  </Badge>
+                </div>
+              </div>
+              <div className="w-full md:w-auto">
+                <Button className="bg-white text-discord hover:bg-white/90 flex gap-2 w-full md:w-auto" size="lg">
+                  <ExternalLink className="h-5 w-5" />
+                  디스코드 서버 참여하기
+                </Button>
+              </div>
+            </div>
+          </div>
+          <CardContent className="p-6">
+            <Tabs defaultValue="channels">
+              <TabsList className="mb-6 w-full">
+                <TabsTrigger value="channels" className="flex-1">인기 채널</TabsTrigger>
+                <TabsTrigger value="experts" className="flex-1">활동 중인 전문가</TabsTrigger>
+                <TabsTrigger value="faq" className="flex-1">자주 묻는 질문</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="channels">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="border border-gray-200 overflow-hidden">
+                    <div className="flex items-center p-4 border-b border-gray-100">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mr-3"></div>
+                      <h4 className="font-medium text-gray-800"># 하드웨어-조립-질문</h4>
+                    </div>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-gray-600 mb-2">하드웨어 조립 과정에서 생기는 질문과 문제 해결을 위한 채널입니다.</p>
+                      <div className="text-xs text-gray-500">활동 멤버: 124명</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border border-gray-200 overflow-hidden">
+                    <div className="flex items-center p-4 border-b border-gray-100">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mr-3"></div>
+                      <h4 className="font-medium text-gray-800"># 3d-프린팅-지원</h4>
+                    </div>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-gray-600 mb-2">3D 프린팅 관련 노하우 공유와 문제 해결을 위한 채널입니다.</p>
+                      <div className="text-xs text-gray-500">활동 멤버: 98명</div>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border border-gray-200 overflow-hidden">
+                    <div className="flex items-center p-4 border-b border-gray-100">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mr-3"></div>
+                      <h4 className="font-medium text-gray-800"># 소프트웨어-설정-도움</h4>
+                    </div>
+                    <CardContent className="p-4">
+                      <p className="text-sm text-gray-600 mb-2">소프트웨어 설치, 설정, 문제 해결을 위한 채널입니다.</p>
+                      <div className="text-xs text-gray-500">활동 멤버: 86명</div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="experts">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card className="flex items-center p-4 border border-gray-200">
+                    <div className="h-12 w-12 rounded-full bg-gray-200 mr-4 overflow-hidden">
+                      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Expert" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">김엔지니어</h4>
+                      <p className="text-sm text-gray-600">하드웨어 전문가</p>
+                      <div className="text-xs text-green-600 mt-1">온라인</div>
+                    </div>
+                  </Card>
+                  
+                  <Card className="flex items-center p-4 border border-gray-200">
+                    <div className="h-12 w-12 rounded-full bg-gray-200 mr-4 overflow-hidden">
+                      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Expert" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">이디자이너</h4>
+                      <p className="text-sm text-gray-600">3D 모델링 전문가</p>
+                      <div className="text-xs text-green-600 mt-1">온라인</div>
+                    </div>
+                  </Card>
+                  
+                  <Card className="flex items-center p-4 border border-gray-200">
+                    <div className="h-12 w-12 rounded-full bg-gray-200 mr-4 overflow-hidden">
+                      <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Expert" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">박개발자</h4>
+                      <p className="text-sm text-gray-600">소프트웨어 전문가</p>
+                      <div className="text-xs text-green-600 mt-1">온라인</div>
+                    </div>
+                  </Card>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="faq">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">디스코드 서버는 무료로 이용할 수 있나요?</h4>
+                    <p className="text-sm text-gray-600">네, Webel 디스코드 서버는 완전 무료로 이용 가능합니다. 수익 창출이 목적이 아닌 지식 공유와 커뮤니티 형성이 목적입니다.</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">전문가로 활동하려면 어떻게 해야 하나요?</h4>
+                    <p className="text-sm text-gray-600">서버 참여 후 '전문가-신청' 채널에서 자신의 전문 분야와 경력을 공유하시면 검토 후 전문가 역할이 부여됩니다.</p>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-2">음성 채팅도 가능한가요?</h4>
+                    <p className="text-sm text-gray-600">네, 각 분야별 음성 채널이 마련되어 있어 실시간 음성 지원도 받을 수 있습니다.</p>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </section>
+
       {/* Request Form */}
       <section className="mb-12">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">세션 요청하기</h2>
