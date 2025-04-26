@@ -24,17 +24,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(services);
   });
   
-  app.get('/api/services/:id', async (req: Request, res: Response) => {
-    const serviceId = parseInt(req.params.id);
-    const service = await storage.getServiceById(serviceId);
-    
-    if (!service) {
-      return res.status(404).json({ message: 'Service not found' });
-    }
-    
-    res.json(service);
-  });
-  
   app.get('/api/services/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
     const services = await storage.getServicesByType(type);
@@ -65,22 +54,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ message: 'Invalid location parameters' });
     }
   });
+  
+  app.get('/api/services/:id', async (req: Request, res: Response) => {
+    const serviceId = parseInt(req.params.id);
+    if (isNaN(serviceId)) {
+      return res.status(400).json({ message: 'Invalid service ID' });
+    }
+    
+    const service = await storage.getServiceById(serviceId);
+    
+    if (!service) {
+      return res.status(404).json({ message: 'Service not found' });
+    }
+    
+    res.json(service);
+  });
 
   // Resources routes
   app.get('/api/resources', async (_req: Request, res: Response) => {
     const resources = await storage.getResources();
     res.json(resources);
-  });
-  
-  app.get('/api/resources/:id', async (req: Request, res: Response) => {
-    const resourceId = parseInt(req.params.id);
-    const resource = await storage.getResourceById(resourceId);
-    
-    if (!resource) {
-      return res.status(404).json({ message: 'Resource not found' });
-    }
-    
-    res.json(resource);
   });
   
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
@@ -91,6 +84,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get('/api/resources/:id/download', async (req: Request, res: Response) => {
     const resourceId = parseInt(req.params.id);
+    if (isNaN(resourceId)) {
+      return res.status(400).json({ message: 'Invalid resource ID' });
+    }
+    
     const resource = await storage.getResourceById(resourceId);
     
     if (!resource) {
@@ -108,6 +105,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       resourceId 
     });
   });
+  
+  app.get('/api/resources/:id', async (req: Request, res: Response) => {
+    const resourceId = parseInt(req.params.id);
+    if (isNaN(resourceId)) {
+      return res.status(400).json({ message: 'Invalid resource ID' });
+    }
+    
+    const resource = await storage.getResourceById(resourceId);
+    
+    if (!resource) {
+      return res.status(404).json({ message: 'Resource not found' });
+    }
+    
+    res.json(resource);
+  });
 
   // Auctions routes
   app.get('/api/auctions', async (_req: Request, res: Response) => {
@@ -120,8 +132,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(auctions);
   });
   
+  app.get('/api/auctions/type/:type', async (req: Request, res: Response) => {
+    const type = req.params.type;
+    const auctions = await storage.getAuctionsByType(type);
+    res.json(auctions);
+  });
+  
   app.get('/api/auctions/:id', async (req: Request, res: Response) => {
     const auctionId = parseInt(req.params.id);
+    if (isNaN(auctionId)) {
+      return res.status(400).json({ message: 'Invalid auction ID' });
+    }
+    
     const auction = await storage.getAuctionById(auctionId);
     
     if (!auction) {
@@ -130,16 +152,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     res.json(auction);
   });
-  
-  app.get('/api/auctions/type/:type', async (req: Request, res: Response) => {
-    const type = req.params.type;
-    const auctions = await storage.getAuctionsByType(type);
-    res.json(auctions);
-  });
 
   // Bids routes
   app.get('/api/auctions/:id/bids', async (req: Request, res: Response) => {
     const auctionId = parseInt(req.params.id);
+    if (isNaN(auctionId)) {
+      return res.status(400).json({ message: 'Invalid auction ID' });
+    }
+    
     const auction = await storage.getAuctionById(auctionId);
     
     if (!auction) {
