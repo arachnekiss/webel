@@ -103,7 +103,13 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { ...insertUser, id, isAdmin: false, createdAt: new Date() };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      // isAdmin이 명시적으로 설정되었으면 그 값을 사용, 아니면 false
+      isAdmin: insertUser.isAdmin !== undefined ? insertUser.isAdmin : false, 
+      createdAt: new Date() 
+    };
     this.users.set(id, user);
     return user;
   }
