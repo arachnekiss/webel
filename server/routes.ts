@@ -85,7 +85,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
-    const resources = await storage.getResourcesByType(type);
+    let resources = await storage.getResourcesByType(type);
+    
+    // 플래시 게임 요청인 경우 샘플 데이터 추가
+    if (type === 'flash_game' && resources.length === 0) {
+      const flashGames = [
+        {
+          id: 1001,
+          title: '픽셀 어드벤처',
+          description: '레트로 픽셀 그래픽의 2D 플랫폼 게임입니다. 장애물을 뛰어넘고 적을 물리치며 보물을 찾아보세요.',
+          resourceType: 'flash_game',
+          tags: ['플랫폼', '레트로', '액션', '어드벤처'],
+          imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
+          downloadUrl: 'https://html5games.com/Game/Pixel-Adventure/d1c395bd-3767-4c5e-845e-761b7b2508fa',
+          downloadCount: 321,
+          createdAt: new Date()
+        },
+        {
+          id: 1002,
+          title: '바운스 볼',
+          description: '물리 기반의 퍼즐 게임입니다. 공을 발사하여 모든 장애물을 제거하세요. 다양한 각도와 힘을 조절하는 전략이 필요합니다.',
+          resourceType: 'flash_game',
+          tags: ['퍼즐', '물리', '전략', '캐주얼'],
+          imageUrl: 'https://images.unsplash.com/photo-1614465000772-1b1a4a12812d',
+          downloadUrl: 'https://html5games.com/Game/Bounce-Ball/2fc4db72-c137-4857-9d77-25c32d60aed0',
+          downloadCount: 245,
+          createdAt: new Date()
+        },
+        {
+          id: 1003,
+          title: '스페이스 슈터',
+          description: '우주를 배경으로 한 클래식 슈팅 게임입니다. 적 우주선을 물리치고 다양한 무기를 수집하세요.',
+          resourceType: 'flash_game',
+          tags: ['슈팅', '우주', '아케이드', '액션'],
+          imageUrl: 'https://images.unsplash.com/photo-1604871000636-074fa5117945',
+          downloadUrl: 'https://html5games.com/Game/Space-Shooter/a8c31639-e2d4-4ccd-b6ad-cf3b4a0e8a5a',
+          downloadCount: 189,
+          createdAt: new Date()
+        },
+        {
+          id: 1004,
+          title: '블록 브레이커',
+          description: '현대적인 디자인의 브릭 브레이커 게임입니다. 다양한 파워업과 난이도로 즐길 수 있습니다.',
+          resourceType: 'flash_game',
+          tags: ['아케이드', '클래식', '캐주얼', '리플렉스'],
+          imageUrl: 'https://images.unsplash.com/photo-1577279549270-b9e297533cdd',
+          downloadUrl: 'https://html5games.com/Game/Block-Breaker/5e259cf7-cf9d-4a3e-a7f5-2e4da59a8c11',
+          downloadCount: 267,
+          createdAt: new Date()
+        },
+        {
+          id: 1005,
+          title: '퍼즐 매니아',
+          description: '다양한 퍼즐을 해결하는 두뇌 게임입니다. 시간 제한과 함께 집중력과 논리력을 테스트하세요.',
+          resourceType: 'flash_game',
+          tags: ['퍼즐', '두뇌', '로직', '교육'],
+          imageUrl: 'https://images.unsplash.com/photo-1591635566278-10dca0ca76ee',
+          downloadUrl: 'https://html5games.com/Game/Puzzle-Mania/f57c21b7-49ef-4fe5-b4a4-e9886b77a25a',
+          downloadCount: 178,
+          createdAt: new Date()
+        }
+      ];
+      
+      resources = flashGames;
+    }
+    
     res.json(resources);
   });
   

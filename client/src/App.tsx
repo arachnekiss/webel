@@ -30,6 +30,7 @@ import FlashGames from '@/pages/FlashGames';
 import Engineers from '@/pages/Engineers';
 import AuthPage from '@/pages/auth-page';
 import AdminDashboard from '@/pages/AdminDashboard';
+import RegisterPrinter from '@/pages/RegisterPrinter';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
