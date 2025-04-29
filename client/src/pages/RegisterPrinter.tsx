@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from '@/contexts/LocationContext';
-import { useNavigate } from 'wouter';
+import { useLocation as useWouterLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 
 // 컴포넌트
@@ -92,7 +92,7 @@ export default function RegisterPrinter() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const { currentLocation, getLocation } = useLocation();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, navigate] = useWouterLocation();
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
   const queryClient = useQueryClient();

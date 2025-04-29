@@ -31,6 +31,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(services);
   });
   
+  app.post('/api/services', async (req: Request, res: Response) => {
+    try {
+      // 인증된 사용자만 서비스 등록 가능
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: '로그인이 필요합니다.' });
+      }
+      
+      const serviceData = {
+        ...req.body,
+        userId: req.user.id
+      };
+      
+      const service = await storage.createService(serviceData);
+      res.status(201).json(service);
+    } catch (error) {
+      console.error('서비스 등록 에러:', error);
+      res.status(500).json({ message: '서비스 등록에 실패했습니다.' });
+    }
+  });
+  
   app.get('/api/services/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
     const services = await storage.getServicesByType(type);

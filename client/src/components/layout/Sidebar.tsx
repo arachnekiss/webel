@@ -121,12 +121,20 @@ const Sidebar: React.FC = () => {
         )}
       </nav>
       
-      <div className="px-6 mt-2">
+      <div className="px-6 mt-2 space-y-4">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
           <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
           <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
           <Link href="/services/type/3d_printing">
             <div className="text-primary text-sm font-medium hover:underline">서비스 찾기 →</div>
+          </Link>
+        </div>
+        
+        <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
+          <h3 className="font-medium text-slate-800 mb-2">내 프린터 등록하기</h3>
+          <p className="text-sm text-slate-600 mb-3">보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.</p>
+          <Link href="/register-printer">
+            <div className="text-primary text-sm font-medium hover:underline">프린터 등록하기 →</div>
           </Link>
         </div>
       </div>

@@ -81,6 +81,7 @@ function Router() {
             <Route path="/remote-support" component={RemoteSupport}/>
             <Route path="/services/type/engineer" component={Engineers}/>
             <Route path="/sponsor" component={Sponsor}/>
+            <Route path="/register-printer" component={RegisterPrinter}/>
             
             {/* Auth pages */}
             <Route path="/auth" component={AuthPage}/>
