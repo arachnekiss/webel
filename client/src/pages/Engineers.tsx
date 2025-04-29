@@ -238,54 +238,122 @@ export default function Engineers() {
       </div>
       
       {/* 검색 및 필터 섹션 */}
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
-        <div className="relative flex-grow">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="엔지니어, 전문 분야, 또는 조립/수리할 제품 검색..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        {/* 검색어 입력 필드 */}
+        <div className="flex flex-col md:flex-row gap-4 mb-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="엔지니어, 전문 분야, 또는 조립/수리할 제품 검색..."
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2">
+            <div className="w-48">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger>
+                  <SelectValue placeholder="정렬 기준" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>최신순</span>
+                  </SelectItem>
+                  <SelectItem value="rating" className="flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    <span>평점순</span>
+                  </SelectItem>
+                  <SelectItem value="experience" className="flex items-center gap-2">
+                    <Wrench className="h-4 w-4" />
+                    <span>경력순</span>
+                  </SelectItem>
+                  <SelectItem value="hourly_rate" className="flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    <span>요금순</span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button 
+              variant="outline"
+              size="icon"
+              className="h-10 w-10"
+              onClick={() => {
+                setSearchTerm("");
+                setSortBy("newest");
+              }}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <div className="w-full md:w-48">
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger>
-              <SelectValue placeholder="정렬 기준" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">최신순</SelectItem>
-              <SelectItem value="rating">평점순</SelectItem>
-              <SelectItem value="experience">경력순</SelectItem>
-              <SelectItem value="hourly_rate">요금순</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        
+        {/* 적용된 필터 표시 */}
+        {(searchTerm || sortBy !== "newest") && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {searchTerm && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Search className="h-3 w-3" />
+                <span>검색어: {searchTerm}</span>
+              </Badge>
+            )}
+            
+            {sortBy !== "newest" && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                {sortBy === "rating" ? (
+                  <Star className="h-3 w-3" />
+                ) : sortBy === "experience" ? (
+                  <Wrench className="h-3 w-3" />
+                ) : (
+                  <Zap className="h-3 w-3" />
+                )}
+                <span>
+                  정렬: {
+                    sortBy === "rating" ? "평점순" : 
+                    sortBy === "experience" ? "경력순" : 
+                    sortBy === "hourly_rate" ? "요금순" : "최신순"
+                  }
+                </span>
+              </Badge>
+            )}
+          </div>
+        )}
       </div>
       
-      {/* 위치 필터링 토글 */}
-      <div className="bg-muted/30 p-4 rounded-lg mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
+      {/* 위치 필터링 섹션 */}
+      <div className="bg-white rounded-lg shadow p-4 mb-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-4 mb-4">
+          <div className="flex items-center space-x-2 mb-4 md:mb-0">
             <Switch
               id="use-location"
               checked={useLocation}
               onCheckedChange={setUseLocation}
             />
-            <Label htmlFor="use-location" className="font-medium">위치 기반 필터링</Label>
+            <Label htmlFor="use-location" className="font-medium text-gray-800">위치 기반 필터링</Label>
+            <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+              지역 전문가 찾기
+            </Badge>
           </div>
+          
           {useLocation && (
-            <div className="flex items-center space-x-2">
-              <Label htmlFor="max-distance" className="text-sm">최대 거리: {maxDistance}km</Label>
-              <Input
-                id="max-distance"
-                type="range"
-                min="1"
-                max="50"
-                value={maxDistance}
-                onChange={e => setMaxDistance(Number(e.target.value))}
-                className="w-24"
-              />
+            <div className="flex items-center space-x-4">
+              <div className="flex flex-col space-y-1">
+                <Label htmlFor="max-distance" className="text-sm text-gray-600">최대 검색 거리</Label>
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="max-distance"
+                    type="range"
+                    min="1"
+                    max="50"
+                    value={maxDistance}
+                    onChange={e => setMaxDistance(Number(e.target.value))}
+                    className="w-32"
+                  />
+                  <span className="text-sm font-medium w-16 text-right">{maxDistance}km</span>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -293,22 +361,29 @@ export default function Engineers() {
         {useLocation && (
           <Tabs value={locationTab} onValueChange={setLocationTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="auto">현재 위치 사용</TabsTrigger>
-              <TabsTrigger value="manual">수동 위치 입력</TabsTrigger>
+              <TabsTrigger value="auto" className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                <span>현재 위치 사용</span>
+              </TabsTrigger>
+              <TabsTrigger value="manual" className="flex items-center gap-1">
+                <Compass className="h-4 w-4" />
+                <span>수동 위치 입력</span>
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="auto" className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-slate-50 rounded-lg p-3">
                 <div>
                   {currentLocation ? (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      <span>현재 위치를 사용합니다</span>
+                    <div className="flex items-center text-sm text-gray-700">
+                      <MapPin className="h-4 w-4 mr-1 text-primary" />
+                      <span className="font-medium">현재 위치:</span>
+                      <span className="ml-1">{currentLocation.address || '내 위치'}</span>
                     </div>
                   ) : (
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Compass className="h-4 w-4 mr-1" />
-                      <span>위치 정보를 불러오지 못했습니다.</span>
+                    <div className="flex items-center text-sm text-gray-700">
+                      <Compass className="h-4 w-4 mr-1 text-amber-500" />
+                      <span className="text-amber-600">위치 정보를 불러오지 못했습니다.</span>
                     </div>
                   )}
                 </div>
@@ -316,17 +391,26 @@ export default function Engineers() {
                   variant="outline" 
                   size="sm" 
                   onClick={fetchCurrentLocation}
+                  className="mt-2 md:mt-0"
                 >
+                  <MapPin className="h-4 w-4 mr-1" />
                   위치 새로고침
                 </Button>
               </div>
+              
+              {useLocation && currentLocation && (
+                <div className="text-sm text-blue-600 mt-2 flex items-center">
+                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600 mr-2"></div>
+                  <span>반경 {maxDistance}km 이내의 엔지니어만 표시됩니다.</span>
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="manual">
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="city">도시</Label>
+                    <Label htmlFor="city" className="text-gray-700">도시</Label>
                     <Input
                       id="city"
                       placeholder="서울, 부산 등"
@@ -335,7 +419,7 @@ export default function Engineers() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">상세 주소</Label>
+                    <Label htmlFor="address" className="text-gray-700">상세 주소</Label>
                     <Input
                       id="address"
                       placeholder="구/동 및 상세 주소"
@@ -344,9 +428,20 @@ export default function Engineers() {
                     />
                   </div>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  입력한 위치: {manualLocation.city} {manualLocation.address || '(상세 주소를 입력해주세요)'}
+                
+                <div className="bg-slate-50 rounded-lg p-3 flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-primary" />
+                  <span className="text-sm font-medium text-gray-700">
+                    입력한 위치: {manualLocation.city || '도시를 입력하세요'} {manualLocation.address || '(상세 주소를 입력하세요)'}
+                  </span>
                 </div>
+                
+                {useLocation && manualLocation.city && (
+                  <div className="text-sm text-blue-600 mt-2 flex items-center">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-600 mr-2"></div>
+                    <span>반경 {maxDistance}km 이내의 엔지니어만 표시됩니다.</span>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
@@ -393,57 +488,98 @@ function EngineerCard({
   distance?: string;
 }) {
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-lg">{engineer.title}</CardTitle>
-          <div className="flex items-center text-yellow-500">
-            <Star className="h-4 w-4 fill-current" />
-            <span className="ml-1 text-sm font-medium">
+    <Card className="overflow-hidden transition-all hover:shadow-lg border-slate-200 hover:border-primary/20">
+      <div className="relative">
+        {/* 엔지니어 이미지 (있는 경우) */}
+        <div className="h-40 bg-gradient-to-br from-primary/5 to-primary/10">
+          {engineer.imageUrl && (
+            <img 
+              src={engineer.imageUrl} 
+              alt={engineer.title} 
+              className="w-full h-full object-cover" 
+            />
+          )}
+          
+          {/* 평점 배지 */}
+          <div className="absolute top-2 right-2 bg-white shadow-md rounded-full p-1 px-2 flex items-center">
+            <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
+            <span className="text-sm font-semibold">
               {engineer.rating?.toFixed(1) || '신규'}
             </span>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {engineer.specialty && (
-            <Badge variant="outline" className="bg-primary/5">
-              {engineer.specialty}
-            </Badge>
-          )}
-          {engineer.tags && engineer.tags.slice(0, 2).map((tag, index) => (
-            <Badge key={index} variant="outline">
-              {tag}
-            </Badge>
-          ))}
+          
+          {/* 거리 배지 */}
           {showDistance && distance && (
-            <Badge variant="secondary">
-              <MapPin className="h-3 w-3 mr-1" /> 
-              {distance}km
-            </Badge>
+            <div className="absolute top-2 left-2 bg-white shadow-md rounded-full p-1 px-2 flex items-center">
+              <MapPin className="h-4 w-4 text-primary mr-1" /> 
+              <span className="text-sm font-semibold">{distance}km</span>
+            </div>
           )}
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-muted-foreground text-sm line-clamp-3">
-          {engineer.description}
-        </p>
         
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          <div className="flex items-center">
-            <Clock className="h-4 w-4 text-muted-foreground mr-2" />
-            <span className="text-sm">{engineer.experience || 0}년 경력</span>
+        {/* 콘텐츠 */}
+        <CardHeader className="pb-3">
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-lg">{engineer.title}</CardTitle>
           </div>
-          <div className="flex items-center">
-            <Zap className="h-4 w-4 text-muted-foreground mr-2" />
-            <span className="text-sm">{engineer.hourlyRate?.toLocaleString() || '0'}원/시간</span>
+          <div className="flex flex-wrap gap-2 mt-2">
+            {engineer.specialty && (
+              <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary">
+                {engineer.specialty}
+              </Badge>
+            )}
+            {engineer.tags && engineer.tags.slice(0, 2).map((tag, index) => (
+              <Badge key={index} variant="outline" className="bg-slate-50">
+                {tag}
+              </Badge>
+            ))}
           </div>
-        </div>
-      </CardContent>
-      <CardFooter className="pt-0">
-        <Link href={`/services/${engineer.id}`}>
-          <Button variant="outline" className="w-full">상세 정보 보기</Button>
-        </Link>
-      </CardFooter>
+        </CardHeader>
+        
+        <CardContent>
+          <p className="text-muted-foreground text-sm line-clamp-3">
+            {engineer.description}
+          </p>
+          
+          <div className="grid grid-cols-2 gap-4 mt-4 bg-slate-50 p-3 rounded-lg">
+            <div className="flex items-center">
+              <Clock className="h-4 w-4 text-primary mr-2" />
+              <span className="text-sm font-medium">{engineer.experience || 0}년 경력</span>
+            </div>
+            <div className="flex items-center">
+              <Zap className="h-4 w-4 text-amber-500 mr-2" />
+              <span className="text-sm font-medium">{engineer.hourlyRate?.toLocaleString() || '0'}원/시간</span>
+            </div>
+          </div>
+          
+          {/* 가용 품목이 있으면 표시 */}
+          {engineer.availableItems && engineer.availableItems.length > 0 && (
+            <div className="mt-4">
+              <h4 className="text-xs font-medium text-gray-500 mb-1">취급 가능 품목</h4>
+              <div className="flex flex-wrap gap-1">
+                {engineer.availableItems.slice(0, 3).map((item, index) => (
+                  <Badge key={index} variant="outline" className="text-xs bg-green-50 text-green-700 border-green-100">
+                    {item}
+                  </Badge>
+                ))}
+                {engineer.availableItems.length > 3 && (
+                  <Badge variant="outline" className="text-xs bg-slate-50">
+                    +{engineer.availableItems.length - 3}개 더
+                  </Badge>
+                )}
+              </div>
+            </div>
+          )}
+        </CardContent>
+        
+        <CardFooter className="pt-0">
+          <Link href={`/services/${engineer.id}`} className="w-full">
+            <Button variant="default" className="w-full bg-primary text-white hover:bg-primary/90">
+              상세 정보 보기
+            </Button>
+          </Link>
+        </CardFooter>
+      </div>
     </Card>
   );
 }
