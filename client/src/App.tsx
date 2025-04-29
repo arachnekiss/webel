@@ -27,6 +27,7 @@ import AiAssembly from '@/pages/AiAssembly';
 import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
 import FlashGames from '@/pages/FlashGames';
+import Engineers from '@/pages/Engineers';
 import AuthPage from '@/pages/auth-page';
 import AdminDashboard from '@/pages/AdminDashboard';
 

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { Loader2, Users, Package, Archive, Gavel, FileText } from "lucide-react";
+import { Loader2, Users, Wrench, Archive, Gavel, FileText, Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
@@ -54,10 +54,10 @@ export default function AdminDashboard() {
           icon={<Users className="h-6 w-6" />} 
         />
         <StatCard 
-          title="서비스" 
+          title="엔지니어" 
           value={data?.servicesCount || 0} 
-          description="제공 중인 총 서비스 수" 
-          icon={<Package className="h-6 w-6" />} 
+          description="제공 중인 총 엔지니어 수" 
+          icon={<Wrench className="h-6 w-6" />} 
         />
         <StatCard 
           title="리소스" 
@@ -154,10 +154,10 @@ export default function AdminDashboard() {
             onClick={() => alert('리소스 관리 기능은 개발 중입니다.')}
           />
           <ActionCard 
-            title="서비스 관리" 
-            description="서비스 등록 및 관리" 
-            icon={<Package className="h-5 w-5" />}
-            onClick={() => alert('서비스 관리 기능은 개발 중입니다.')}
+            title="엔지니어 관리" 
+            description="엔지니어 등록 및 관리" 
+            icon={<Wrench className="h-5 w-5" />}
+            onClick={() => alert('엔지니어 관리 기능은 개발 중입니다.')}
           />
         </div>
       </div>

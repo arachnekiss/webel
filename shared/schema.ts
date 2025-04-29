@@ -21,7 +21,7 @@ export const services = pgTable("services", {
   userId: integer("user_id").references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  serviceType: text("service_type").notNull(), // 3d_printing, electronics, woodworking, etc.
+  serviceType: text("service_type").notNull(), // 3d_printing, electronics, woodworking, engineer, etc.
   location: jsonb("location").notNull(), // { lat: number, long: number, address: string }
   rating: doublePrecision("rating"),
   ratingCount: integer("rating_count").default(0),
@@ -33,6 +33,12 @@ export const services = pgTable("services", {
   contactEmail: text("contact_email"), // 연락처 이메일
   pricing: text("pricing"), // 이용 비용 (무료 가능)
   isIndividual: boolean("is_individual").default(false), // true면 개인, false면 사업자
+  // 엔지니어 서비스 관련 정보
+  specialty: text("specialty"), // 전문 분야 (전자, 기계, 소프트웨어 등)
+  experience: integer("experience"), // 경력 연수
+  hourlyRate: integer("hourly_rate"), // 시간당 요금
+  availableItems: text("available_items").array(), // 조립/수리 가능한 아이템 목록
+  portfolioUrl: text("portfolio_url"), // 포트폴리오 URL
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -112,5 +118,5 @@ export type Location = {
 };
 
 // Service and Resource types
-export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing';
+export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing' | 'engineer';
 export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content' | 'ai_model' | 'flash_game';

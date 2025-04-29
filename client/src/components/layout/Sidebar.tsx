@@ -6,7 +6,8 @@ import {
   Video, 
   Building2, 
   Heart,
-  GanttChart
+  GanttChart,
+  Wrench
 } from 'lucide-react';
 import { Link } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
@@ -39,6 +40,12 @@ export const serviceItems: SidebarItemProps[] = [
     label: '조립 원격 지원',
     icon: <Video className="h-5 w-5" />,
     href: '/remote-support'
+  },
+  {
+    id: 'engineers',
+    label: '엔지니어 찾기',
+    icon: <Wrench className="h-5 w-5" />,
+    href: '/services/type/engineer'
   },
   {
     id: 'manufacturers',
