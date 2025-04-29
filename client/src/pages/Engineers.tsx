@@ -17,7 +17,7 @@ export default function Engineers() {
   // 엔지니어 데이터 가져오기
   const { data: engineers, isLoading, error } = useQuery<Service[]>({
     queryKey: ['/api/services/type/engineer'],
-    queryFn: getQueryFn(),
+    queryFn: getQueryFn({ on401: 'returnNull' }),
   });
 
   // 검색어 및 정렬 적용

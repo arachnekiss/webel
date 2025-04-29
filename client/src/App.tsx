@@ -78,6 +78,7 @@ function Router() {
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>
             <Route path="/remote-support" component={RemoteSupport}/>
+            <Route path="/services/type/engineer" component={Engineers}/>
             <Route path="/sponsor" component={Sponsor}/>
             
             {/* Auth pages */}

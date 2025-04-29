@@ -419,6 +419,67 @@ export class MemStorage implements IStorage {
     };
     this.services.set(service4.id, service4);
 
+    // 엔지니어 서비스 추가
+    const engineer1: Service = {
+      id: this.serviceIdCounter++,
+      userId: user1.id,
+      title: '김철수 전자기기 수리 엔지니어',
+      description: '10년 경력의 전자기기 수리 전문가입니다. 컴퓨터, 스마트폰, 가전제품 등 다양한 전자기기 조립 및 수리를 도와드립니다.',
+      serviceType: 'engineer',
+      location: { lat: 37.5665, long: 126.9780, address: '서울 종로구' },
+      rating: 4.9,
+      ratingCount: 28,
+      tags: ['전자기기', '컴퓨터', '스마트폰'],
+      imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e',
+      specialty: '전자기기',
+      experience: 10,
+      hourlyRate: 50000,
+      availableItems: ['컴퓨터', '스마트폰', '태블릿', '가전제품'],
+      portfolioUrl: 'https://example.com/engineer1',
+      createdAt: new Date()
+    };
+    this.services.set(engineer1.id, engineer1);
+
+    const engineer2: Service = {
+      id: this.serviceIdCounter++,
+      userId: user2.id,
+      title: '박지영 드론 조립 전문가',
+      description: '취미용부터 전문가용 드론까지 다양한 드론을 조립해드립니다. 맞춤형 드론 제작 및 수리도 가능합니다.',
+      serviceType: 'engineer',
+      location: { lat: 37.5139, long: 127.0565, address: '서울 강남구' },
+      rating: 4.7,
+      ratingCount: 15,
+      tags: ['드론', '무인기', 'RC'],
+      imageUrl: 'https://images.unsplash.com/photo-1473968512647-3e447244af8f',
+      specialty: '드론 및 RC',
+      experience: 5,
+      hourlyRate: 60000,
+      availableItems: ['취미용 드론', '전문가용 드론', 'RC 비행기', 'RC 자동차'],
+      portfolioUrl: 'https://example.com/engineer2',
+      createdAt: new Date()
+    };
+    this.services.set(engineer2.id, engineer2);
+
+    const engineer3: Service = {
+      id: this.serviceIdCounter++,
+      userId: user1.id,
+      title: '이민호 3D 프린터 조립 및 튜닝',
+      description: '키트로 구매한 3D 프린터 조립을 도와드립니다. 기존 프린터 업그레이드 및 튜닝도 전문적으로 해드립니다.',
+      serviceType: 'engineer',
+      location: { lat: 37.4963, long: 126.8571, address: '서울 구로구' },
+      rating: 4.8,
+      ratingCount: 22,
+      tags: ['3D 프린터', '튜닝', '업그레이드'],
+      imageUrl: 'https://images.unsplash.com/photo-1631700611307-37dbcb89ef7e',
+      specialty: '3D 프린터',
+      experience: 7,
+      hourlyRate: 55000,
+      availableItems: ['3D 프린터 키트', 'DIY 3D 프린터', '기존 3D 프린터 튜닝'],
+      portfolioUrl: 'https://example.com/engineer3',
+      createdAt: new Date()
+    };
+    this.services.set(engineer3.id, engineer3);
+
     // Sample resources
     const resource1: Resource = {
       id: this.resourceIdCounter++,
