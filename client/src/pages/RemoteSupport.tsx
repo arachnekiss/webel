@@ -154,6 +154,28 @@ const RemoteSupport: React.FC = () => {
                   <span>정기적인 워크샵 및 Q&A 세션</span>
                 </li>
               </ul>
+              
+              <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
+                <h4 className="text-sm font-medium text-indigo-800 mb-2">일정 안내</h4>
+                <div className="space-y-2 text-xs text-indigo-700">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
+                    <span>매주 수요일</span>
+                    <span className="mx-2">|</span>
+                    <Clock className="h-4 w-4 mr-2 text-indigo-500" />
+                    <span>오후 7시-9시</span>
+                    <span className="ml-auto bg-green-100 text-green-800 py-0.5 px-1.5 rounded text-[10px]">초보자용</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
+                    <span>매주 토요일</span>
+                    <span className="mx-2">|</span>
+                    <Clock className="h-4 w-4 mr-2 text-indigo-500" />
+                    <span>오후 2시-5시</span>
+                    <span className="ml-auto bg-yellow-100 text-yellow-800 py-0.5 px-1.5 rounded text-[10px]">모든 레벨</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
             <CardFooter>
               <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full">
