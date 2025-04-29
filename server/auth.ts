@@ -122,9 +122,12 @@ export function setupAuth(app: Express): void {
       const hashedPassword = await hashPassword(req.body.password);
 
       // 사용자 생성
+      // 사용자 이름이 'admin'인 경우 관리자 권한 부여
+      const isAdmin = req.body.username.toLowerCase() === 'admin';
       const user = await storage.createUser({
         ...req.body,
-        password: hashedPassword
+        password: hashedPassword,
+        isAdmin
       });
 
       // 로그인 처리
