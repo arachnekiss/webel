@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useLocation as useWouterLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
@@ -88,33 +88,26 @@ export default function UploadResource() {
   // URL에서 type 파라미터 추출
   const [initialResourceType, setInitialResourceType] = useState<ResourceType | null>(null);
   
-  // 컴포넌트 마운트 시 URL에서 type 파라미터 확인
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const typeParam = params.get('type') as ResourceType | null;
-      
-      // 유효한 ResourceType인지 검증
-      if (typeParam && resourceTypeOptions.some(option => option.value === typeParam)) {
-        setInitialResourceType(typeParam);
-      }
+  // URL에서 리소스 타입 파라미터 확인 (폼 초기화 전)
+  let defaultResourceType: ResourceType = "hardware_design";
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const typeParam = params.get('type') as ResourceType | null;
+    
+    // 유효한 ResourceType인지 검증
+    if (typeParam && resourceTypeOptions.some(option => option.value === typeParam)) {
+      defaultResourceType = typeParam;
+      setInitialResourceType(typeParam);
     }
-  });
-
-  // URL에서 가져온 리소스 타입으로 초기화하기 위한 useEffect
-  useEffect(() => {
-    if (initialResourceType) {
-      form.setValue("resourceType", initialResourceType);
-    }
-  }, [initialResourceType]);
-
+  }
+  
   // 폼 초기화
   const form = useForm<ResourceFormValues>({
     resolver: zodResolver(resourceFormSchema),
     defaultValues: {
       title: "",
       description: "",
-      resourceType: initialResourceType || "hardware_design",
+      resourceType: defaultResourceType,
       category: "",
       tags: "",
       downloadUrl: "",
@@ -122,6 +115,15 @@ export default function UploadResource() {
       assemblyInstructions: "",
     },
   });
+  
+  // 컴포넌트 마운트 시 추가 설정 (문서 제목 등)
+  useEffect(() => {
+    if (initialResourceType) {
+      // 타이틀에 리소스 타입 이름 표시
+      const typeName = resourceTypeOptions.find(option => option.value === initialResourceType)?.label || "";
+      document.title = `${typeName} 업로드 - Webel`;
+    }
+  }, [initialResourceType]);
 
   // 리소스 타입이 변경되면 카테고리 초기화
   const resourceType = form.watch("resourceType") as ResourceType;
