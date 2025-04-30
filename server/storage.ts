@@ -6,11 +6,19 @@ import {
   bids, type Bid, type InsertBid,
   type Location
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
+
+import session from 'express-session';
+import { Store } from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+import createMemoryStore from 'memorystore';
 
 // Interface for storage operations
 export interface IStorage {
+  // Session store for persistence
+  sessionStore: Store;
+  
   // User operations
   getUsers(): Promise<User[]>;
   getUser(id: number): Promise<User | undefined>;
@@ -51,6 +59,7 @@ export interface IStorage {
 
 // In-memory implementation of storage interface
 export class MemStorage implements IStorage {
+  sessionStore: Store;
   private users: Map<number, User>;
   private services: Map<number, Service>;
   private resources: Map<number, Resource>;
@@ -75,6 +84,12 @@ export class MemStorage implements IStorage {
     this.resourceIdCounter = 1;
     this.auctionIdCounter = 1;
     this.bidIdCounter = 1;
+    
+    // 메모리 세션 스토어 설정
+    const MemoryStore = createMemoryStore(session);
+    this.sessionStore = new MemoryStore({ 
+      checkPeriod: 86400000 // 24시간마다 만료된 세션 정리
+    });
     
     // Add some initial data
     this.seedData();
@@ -712,6 +727,17 @@ export class MemStorage implements IStorage {
 
 // Database implementation of storage interface
 export class DatabaseStorage implements IStorage {
+  sessionStore: Store;
+  
+  constructor() {
+    // PostgreSQL 세션 스토어 설정
+    const PostgresStore = connectPgSimple(session);
+    this.sessionStore = new PostgresStore({
+      pool, // From db.ts
+      createTableIfMissing: true
+    });
+  }
+  
   // User operations
   async getUsers(): Promise<User[]> {
     return db.select().from(users).orderBy(desc(users.createdAt));
@@ -943,4 +969,4 @@ export class DatabaseStorage implements IStorage {
 }
 
 // Use Database Storage instead of MemStorage
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

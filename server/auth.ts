@@ -38,18 +38,12 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
 
 // 인증 설정
 export function setupAuth(app: Express): void {
-  // 세션 스토어 생성
-  const MemoryStore = createMemoryStore(session);
-  const sessionStore = new MemoryStore({
-    checkPeriod: 86400000 // 24시간 후 만료된 세션 정리
-  });
-
   // 세션 설정
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || 'webel-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: sessionStore,
+    store: storage.sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24시간
       sameSite: 'lax'
