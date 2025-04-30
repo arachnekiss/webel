@@ -151,19 +151,14 @@ const Resources: React.FC<ResourcesProps> = (props) => {
             </p>
           </div>
           <div className="mt-5 md:mt-0 flex space-x-3">
-            <Button 
-              onClick={() => {
-                // URL에 카테고리 파라미터 추가하여 이동
-                const uploadUrl = type 
-                  ? `/resources/upload?type=${type}` 
-                  : '/resources/upload';
-                window.location.href = uploadUrl;
-              }}
-              className="bg-primary hover:bg-blue-600 text-white flex items-center gap-2"
-            >
-              <PlusCircle className="h-4 w-4" />
-              {type ? `${getResourceTypeName()} 업로드` : '리소스 업로드'}
-            </Button>
+            <Link href={type ? `/resources/upload?type=${type}` : '/resources/upload'}>
+              <Button 
+                className="bg-primary hover:bg-blue-600 text-white flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                {type ? `${getResourceTypeName()} 업로드` : '리소스 업로드'}
+              </Button>
+            </Link>
           </div>
         </div>
         
