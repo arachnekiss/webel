@@ -54,11 +54,15 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       case 'hardware_design':
         return '하드웨어 설계도';
       case '3d_model':
-        return '3D 모델링';
+        return '3D 모델링 파일';
       case 'software':
         return '소프트웨어 오픈소스';
       case 'free_content':
         return '프리 콘텐츠';
+      case 'ai_model':
+        return 'AI 모델';
+      case 'flash_game':
+        return '플래시 게임';
       default:
         return type;
     }
