@@ -144,7 +144,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   }, [handleObserver, loadMoreRef.current]);
   
   // Filter resources by search query
-  const filteredResources = resources?.filter(resource => {
+  const filteredResources = resources ? resources.filter(resource => {
     // 잘못된 리소스 객체 필터링
     if (!resource || typeof resource !== 'object') return false;
     
@@ -158,7 +158,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       (resource.tags && Array.isArray(resource.tags) && 
         resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query)))
     );
-  }) || [];
+  }) : [];
   
   return (
     <div>
@@ -235,8 +235,10 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                 </div>
               ) : hasNextPage ? (
                 <span className="text-sm text-muted-foreground">스크롤하여 더 보기</span>
-              ) : filteredResources.length > ITEMS_PER_PAGE && (
+              ) : filteredResources && filteredResources.length > ITEMS_PER_PAGE ? (
                 <span className="text-sm text-muted-foreground">모든 리소스를 불러왔습니다</span>
+              ) : (
+                <span className="text-sm text-muted-foreground"></span>
               )}
             </div>
           </>
