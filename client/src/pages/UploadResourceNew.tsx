@@ -41,12 +41,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// 카테고리 옵션 (기존 리소스 타입을 카테고리로 변경)
+// 카테고리 옵션
 const categoryOptions = [
-  { value: "hardware_design", label: "하드웨어 설계" },
-  { value: "software", label: "소프트웨어" },
-  { value: "3d_model", label: "3D 모델" },
-  { value: "free_content", label: "무료 콘텐츠" },
+  { value: "hardware_design", label: "하드웨어 설계도" },
+  { value: "software", label: "소프트웨어 오픈소스" },
+  { value: "3d_model", label: "3D 모델링 파일" },
+  { value: "free_content", label: "프리 콘텐츠" },
   { value: "ai_model", label: "AI 모델" },
   { value: "flash_game", label: "플래시 게임" },
 ];
