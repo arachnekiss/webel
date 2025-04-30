@@ -171,7 +171,7 @@ export default function Engineers() {
             (engineer.specialty && engineer.specialty.toLowerCase().includes(term)) ||
             (engineer.tags && engineer.tags.some(tag => tag.toLowerCase().includes(term))) ||
             (engineer.experience && typeof engineer.experience === 'string' && engineer.experience.toLowerCase().includes(term)) ||
-            (engineer.availableItems && typeof engineer.availableItems === 'string' && engineer.availableItems.toLowerCase().includes(term))
+            (engineer.availableItems && Array.isArray(engineer.availableItems) && engineer.availableItems.some(item => typeof item === 'string' && item.toLowerCase().includes(term)))
           );
         });
       });
@@ -430,6 +430,36 @@ export default function Engineers() {
                 value={location.address}
                 onChange={e => setLocation(prev => ({ ...prev, address: e.target.value }))}
               />
+            </div>
+            
+            {/* 위치 검색 버튼 추가 */}
+            <div className="mt-4 flex justify-end">
+              <Button 
+                className="bg-primary text-white hover:bg-blue-600"
+                onClick={() => {
+                  // 위치 정보로 검색 실행
+                  if (location.city) {
+                    const coords = getLocationCoordinates();
+                    if (coords) {
+                      setLocation(prev => ({
+                        ...prev,
+                        lat: coords.lat,
+                        long: coords.long
+                      }));
+                      setHasLocationFilter(true);
+                    }
+                  } else {
+                    toast({
+                      title: '위치 정보 필요',
+                      description: '위치 필터링을 사용하려면 도시를 선택하세요.',
+                      variant: 'destructive',
+                    });
+                  }
+                }}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                이 위치로 검색
+              </Button>
             </div>
           </div>
           

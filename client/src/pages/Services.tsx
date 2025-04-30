@@ -389,6 +389,27 @@ const Services: React.FC = () => {
               </div>
             </div>
             
+            {/* 위치 검색 버튼 추가 */}
+            <div className="mt-4 flex justify-end">
+              <Button 
+                className="bg-primary text-white hover:bg-blue-600"
+                onClick={() => {
+                  // 위치 정보로 검색 실행
+                  if (manualLocation.city) {
+                    const coords = getLocationCoordinates();
+                    setManualLocation({
+                      ...manualLocation,
+                      lat: coords.lat,
+                      long: coords.long
+                    });
+                  }
+                }}
+              >
+                <MapPin className="h-4 w-4 mr-2" />
+                이 위치로 검색
+              </Button>
+            </div>
+            
             {currentLocation && (
               <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-md">
                 <div className="flex items-center gap-2">
