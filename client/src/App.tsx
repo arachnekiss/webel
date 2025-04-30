@@ -21,8 +21,10 @@ import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
-import UploadResource from '@/pages/UploadResource'; // 새로 추가한 리소스 업로드 페이지
-import RegisterService from '@/pages/RegisterService'; // 새로 추가한 서비스 등록 페이지
+import UploadResource from '@/pages/UploadResource'; 
+import UploadResourceNew from '@/pages/UploadResourceNew'; // 개선된 리소스 업로드 페이지
+import RegisterService from '@/pages/RegisterService'; 
+import RegisterServiceUnified from '@/pages/RegisterServiceUnified'; // 통합된 서비스 등록 페이지
 import Auctions from '@/pages/Auctions';
 import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
@@ -82,11 +84,14 @@ function Router() {
             <Route path="/auctions/:id" component={AuctionDetail}/>
             
             {/* Register pages */}
-            <Route path="/services/register" component={RegisterService}/>
-            <Route path="/services/register/:type" component={RegisterService}/>
+            <Route path="/services/register" component={RegisterServiceUnified}/>
+            <Route path="/services/register/:type" component={RegisterServiceUnified}/>
+            <Route path="/services/register-old" component={RegisterService}/>
+            <Route path="/services/register-old/:type" component={RegisterService}/>
             
-            {/* Resource upload only accessible through admin dashboard */}
-            <AdminRoute path="/resources/upload" component={UploadResource}/>
+            {/* Resource upload pages */}
+            <Route path="/resources/upload" component={UploadResourceNew}/>
+            <AdminRoute path="/resources/upload-old" component={UploadResource}/>
             
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>
