@@ -235,25 +235,17 @@ const Services: React.FC = () => {
           </div>
           
           {/* 위치 관련 컨트롤 */}
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="w-full md:w-auto flex-grow">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="use-manual-location"
-                    checked={useManualLocation}
-                    onCheckedChange={setUseManualLocation}
-                  />
-                  <Label htmlFor="use-manual-location" className="font-medium">수동 위치 입력</Label>
-                </div>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="font-medium">위치 설정</span>
               </div>
-            </div>
-            
-            <div className="flex gap-4 w-full md:w-auto">
-              <div className="w-24">
+              
+              <div className="flex gap-2">
                 <Select value={distance} onValueChange={setDistance}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="거리" />
+                  <SelectTrigger className="w-24">
+                    <SelectValue placeholder="검색 반경" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="5">5km</SelectItem>
@@ -262,64 +254,173 @@ const Services: React.FC = () => {
                     <SelectItem value="50">50km</SelectItem>
                   </SelectContent>
                 </Select>
+                
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="whitespace-nowrap"
+                  onClick={() => getLocation()}
+                  disabled={locationLoading}
+                >
+                  <MapPin className="h-4 w-4 mr-1" />
+                  내 위치 사용
+                </Button>
               </div>
-              
-              <Button 
-                className="whitespace-nowrap"
-                onClick={() => getLocation()}
-                disabled={locationLoading || useManualLocation}
-              >
-                위치 새로고침
-              </Button>
             </div>
-          </div>
-          
-          {useManualLocation ? (
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="city">도시</Label>
-                <Input
-                  id="city"
-                  placeholder="서울, 부산 등"
-                  className="mt-1"
-                  value={manualLocation.city}
-                  onChange={(e) => setManualLocation({...manualLocation, city: e.target.value})}
-                />
+                <Select value={manualLocation.city} onValueChange={(city) => setManualLocation({...manualLocation, city})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="도시 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="서울">서울</SelectItem>
+                    <SelectItem value="부산">부산</SelectItem>
+                    <SelectItem value="인천">인천</SelectItem>
+                    <SelectItem value="대전">대전</SelectItem>
+                    <SelectItem value="대구">대구</SelectItem>
+                    <SelectItem value="광주">광주</SelectItem>
+                    <SelectItem value="울산">울산</SelectItem>
+                    <SelectItem value="세종">세종</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="md:col-span-2">
+              
+              <div className="md:col-span-1">
+                <Label htmlFor="district">지역구</Label>
+                {manualLocation.city === '서울' ? (
+                  <Select 
+                    value={manualLocation.district} 
+                    onValueChange={(district) => setManualLocation({...manualLocation, district})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="지역구 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="전체">전체</SelectItem>
+                      <SelectItem value="강남구">강남구</SelectItem>
+                      <SelectItem value="강동구">강동구</SelectItem>
+                      <SelectItem value="강북구">강북구</SelectItem>
+                      <SelectItem value="강서구">강서구</SelectItem>
+                      <SelectItem value="관악구">관악구</SelectItem>
+                      <SelectItem value="광진구">광진구</SelectItem>
+                      <SelectItem value="구로구">구로구</SelectItem>
+                      <SelectItem value="금천구">금천구</SelectItem>
+                      <SelectItem value="노원구">노원구</SelectItem>
+                      <SelectItem value="도봉구">도봉구</SelectItem>
+                      <SelectItem value="동대문구">동대문구</SelectItem>
+                      <SelectItem value="동작구">동작구</SelectItem>
+                      <SelectItem value="마포구">마포구</SelectItem>
+                      <SelectItem value="서대문구">서대문구</SelectItem>
+                      <SelectItem value="서초구">서초구</SelectItem>
+                      <SelectItem value="성동구">성동구</SelectItem>
+                      <SelectItem value="성북구">성북구</SelectItem>
+                      <SelectItem value="송파구">송파구</SelectItem>
+                      <SelectItem value="양천구">양천구</SelectItem>
+                      <SelectItem value="영등포구">영등포구</SelectItem>
+                      <SelectItem value="용산구">용산구</SelectItem>
+                      <SelectItem value="은평구">은평구</SelectItem>
+                      <SelectItem value="종로구">종로구</SelectItem>
+                      <SelectItem value="중구">중구</SelectItem>
+                      <SelectItem value="중랑구">중랑구</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : manualLocation.city === '부산' ? (
+                  <Select 
+                    value={manualLocation.district} 
+                    onValueChange={(district) => setManualLocation({...manualLocation, district})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="지역구 선택" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="전체">전체</SelectItem>
+                      <SelectItem value="금정구">금정구</SelectItem>
+                      <SelectItem value="남구">남구</SelectItem>
+                      <SelectItem value="동구">동구</SelectItem>
+                      <SelectItem value="동래구">동래구</SelectItem>
+                      <SelectItem value="부산진구">부산진구</SelectItem>
+                      <SelectItem value="북구">북구</SelectItem>
+                      <SelectItem value="사상구">사상구</SelectItem>
+                      <SelectItem value="사하구">사하구</SelectItem>
+                      <SelectItem value="서구">서구</SelectItem>
+                      <SelectItem value="수영구">수영구</SelectItem>
+                      <SelectItem value="연제구">연제구</SelectItem>
+                      <SelectItem value="영도구">영도구</SelectItem>
+                      <SelectItem value="중구">중구</SelectItem>
+                      <SelectItem value="해운대구">해운대구</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id="district"
+                    placeholder="지역구"
+                    className="mt-1"
+                    value={manualLocation.district}
+                    onChange={(e) => setManualLocation({...manualLocation, district: e.target.value})}
+                  />
+                )}
+              </div>
+              
+              <div className="md:col-span-1">
                 <Label htmlFor="address">상세 주소</Label>
                 <Input
                   id="address"
-                  placeholder="구/동 및 상세 주소"
+                  placeholder="동/읍/면 또는 상세주소"
                   className="mt-1"
                   value={manualLocation.address}
                   onChange={(e) => setManualLocation({...manualLocation, address: e.target.value})}
                 />
               </div>
             </div>
-          ) : (
-            <div className="mt-3 flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-primary" />
-              <span className="font-medium">현재 위치:</span>
-              <span className="text-gray-600">
-                {locationLoading 
-                  ? '위치 가져오는 중...' 
-                  : locationError 
-                    ? '위치 정보를 가져올 수 없습니다. 수동 위치 입력을 활성화해보세요.' 
-                    : currentLocation?.address || '내 위치'}
-              </span>
-            </div>
-          )}
-          
-          {locationError && !useManualLocation && (
-            <div className="mt-3 flex items-center text-amber-600 gap-2">
-              <AlertTriangle className="h-4 w-4" />
-              <span className="text-sm">{locationError}</span>
-            </div>
-          )}
+            
+            {currentLocation && (
+              <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-md">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">현재 위치:</span>
+                  <span className="text-sm text-gray-600">
+                    {locationLoading 
+                      ? '위치 가져오는 중...' 
+                      : currentLocation?.address || '알 수 없음'}
+                  </span>
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8"
+                  onClick={() => {
+                    if (currentLocation) {
+                      const address = currentLocation.address || "";
+                      const city = address.split(" ")[0] || "서울";
+                      setManualLocation({
+                        city,
+                        district: "",
+                        address: currentLocation.address || "",
+                        lat: currentLocation.lat,
+                        long: currentLocation.long
+                      });
+                    }
+                  }}
+                >
+                  이 위치 사용
+                </Button>
+              </div>
+            )}
+
+            {locationError && (
+              <div className="flex items-center text-amber-600 gap-2 bg-amber-50 p-2 rounded">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="text-sm">{locationError}</span>
+              </div>
+            )}
+          </div>
           
           {/* 적용된 필터 표시 */}
-          {(searchTerm || sortBy !== "newest" || useManualLocation) && (
+          {(searchTerm || sortBy !== "newest" || manualLocation.city) && (
             <div className="mt-4 flex flex-wrap gap-2">
               {searchTerm && (
                 <Badge variant="secondary" className="flex items-center gap-1">
@@ -341,11 +442,11 @@ const Services: React.FC = () => {
                 </Badge>
               )}
               
-              {useManualLocation && (
+              {manualLocation.city && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
                   <span>
-                    위치: {manualLocation.city} {manualLocation.address}
+                    위치: {manualLocation.city} {manualLocation.district ? manualLocation.district + ' ' : ''}{manualLocation.address}
                   </span>
                 </Badge>
               )}
