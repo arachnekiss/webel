@@ -50,11 +50,13 @@ export const resources = pgTable("resources", {
   resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
   tags: text("tags").array(),
   imageUrl: text("image_url"),
-  downloadUrl: text("download_url").notNull(),
+  downloadUrl: text("download_url"),
+  downloadFile: text("download_file"), // Path or reference to the uploaded file
   downloadCount: integer("download_count").default(0),
-  materialsList: jsonb("materials_list"), // Array of materials needed
-  recipe: jsonb("recipe"), // Step by step assembly or usage instructions
-  createdAt: timestamp("created_at").defaultNow(),
+  howToUse: text("how_to_use"), // Instructions for using the resource
+  assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
+  createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
+  category: text("category"), // More specific categorization within resourceType
   isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
   sourceSite: text("source_site"), // Original source if crawled
 });
