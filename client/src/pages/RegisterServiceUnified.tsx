@@ -1,0 +1,1058 @@
+import React, { useState, useRef, useEffect } from "react";
+import { useLocation as useWouterLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { ServiceType } from "@shared/schema";
+import { useLocation } from "@/contexts/LocationContext"; 
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Loader2,
+  Upload,
+  Image as ImageIcon,
+  MapPin,
+  Wrench,
+  X,
+  Plus,
+  Phone,
+  Mail,
+  Clock,
+  DollarSign,
+  FileBox,
+  Printer,
+  User,
+  Building,
+  Hexagon,
+  Info,
+  Check
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+// 파일 형식 옵션 (3D 프린터용)
+const fileFormatOptions = [
+  "STL", "OBJ", "AMF", "3MF", "STEP", "IGES", "X3D", "PLY", "FBX", "GCODE", "기타"
+];
+
+// 재료 옵션 (3D 프린터용)
+const materialOptions = [
+  "PLA", "ABS", "PETG", "TPU", "Nylon", "PC (폴리카보네이트)", 
+  "PEEK", "PVA", "HIPS", "ASA", "Carbon Fiber", "Wood Fill", 
+  "Metal Fill", "Ceramic", "Resin", "기타"
+];
+
+// 전문 분야 옵션 (엔지니어용)
+const specializationOptions = [
+  "전자공학", "기계공학", "소프트웨어 개발", "3D 모델링", 
+  "PCB 설계", "임베디드 시스템", "로봇공학", "AI/ML", 
+  "자동화", "IoT", "생산 엔지니어링", "품질 관리", "기타"
+];
+
+// 제조 역량 옵션 (제조업체용)
+const manufacturingCapabilityOptions = [
+  "CNC 가공", "3D 프린팅", "사출 성형", "판금", "용접", 
+  "조립", "PCB 제작", "표면 처리", "레이저 가공", 
+  "밀링", "터닝", "와이어 컷팅", "드릴링", "기타"
+];
+
+// 서비스 유형 별 라벨
+const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
+  { value: "3d_printing", label: "3D 프린팅 서비스", icon: Printer },
+  { value: "engineer", label: "엔지니어 서비스", icon: User },
+  { value: "manufacturing", label: "제조 서비스", icon: Building },
+  { value: "electronics", label: "전자기기 서비스", icon: Hexagon },
+  { value: "woodworking", label: "목공 서비스", icon: Wrench },
+  { value: "metalworking", label: "금속가공 서비스", icon: Wrench },
+];
+
+// 서비스 등록 폼 스키마
+const serviceFormSchema = z.object({
+  title: z.string().min(5, {
+    message: '제목은 최소 5글자 이상이어야 합니다',
+  }),
+  description: z.string().min(10, {
+    message: '설명은 최소 10글자 이상이어야 합니다',
+  }),
+  serviceType: z.enum(["3d_printing", "electronics", "woodworking", "metalworking", "manufacturing", "engineer"]),
+  printerModel: z.string().min(3, {
+    message: '프린터 모델명을 입력해주세요',
+  }).optional(),
+  contactPhone: z.string().min(8, {
+    message: '유효한 전화번호를 입력해주세요',
+  }),
+  contactEmail: z.string().email({
+    message: '유효한 이메일을 입력해주세요',
+  }),
+  pricing: z.string().min(3, {
+    message: '가격 정보를 입력해주세요',
+  }),
+  availableHours: z.string().min(3, {
+    message: '이용 가능 시간을 입력해주세요',
+  }),
+  isIndividual: z.boolean().default(true),
+  tags: z.string().transform((val) => val.split(',').map((tag) => tag.trim())),
+  address: z.string().min(5, {
+    message: '주소를 입력해주세요',
+  }),
+  latitude: z.number(),
+  longitude: z.number(),
+  nickname: z.string().optional(),
+  hourlyRate: z.string().optional(),
+  portfolioUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
+});
+
+type ServiceFormValues = z.infer<typeof serviceFormSchema>;
+
+export default function RegisterServiceUnified() {
+  const { toast } = useToast();
+  const [, navigate] = useWouterLocation();
+  const location = useWouterLocation()[0];
+  const params = location.split('/').pop(); // 간단히 마지막 세그먼트를 추출
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { currentLocation, getLocation } = useLocation();
+  const queryClient = useQueryClient();
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const sampleInputsRef = useRef<HTMLInputElement>(null);
+  
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [selectedTab, setSelectedTab] = useState("basic");
+  const [serviceType, setServiceType] = useState<ServiceType>("3d_printing");
+  const [useCurrentLocation, setUseCurrentLocation] = useState(false);
+  const [addressInput, setAddressInput] = useState('');
+  
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
+  const [selectedFileFormats, setSelectedFileFormats] = useState<string[]>([]);
+  const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
+  const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
+  
+  const [sampleImages, setSampleImages] = useState<{ file: File; preview: string }[]>([]);
+  
+  // URL params로부터 서비스 타입 가져오기
+  useEffect(() => {
+    // URL에서 타입 파라미터 추출 시도
+    if (params && typeof params === 'string') {
+      const paramType = params as ServiceType;
+      if (["3d_printing", "engineer", "manufacturing", "electronics", "woodworking", "metalworking"].includes(paramType)) {
+        setServiceType(paramType);
+        form.setValue("serviceType", paramType);
+      }
+    }
+  }, [params]);
+
+  // 폼 설정
+  const form = useForm<ServiceFormValues>({
+    resolver: zodResolver(serviceFormSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      serviceType: serviceType,
+      printerModel: '',
+      contactPhone: '',
+      contactEmail: user?.email || '',
+      pricing: '10g당 1,000원',
+      availableHours: '평일 10:00-18:00',
+      isIndividual: true,
+      tags: 'PLA,ABS,시제품',
+      address: '',
+      latitude: 0,
+      longitude: 0,
+      nickname: user?.username || '',
+    },
+  });
+
+  // 위치 정보 사용 토글
+  const handleLocationToggle = async (checked: boolean) => {
+    setUseCurrentLocation(checked);
+    if (checked) {
+      await getLocation();
+      if (currentLocation) {
+        form.setValue('latitude', currentLocation.lat);
+        form.setValue('longitude', currentLocation.long);
+        form.setValue('address', currentLocation.address);
+        setAddressInput(currentLocation.address);
+      }
+    }
+  };
+
+  // 주소 수동 입력
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddressInput(e.target.value);
+    form.setValue('address', e.target.value);
+  };
+
+  // 서비스 타입 변경 이벤트
+  const handleServiceTypeChange = (value: ServiceType) => {
+    setServiceType(value);
+    form.setValue("serviceType", value);
+    // 서비스 타입에 따라 필요한 리셋 작업 수행
+    if (value === "3d_printing") {
+      setSelectedSpecializations([]);
+      setSelectedCapabilities([]);
+    } else if (value === "engineer") {
+      setSelectedMaterials([]);
+      setSelectedFileFormats([]);
+      setSelectedCapabilities([]);
+    } else if (value === "manufacturing") {
+      setSelectedMaterials([]);
+      setSelectedFileFormats([]);
+      setSelectedSpecializations([]);
+    }
+  };
+
+  // 이미지 선택 핸들러
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "파일 크기 초과",
+          description: "이미지 파일은 5MB 이하만 업로드 가능합니다.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setImageFile(file);
+    }
+  };
+
+  // 샘플 이미지 선택 핸들러 (3D 프린터용)
+  const handleSampleImagesSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files) {
+      const newSampleImages: { file: File; preview: string }[] = [];
+      
+      Array.from(files).forEach((file) => {
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "파일 크기 초과",
+            description: `${file.name}의 크기가 5MB를 초과합니다.`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            newSampleImages.push({
+              file,
+              preview: event.target.result as string
+            });
+            
+            if (newSampleImages.length === Array.from(files).length) {
+              setSampleImages(prev => [...prev, ...newSampleImages]);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  // 샘플 이미지 제거 핸들러
+  const removeSampleImage = (index: number) => {
+    setSampleImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // 체크박스 토글 핸들러
+  const toggleCheckbox = (array: string[], setArray: React.Dispatch<React.SetStateAction<string[]>>, value: string) => {
+    if (array.includes(value)) {
+      setArray(array.filter(item => item !== value));
+    } else {
+      setArray([...array, value]);
+    }
+  };
+
+  // 서비스 등록 API 요청
+  const registerServiceMutation = useMutation({
+    mutationFn: async (data: ServiceFormValues) => {
+      // FormData를 사용하여 멀티파트 요청 준비
+      const formData = new FormData();
+      
+      // 기본 필드 추가
+      formData.append('title', data.title);
+      formData.append('description', data.description);
+      formData.append('serviceType', data.serviceType);
+      
+      // 위치 정보 추가
+      const locationData = {
+        lat: data.latitude,
+        long: data.longitude,
+        address: data.address,
+      };
+      formData.append('location', JSON.stringify(locationData));
+      
+      // 기타 필드 추가
+      formData.append('tags', data.tags.join(','));
+      formData.append('contactPhone', data.contactPhone);
+      formData.append('contactEmail', data.contactEmail);
+      formData.append('pricing', data.pricing);
+      formData.append('availableHours', data.availableHours);
+      formData.append('isIndividual', data.isIndividual.toString());
+      
+      // 서비스 유형별 추가 정보
+      if (data.serviceType === "3d_printing" && data.printerModel) {
+        formData.append('printerModel', data.printerModel);
+        if (selectedMaterials.length > 0) {
+          formData.append('materials', selectedMaterials.join(','));
+        }
+        if (selectedFileFormats.length > 0) {
+          formData.append('fileFormats', selectedFileFormats.join(','));
+        }
+      } else if (data.serviceType === "engineer") {
+        if (data.hourlyRate) formData.append('hourlyRate', data.hourlyRate);
+        if (selectedSpecializations.length > 0) {
+          formData.append('specializations', selectedSpecializations.join(','));
+        }
+      } else if (data.serviceType === "manufacturing") {
+        if (selectedCapabilities.length > 0) {
+          formData.append('capabilities', selectedCapabilities.join(','));
+        }
+      }
+      
+      // 이미지 파일 추가
+      if (imageFile) {
+        formData.append('imageFile', imageFile);
+      }
+      
+      // 샘플 이미지 추가
+      sampleImages.forEach((sample, index) => {
+        formData.append(`sampleImage${index}`, sample.file);
+      });
+      formData.append('sampleImagesCount', sampleImages.length.toString());
+
+      // API 요청
+      const response = await apiRequest('POST', '/api/services', formData, true);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || '서비스 등록에 실패했습니다');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: '등록 완료',
+        description: '서비스가 성공적으로 등록되었습니다',
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/services'] });
+      queryClient.invalidateQueries({
+        queryKey: [`/api/services/type/${serviceType}`],
+      });
+      navigate('/services');
+    },
+    onError: (error: Error) => {
+      toast({
+        title: '등록 실패',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // 폼 제출 처리
+  const onSubmit = (data: ServiceFormValues) => {
+    if (!user) {
+      toast({
+        title: '로그인이 필요합니다',
+        description: '서비스를 등록하려면 로그인이 필요합니다',
+        variant: 'destructive',
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (data.latitude === 0 || data.longitude === 0) {
+      toast({
+        title: '위치 정보가 필요합니다',
+        description: '현재 위치를 사용하거나 주소를 입력해주세요',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    registerServiceMutation.mutate(data);
+  };
+
+  // 로딩 중 표시
+  if (isAuthLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // 로그인 확인
+  if (!user) {
+    return (
+      <div className="container mx-auto py-10 px-4">
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>로그인이 필요합니다</AlertTitle>
+          <AlertDescription>
+            서비스를 등록하려면 로그인이 필요합니다.
+            <Button
+              variant="link"
+              className="p-0 ml-2"
+              onClick={() => navigate('/auth')}
+            >
+              로그인 페이지로 이동
+            </Button>
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-10 px-4">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">서비스 등록</h1>
+        <p className="text-muted-foreground mt-2">
+          여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>서비스 정보</CardTitle>
+              <CardDescription>
+                귀하의 서비스 정보와 조건을 입력해주세요
+              </CardDescription>
+
+              {/* 서비스 유형 선택 */}
+              <div className="pt-4">
+                <div className="text-sm font-medium mb-2">서비스 유형 선택</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {serviceTypeLabels.map(({ value, label, icon: Icon }) => (
+                    <div
+                      key={value}
+                      className={`border rounded-md p-3 cursor-pointer transition-colors flex items-center ${
+                        serviceType === value
+                          ? "border-primary bg-primary/5"
+                          : "hover:border-primary/50"
+                      }`}
+                      onClick={() => handleServiceTypeChange(value)}
+                    >
+                      <div className={`mr-2 ${serviceType === value ? "text-primary" : ""}`}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <span className={`text-sm ${serviceType === value ? "font-medium" : ""}`}>
+                        {label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>서비스 제목*</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={serviceType === "3d_printing" 
+                              ? "예: 강남 프로페셔널 3D 프린팅 서비스" 
+                              : "예: 전자회로 설계 및 PCB 제작 서비스"}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          지역명과 특징을 포함하면 검색에 유리합니다
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>서비스 설명*</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="제공하는 서비스, 특장점, 재료 등에 대해 상세히 작성해주세요"
+                            className="min-h-[120px]"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* 3D 프린터 특화 필드 */}
+                  {serviceType === "3d_printing" && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="printerModel"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>3D 프린터 모델*</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="예: Prusa i3 MK3S+"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              사용 중인 3D 프린터의 정확한 모델명을 입력해주세요
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* 지원 파일 형식 */}
+                      <div className="space-y-3">
+                        <FormLabel>지원 파일 형식</FormLabel>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {fileFormatOptions.map(format => (
+                            <div key={format} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`format-${format}`} 
+                                checked={selectedFileFormats.includes(format)}
+                                onCheckedChange={() => toggleCheckbox(selectedFileFormats, setSelectedFileFormats, format)}
+                              />
+                              <label
+                                htmlFor={`format-${format}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {format}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 사용 가능한 재료 */}
+                      <div className="space-y-3">
+                        <FormLabel>사용 가능한 재료</FormLabel>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {materialOptions.map(material => (
+                            <div key={material} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`material-${material}`} 
+                                checked={selectedMaterials.includes(material)}
+                                onCheckedChange={() => toggleCheckbox(selectedMaterials, setSelectedMaterials, material)}
+                              />
+                              <label
+                                htmlFor={`material-${material}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {material}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 샘플 이미지 */}
+                      <div className="space-y-3">
+                        <FormLabel>결과물 샘플 이미지</FormLabel>
+                        <div className="flex flex-wrap gap-4">
+                          {sampleImages.map((sample, index) => (
+                            <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden">
+                              <img 
+                                src={sample.preview} 
+                                alt={`샘플 ${index+1}`} 
+                                className="w-full h-full object-cover"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute top-0 right-0 w-6 h-6 p-0"
+                                onClick={() => removeSampleImage(index)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                          <div className="w-24 h-24 border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer"
+                            onClick={() => sampleInputsRef.current?.click()}
+                          >
+                            <Plus className="h-6 w-6 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground mt-1">추가</span>
+                            <input
+                              type="file"
+                              ref={sampleInputsRef}
+                              className="hidden"
+                              accept="image/*"
+                              multiple
+                              onChange={handleSampleImagesSelect}
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          샘플 이미지는 이전에 진행한 프로젝트나 결과물을 보여주는 이미지입니다.
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* 엔지니어 특화 필드 */}
+                  {serviceType === "engineer" && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="hourlyRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>시간당 요금</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="예: 50,000원/시간"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              서비스 제공에 대한 시간당 요금을 입력해주세요
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* 전문 분야 */}
+                      <div className="space-y-3">
+                        <FormLabel>전문 분야</FormLabel>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {specializationOptions.map(specialization => (
+                            <div key={specialization} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`spec-${specialization}`} 
+                                checked={selectedSpecializations.includes(specialization)}
+                                onCheckedChange={() => toggleCheckbox(selectedSpecializations, setSelectedSpecializations, specialization)}
+                              />
+                              <label
+                                htmlFor={`spec-${specialization}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {specialization}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {/* 제조업체 특화 필드 */}
+                  {serviceType === "manufacturing" && (
+                    <>
+                      {/* 제조 역량 */}
+                      <div className="space-y-3">
+                        <FormLabel>제조 역량</FormLabel>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                          {manufacturingCapabilityOptions.map(capability => (
+                            <div key={capability} className="flex items-center space-x-2">
+                              <Checkbox 
+                                id={`cap-${capability}`} 
+                                checked={selectedCapabilities.includes(capability)}
+                                onCheckedChange={() => toggleCheckbox(selectedCapabilities, setSelectedCapabilities, capability)}
+                              />
+                              <label
+                                htmlFor={`cap-${capability}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                              >
+                                {capability}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="tags"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>태그</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={serviceType === "3d_printing" 
+                              ? "예: PLA,ABS,시제품,소량생산 (쉼표로 구분)" 
+                              : "예: PCB설계,하드웨어,프로토타입 (쉼표로 구분)"}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          검색 최적화를 위해 관련 키워드를 태그로 추가하세요
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="contactPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>연락처*</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: 010-1234-5678"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="contactEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>이메일*</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="예: your@email.com"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="pricing"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>가격 정책*</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          가격 책정 방식을 명확하게 작성해주세요
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="availableHours"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>이용 가능 시간*</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="예: 평일 10:00-18:00, 주말 예약제"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isIndividual"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">
+                            개인 서비스 여부
+                          </FormLabel>
+                          <FormDescription>
+                            개인이 운영하는 서비스인지, 업체에서 운영하는
+                            서비스인지 선택해주세요
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              id="isIndividual"
+                            />
+                            <label
+                              htmlFor="isIndividual"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {field.value ? "개인 서비스입니다" : "업체 서비스입니다"}
+                            </label>
+                          </div>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-medium">위치 정보</h3>
+                        <p className="text-sm text-muted-foreground">
+                          현재 위치를 사용하거나 주소를 직접 입력해주세요
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="use-location"
+                          checked={useCurrentLocation}
+                          onCheckedChange={handleLocationToggle}
+                        />
+                        <label
+                          htmlFor="use-location"
+                          className="text-sm font-medium leading-none"
+                        >
+                          현재 위치 사용
+                        </label>
+                      </div>
+                    </div>
+
+                    {!useCurrentLocation && (
+                      <div className="space-y-2">
+                        <Label htmlFor="address-input">주소 입력</Label>
+                        <Input
+                          id="address-input"
+                          placeholder="정확한 주소를 입력해주세요"
+                          value={addressInput}
+                          onChange={handleAddressChange}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
+                            form.setValue('latitude', 37.5665);
+                            form.setValue('longitude', 126.978);
+                          }}
+                          className="w-full"
+                        >
+                          주소 확인
+                        </Button>
+                        <FormMessage>
+                          {form.formState.errors.latitude?.message ||
+                            form.formState.errors.longitude?.message}
+                        </FormMessage>
+                      </div>
+                    )}
+
+                    {currentLocation && useCurrentLocation && (
+                      <div className="bg-muted p-3 rounded-md text-sm">
+                        <div className="font-medium">현재 위치:</div>
+                        <div>{currentLocation.address}</div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 서비스 이미지 */}
+                  <div className="space-y-3">
+                    <FormLabel>서비스 대표 이미지</FormLabel>
+                    <div className="border rounded-md p-4 text-center flex flex-col items-center justify-center min-h-[200px]">
+                      {imagePreview ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={imagePreview}
+                            alt="미리보기"
+                            className="max-h-[180px] max-w-full object-contain mx-auto"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              setImagePreview(null);
+                              setImageFile(null);
+                              if (fileInputRef.current) {
+                                fileInputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            제거
+                          </Button>
+                        </div>
+                      ) : (
+                        <div
+                          className="flex flex-col items-center justify-center cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">클릭하여 이미지 업로드</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, GIF (최대 5MB)</p>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      disabled={
+                        registerServiceMutation.isPending ||
+                        !form.formState.isValid
+                      }
+                    >
+                      {registerServiceMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      서비스 등록하기
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-1">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>등록 안내</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start">
+                  <Info className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <p className="text-sm">
+                    등록한 서비스는 다른 사용자들이 검색하고 이용할 수 있습니다.
+                  </p>
+                </div>
+                <div className="flex items-start">
+                  <MapPin className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <p className="text-sm">
+                    정확한 위치 정보를 제공하면 근처 사용자들이 더 쉽게 찾을 수
+                    있습니다.
+                  </p>
+                </div>
+                <div className="flex items-start">
+                  <DollarSign className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <p className="text-sm">
+                    명확한 가격 정책을 설정하여 사용자들이 예상 비용을 알 수
+                    있게 해주세요.
+                  </p>
+                </div>
+                <div className="flex items-start">
+                  <Clock className="h-5 w-5 text-primary mt-0.5 mr-3" />
+                  <p className="text-sm">
+                    운영 시간을 정확히 표시하여 예약과 문의가 원활하게
+                    이루어지도록 하세요.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>서비스 등록 혜택</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-primary/10 p-3 rounded-md">
+                    <h4 className="font-medium text-primary">
+                      추가 수익 창출
+                    </h4>
+                    <p className="text-sm mt-1">
+                      여유 시간에 서비스를 제공하여 추가 수익을 얻을 수
+                      있습니다.
+                    </p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-md">
+                    <h4 className="font-medium text-primary">
+                      커뮤니티 참여
+                    </h4>
+                    <p className="text-sm mt-1">
+                      메이커 커뮤니티와 연결되어 다양한 프로젝트와 아이디어를
+                      공유할 수 있습니다.
+                    </p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-md">
+                    <h4 className="font-medium text-primary">
+                      프로필 인지도 상승
+                    </h4>
+                    <p className="text-sm mt-1">
+                      다양한 작업을 통해 포트폴리오를 구축하고 전문성을 인정받을
+                      수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
