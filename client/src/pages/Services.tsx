@@ -261,8 +261,10 @@ const Services: React.FC = () => {
           {/* 필터 및 정렬 영역 */}
           <div className="p-4 flex flex-wrap justify-between items-center gap-2 border-b">
             <div className="flex gap-2 items-center flex-wrap">
-              <Select value={manualLocation.city || ""} onValueChange={(city) => {
-                const updatedLocation = {...manualLocation, city, district: ''};
+              <Select value={manualLocation.city || "all"} onValueChange={(city) => {
+                // 전체를 선택한 경우 빈 문자열로 처리
+                const cityValue = city === "all" ? "" : city;
+                const updatedLocation = {...manualLocation, city: cityValue, district: ''};
                 setManualLocation(updatedLocation);
                 
                 // 도시를 선택하면 바로 해당 위치 좌표 적용
@@ -279,7 +281,7 @@ const Services: React.FC = () => {
                   <SelectValue placeholder="도시 선택" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">전체</SelectItem>
+                  <SelectItem value="all">전체</SelectItem>
                   <SelectItem value="서울">서울</SelectItem>
                   <SelectItem value="부산">부산</SelectItem>
                   <SelectItem value="인천">인천</SelectItem>
@@ -292,8 +294,10 @@ const Services: React.FC = () => {
               </Select>
               
               {manualLocation.city && (
-                <Select value={manualLocation.district || ""} onValueChange={(district) => {
-                  const updatedLocation = {...manualLocation, district};
+                <Select value={manualLocation.district || "all"} onValueChange={(district) => {
+                  // 전체를 선택한 경우 빈 문자열로 처리
+                  const districtValue = district === "all" ? "" : district;
+                  const updatedLocation = {...manualLocation, district: districtValue};
                   setManualLocation(updatedLocation);
                   
                   // 구를 선택하면 바로 해당 위치 좌표 적용
@@ -310,7 +314,7 @@ const Services: React.FC = () => {
                     <SelectValue placeholder="지역구" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">전체</SelectItem>
+                    <SelectItem value="all">전체</SelectItem>
                     {manualLocation.city === '서울' ? (
                       <>
                         <SelectItem value="강남구">강남구</SelectItem>
