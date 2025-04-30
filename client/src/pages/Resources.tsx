@@ -73,13 +73,13 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   });
   
   // 모든 페이지의 리소스를 하나의 배열로 병합
-  const resources = data?.pages.flatMap(page => {
+  const resources = data?.pages?.flatMap(page => {
     // API가 {items, meta} 형식으로 반환하는 경우
-    if (page.items) {
+    if (page?.items) {
       return page.items;
     }
     // API가 리소스 배열을 직접 반환하는 경우
-    return page;
+    return page || [];
   }) || [];
   
   // Get resource type name for display
@@ -150,16 +150,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
               무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요.
             </p>
           </div>
-          <div className="mt-5 md:mt-0 flex space-x-3">
-            <Link href={type ? `/resources/upload?type=${type}` : '/resources/upload'}>
-              <Button 
-                className="bg-primary hover:bg-blue-600 text-white flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                {type ? `${getResourceTypeName()} 업로드` : '리소스 업로드'}
-              </Button>
-            </Link>
-          </div>
+          {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
         </div>
         
         {/* Search and filter controls */}

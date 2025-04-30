@@ -81,10 +81,12 @@ function Router() {
             <Route path="/auctions" component={Auctions}/>
             <Route path="/auctions/:id" component={AuctionDetail}/>
             
-            {/* Upload/Register pages */}
-            <Route path="/resources/upload" component={UploadResource}/>
+            {/* Register pages */}
             <Route path="/services/register" component={RegisterService}/>
             <Route path="/services/register/:type" component={RegisterService}/>
+            
+            {/* Resource upload only accessible through admin dashboard */}
+            <AdminRoute path="/resources/upload" component={UploadResource}/>
             
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>

@@ -52,12 +52,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
           </div>
         </div>
         <div className="flex gap-3">
-          <Link href={`/resources/upload?type=${category}`}>
-            <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
-              <Upload className="mr-2 h-4 w-4" />
-              업로드
-            </Button>
-          </Link>
+          {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
           <Link href={`/resources/type/${category}`}>
             <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
               더 보기
