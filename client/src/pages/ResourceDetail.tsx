@@ -218,13 +218,13 @@ export default function ResourceDetail() {
                     <Info className="h-4 w-4 mr-1" />
                     설명
                   </TabsTrigger>
-                  {resource.howToUse && (
+                  {typeof resource.howToUse === 'string' && (
                     <TabsTrigger value="howToUse">
                       <BookOpen className="h-4 w-4 mr-1" />
                       사용 방법
                     </TabsTrigger>
                   )}
-                  {resource.assemblyInstructions && (
+                  {typeof resource.assemblyInstructions === 'string' && (
                     <TabsTrigger value="assembly">
                       <Hammer className="h-4 w-4 mr-1" />
                       조립 설명서
@@ -236,13 +236,13 @@ export default function ResourceDetail() {
                   <p className="whitespace-pre-line">{resource.description}</p>
                 </TabsContent>
                 
-                {resource.howToUse && (
+                {typeof resource.howToUse === 'string' && (
                   <TabsContent value="howToUse" className="text-md">
                     <p className="whitespace-pre-line">{resource.howToUse}</p>
                   </TabsContent>
                 )}
                 
-                {resource.assemblyInstructions && (
+                {typeof resource.assemblyInstructions === 'string' && (
                   <TabsContent value="assembly" className="text-md">
                     <p className="whitespace-pre-line">{resource.assemblyInstructions}</p>
                   </TabsContent>
