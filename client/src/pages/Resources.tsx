@@ -73,11 +73,19 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   return (
     <div>
       <main className="flex-grow container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-3">{getResourceTypeName()}</h1>
-          <p className="text-gray-600">
-            무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-3">{getResourceTypeName()}</h1>
+            <p className="text-gray-600">
+              무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요.
+            </p>
+          </div>
+          <Button 
+            onClick={() => window.location.href = '/resources/upload'} 
+            className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
+          >
+            리소스 업로드
+          </Button>
         </div>
         
         {/* Search and filter controls */}

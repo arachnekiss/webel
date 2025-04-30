@@ -190,11 +190,19 @@ const Services: React.FC = () => {
   return (
     <>
       <div className="container mx-auto px-4 py-6">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
-          <p className="text-gray-600">
-            필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.
-          </p>
+        <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
+            <p className="text-gray-600">
+              필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.
+            </p>
+          </div>
+          <Button 
+            onClick={() => window.location.href = `/services/register${type ? `/${type}` : ''}`} 
+            className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
+          >
+            서비스 등록
+          </Button>
         </div>
         
         {/* 검색 및 필터 컨트롤 - 쇼핑몰 스타일 */}
