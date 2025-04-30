@@ -94,10 +94,13 @@ export default function AdminEngineerManagement() {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
 
   // 엔지니어/서비스 목록 가져오기
-  const { data: services, isLoading, error } = useQuery<Service[]>({
+  const { data: servicesData, isLoading, error } = useQuery<{ items: Service[], meta: any }>({
     queryKey: ['/api/admin/services'],
     queryFn: getQueryFn({ on401: 'throw' }),
   });
+  
+  // 실제 서비스 배열 (items 필드에서 추출)
+  const services = servicesData?.items || [];
 
   // 서비스 검증 상태 변경 뮤테이션
   const verifyServiceMutation = useMutation({
