@@ -164,8 +164,10 @@ const Services: React.FC = () => {
         return '목공 서비스';
       case 'metalworking':
         return '금속 가공 서비스';
-      case 'manufacturers':
+      case 'manufacturing':
         return '생산업체';
+      case 'engineer':
+        return '엔지니어 서비스';
       default:
         return '모든 서비스';
     }
