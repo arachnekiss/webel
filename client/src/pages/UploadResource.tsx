@@ -84,6 +84,29 @@ export default function UploadResource() {
   const [selectedTab, setSelectedTab] = useState("basic");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  
+  // URL에서 type 파라미터 추출
+  const [initialResourceType, setInitialResourceType] = useState<ResourceType | null>(null);
+  
+  // 컴포넌트 마운트 시 URL에서 type 파라미터 확인
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const typeParam = params.get('type') as ResourceType | null;
+      
+      // 유효한 ResourceType인지 검증
+      if (typeParam && resourceTypeOptions.some(option => option.value === typeParam)) {
+        setInitialResourceType(typeParam);
+      }
+    }
+  });
+
+  // URL에서 가져온 리소스 타입으로 초기화하기 위한 useEffect
+  useEffect(() => {
+    if (initialResourceType) {
+      form.setValue("resourceType", initialResourceType);
+    }
+  }, [initialResourceType]);
 
   // 폼 초기화
   const form = useForm<ResourceFormValues>({
@@ -91,7 +114,7 @@ export default function UploadResource() {
     defaultValues: {
       title: "",
       description: "",
-      resourceType: "hardware_design",
+      resourceType: initialResourceType || "hardware_design",
       category: "",
       tags: "",
       downloadUrl: "",

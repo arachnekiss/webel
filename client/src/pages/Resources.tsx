@@ -6,7 +6,7 @@ import { Resource } from '@/types';
 import ResourceCard from '@/components/ui/ResourceCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, PlusCircle } from 'lucide-react';
 
 interface ResourcesProps {
   type?: string;
