@@ -160,7 +160,7 @@ export default function AdminResourceManagement() {
   });
   
   // 리소스 목록 추출
-  const resources = resourcesData?.items;
+  const resources = resourcesData?.items || [];
 
   // 리소스 변경 뮤테이션 (featured 상태 변경)
   const updateResourceMutation = useMutation({
@@ -252,7 +252,7 @@ export default function AdminResourceManagement() {
   };
 
   // 검색어와 필터로 리소스 필터링
-  const filteredResources = resources && Array.isArray(resources) ? resources.filter(resource => {
+  const filteredResources = resources.filter(resource => {
     // 검색어 필터링
     const matchesSearch = 
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -270,7 +270,7 @@ export default function AdminResourceManagement() {
       typeFilter.includes(resource.resourceType);
     
     return matchesSearch && matchesTab && matchesType;
-  }) : [];
+  });
 
   // 로딩 중 표시
   if (isLoading) {
