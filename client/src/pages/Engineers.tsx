@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
-import { Loader2, Search, Wrench, Star, Clock, Zap, MapPin, Compass } from 'lucide-react';
+import { Loader2, Search, Wrench, Star, Clock, Zap, MapPin, Filter } from 'lucide-react';
 import { getQueryFn } from '@/lib/queryClient';
 import { Service } from '@shared/schema';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -9,9 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
 type Location = {
@@ -22,16 +20,14 @@ type Location = {
 
 export default function Engineers() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('newest'); // newest, rating, experience, hourly_rate
-  const [useLocation, setUseLocation] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState<Location | null>(null);
-  const [manualLocation, setManualLocation] = useState({
-    address: '',
+  const [sortBy, setSortBy] = useState('newest'); // newest, popularity(rating), distance
+  const [location, setLocation] = useState({
     city: '',
-    country: '대한민국',
+    district: '',
+    address: '',
   });
-  const [locationTab, setLocationTab] = useState('auto');
-  const [maxDistance, setMaxDistance] = useState(10); // km 단위
+  const [maxDistance, setMaxDistance] = useState(30); // km 단위 - 기본값 30km로 설정
+  const [hasLocationFilter, setHasLocationFilter] = useState(false);
   const { toast } = useToast();
 
   // 엔지니어 데이터 가져오기
@@ -40,73 +36,104 @@ export default function Engineers() {
     queryFn: getQueryFn({ on401: 'returnNull' }),
   });
 
-  // 현재 위치 정보 가져오기
-  const fetchCurrentLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocation({
-            lat: position.coords.latitude,
-            long: position.coords.longitude,
-            address: '현재 위치',
-          });
-          toast({
-            title: '위치 확인 완료',
-            description: '현재 위치를 기반으로 가까운 엔지니어를 찾습니다.',
-          });
-        },
-        (error) => {
-          console.error('위치 가져오기 오류:', error);
-          toast({
-            variant: 'destructive',
-            title: '위치 확인 실패',
-            description: '위치 정보를 가져올 수 없습니다. 권한을 확인하거나 수동으로 위치를 입력해주세요.',
-          });
-          setLocationTab('manual');
-        }
-      );
-    } else {
-      toast({
-        variant: 'destructive',
-        title: '위치 서비스 지원 안됨',
-        description: '브라우저가 위치 서비스를 지원하지 않습니다. 수동으로 위치를 입력해주세요.',
-      });
-      setLocationTab('manual');
-    }
+  // 한국의 주요 도시와 구 정보
+  const koreaLocations: Record<string, Record<string, { lat: number; long: number }>> = {
+    '서울': {
+      '강남구': { lat: 37.5172, long: 127.0473 },
+      '강동구': { lat: 37.5301, long: 127.1247 },
+      '강북구': { lat: 37.6396, long: 127.0258 },
+      '강서구': { lat: 37.5509, long: 126.8495 },
+      '관악구': { lat: 37.4784, long: 126.9516 },
+      '광진구': { lat: 37.5384, long: 127.0825 },
+      '구로구': { lat: 37.4954, long: 126.8874 },
+      '금천구': { lat: 37.4568, long: 126.8965 },
+      '노원구': { lat: 37.6541, long: 127.0568 },
+      '도봉구': { lat: 37.6688, long: 127.0471 },
+      '동대문구': { lat: 37.5744, long: 127.0400 },
+      '동작구': { lat: 37.5121, long: 126.9396 },
+      '마포구': { lat: 37.5665, long: 126.9018 },
+      '서대문구': { lat: 37.5791, long: 126.9368 },
+      '서초구': { lat: 37.4837, long: 127.0324 },
+      '성동구': { lat: 37.5633, long: 127.0371 },
+      '성북구': { lat: 37.5894, long: 127.0162 },
+      '송파구': { lat: 37.5145, long: 127.1060 },
+      '양천구': { lat: 37.5169, long: 126.8664 },
+      '영등포구': { lat: 37.5260, long: 126.8969 },
+      '용산구': { lat: 37.5321, long: 126.9810 },
+      '은평구': { lat: 37.6026, long: 126.9291 },
+      '종로구': { lat: 37.5720, long: 126.9794 },
+      '중구': { lat: 37.5640, long: 126.9975 },
+      '중랑구': { lat: 37.6061, long: 127.0926 },
+      '전체': { lat: 37.5665, long: 126.9780 },
+    },
+    '부산': {
+      '강서구': { lat: 35.2118, long: 128.9829 },
+      '금정구': { lat: 35.2427, long: 129.0905 },
+      '남구': { lat: 35.1366, long: 129.0843 },
+      '동구': { lat: 35.1291, long: 129.0454 },
+      '동래구': { lat: 35.1966, long: 129.0856 },
+      '부산진구': { lat: 35.1631, long: 129.0532 },
+      '북구': { lat: 35.1971, long: 128.9913 },
+      '사상구': { lat: 35.1525, long: 128.9907 },
+      '사하구': { lat: 35.1037, long: 128.9744 },
+      '서구': { lat: 35.0977, long: 129.0243 },
+      '수영구': { lat: 35.1453, long: 129.1132 },
+      '연제구': { lat: 35.1761, long: 129.0791 },
+      '영도구': { lat: 35.0917, long: 129.0693 },
+      '중구': { lat: 35.1060, long: 129.0328 },
+      '해운대구': { lat: 35.1629, long: 129.1639 },
+      '기장군': { lat: 35.2446, long: 129.2228 },
+      '전체': { lat: 35.1796, long: 129.0756 },
+    },
+    '인천': { '전체': { lat: 37.4563, long: 126.7052 } },
+    '대구': { '전체': { lat: 35.8714, long: 128.6014 } },
+    '대전': { '전체': { lat: 36.3504, long: 127.3845 } },
+    '광주': { '전체': { lat: 35.1595, long: 126.8526 } },
+    '울산': { '전체': { lat: 35.5384, long: 129.3114 } },
+    '세종': { '전체': { lat: 36.4801, long: 127.2882 } },
+    '제주': { '전체': { lat: 33.4996, long: 126.5312 } },
   };
 
-  // 수동 위치 입력을 위도/경도로 변환 (간단한 구현)
-  const getLocationFromAddress = (): Location | null => {
-    // 실제로는 지오코딩 API를 사용하는 것이 좋지만, 
-    // 여기서는 간단한 한국 주요 도시의 좌표를 사용합니다.
-    const cityCoordinates: Record<string, { lat: number; long: number }> = {
-      '서울': { lat: 37.5665, long: 126.9780 },
-      '부산': { lat: 35.1796, long: 129.0756 },
-      '인천': { lat: 37.4563, long: 126.7052 },
-      '대구': { lat: 35.8714, long: 128.6014 },
-      '대전': { lat: 36.3504, long: 127.3845 },
-      '광주': { lat: 35.1595, long: 126.8526 },
-      '울산': { lat: 35.5384, long: 129.3114 },
-      '세종': { lat: 36.4801, long: 127.2882 },
-      '제주': { lat: 33.4996, long: 126.5312 },
-    };
-
-    // 도시 이름이 포함된 경우 해당 도시의 좌표 사용
-    for (const city in cityCoordinates) {
-      if (manualLocation.address.includes(city) || manualLocation.city.includes(city)) {
+  // 위치 좌표 얻기
+  const getLocationCoordinates = (): Location | null => {
+    const city = location.city.trim();
+    const district = location.district.trim();
+    
+    // 입력이 없는 경우 null 반환
+    if (!city && !district && !location.address.trim()) {
+      return null;
+    }
+    
+    // 도시 검색
+    for (const cityKey in koreaLocations) {
+      if (city.includes(cityKey) || cityKey.includes(city)) {
+        // 구 검색
+        if (district) {
+          for (const districtKey in koreaLocations[cityKey]) {
+            if (district.includes(districtKey) || districtKey.includes(district)) {
+              return {
+                lat: koreaLocations[cityKey][districtKey].lat,
+                long: koreaLocations[cityKey][districtKey].long,
+                address: `${city} ${district} ${location.address}`.trim(),
+              };
+            }
+          }
+        }
+        
+        // 구가 없거나 매칭되지 않는 경우 도시 전체 위치 사용
         return {
-          lat: cityCoordinates[city].lat,
-          long: cityCoordinates[city].long,
-          address: `${manualLocation.city} ${manualLocation.address}`,
+          lat: koreaLocations[cityKey]['전체'].lat,
+          long: koreaLocations[cityKey]['전체'].long,
+          address: `${city} ${district} ${location.address}`.trim(),
         };
       }
     }
-
-    // 기본 위치 (서울 시청)
+    
+    // 도시가 매칭되지 않는 경우 기본값(서울) 사용
     return {
-      lat: 37.5665,
-      long: 126.9780,
-      address: `${manualLocation.city} ${manualLocation.address}`,
+      lat: koreaLocations['서울']['전체'].lat,
+      long: koreaLocations['서울']['전체'].long,
+      address: `${city} ${district} ${location.address}`.trim() || '위치 미지정',
     };
   };
 
@@ -123,13 +150,6 @@ export default function Engineers() {
     const d = R * c; // 거리 (km)
     return d;
   };
-
-  // 위치 탭 변경 시 처리
-  useEffect(() => {
-    if (locationTab === 'auto' && useLocation) {
-      fetchCurrentLocation();
-    }
-  }, [locationTab, useLocation]);
 
   // 검색어 및 정렬 적용
   const filteredEngineers = React.useMemo(() => {
@@ -150,15 +170,14 @@ export default function Engineers() {
     }
     
     // 위치 기반 필터링
-    if (useLocation) {
-      const userLocation = locationTab === 'auto' ? currentLocation : getLocationFromAddress();
+    if (hasLocationFilter) {
+      const userLocation = getLocationCoordinates();
       
       if (userLocation) {
-        // 각 엔지니어와의 거리 계산 및 필터링
-        result = result.filter(engineer => {
-          if (!engineer.location) return true;
+        // 각 엔지니어에게 거리 정보 추가
+        result.forEach(engineer => {
+          if (!engineer.location) return;
           
-          // 위치 정보가 있는 경우에만 거리 계산
           try {
             const engineerLocation = typeof engineer.location === 'string' 
               ? JSON.parse(engineer.location) 
@@ -173,12 +192,15 @@ export default function Engineers() {
             
             // 거리 정보 추가 (UI 표시용)
             (engineer as any).distance = distance.toFixed(1);
-            
-            return distance <= maxDistance;
           } catch (error) {
             console.error('위치 계산 오류:', error);
-            return true;
           }
+        });
+        
+        // 거리 필터링 (거리 정보가 있는 경우만)
+        result = result.filter(engineer => {
+          if (!(engineer as any).distance) return false;
+          return parseFloat((engineer as any).distance) <= maxDistance;
         });
       }
     }
@@ -196,18 +218,22 @@ export default function Engineers() {
       case 'rating':
         result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
-      case 'experience':
-        result.sort((a, b) => (b.experience || 0) - (a.experience || 0));
-        break;
-      case 'hourly_rate':
-        result.sort((a, b) => (a.hourlyRate || 0) - (b.hourlyRate || 0));
+      case 'distance':
+        // 거리순 정렬 (가까운 순)
+        if (hasLocationFilter) {
+          result.sort((a, b) => {
+            const distA = parseFloat((a as any).distance || '9999');
+            const distB = parseFloat((b as any).distance || '9999');
+            return distA - distB;
+          });
+        }
         break;
       default:
         break;
     }
     
     return result;
-  }, [engineers, searchTerm, sortBy, useLocation, currentLocation, manualLocation, maxDistance, locationTab]);
+  }, [engineers, searchTerm, sortBy, hasLocationFilter, location, maxDistance]);
 
   // 로딩 중 표시
   if (isLoading) {
@@ -263,15 +289,11 @@ export default function Engineers() {
                   </SelectItem>
                   <SelectItem value="rating" className="flex items-center gap-2">
                     <Star className="h-4 w-4" />
-                    <span>평점순</span>
+                    <span>인기순</span>
                   </SelectItem>
-                  <SelectItem value="experience" className="flex items-center gap-2">
-                    <Wrench className="h-4 w-4" />
-                    <span>경력순</span>
-                  </SelectItem>
-                  <SelectItem value="hourly_rate" className="flex items-center gap-2">
-                    <Zap className="h-4 w-4" />
-                    <span>요금순</span>
+                  <SelectItem value="distance" className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>거리순</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -283,6 +305,7 @@ export default function Engineers() {
               onClick={() => {
                 setSearchTerm("");
                 setSortBy("newest");
+                setHasLocationFilter(false);
               }}
             >
               <Search className="h-4 w-4" />
@@ -291,7 +314,7 @@ export default function Engineers() {
         </div>
         
         {/* 적용된 필터 표시 */}
-        {(searchTerm || sortBy !== "newest") && (
+        {(searchTerm || sortBy !== "newest" || hasLocationFilter) && (
           <div className="mt-4 flex flex-wrap gap-2">
             {searchTerm && (
               <Badge variant="secondary" className="flex items-center gap-1">
@@ -304,148 +327,138 @@ export default function Engineers() {
               <Badge variant="secondary" className="flex items-center gap-1">
                 {sortBy === "rating" ? (
                   <Star className="h-3 w-3" />
-                ) : sortBy === "experience" ? (
-                  <Wrench className="h-3 w-3" />
+                ) : sortBy === "distance" ? (
+                  <MapPin className="h-3 w-3" />
                 ) : (
-                  <Zap className="h-3 w-3" />
+                  <Clock className="h-3 w-3" />
                 )}
                 <span>
                   정렬: {
-                    sortBy === "rating" ? "평점순" : 
-                    sortBy === "experience" ? "경력순" : 
-                    sortBy === "hourly_rate" ? "요금순" : "최신순"
+                    sortBy === "rating" ? "인기순" : 
+                    sortBy === "distance" ? "거리순" : "최신순"
                   }
                 </span>
+              </Badge>
+            )}
+            
+            {hasLocationFilter && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                <span>위치: {maxDistance}km 이내</span>
               </Badge>
             )}
           </div>
         )}
       </div>
       
-      {/* 위치 필터링 섹션 */}
+      {/* 위치 검색 섹션 */}
       <div className="bg-white rounded-lg shadow p-4 mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b pb-4 mb-4">
-          <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <Switch
-              id="use-location"
-              checked={useLocation}
-              onCheckedChange={setUseLocation}
-            />
-            <Label htmlFor="use-location" className="font-medium text-gray-800">위치 기반 필터링</Label>
-            <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
-              지역 전문가 찾기
-            </Badge>
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-medium">지역 검색</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (location.city || location.district) {
+                  setHasLocationFilter(!hasLocationFilter);
+                } else {
+                  toast({
+                    title: '위치 정보 필요',
+                    description: '위치 필터링을 사용하려면 지역 정보를 입력하세요.',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+            >
+              {hasLocationFilter ? '지역 검색 해제' : '지역 검색 적용'}
+            </Button>
           </div>
           
-          {useLocation && (
-            <div className="flex items-center space-x-4">
-              <div className="flex flex-col space-y-1">
-                <Label htmlFor="max-distance" className="text-sm text-gray-600">최대 검색 거리</Label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    id="max-distance"
-                    type="range"
-                    min="1"
-                    max="50"
-                    value={maxDistance}
-                    onChange={e => setMaxDistance(Number(e.target.value))}
-                    className="w-32"
-                  />
-                  <span className="text-sm font-medium w-16 text-right">{maxDistance}km</span>
-                </div>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="city" className="text-gray-700">도시</Label>
+              <Select 
+                value={location.city} 
+                onValueChange={(value) => setLocation(prev => ({ ...prev, city: value }))}
+              >
+                <SelectTrigger id="city">
+                  <SelectValue placeholder="도시 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(koreaLocations).map((city) => (
+                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="district" className="text-gray-700">구/군</Label>
+              <Select 
+                value={location.district} 
+                onValueChange={(value) => setLocation(prev => ({ ...prev, district: value }))}
+                disabled={!location.city}
+              >
+                <SelectTrigger id="district">
+                  <SelectValue placeholder={location.city ? "구/군 선택" : "도시를 먼저 선택하세요"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {location.city && Object.keys(koreaLocations[location.city])
+                    .filter(district => district !== '전체')
+                    .map((district) => (
+                      <SelectItem key={district} value={district}>{district}</SelectItem>
+                    ))}
+                  <SelectItem value="">전체</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-gray-700">상세 주소(선택)</Label>
+              <Input
+                id="address"
+                placeholder="동/읍/면 또는 상세 주소"
+                value={location.address}
+                onChange={e => setLocation(prev => ({ ...prev, address: e.target.value }))}
+              />
+            </div>
+          </div>
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-slate-50 p-3 rounded-lg">
+            <div className="flex items-center mb-2 md:mb-0">
+              <MapPin className="h-4 w-4 mr-2 text-primary" />
+              <span className="text-sm font-medium text-gray-700">
+                {location.city && (
+                  <>
+                    검색 위치: {location.city} {location.district} {location.address}
+                  </>
+                )}
+                {!location.city && "도시와 구/군을 선택하면 해당 지역의 엔지니어를 찾을 수 있습니다."}
+              </span>
+            </div>
+            
+            <div className="flex items-center">
+              <span className="text-sm text-gray-600 mr-2">검색 범위:</span>
+              <Input
+                type="range"
+                min="1"
+                max="100"
+                value={maxDistance}
+                onChange={e => setMaxDistance(Number(e.target.value))}
+                className="w-32 mr-2"
+              />
+              <span className="text-sm font-medium w-16 text-right">{maxDistance}km</span>
+            </div>
+          </div>
+          
+          {hasLocationFilter && (
+            <div className="mt-3 text-sm text-blue-600 flex items-center">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-600 mr-2"></div>
+              <span>현재 {location.city} {location.district} 지역 기준 {maxDistance}km 이내의 엔지니어만 표시됩니다.</span>
             </div>
           )}
         </div>
-        
-        {useLocation && (
-          <Tabs value={locationTab} onValueChange={setLocationTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="auto" className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" />
-                <span>현재 위치 사용</span>
-              </TabsTrigger>
-              <TabsTrigger value="manual" className="flex items-center gap-1">
-                <Compass className="h-4 w-4" />
-                <span>수동 위치 입력</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="auto" className="space-y-4">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between bg-slate-50 rounded-lg p-3">
-                <div>
-                  {currentLocation ? (
-                    <div className="flex items-center text-sm text-gray-700">
-                      <MapPin className="h-4 w-4 mr-1 text-primary" />
-                      <span className="font-medium">현재 위치:</span>
-                      <span className="ml-1">{currentLocation.address || '내 위치'}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center text-sm text-gray-700">
-                      <Compass className="h-4 w-4 mr-1 text-amber-500" />
-                      <span className="text-amber-600">위치 정보를 불러오지 못했습니다.</span>
-                    </div>
-                  )}
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={fetchCurrentLocation}
-                  className="mt-2 md:mt-0"
-                >
-                  <MapPin className="h-4 w-4 mr-1" />
-                  위치 새로고침
-                </Button>
-              </div>
-              
-              {useLocation && currentLocation && (
-                <div className="text-sm text-blue-600 mt-2 flex items-center">
-                  <div className="h-1.5 w-1.5 rounded-full bg-blue-600 mr-2"></div>
-                  <span>반경 {maxDistance}km 이내의 엔지니어만 표시됩니다.</span>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="manual">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-gray-700">도시</Label>
-                    <Input
-                      id="city"
-                      placeholder="서울, 부산 등"
-                      value={manualLocation.city}
-                      onChange={e => setManualLocation({...manualLocation, city: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-gray-700">상세 주소</Label>
-                    <Input
-                      id="address"
-                      placeholder="구/동 및 상세 주소"
-                      value={manualLocation.address}
-                      onChange={e => setManualLocation({...manualLocation, address: e.target.value})}
-                    />
-                  </div>
-                </div>
-                
-                <div className="bg-slate-50 rounded-lg p-3 flex items-center">
-                  <MapPin className="h-4 w-4 mr-2 text-primary" />
-                  <span className="text-sm font-medium text-gray-700">
-                    입력한 위치: {manualLocation.city || '도시를 입력하세요'} {manualLocation.address || '(상세 주소를 입력하세요)'}
-                  </span>
-                </div>
-                
-                {useLocation && manualLocation.city && (
-                  <div className="text-sm text-blue-600 mt-2 flex items-center">
-                    <div className="h-1.5 w-1.5 rounded-full bg-blue-600 mr-2"></div>
-                    <span>반경 {maxDistance}km 이내의 엔지니어만 표시됩니다.</span>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
-        )}
       </div>
       
       {/* 엔지니어 목록 */}
@@ -455,7 +468,7 @@ export default function Engineers() {
             <EngineerCard 
               key={engineer.id} 
               engineer={engineer} 
-              showDistance={useLocation && (engineer as any).distance !== undefined}
+              showDistance={hasLocationFilter && (engineer as any).distance !== undefined}
               distance={(engineer as any).distance}
             />
           ))}
@@ -465,11 +478,14 @@ export default function Engineers() {
           <Wrench className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-xl font-semibold mb-2">엔지니어를 찾을 수 없습니다</h3>
           <p className="text-muted-foreground mb-4">
-            검색어를 변경하거나 다른 필터를 적용해보세요.
+            {hasLocationFilter 
+              ? '선택한 지역에 엔지니어가 없거나 검색 범위가 너무 좁습니다. 검색 범위를 넓히거나 다른 지역을 선택해보세요.'
+              : '검색어를 변경하거나 다른 필터를 적용해보세요.'}
           </p>
           <Button onClick={() => {
             setSearchTerm('');
-            setUseLocation(false);
+            setSortBy('newest');
+            setHasLocationFilter(false);
           }}>모든 엔지니어 보기</Button>
         </div>
       )}

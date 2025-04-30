@@ -91,99 +91,113 @@ const RemoteSupport: React.FC = () => {
         </div>
       </section>
       
-      {/* 지원 채널 */}
+      {/* 디스코드 서버 정보 */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">디스코드 서버 채널</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">디스코드 서버 안내</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="border-2 border-primary">
-            <CardHeader>
-              <div className="py-1 px-3 rounded-full bg-blue-100 text-blue-700 text-xs font-medium w-fit mb-2">일반 질문</div>
-              <CardTitle>텍스트 채널</CardTitle>
-              <CardDescription>언제든지 질문하고 답변 받기</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>카테고리별 질문 채널 제공</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>프로젝트 공유 및 피드백</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>자료실 및 FAQ 접근 가능</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>24/7 질문 및 답변</span>
-                </li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full">
-                <Button className="w-full bg-discord hover:bg-discord-dark">디스코드 참여하기</Button>
-              </a>
-            </CardFooter>
-          </Card>
-          
-          <Card className="border-2 border-discord">
-            <CardHeader>
-              <div className="py-1 px-3 rounded-full bg-indigo-100 text-indigo-700 text-xs font-medium w-fit mb-2">실시간 도움</div>
-              <CardTitle>음성 및 화상 채널</CardTitle>
-              <CardDescription>화면 공유와 함께 실시간 도움 받기</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>화면 공유로 문제 상황 설명</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>실시간 음성 가이드</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>다수 사용자와 함께 문제 해결</span>
-                </li>
-                <li className="flex items-start">
-                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>정기적인 워크샵 및 Q&A 세션</span>
-                </li>
-              </ul>
+        <Card className="border-2 border-discord overflow-hidden">
+          <div className="bg-[#5865F2] text-white p-6">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-6 md:mb-0 md:mr-8">
+                <h3 className="text-2xl font-bold mb-2">Webel 디스코드 커뮤니티</h3>
+                <p className="opacity-90 mb-4">
+                  하드웨어 조립, 3D 프린팅, 소프트웨어 설정 등 다양한 주제에 대해 
+                  실시간으로 도움을 주고받을 수 있는 Webel 커뮤니티에 초대합니다.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <Users className="h-3 w-3" /> 자유롭게 소통하는 커뮤니티
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" /> 텍스트 및 음성 채널
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/20 border-none text-white flex items-center gap-1">
+                    <Share2 className="h-3 w-3" /> 화면 공유 기능
+                  </Badge>
+                </div>
+              </div>
+              <div className="w-full md:w-auto">
+                <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer">
+                  <Button className="bg-white text-[#5865F2] hover:bg-white/90 flex gap-2 w-full md:w-auto" size="lg">
+                    <ExternalLink className="h-5 w-5" />
+                    디스코드 서버 참여하기
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">디스코드 사용 방법</h3>
+                <ul className="space-y-2">
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium">서버 참여하기</span>
+                      <p className="text-sm text-gray-600">디스코드 계정으로 Webel 서버에 참여하세요.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium">채널 선택하기</span>
+                      <p className="text-sm text-gray-600">왼쪽 사이드바에서 주제별 채널을 선택하세요.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium">텍스트/음성 채널 이용하기</span>
+                      <p className="text-sm text-gray-600">채널 목록에서 # 표시는 텍스트 채널, 🔊 표시는 음성 채널입니다.</p>
+                    </div>
+                  </li>
+                  <li className="flex items-start">
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <span className="font-medium">화면 공유하기</span>
+                      <p className="text-sm text-gray-600">음성 채널에 참여한 후 화면 공유 버튼을 눌러 실시간으로 도움을 받으세요.</p>
+                    </div>
+                  </li>
+                </ul>
+              </div>
               
-              <div className="mt-4 p-3 bg-indigo-50 rounded-lg">
-                <h4 className="text-sm font-medium text-indigo-800 mb-2">일정 안내</h4>
-                <div className="space-y-2 text-xs text-indigo-700">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span>매주 수요일</span>
-                    <span className="mx-2">|</span>
-                    <Clock className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span>오후 7시-9시</span>
-                    <span className="ml-auto bg-green-100 text-green-800 py-0.5 px-1.5 rounded text-[10px]">초보자용</span>
+              <div className="p-5 bg-gray-50 rounded-lg border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">주요 채널 안내</h3>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-800"># 공지사항</h4>
+                      <p className="text-sm text-gray-600">웨블 커뮤니티 공지사항과 업데이트 정보</p>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span>매주 토요일</span>
-                    <span className="mx-2">|</span>
-                    <Clock className="h-4 w-4 mr-2 text-indigo-500" />
-                    <span>오후 2시-5시</span>
-                    <span className="ml-auto bg-yellow-100 text-yellow-800 py-0.5 px-1.5 rounded text-[10px]">모든 레벨</span>
+                  <div className="flex items-start">
+                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-800"># 자기소개</h4>
+                      <p className="text-sm text-gray-600">커뮤니티 멤버 자기소개 채널</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-800"># 질문-답변</h4>
+                      <p className="text-sm text-gray-600">다양한 주제에 대한 질문과 답변</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="h-2 w-2 rounded-full bg-purple-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <div>
+                      <h4 className="font-medium text-gray-800">🔊 음성-채널</h4>
+                      <p className="text-sm text-gray-600">실시간 음성 채팅 및 화면 공유</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-            <CardFooter>
-              <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full">
-                <Button className="w-full bg-white text-discord border-discord hover:bg-gray-50">음성 채널 참여하기</Button>
-              </a>
-            </CardFooter>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </section>
       
       {/* Discord Community */}
