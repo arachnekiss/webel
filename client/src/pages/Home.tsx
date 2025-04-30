@@ -51,12 +51,20 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
             <p className="text-slate-500 text-sm mt-1">{description}</p>
           </div>
         </div>
-        <Link href={`/resources/type/${category}`}>
-          <Button variant="outline" className="group md:self-start rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
-            더 보기
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Button>
-        </Link>
+        <div className="flex gap-3">
+          <Link href={`/resources/upload?type=${category}`}>
+            <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
+              <Upload className="mr-2 h-4 w-4" />
+              업로드
+            </Button>
+          </Link>
+          <Link href={`/resources/type/${category}`}>
+            <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
+              더 보기
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </Button>
+          </Link>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-6 p-6">
@@ -206,35 +214,51 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
 };
 
 const Home: React.FC = () => {
+  // API 응답 타입 정의 (items와 meta 구조)
+  interface ResourceResponse {
+    items: any[];
+    meta: {
+      currentPage: number;
+      totalPages: number;
+      totalItems: number;
+      itemsPerPage: number;
+    };
+  }
+
   // 하드웨어 설계도 데이터 가져오기
-  const { data: hardwareDesigns = [], isLoading: isHardwareLoading } = useQuery<any[]>({
+  const { data: hardwareDesignsData, isLoading: isHardwareLoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/hardware_design'],
     enabled: true,
   });
+  const hardwareDesigns = hardwareDesignsData?.items || [];
 
   // 소프트웨어 오픈소스 데이터 가져오기
-  const { data: softwareResources = [], isLoading: isSoftwareLoading } = useQuery<any[]>({
+  const { data: softwareResourcesData, isLoading: isSoftwareLoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/software'],
     enabled: true,
   });
+  const softwareResources = softwareResourcesData?.items || [];
 
   // 인공지능 모델 데이터 가져오기
-  const { data: aiModels = [], isLoading: isAILoading } = useQuery<any[]>({
+  const { data: aiModelsData, isLoading: isAILoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/ai_model'],
     enabled: true,
   });
+  const aiModels = aiModelsData?.items || [];
 
   // 3D 모델링 파일 데이터 가져오기
-  const { data: modelingFiles = [], isLoading: isModelingLoading } = useQuery<any[]>({
+  const { data: modelingFilesData, isLoading: isModelingLoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/3d_model'],
     enabled: true,
   });
+  const modelingFiles = modelingFilesData?.items || [];
 
   // 프리 콘텐츠 데이터 가져오기
-  const { data: freeContents = [], isLoading: isFreeContentLoading } = useQuery<any[]>({
+  const { data: freeContentsData, isLoading: isFreeContentLoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/free_content'],
     enabled: true,
   });
+  const freeContents = freeContentsData?.items || [];
 
   return (
     <div className="pb-16">
