@@ -159,14 +159,22 @@ export default function Engineers() {
     
     // 검색어 필터링
     if (searchTerm.trim() !== '') {
-      const searchLower = searchTerm.toLowerCase();
-      result = result.filter(
-        (engineer) =>
-          engineer.title.toLowerCase().includes(searchLower) ||
-          engineer.description.toLowerCase().includes(searchLower) ||
-          (engineer.specialty && engineer.specialty.toLowerCase().includes(searchLower)) ||
-          (engineer.tags && engineer.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-      );
+      const searchTerms = searchTerm.toLowerCase().split(/\s+/).filter(term => term.length > 0);
+      
+      // 각 검색어별로 필터링
+      result = result.filter(engineer => {
+        // 각 검색어에 대해 하나라도 일치하는지 확인
+        return searchTerms.some(term => {
+          return (
+            engineer.title.toLowerCase().includes(term) ||
+            engineer.description.toLowerCase().includes(term) ||
+            (engineer.specialty && engineer.specialty.toLowerCase().includes(term)) ||
+            (engineer.tags && engineer.tags.some(tag => tag.toLowerCase().includes(term))) ||
+            (engineer.experience && engineer.experience.toLowerCase().includes(term)) ||
+            (engineer.availableItems && engineer.availableItems.toLowerCase().includes(term))
+          );
+        });
+      });
     }
     
     // 위치 기반 필터링

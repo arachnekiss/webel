@@ -153,37 +153,78 @@ const RemoteSupport: React.FC = () => {
                     </div>
                   </li>
                 </ul>
+                <div className="mt-6 space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800">자발적 엔지니어 참여</h3>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <div className="flex items-start">
+                      <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm text-blue-700">
+                          엔지니어링 지식이 있으신가요? 어려움을 겪는 사용자들에게 자발적으로 도움을 제공해보세요. 
+                          별도 신청 과정 없이 누구나 자유롭게 지식을 공유하고 도움을 줄 수 있습니다.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               
-              <div className="p-5 bg-gray-50 rounded-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">주요 채널 안내</h3>
-                <div className="space-y-3">
+              <div className="space-y-5">
+                <div className="p-5 bg-gray-50 rounded-lg border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">주요 채널 안내</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-start">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                      <div>
+                        <h4 className="font-medium text-gray-800"># 공지사항</h4>
+                        <p className="text-sm text-gray-600">웨블 커뮤니티 공지사항과 업데이트 정보</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                      <div>
+                        <h4 className="font-medium text-gray-800"># 자기소개</h4>
+                        <p className="text-sm text-gray-600">커뮤니티 멤버 자기소개 채널</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                      <div>
+                        <h4 className="font-medium text-gray-800"># 질문-답변</h4>
+                        <p className="text-sm text-gray-600">다양한 주제에 대한 질문과 답변</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="h-2 w-2 rounded-full bg-purple-500 mt-2 mr-3 flex-shrink-0"></div>
+                      <div>
+                        <h4 className="font-medium text-gray-800">🔊 음성-채널</h4>
+                        <p className="text-sm text-gray-600">실시간 음성 채팅 및 화면 공유</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-800">디스코드 커뮤니티 혜택</h3>
                   <div className="flex items-start">
-                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium text-gray-800"># 공지사항</h4>
-                      <p className="text-sm text-gray-600">웨블 커뮤니티 공지사항과 업데이트 정보</p>
+                      <span className="font-medium">사용자 간 지식 공유</span>
+                      <p className="text-sm text-gray-600">다른 DIY 제작자들과 지식과 경험을 나누며 문제를 해결하세요</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium text-gray-800"># 자기소개</h4>
-                      <p className="text-sm text-gray-600">커뮤니티 멤버 자기소개 채널</p>
+                      <span className="font-medium">실시간 문제 해결</span>
+                      <p className="text-sm text-gray-600">조립 과정에서 발생한 문제를 실시간으로 도움받을 수 있습니다</p>
                     </div>
                   </div>
                   <div className="flex items-start">
-                    <div className="h-2 w-2 rounded-full bg-green-500 mt-2 mr-3 flex-shrink-0"></div>
+                    <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
                     <div>
-                      <h4 className="font-medium text-gray-800"># 질문-답변</h4>
-                      <p className="text-sm text-gray-600">다양한 주제에 대한 질문과 답변</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <div className="h-2 w-2 rounded-full bg-purple-500 mt-2 mr-3 flex-shrink-0"></div>
-                    <div>
-                      <h4 className="font-medium text-gray-800">🔊 음성-채널</h4>
-                      <p className="text-sm text-gray-600">실시간 음성 채팅 및 화면 공유</p>
+                      <span className="font-medium">자료 및 프로젝트 공유</span>
+                      <p className="text-sm text-gray-600">완성된 프로젝트나 유용한 자료를 커뮤니티와 공유할 수 있습니다</p>
                     </div>
                   </div>
                 </div>
@@ -191,128 +232,6 @@ const RemoteSupport: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-      </section>
-      
-      {/* 도움을 받는 방법 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">도움을 받는 방법</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="h-full">
-            <CardHeader>
-              <div className="flex items-center mb-2">
-                <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">
-                  실시간 도움 받기
-                </Badge>
-              </div>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
-                디스코드 커뮤니티
-              </CardTitle>
-              <CardDescription>
-                전문가와 사용자들이 모인 디스코드 커뮤니티에서 실시간으로 도움을 받으세요
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">사용자 간 지식 공유</span>
-                  <p className="text-sm text-gray-600">다른 DIY 제작자들과 지식과 경험을 나누며 문제를 해결하세요</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">화면 공유 가능</span>
-                  <p className="text-sm text-gray-600">음성 채널에서 화면 공유를 통해 더 효과적으로 도움을 받을 수 있습니다</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">전문 분야별 채널</span>
-                  <p className="text-sm text-gray-600">3D 프린팅, 하드웨어 조립, 소프트웨어 설정 등 분야별 채널 제공</p>
-                </div>
-              </div>
-              <div className="mt-6">
-                <h4 className="font-medium text-gray-800 mb-2">원격 지원 이용 방법</h4>
-                <ol className="list-decimal ml-5 space-y-2 text-sm text-gray-600">
-                  <li>아래 버튼을 클릭하여 Webel 디스코드 서버에 참여하세요</li>
-                  <li>채널 목록에서 도움이 필요한 분야의 채널을 선택하세요</li>
-                  <li>질문을 남기거나 음성 채널에 참여하여 실시간 도움을 받으세요</li>
-                </ol>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full">
-                <Button className="w-full bg-[#5865F2] hover:bg-[#4752c4] flex items-center justify-center gap-2">
-                  <ExternalLink className="h-5 w-5" />
-                  디스코드 서버 참여하기
-                </Button>
-              </a>
-            </CardFooter>
-          </Card>
-          
-          <Card className="h-full">
-            <CardHeader>
-              <div className="flex items-center mb-2">
-                <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">
-                  지식 저장소
-                </Badge>
-              </div>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                자주 묻는 질문 및 가이드
-              </CardTitle>
-              <CardDescription>
-                자주 발생하는 문제에 대한 해결책과 조립 가이드를 찾아보세요
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">단계별 조립 가이드</span>
-                  <p className="text-sm text-gray-600">다양한 하드웨어 및 프로젝트에 대한 상세한 조립 가이드</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">문제 해결 문서</span>
-                  <p className="text-sm text-gray-600">일반적인 문제와 오류에 대한 해결책 제공</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <span className="font-medium">커뮤니티 FAQ</span>
-                  <p className="text-sm text-gray-600">커뮤니티에서 자주 묻는 질문과 답변 모음</p>
-                </div>
-              </div>
-              <div className="p-4 bg-blue-50 rounded-lg mt-4">
-                <div className="flex items-start">
-                  <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-blue-800">전문가가 되고 싶으신가요?</h4>
-                    <p className="text-sm text-blue-700 mt-1">
-                      디스코드 서버에 참여한 후 '전문가-신청' 채널에서 자신의 전문 분야와 경력을 공유하시면 검토 후 전문가 역할이 부여됩니다.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Link href="/resources" className="w-full">
-                <Button variant="outline" className="w-full flex items-center justify-center gap-2">
-                  <Search className="h-5 w-5" />
-                  리소스 찾아보기
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        </div>
       </section>
       
       <footer className="text-center text-gray-500 text-sm mt-16 mb-8">

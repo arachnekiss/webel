@@ -50,13 +50,23 @@ const Services: React.FC = () => {
     
     // 검색어 필터링
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      result = result.filter(
-        (service) =>
-          service.title.toLowerCase().includes(searchLower) ||
-          service.description.toLowerCase().includes(searchLower) ||
-          (service.tags && service.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-      );
+      const searchTerms = searchTerm.toLowerCase().split(/\s+/).filter(term => term.length > 0);
+      
+      // 각 검색어별로 필터링
+      result = result.filter(service => {
+        // 각 검색어에 대해 하나라도 일치하는지 확인
+        return searchTerms.some(term => {
+          return (
+            service.title.toLowerCase().includes(term) ||
+            service.description.toLowerCase().includes(term) ||
+            (service.tags && service.tags.some(tag => tag.toLowerCase().includes(term))) ||
+            (service.printerModel && service.printerModel.toLowerCase().includes(term)) ||
+            (service.contactPhone && service.contactPhone.toLowerCase().includes(term)) ||
+            (service.contactEmail && service.contactEmail.toLowerCase().includes(term)) ||
+            (service.pricing && service.pricing.toLowerCase().includes(term))
+          );
+        });
+      });
     }
     
     // 정렬 적용
