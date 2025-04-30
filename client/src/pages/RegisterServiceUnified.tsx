@@ -823,31 +823,32 @@ export default function RegisterServiceUnified() {
                     control={form.control}
                     name="isIndividual"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            개인 서비스 여부
-                          </FormLabel>
-                          <FormDescription>
-                            개인이 운영하는 서비스인지, 업체에서 운영하는
-                            서비스인지 선택해주세요
-                          </FormDescription>
-                        </div>
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base">서비스 제공자 유형</FormLabel>
+                        <FormDescription>
+                          개인이 제공하는 서비스인지, 업체에서 제공하는 서비스인지 선택해주세요
+                        </FormDescription>
                         <FormControl>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                              id="isIndividual"
-                            />
-                            <label
-                              htmlFor="isIndividual"
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                              {field.value ? "개인 서비스입니다" : "업체 서비스입니다"}
-                            </label>
-                          </div>
+                          <RadioGroup
+                            className="flex flex-col space-y-1"
+                            value={field.value ? "individual" : "business"}
+                            onValueChange={(value) => field.onChange(value === "individual")}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="individual" id="individual" />
+                              <Label htmlFor="individual" className="font-normal">
+                                개인 서비스
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="business" id="business" />
+                              <Label htmlFor="business" className="font-normal">
+                                업체 서비스
+                              </Label>
+                            </div>
+                          </RadioGroup>
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
