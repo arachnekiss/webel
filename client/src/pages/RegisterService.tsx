@@ -932,7 +932,14 @@ export default function RegisterService() {
                             </div>
                           ) : (
                             <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-muted flex items-center justify-center">
-                              {React.createElement(getServiceTypeIcon(serviceType), { className: "h-8 w-8 text-muted-foreground" })}
+                              <div className="h-8 w-8 text-muted-foreground">
+                                {serviceType === "3d_printing" && <Printer className="h-8 w-8" />}
+                                {serviceType === "engineer" && <User className="h-8 w-8" />}
+                                {serviceType === "manufacturing" && <Building className="h-8 w-8" />}
+                                {serviceType === "electronics" && <Hexagon className="h-8 w-8" />}
+                                {serviceType === "woodworking" && <Wrench className="h-8 w-8" />}
+                                {serviceType === "metalworking" && <Wrench className="h-8 w-8" />}
+                              </div>
                             </div>
                           )}
                         </div>
