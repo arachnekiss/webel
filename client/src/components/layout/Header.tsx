@@ -61,7 +61,7 @@ const resourceCategories = [
 ];
 
 const Header: React.FC = () => {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { isMobile } = useDeviceDetect();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logoutMutation, isAdmin } = useAuth();
@@ -73,7 +73,7 @@ const Header: React.FC = () => {
   const handleNavigate = (path: string) => {
     // 페이지 이동 후 메뉴 닫기
     if (isMobile) setIsMobileMenuOpen(false);
-    window.location.href = path;
+    navigate(path); // wouter의 navigate 함수 사용
   };
 
   return (

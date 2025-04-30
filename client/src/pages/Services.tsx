@@ -284,7 +284,23 @@ const Services: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="city">도시</Label>
-                <Select value={manualLocation.city} onValueChange={(city) => setManualLocation({...manualLocation, city})}>
+                <Select 
+                  value={manualLocation.city} 
+                  onValueChange={(city) => {
+                    const updatedLocation = {...manualLocation, city, district: ''};
+                    setManualLocation(updatedLocation);
+                    
+                    // 도시를 선택하면 바로 해당 위치 좌표 적용
+                    const coords = getLocationCoordinates();
+                    if (coords) {
+                      setManualLocation({
+                        ...updatedLocation,
+                        lat: coords.lat,
+                        long: coords.long
+                      });
+                    }
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="도시 선택" />
                   </SelectTrigger>
@@ -306,7 +322,20 @@ const Services: React.FC = () => {
                 {manualLocation.city === '서울' ? (
                   <Select 
                     value={manualLocation.district} 
-                    onValueChange={(district) => setManualLocation({...manualLocation, district})}
+                    onValueChange={(district) => {
+                      const updatedLocation = {...manualLocation, district};
+                      setManualLocation(updatedLocation);
+                      
+                      // 구를 선택하면 바로 해당 위치 좌표 적용
+                      const coords = getLocationCoordinates();
+                      if (coords) {
+                        setManualLocation({
+                          ...updatedLocation,
+                          lat: coords.lat,
+                          long: coords.long
+                        });
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="지역구 선택" />
