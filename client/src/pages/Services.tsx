@@ -19,27 +19,79 @@ const Services: React.FC = () => {
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("newest"); // newest, rating, price
-  const [useManualLocation, setUseManualLocation] = useState(false);
+  const [sortBy, setSortBy] = useState("newest"); // newest, rating, lowPrice
   const [manualLocation, setManualLocation] = useState({
     address: "",
     city: "서울",
+    district: "",
     lat: 37.5665,
     long: 126.9780
   });
   
+  // 입력된 도시/지역 기반 좌표 구하기
+  const getLocationCoordinates = () => {
+    // 실제 위치 데이터 검색 로직 (간단한 예시로 대체)
+    const koreaLocations: Record<string, Record<string, { lat: number; long: number }>> = {
+      '서울': {
+        '강남구': { lat: 37.5172, long: 127.0473 },
+        '강동구': { lat: 37.5301, long: 127.1247 },
+        '강북구': { lat: 37.6396, long: 127.0258 },
+        '강서구': { lat: 37.5509, long: 126.8495 },
+        '관악구': { lat: 37.4784, long: 126.9516 },
+        '전체': { lat: 37.5665, long: 126.9780 },
+      },
+      '부산': {
+        '해운대구': { lat: 35.1631, long: 129.1637 },
+        '금정구': { lat: 35.2475, long: 129.0922 },
+        '남구': { lat: 35.1368, long: 129.0843 },
+        '전체': { lat: 35.1796, long: 129.0756 },
+      },
+      '인천': {
+        '전체': { lat: 37.4563, long: 126.7052 },
+      },
+      '대전': {
+        '전체': { lat: 36.3504, long: 127.3845 },
+      },
+    };
+    
+    const city = manualLocation.city || '서울';
+    const district = manualLocation.district || '전체';
+    
+    // 도시/구 매칭
+    if (koreaLocations[city] && koreaLocations[city][district]) {
+      return {
+        lat: koreaLocations[city][district].lat,
+        long: koreaLocations[city][district].long
+      };
+    }
+    
+    // 도시만 매칭되는 경우 도시 전체 좌표 사용
+    if (koreaLocations[city] && koreaLocations[city]['전체']) {
+      return {
+        lat: koreaLocations[city]['전체'].lat,
+        long: koreaLocations[city]['전체'].long
+      };
+    }
+    
+    // 기본값으로 서울 좌표 반환
+    return { lat: 37.5665, long: 126.9780 };
+  };
+
+  // 위치 데이터 준비
+  const selectedLocation = manualLocation.city 
+    ? getLocationCoordinates() 
+    : (currentLocation ? { lat: currentLocation.lat, long: currentLocation.long } : { lat: 37.5665, long: 126.9780 });
+    
   // Define query key based on parameters
   const queryKey = type 
     ? `/api/services/type/${type}`
-    : (currentLocation && !useManualLocation)
-      ? `/api/services/nearby?lat=${currentLocation.lat}&long=${currentLocation.long}&maxDistance=${distance}`
-      : useManualLocation
-        ? `/api/services/nearby?lat=${manualLocation.lat}&long=${manualLocation.long}&maxDistance=${distance}`
-        : '/api/services';
+    : selectedLocation
+      ? `/api/services/nearby?lat=${selectedLocation.lat}&long=${selectedLocation.long}&maxDistance=${distance}`
+      : '/api/services';
   
   const { data: services, isLoading: servicesLoading } = useQuery<Service[]>({
     queryKey: [queryKey],
-    enabled: (!locationLoading || !!type || useManualLocation)
+    enabled: (!locationLoading || !!type || !!manualLocation.city)
   });
   
   // 정렬 및 검색 적용된 서비스 목록
@@ -83,8 +135,8 @@ const Services: React.FC = () => {
         // 평점순 정렬
         result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         break;
-      case "price":
-        // 가격순 정렬 (3D 프린터의 경우)
+      case "lowPrice":
+        // 낮은 가격순 정렬 (3D 프린터의 경우)
         if (type === "3d_printing") {
           // 문자열에서 숫자만 추출하는 함수 (예: "10,000원" -> 10000)
           const extractPrice = (service: Service) => {
@@ -160,9 +212,9 @@ const Services: React.FC = () => {
                       <span>평점순</span>
                     </SelectItem>
                     {type === '3d_printing' && (
-                      <SelectItem value="price" className="flex items-center gap-2">
+                      <SelectItem value="lowPrice" className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
-                        <span>가격순</span>
+                        <span>낮은가격순</span>
                       </SelectItem>
                     )}
                   </SelectContent>
@@ -284,7 +336,7 @@ const Services: React.FC = () => {
                     <Clock className="h-3 w-3" />
                   )}
                   <span>
-                    정렬: {sortBy === "rating" ? "평점순" : sortBy === "price" ? "가격순" : "최신순"}
+                    정렬: {sortBy === "rating" ? "평점순" : sortBy === "lowPrice" ? "낮은가격순" : "최신순"}
                   </span>
                 </Badge>
               )}
