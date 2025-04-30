@@ -48,7 +48,7 @@ export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  resourceType: text("resource_type").notNull(), // 카테고리로 통합: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
+  category: text("category").notNull(), // 카테고리로 통합: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
   tags: text("tags").array(),
   imageUrl: text("image_url"),
   downloadUrl: text("download_url"),
@@ -57,7 +57,7 @@ export const resources = pgTable("resources", {
   howToUse: text("how_to_use"), // Instructions for using the resource
   assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
-  category: text("category"), // More specific categorization within resourceType
+  subcategory: text("subcategory"), // More specific categorization within category
   isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
   isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
   sourceSite: text("source_site"), // Original source if crawled

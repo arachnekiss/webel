@@ -281,10 +281,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 리소스 타입별 조회
+  // 리소스 카테고리별 조회 (이전 타입별 조회에서 변경)
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
-    let resources = await storage.getResourcesByType(type);
+    let resources = await storage.getResourcesByCategory(type);
     
     // 플래시 게임 요청인 경우 샘플 데이터 추가
     if (type === 'flash_game' && resources.length === 0) {
@@ -320,7 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           downloadFile: null,
           howToUse: '마우스로 방향과 힘을 조절하여 공을 발사합니다.',
           assemblyInstructions: null,
-          category: '게임',
+          subcategory: '게임',
           isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
@@ -329,7 +329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1003,
           title: '스페이스 슈터',
           description: '우주를 배경으로 한 클래식 슈팅 게임입니다. 적 우주선을 물리치고 다양한 무기를 수집하세요.',
-          resourceType: 'flash_game',
+          category: 'flash_game',
           tags: ['슈팅', '우주', '아케이드', '액션'],
           imageUrl: 'https://images.unsplash.com/photo-1604871000636-074fa5117945',
           downloadUrl: 'https://html5games.com/Game/Space-Shooter/a8c31639-e2d4-4ccd-b6ad-cf3b4a0e8a5a',
@@ -338,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           downloadFile: null,
           howToUse: 'WASD 키로 이동, 스페이스바로 발사, 1-5 키로 무기 변경.',
           assemblyInstructions: null,
-          category: '게임',
+          subcategory: '게임',
           isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
@@ -347,7 +347,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1004,
           title: '블록 브레이커',
           description: '현대적인 디자인의 브릭 브레이커 게임입니다. 다양한 파워업과 난이도로 즐길 수 있습니다.',
-          resourceType: 'flash_game',
+          category: 'flash_game',
           tags: ['아케이드', '클래식', '캐주얼', '리플렉스'],
           imageUrl: 'https://images.unsplash.com/photo-1577279549270-b9e297533cdd',
           downloadUrl: 'https://html5games.com/Game/Block-Breaker/5e259cf7-cf9d-4a3e-a7f5-2e4da59a8c11',
@@ -356,7 +356,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           downloadFile: null,
           howToUse: '마우스 또는 터치로 패들을 움직입니다.',
           assemblyInstructions: null,
-          category: '게임',
+          subcategory: '게임',
           isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
@@ -365,7 +365,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1005,
           title: '퍼즐 매니아',
           description: '다양한 퍼즐을 해결하는 두뇌 게임입니다. 시간 제한과 함께 집중력과 논리력을 테스트하세요.',
-          resourceType: 'flash_game',
+          category: 'flash_game',
           tags: ['퍼즐', '두뇌', '로직', '교육'],
           imageUrl: 'https://images.unsplash.com/photo-1591635566278-10dca0ca76ee',
           downloadUrl: 'https://html5games.com/Game/Puzzle-Mania/f57c21b7-49ef-4fe5-b4a4-e9886b77a25a',
@@ -374,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           downloadFile: null,
           howToUse: '마우스로 조각을 끌어다 놓고 퍼즐을 완성하세요.',
           assemblyInstructions: null,
-          category: '게임',
+          subcategory: '게임',
           isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
