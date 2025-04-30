@@ -48,10 +48,10 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">서비스</h3>
             <ul className="space-y-2">
-              <li><Link href="/services/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></Link></li>
+              <li><Link href="/services/type/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></Link></li>
               <li><Link href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></Link></li>
               <li><Link href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></Link></li>
-              <li><Link href="/services/manufacturers"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
+              <li><Link href="/services/type/manufacturers"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
               <li><Link href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></Link></li>
             </ul>
           </div>
