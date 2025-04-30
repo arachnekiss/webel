@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { ResourceType } from "@shared/schema";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, Image as ImageIcon, FileText, X, Plus, Download, File, ArrowLeft, ArrowRight, Link as LinkIcon, Check, Info, AlertCircle } from "lucide-react";
@@ -41,7 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// 카테고리 옵션
+// 카테고리 옵션 (리소스 유형)
 const categoryOptions = [
   { value: "hardware_design", label: "하드웨어 설계도" },
   { value: "software", label: "소프트웨어 오픈소스" },
@@ -65,10 +64,9 @@ const subcategoryOptions: Record<string, string[]> = {
 const resourceBasicFormSchema = z.object({
   title: z.string().min(2, "제목은 최소 2자 이상이어야 합니다").max(100, "제목은 최대 100자까지 가능합니다"),
   description: z.string().min(10, "설명은 최소 10자 이상이어야 합니다").max(2000, "설명은 최대 2000자까지 가능합니다"),
-  resourceType: z.string().min(1, "카테고리를 선택해주세요"),
+  category: z.string().min(1, "카테고리를 선택해주세요"),
   subcategory: z.string().optional(),
   tags: z.string().optional(),
-  downloadUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
   sourceSite: z.string().optional(),
 });
 
@@ -105,10 +103,9 @@ export default function UploadResourceNew() {
     defaultValues: {
       title: "",
       description: "",
-      resourceType: "",
+      category: "",
       subcategory: "",
       tags: "",
-      downloadUrl: "",
       sourceSite: "",
     },
   });
@@ -123,7 +120,7 @@ export default function UploadResourceNew() {
   });
   
   // 선택된 카테고리에 따라 서브카테고리 옵션 업데이트
-  const selectedCategory = basicForm.watch("resourceType");
+  const selectedCategory = basicForm.watch("category");
   
   // 카테고리가 변경될 때 서브카테고리 초기화
   useEffect(() => {
@@ -275,13 +272,12 @@ export default function UploadResourceNew() {
       // 기본 정보 추가
       formData.append("title", basicData.title);
       formData.append("description", basicData.description);
-      formData.append("resourceType", basicData.resourceType);
+      formData.append("resourceType", basicData.category); // 서버에는 resourceType으로 전송
       
       // 서브카테고리 추가
       if (basicData.subcategory) formData.append("subcategory", basicData.subcategory);
       
       if (tags.length > 0) formData.append("tags", tags.join(","));
-      if (basicData.downloadUrl) formData.append("downloadUrl", basicData.downloadUrl);
       if (basicData.sourceSite) formData.append("sourceSite", basicData.sourceSite);
       if (detailData.howToUse) formData.append("howToUse", detailData.howToUse);
       if (detailData.assemblyInstructions) formData.append("assemblyInstructions", detailData.assemblyInstructions);
@@ -361,11 +357,11 @@ export default function UploadResourceNew() {
       return;
     }
     
-    // 파일 또는 URL 확인
-    if (!downloadFile && !basicForm.getValues("downloadUrl")) {
+    // 다운로드 파일 확인
+    if (!downloadFile) {
       toast({
-        title: "다운로드 정보 필요",
-        description: "다운로드 파일을 업로드하거나 다운로드 URL을 입력해주세요.",
+        title: "다운로드 파일 필요",
+        description: "다운로드 파일을 업로드해주세요.",
         variant: "destructive",
       });
       setSubmitting(false);
@@ -489,7 +485,7 @@ export default function UploadResourceNew() {
                   {/* 카테고리 */}
                   <FormField
                     control={basicForm.control}
-                    name="resourceType"
+                    name="category"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>카테고리 *</FormLabel>
@@ -663,9 +659,9 @@ export default function UploadResourceNew() {
                     </div>
                   </div>
 
-                  {/* 다운로드 파일 업로드 및 URL */}
+                  {/* 다운로드 파일 업로드 */}
                   <div className="space-y-4">
-                    <FormLabel>다운로드 정보</FormLabel>
+                    <FormLabel>다운로드 파일 *</FormLabel>
                     <div className="border rounded-md p-4">
                       <h4 className="text-sm font-medium mb-2">다운로드 파일 업로드</h4>
                       {downloadFile ? (
@@ -702,31 +698,9 @@ export default function UploadResourceNew() {
                         className="hidden"
                         onChange={handleDownloadFileSelect}
                       />
-                      
-                      <Separator className="my-4" />
-                      
-                      <h4 className="text-sm font-medium mb-2">또는 다운로드 URL 입력</h4>
-                      <FormField
-                        control={basicForm.control}
-                        name="downloadUrl"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <div className="flex items-center space-x-2">
-                                <Input 
-                                  placeholder="https://example.com/download/resource.zip" 
-                                  {...field} 
-                                />
-                                <LinkIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                              </div>
-                            </FormControl>
-                            <FormDescription>
-                              파일을 직접 업로드하지 않는 경우, 다운로드 가능한 URL을 입력하세요
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                      <FormDescription className="mt-2">
+                        업로드할 파일은 최대 50MB까지 가능합니다. 이전 버전과의 호환성을 위해 다운로드 가능한 파일을 직접 업로드해주세요.
+                      </FormDescription>
                     </div>
                   </div>
 
