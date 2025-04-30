@@ -209,7 +209,20 @@ const Services: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
+              <Button 
+                variant="outline"
+                size="icon"
+                className="h-10 w-10"
+                onClick={() => {
+                  setSearchTerm("");
+                  setSortBy("newest");
+                  getLocation();
+                  resetFilters();
+                }}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
               <div className="w-36">
                 <Select value={sortBy} onValueChange={setSortBy}>
                   <SelectTrigger>
@@ -233,17 +246,6 @@ const Services: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button 
-                variant="outline"
-                size="icon"
-                className="h-10 w-10"
-                onClick={() => {
-                  setSearchTerm("");
-                  setSortBy("newest");
-                }}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
           </div>
           
@@ -252,7 +254,19 @@ const Services: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" />
-                <span className="font-medium">위치 설정</span>
+                {locationLoading ? (
+                  <div className="flex items-center">
+                    <span className="animate-spin mr-2 text-sm">⟳</span>
+                    <span className="font-medium">위치 확인 중...</span>
+                  </div>
+                ) : currentLocation ? (
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium">현재 위치:</span>
+                    <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
+                  </div>
+                ) : (
+                  <span className="font-medium">위치 정보 사용 불가</span>
+                )}
               </div>
               
               <div className="flex gap-2 items-center">
@@ -267,19 +281,6 @@ const Services: React.FC = () => {
                     <SelectItem value="50">50km</SelectItem>
                   </SelectContent>
                 </Select>
-                
-                {locationLoading && (
-                  <div className="flex items-center text-gray-500 text-sm">
-                    <span className="animate-spin mr-2">⟳</span>
-                    위치 확인 중...
-                  </div>
-                )}
-                {locationError && (
-                  <div className="flex items-center text-red-500 text-sm">
-                    <AlertTriangle className="h-4 w-4 mr-1" />
-                    위치 접근 불가
-                  </div>
-                )}
               </div>
             </div>
             
@@ -448,50 +449,6 @@ const Services: React.FC = () => {
                 />
               </div>
             </div>
-            
-{/* 위치로 검색 버튼 제거됨 */}
-            
-            {currentLocation && (
-              <div className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-md">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">현재 위치:</span>
-                  <span className="text-sm text-gray-600">
-                    {locationLoading 
-                      ? '위치 가져오는 중...' 
-                      : currentLocation?.address || '알 수 없음'}
-                  </span>
-                </div>
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-8"
-                  onClick={() => {
-                    if (currentLocation) {
-                      const address = currentLocation.address || "";
-                      const city = address.split(" ")[0] || "서울";
-                      setManualLocation({
-                        city,
-                        district: "",
-                        address: currentLocation.address || "",
-                        lat: currentLocation.lat,
-                        long: currentLocation.long
-                      });
-                    }
-                  }}
-                >
-                  이 위치 사용
-                </Button>
-              </div>
-            )}
-
-            {locationError && (
-              <div className="flex items-center text-amber-600 gap-2 bg-amber-50 p-2 rounded">
-                <AlertTriangle className="h-4 w-4" />
-                <span className="text-sm">{locationError}</span>
-              </div>
-            )}
           </div>
           
           {/* 적용된 필터 표시 */}
