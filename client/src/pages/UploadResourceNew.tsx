@@ -272,7 +272,7 @@ export default function UploadResourceNew() {
       // 기본 정보 추가
       formData.append("title", basicData.title);
       formData.append("description", basicData.description);
-      formData.append("resourceType", basicData.category); // 서버에는 resourceType으로 전송
+      formData.append("category", basicData.category); // 서버의 필드명을 category로 변경
       
       // 서브카테고리 추가
       if (basicData.subcategory) formData.append("subcategory", basicData.subcategory);

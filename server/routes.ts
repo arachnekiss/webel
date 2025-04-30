@@ -169,9 +169,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       // 필수 필드 검증
-      if (!resourceData.title || !resourceData.description || !resourceData.resourceType) {
+      if (!resourceData.title || !resourceData.description || !resourceData.category) {
         return res.status(400).json({
-          message: '필수 필드가 누락되었습니다. (title, description, resourceType)'
+          message: '필수 필드가 누락되었습니다. (title, description, category)'
         });
       }
       
@@ -293,7 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1001,
           title: '픽셀 어드벤처',
           description: '레트로 픽셀 그래픽의 2D 플랫폼 게임입니다. 장애물을 뛰어넘고 적을 물리치며 보물을 찾아보세요.',
-          resourceType: 'flash_game',
+          category: 'flash_game',
           tags: ['플랫폼', '레트로', '액션', '어드벤처'],
           imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
           downloadUrl: 'https://html5games.com/Game/Pixel-Adventure/d1c395bd-3767-4c5e-845e-761b7b2508fa',
@@ -302,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           downloadFile: null,
           howToUse: '화살표 키로 이동, 스페이스바로 점프, Z키로 공격합니다.',
           assemblyInstructions: null,
-          category: '게임',
+          subcategory: '게임',
           isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
@@ -311,7 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           id: 1002,
           title: '바운스 볼',
           description: '물리 기반의 퍼즐 게임입니다. 공을 발사하여 모든 장애물을 제거하세요. 다양한 각도와 힘을 조절하는 전략이 필요합니다.',
-          resourceType: 'flash_game',
+          category: 'flash_game',
           tags: ['퍼즐', '물리', '전략', '캐주얼'],
           imageUrl: 'https://images.unsplash.com/photo-1614465000772-1b1a4a12812d',
           downloadUrl: 'https://html5games.com/Game/Bounce-Ball/2fc4db72-c137-4857-9d77-25c32d60aed0',
