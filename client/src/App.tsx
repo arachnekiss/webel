@@ -84,7 +84,9 @@ function Router() {
             <Route path="/register-printer" component={RegisterPrinter}/>
             
             {/* Auth pages */}
-            <Route path="/auth" component={AuthPage}/>
+            <Route path="/auth">
+              {() => <AuthPage />}
+            </Route>
             <Route path="/login">
               {() => <AuthPage initialTab="login" />}
             </Route>

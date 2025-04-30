@@ -38,17 +38,21 @@ const loginSchema = z.object({
 
 // 회원가입 폼 유효성 검사를 위한 스키마
 const registerSchema = z.object({
-  username: z.string().min(3, '사용자 이름은 최소 3자 이상이어야 합니다.'),
+  fullName: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.'),
   email: z.string().email('유효한 이메일 주소를 입력해주세요.'),
-  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.'),
-  fullName: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.')
+  username: z.string().min(3, '아이디는 최소 3자 이상이어야 합니다.'),
+  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-const AuthPage = () => {
-  const [activeTab, setActiveTab] = useState('login');
+interface AuthPageProps {
+  initialTab?: 'login' | 'register';
+}
+
+const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [, navigate] = useLocation();
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
@@ -165,12 +169,12 @@ const AuthPage = () => {
                   <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
                     <FormField
                       control={registerForm.control}
-                      name="username"
+                      name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>사용자 이름</FormLabel>
+                          <FormLabel>이름</FormLabel>
                           <FormControl>
-                            <Input placeholder="사용자 이름" {...field} />
+                            <Input placeholder="실명 입력" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -183,7 +187,7 @@ const AuthPage = () => {
                         <FormItem>
                           <FormLabel>이메일</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="이메일" {...field} />
+                            <Input type="email" placeholder="이메일 주소" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -191,12 +195,12 @@ const AuthPage = () => {
                     />
                     <FormField
                       control={registerForm.control}
-                      name="fullName"
+                      name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>이름</FormLabel>
+                          <FormLabel>아이디</FormLabel>
                           <FormControl>
-                            <Input placeholder="이름" {...field} />
+                            <Input placeholder="로그인에 사용할 아이디" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -209,7 +213,7 @@ const AuthPage = () => {
                         <FormItem>
                           <FormLabel>비밀번호</FormLabel>
                           <FormControl>
-                            <Input type="password" placeholder="비밀번호" {...field} />
+                            <Input type="password" placeholder="6자 이상의 비밀번호" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
