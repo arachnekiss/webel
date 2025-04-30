@@ -27,6 +27,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
   setAdminStatus(id: number, isAdmin: boolean): Promise<User | undefined>;
+  deleteUser(id: number): Promise<boolean>;
   
   // Service operations
   getServices(): Promise<Service[]>;
