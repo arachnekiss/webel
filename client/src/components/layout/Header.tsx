@@ -144,20 +144,21 @@ const Header: React.FC = () => {
             
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-xl mx-8">
-              <form onSubmit={handleSearch} className="relative">
-                <Input 
-                  type="text" 
-                  placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
-                  className="w-full py-2 px-4 border border-slate-200 rounded-full bg-slate-50 focus:bg-white" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                />
+              <form onSubmit={handleSearch} className="flex items-center">
+                <div className="relative flex-grow">
+                  <Input 
+                    type="text" 
+                    placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
+                    className="w-full py-2 pr-2 pl-4 border border-slate-200 rounded-l-full bg-slate-50 focus:bg-white" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                </div>
                 <Button 
                   type="submit"
-                  variant="ghost" 
-                  className="absolute right-1 top-0 h-full rounded-full" 
-                  size="icon"
+                  variant="default" 
+                  className="h-10 px-4 rounded-r-full bg-primary hover:bg-primary/90" 
                 >
                   <Search className="h-5 w-5" />
                 </Button>
@@ -226,20 +227,21 @@ const Header: React.FC = () => {
         <div className="absolute top-full left-0 right-0 bg-white shadow-lg z-50 border-b border-slate-200">
           <div className="p-4 space-y-4">
             {/* 검색창 */}
-            <form onSubmit={handleSearch} className="relative">
-              <Input 
-                type="text" 
-                placeholder="검색어를 입력하세요" 
-                className="w-full py-2 px-4 border border-slate-300 rounded-full" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              />
+            <form onSubmit={handleSearch} className="flex items-center">
+              <div className="relative flex-grow">
+                <Input 
+                  type="text" 
+                  placeholder="검색어를 입력하세요" 
+                  className="w-full py-2 pr-2 pl-4 border border-slate-300 rounded-l-full" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+              </div>
               <Button 
                 type="submit"
-                variant="ghost" 
-                className="absolute right-1 top-0 h-full rounded-full" 
-                size="icon"
+                variant="default" 
+                className="h-10 px-4 rounded-r-full bg-primary hover:bg-primary/90"
               >
                 <Search className="h-5 w-5" />
               </Button>
