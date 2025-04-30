@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useParams, useLocation } from 'wouter';
+import { useParams, useLocation, Link } from 'wouter';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
 
@@ -136,7 +136,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     return (
       resource.title.toLowerCase().includes(query) ||
       resource.description.toLowerCase().includes(query) ||
-      resource.tags?.some(tag => tag.toLowerCase().includes(query))
+      resource.tags?.some((tag: string) => tag.toLowerCase().includes(query))
     );
   });
   
