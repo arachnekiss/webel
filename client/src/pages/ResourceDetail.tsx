@@ -43,7 +43,7 @@ const ResourceDetail: React.FC = () => {
       navigator.share({
         title: resource.title,
         text: resource.description,
-        url: window.location.href,
+        url: document.location.href,
       }).catch((error) => console.log('Error sharing', error));
     } else {
       toast({
