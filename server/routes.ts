@@ -281,7 +281,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 리소스 카테고리별 조회 (이전 타입별 조회에서 변경)
+  // 리소스 카테고리별 조회 (새 엔드포인트)
+  app.get('/api/resources/category/:category', async (req: Request, res: Response) => {
+    try {
+      const category = req.params.category;
+      let resources = await storage.getResourcesByCategory(category);
+      res.json(resources);
+    } catch (error) {
+      console.error('카테고리별 리소스 조회 에러:', error);
+      res.status(500).json({ message: '리소스 조회 중 오류가 발생했습니다.' });
+    }
+  });
+    
+  // 이전 API 경로 호환성 유지 (나중에 제거 가능)
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
     let resources = await storage.getResourcesByCategory(type);
@@ -387,18 +399,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(resources);
   });
   
-  // 리소스 카테고리별 조회
-  app.get('/api/resources/category/:category', async (req: Request, res: Response) => {
-    try {
-      const category = req.params.category;
-      // 데이터베이스에서 카테고리별 리소스 조회
-      const resourcesResult = await db.select().from(resources).where(eq(resources.category, category));
-      res.json(resourcesResult);
-    } catch (error) {
-      console.error('카테고리별 리소스 조회 에러:', error);
-      res.status(500).json({ message: '리소스 조회 중 오류가 발생했습니다.' });
-    }
-  });
+  // 이 엔드포인트는 위에서 이미 정의되었으므로 제거합니다.
   
   // 리소스 다운로드 엔드포인트
   app.get('/api/resources/:id/download', async (req: Request, res: Response) => {

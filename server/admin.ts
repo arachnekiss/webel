@@ -41,7 +41,8 @@ export async function getDashboardData(req: Request, res: Response) {
       id: resources.id,
       title: resources.title,
       description: resources.description,
-      resourceType: resources.resourceType,
+      category: resources.category,
+      subcategory: resources.subcategory,
       createdAt: resources.createdAt
     })
     .from(resources)
@@ -173,7 +174,8 @@ export async function getAllResources(req: Request, res: Response) {
       id: resources.id,
       title: resources.title,
       description: resources.description,
-      resourceType: resources.resourceType,
+      category: resources.category,
+      subcategory: resources.subcategory,
       isFeatured: resources.isFeatured,
       downloadCount: resources.downloadCount,
       createdAt: resources.createdAt
