@@ -164,11 +164,42 @@ export async function getAllResources(req: Request, res: Response) {
       return res.status(403).json({ message: "관리자 권한이 필요합니다." });
     }
 
-    const allResources = await db.select()
-      .from(resources)
-      .orderBy(desc(resources.createdAt));
+    // 필요한 필드만 선택하고 페이징 적용
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
 
-    res.json(allResources);
+    const allResources = await db.select({
+      id: resources.id,
+      title: resources.title,
+      description: resources.description,
+      resourceType: resources.resourceType,
+      isFeatured: resources.isFeatured,
+      downloadCount: resources.downloadCount,
+      createdAt: resources.createdAt
+    })
+    .from(resources)
+    .orderBy(desc(resources.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+    // 전체 카운트를 별도로 가져옴
+    const [countResult] = await db.select({
+      count: sql`COUNT(*)`
+    }).from(resources);
+
+    const totalItems = Number(countResult.count);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.json({
+      items: allResources,
+      meta: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit
+      }
+    });
   } catch (error) {
     console.error('리소스 목록 조회 에러:', error);
     res.status(500).json({ message: '리소스 목록을 가져오는 중 오류가 발생했습니다.' });
@@ -223,11 +254,44 @@ export async function getAllServices(req: Request, res: Response) {
       return res.status(403).json({ message: "관리자 권한이 필요합니다." });
     }
 
-    const allServices = await db.select()
-      .from(services)
-      .orderBy(desc(services.createdAt));
+    // 필요한 필드만 선택하고 페이징 적용
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
 
-    res.json(allServices);
+    const allServices = await db.select({
+      id: services.id,
+      title: services.title,
+      description: services.description,
+      serviceType: services.serviceType,
+      userId: services.userId,
+      rating: services.rating,
+      isVerified: services.isVerified,
+      createdAt: services.createdAt,
+      location: services.location
+    })
+    .from(services)
+    .orderBy(desc(services.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+    // 전체 카운트를 별도로 가져옴
+    const [countResult] = await db.select({
+      count: sql`COUNT(*)`
+    }).from(services);
+
+    const totalItems = Number(countResult.count);
+    const totalPages = Math.ceil(totalItems / limit);
+
+    res.json({
+      items: allServices,
+      meta: {
+        currentPage: page,
+        totalPages,
+        totalItems,
+        itemsPerPage: limit
+      }
+    });
   } catch (error) {
     console.error('서비스 목록 조회 에러:', error);
     res.status(500).json({ message: '서비스 목록을 가져오는 중 오류가 발생했습니다.' });

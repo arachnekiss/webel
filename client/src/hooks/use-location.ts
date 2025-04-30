@@ -1,7 +1,4 @@
-import { useState, useContext } from 'react';
-import { LocationContext } from '@/contexts/LocationContext';
+import { useLocation } from '@/contexts/LocationContext';
 
-// 위치 관련 훅
-export function useLocation() {
-  return useContext(LocationContext);
-}
+// 위치 관련 훅을 재내보내기 합니다.
+export { useLocation };
