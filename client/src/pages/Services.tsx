@@ -372,7 +372,20 @@ const Services: React.FC = () => {
                 ) : manualLocation.city === '부산' ? (
                   <Select 
                     value={manualLocation.district} 
-                    onValueChange={(district) => setManualLocation({...manualLocation, district})}
+                    onValueChange={(district) => {
+                      const updatedLocation = {...manualLocation, district};
+                      setManualLocation(updatedLocation);
+                      
+                      // 구를 선택하면 바로 해당 위치 좌표 적용
+                      const coords = getLocationCoordinates();
+                      if (coords) {
+                        setManualLocation({
+                          ...updatedLocation,
+                          lat: coords.lat,
+                          long: coords.long
+                        });
+                      }
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="지역구 선택" />
@@ -401,7 +414,20 @@ const Services: React.FC = () => {
                     placeholder="지역구"
                     className="mt-1"
                     value={manualLocation.district}
-                    onChange={(e) => setManualLocation({...manualLocation, district: e.target.value})}
+                    onChange={(e) => {
+                      const updatedLocation = {...manualLocation, district: e.target.value};
+                      setManualLocation(updatedLocation);
+                      
+                      // 직접 입력시에도 좌표 업데이트
+                      const coords = getLocationCoordinates();
+                      if (coords) {
+                        setManualLocation({
+                          ...updatedLocation,
+                          lat: coords.lat,
+                          long: coords.long
+                        });
+                      }
+                    }}
                   />
                 )}
               </div>
@@ -413,7 +439,10 @@ const Services: React.FC = () => {
                   placeholder="동/읍/면 또는 상세주소"
                   className="mt-1"
                   value={manualLocation.address}
-                  onChange={(e) => setManualLocation({...manualLocation, address: e.target.value})}
+                  onChange={(e) => {
+                    const updatedLocation = {...manualLocation, address: e.target.value};
+                    setManualLocation(updatedLocation);
+                  }}
                 />
               </div>
             </div>
