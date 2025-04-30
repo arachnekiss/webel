@@ -291,44 +291,72 @@ const Services: React.FC = () => {
           )}
         </div>
 
-        {/* 3D 프린터 페이지에서는 지도/리스트 토글 옵션을 표시 */}
+        {/* 3D 프린터 페이지에서는 목록 뷰를 기본값으로 하고 지도 옵션도 제공 */}
         {type === '3d_printing' ? (
-          <Tabs defaultValue="map" className="mb-6">
-            <div className="flex justify-end mb-4">
+          <Tabs defaultValue="list" className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <SlidersHorizontal className="h-5 w-5 text-primary mr-2" />
+                <h3 className="text-lg font-medium">프린터 모델 필터</h3>
+              </div>
+              
               <TabsList>
-                <TabsTrigger value="map" className="flex items-center gap-1">
-                  <Map className="h-4 w-4" />
-                  <span>지도 보기</span>
-                </TabsTrigger>
                 <TabsTrigger value="list" className="flex items-center gap-1">
                   <List className="h-4 w-4" />
                   <span>목록 보기</span>
                 </TabsTrigger>
+                <TabsTrigger value="map" className="flex items-center gap-1">
+                  <Map className="h-4 w-4" />
+                  <span>지도 보기</span>
+                </TabsTrigger>
               </TabsList>
             </div>
-
-            <TabsContent value="map">
-              {servicesLoading ? (
-                <div className="h-[500px] bg-gray-200 rounded-lg animate-pulse"></div>
-              ) : filteredServices && filteredServices.length > 0 ? (
-                <ServiceMap services={filteredServices} />
-              ) : (
-                <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 3D 프린터 서비스가 없습니다.</p>
-                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
-                  <Button 
-                    className="bg-primary text-white hover:bg-blue-600"
-                    onClick={() => {
-                      setSearchTerm("");
-                      setSortBy("newest");
-                      if (!useManualLocation) getLocation();
-                    }}
-                  >
-                    필터 초기화
-                  </Button>
-                </div>
-              )}
-            </TabsContent>
+            
+            {/* 프린터 모델 필터 버튼들 */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <Button 
+                variant={searchTerm === "" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("")}
+              >
+                전체
+              </Button>
+              <Button 
+                variant={searchTerm === "Prusa" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("Prusa")}
+              >
+                Prusa
+              </Button>
+              <Button 
+                variant={searchTerm === "Creality" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("Creality")}
+              >
+                Creality
+              </Button>
+              <Button 
+                variant={searchTerm === "Ultimaker" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("Ultimaker")}
+              >
+                Ultimaker
+              </Button>
+              <Button 
+                variant={searchTerm === "Formlabs" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("Formlabs")}
+              >
+                Formlabs
+              </Button>
+              <Button 
+                variant={searchTerm === "Anycubic" ? "default" : "outline"} 
+                size="sm"
+                onClick={() => setSearchTerm("Anycubic")}
+              >
+                Anycubic
+              </Button>
+            </div>
 
             <TabsContent value="list">
               {servicesLoading ? (
@@ -347,6 +375,29 @@ const Services: React.FC = () => {
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
                   <p className="text-gray-600 mb-4">검색 조건에 맞는 3D 프린터 서비스가 없습니다.</p>
                   <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
+                  <Button 
+                    className="bg-primary text-white hover:bg-blue-600"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setSortBy("newest");
+                      if (!useManualLocation) getLocation();
+                    }}
+                  >
+                    필터 초기화
+                  </Button>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="map">
+              {servicesLoading ? (
+                <div className="h-[500px] bg-gray-200 rounded-lg animate-pulse"></div>
+              ) : filteredServices && filteredServices.length > 0 ? (
+                <ServiceMap services={filteredServices} />
+              ) : (
+                <div className="bg-gray-50 p-8 rounded-lg text-center">
+                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 3D 프린터 서비스가 없습니다.</p>
+                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={() => {
