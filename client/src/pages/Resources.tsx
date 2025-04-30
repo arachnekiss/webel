@@ -61,13 +61,19 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     },
     getNextPageParam: (lastPage) => {
       // API가 페이지네이션 메타데이터를 반환하는 경우
-      if (lastPage.meta) {
+      if (lastPage?.meta) {
         const { currentPage, totalPages } = lastPage.meta;
         return currentPage < totalPages ? currentPage + 1 : undefined;
       }
       
-      // 단순 배열을 반환하는 경우
-      return lastPage.length === ITEMS_PER_PAGE ? Number(lastPage.meta?.currentPage || 1) + 1 : undefined;
+      // 단순 배열을 반환하는 경우 (lastPage가 배열인지 확인)
+      if (Array.isArray(lastPage)) {
+        // 배열에는 meta 속성이 없으므로, 단순히 배열 길이로 판단
+        return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
+      }
+      
+      // 기본값으로 undefined 반환 (다음 페이지 없음)
+      return undefined;
     },
     initialPageParam: 1,
   });
@@ -130,13 +136,18 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // Filter resources by search query
   const filteredResources = resources?.filter(resource => {
+    // 잘못된 리소스 객체 필터링
+    if (!resource || typeof resource !== 'object') return false;
+    
+    // 검색어가 없으면 모든 리소스 표시
     if (!searchQuery.trim()) return true;
     
     const query = searchQuery.toLowerCase();
     return (
-      resource.title.toLowerCase().includes(query) ||
-      resource.description.toLowerCase().includes(query) ||
-      resource.tags?.some((tag: string) => tag.toLowerCase().includes(query))
+      (resource.title && resource.title.toLowerCase().includes(query)) ||
+      (resource.description && resource.description.toLowerCase().includes(query)) ||
+      (resource.tags && Array.isArray(resource.tags) && 
+        resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query)))
     );
   });
   
@@ -195,8 +206,11 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         ) : filteredResources && filteredResources.length > 0 ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredResources.map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} />
+              {filteredResources.map((resource, index) => (
+                <ResourceCard 
+                  key={resource.id || `resource-${index}`} 
+                  resource={resource} 
+                />
               ))}
             </div>
             
