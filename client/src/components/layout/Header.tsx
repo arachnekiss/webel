@@ -83,12 +83,8 @@ const Header: React.FC = () => {
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
+    // 검색어가 없으면 아무 작업도 하지 않음
     if (!searchTerm.trim()) {
-      toast({
-        title: "검색어를 입력하세요",
-        description: "검색할 키워드를 입력해주세요.",
-        variant: "default",
-      });
       return;
     }
     
@@ -143,13 +139,13 @@ const Header: React.FC = () => {
             </nav>
             
             {/* Search Bar - Desktop */}
-            <div className="hidden md:block flex-1 max-w-xl mx-8">
+            <div className="hidden md:block flex-1 max-w-2xl mx-8">
               <form onSubmit={handleSearch} className="flex items-center">
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
                     placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
-                    className="w-full py-2 pr-2 pl-4 border border-slate-200 rounded-l-full bg-slate-50 focus:bg-white" 
+                    className="w-full py-2 pr-3 pl-4 border border-slate-200 rounded-l-full bg-slate-50 focus:bg-white" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -158,7 +154,7 @@ const Header: React.FC = () => {
                 <Button 
                   type="submit"
                   variant="default" 
-                  className="h-10 px-4 rounded-r-full bg-primary hover:bg-primary/90" 
+                  className="h-10 w-12 rounded-r-full bg-primary hover:bg-primary/90 flex items-center justify-center" 
                 >
                   <Search className="h-5 w-5" />
                 </Button>
@@ -232,7 +228,7 @@ const Header: React.FC = () => {
                 <Input 
                   type="text" 
                   placeholder="검색어를 입력하세요" 
-                  className="w-full py-2 pr-2 pl-4 border border-slate-300 rounded-l-full" 
+                  className="w-full py-2 pr-3 pl-4 border border-slate-300 rounded-l-full" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -241,7 +237,7 @@ const Header: React.FC = () => {
               <Button 
                 type="submit"
                 variant="default" 
-                className="h-10 px-4 rounded-r-full bg-primary hover:bg-primary/90"
+                className="h-10 w-12 rounded-r-full bg-primary hover:bg-primary/90 flex items-center justify-center"
               >
                 <Search className="h-5 w-5" />
               </Button>
