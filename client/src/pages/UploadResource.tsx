@@ -539,10 +539,20 @@ export default function UploadResource() {
 
                   <CardFooter className="flex justify-between">
                     <Button type="button" variant="outline" onClick={() => navigate("/resources")}>
-                      취소
+                      <div className="flex items-center">
+                        <X className="h-4 w-4 mr-2" />
+                        <span>취소</span>
+                      </div>
                     </Button>
-                    <Button type="button" onClick={() => setSelectedTab("details")}>
-                      다음
+                    <Button 
+                      type="button" 
+                      onClick={() => setSelectedTab("details")}
+                      className="bg-primary/90 hover:bg-primary"
+                    >
+                      <div className="flex items-center">
+                        <ImageIcon className="h-4 w-4 mr-2" />
+                        <span>다음</span>
+                      </div>
                     </Button>
                   </CardFooter>
                 </TabsContent>
@@ -590,20 +600,45 @@ export default function UploadResource() {
 
                   <CardFooter className="flex justify-between">
                     <Button type="button" variant="outline" onClick={() => setSelectedTab("basic")}>
-                      이전
+                      <div className="flex items-center">
+                        <FileText className="h-4 w-4 mr-2" />
+                        <span>이전</span>
+                      </div>
                     </Button>
-                    <Button type="button" onClick={() => setSelectedTab("preview")}>
-                      미리보기
+                    <Button 
+                      type="button" 
+                      onClick={() => setSelectedTab("preview")}
+                      className="bg-primary/90 hover:bg-primary"  
+                    >
+                      <div className="flex items-center">
+                        <Eye className="h-4 w-4 mr-2" />
+                        <span>미리보기</span>
+                      </div>
                     </Button>
                   </CardFooter>
                 </TabsContent>
 
                 <TabsContent value="preview">
                   <CardContent className="pt-4">
-                    <div className="rounded-lg border p-6 space-y-6">
+                    <div className="rounded-lg border shadow-sm p-6 space-y-6">
+                      {/* 헤더 - 사용자 정보, 날짜 */}
+                      <div className="flex items-center space-x-3">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center text-white font-bold">
+                          {user ? user.username?.charAt(0).toUpperCase() : "W"}
+                        </div>
+                        <div>
+                          <div className="font-medium">{user ? user.username : "Webel 사용자"}</div>
+                          <div className="text-xs text-muted-foreground">방금 전</div>
+                        </div>
+                      </div>
+                      
+                      {/* 컨텐츠 */}
                       <div>
-                        <h2 className="text-2xl font-bold">{form.getValues("title") || "제목 없음"}</h2>
-                        <div className="flex flex-wrap gap-2 mt-2">
+                        <h2 className="text-xl font-bold mb-3">{form.getValues("title") || "제목 없음"}</h2>
+                        <p className="text-muted-foreground whitespace-pre-line mb-4">
+                          {form.getValues("description") || "설명이 없습니다."}
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
                           <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-primary/20">
                             {resourceTypeOptions.find(opt => opt.value === form.getValues("resourceType"))?.label || ""}
                           </Badge>
@@ -612,11 +647,17 @@ export default function UploadResource() {
                               {form.getValues("category")}
                             </Badge>
                           )}
+                          {tags.map(tag => (
+                            <Badge key={tag} variant="secondary">
+                              #{tag}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
 
+                      {/* 이미지 */}
                       {imagePreview && (
-                        <div className="flex justify-center">
+                        <div className="flex justify-center rounded-md overflow-hidden border">
                           <img
                             src={imagePreview}
                             alt="미리보기"
@@ -683,17 +724,54 @@ export default function UploadResource() {
                     </div>
                   </CardContent>
 
-                  <CardFooter className="flex justify-between">
-                    <Button type="button" variant="outline" onClick={() => setSelectedTab("details")}>
-                      이전
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={uploadResourceMutation.isPending}
-                    >
-                      {uploadResourceMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      업로드
-                    </Button>
+                  <CardFooter className="flex flex-col space-y-4">
+                    <div className="flex flex-col w-full bg-muted/20 rounded-md p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <Download className="h-4 w-4 mr-2 text-primary" />
+                          <span className="text-sm font-medium">다운로드 정보</span>
+                        </div>
+                        {downloadFile && (
+                          <Badge variant="outline" className="text-xs">
+                            {(downloadFile.size / 1024 / 1024).toFixed(2)} MB
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {downloadFile 
+                          ? `파일: ${downloadFile.name}`
+                          : form.getValues("downloadUrl")
+                            ? "외부 다운로드 링크가 설정되었습니다"
+                            : "다운로드 파일 또는 링크가 설정되지 않았습니다"
+                        }
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-between w-full">
+                      <Button type="button" variant="outline" onClick={() => setSelectedTab("details")}>
+                        <div className="flex items-center">
+                          <ImageIcon className="h-4 w-4 mr-2" />
+                          <span>이전</span>
+                        </div>
+                      </Button>
+                      <Button
+                        type="submit"
+                        disabled={uploadResourceMutation.isPending}
+                        className="bg-primary/90 hover:bg-primary"
+                      >
+                        {uploadResourceMutation.isPending ? (
+                          <div className="flex items-center">
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <span>업로드 중...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center">
+                            <Upload className="mr-2 h-4 w-4" />
+                            <span>공유하기</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
                   </CardFooter>
                 </TabsContent>
               </form>
