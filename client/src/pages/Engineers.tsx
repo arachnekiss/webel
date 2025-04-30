@@ -170,7 +170,7 @@ export default function Engineers() {
             engineer.description.toLowerCase().includes(term) ||
             (engineer.specialty && engineer.specialty.toLowerCase().includes(term)) ||
             (engineer.tags && engineer.tags.some(tag => tag.toLowerCase().includes(term))) ||
-            (engineer.experience && typeof engineer.experience === 'string' && engineer.experience.toLowerCase().includes(term)) ||
+            (engineer.experience && (typeof engineer.experience === 'string' ? engineer.experience.toLowerCase().includes(term) : String(engineer.experience).toLowerCase().includes(term))) ||
             (engineer.availableItems && Array.isArray(engineer.availableItems) && engineer.availableItems.some(item => typeof item === 'string' && item.toLowerCase().includes(term)))
           );
         });

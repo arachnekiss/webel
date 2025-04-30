@@ -397,11 +397,13 @@ const Services: React.FC = () => {
                   // 위치 정보로 검색 실행
                   if (manualLocation.city) {
                     const coords = getLocationCoordinates();
-                    setManualLocation({
-                      ...manualLocation,
-                      lat: coords.lat,
-                      long: coords.long
-                    });
+                    if (coords) {
+                      setManualLocation({
+                        ...manualLocation,
+                        lat: coords.lat,
+                        long: coords.long
+                      });
+                    }
                   }
                 }}
               >
