@@ -145,19 +145,19 @@ export default function AdminDashboard() {
             title="사용자 관리" 
             description="사용자 계정 및 권한 관리" 
             icon={<Users className="h-5 w-5" />}
-            onClick={() => alert('사용자 관리 기능은 개발 중입니다.')}
+            onClick={() => window.location.href = '/admin/users'}
           />
           <ActionCard 
             title="리소스 관리" 
             description="리소스 등록 및 관리" 
             icon={<Archive className="h-5 w-5" />}
-            onClick={() => alert('리소스 관리 기능은 개발 중입니다.')}
+            onClick={() => window.location.href = '/admin/resources'}
           />
           <ActionCard 
             title="엔지니어 관리" 
             description="엔지니어 등록 및 관리" 
             icon={<Wrench className="h-5 w-5" />}
-            onClick={() => alert('엔지니어 관리 기능은 개발 중입니다.')}
+            onClick={() => window.location.href = '/admin/engineers'}
           />
         </div>
       </div>

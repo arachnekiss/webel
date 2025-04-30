@@ -39,6 +39,7 @@ export const services = pgTable("services", {
   hourlyRate: integer("hourly_rate"), // 시간당 요금
   availableItems: text("available_items").array(), // 조립/수리 가능한 아이템 목록
   portfolioUrl: text("portfolio_url"), // 포트폴리오 URL
+  isVerified: boolean("is_verified").default(false), // 관리자 검증 여부
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -57,6 +58,7 @@ export const resources = pgTable("resources", {
   assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
   category: text("category"), // More specific categorization within resourceType
+  isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
   isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
   sourceSite: text("source_site"), // Original source if crawled
 });

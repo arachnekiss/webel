@@ -8,13 +8,17 @@ import { storage } from "./storage";
 import { db } from "./db";
 import { users, services, resources, auctions } from "@shared/schema";
 import { desc } from "drizzle-orm";
-import type { User } from "@shared/schema";
 import createMemoryStore from "memorystore";
+import { User as UserSchema } from '@shared/schema';
 
 // Express 타입 확장
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends UserSchema {
+      // These properties are already in the schema, just ensuring type safety
+      id: number;
+      isAdmin: boolean;
+    }
   }
 }
 

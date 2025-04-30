@@ -30,6 +30,9 @@ import FlashGames from '@/pages/FlashGames';
 import Engineers from '@/pages/Engineers';
 import AuthPage from '@/pages/auth-page';
 import AdminDashboard from '@/pages/AdminDashboard';
+import AdminUserManagement from '@/pages/AdminUserManagement';
+import AdminResourceManagement from '@/pages/AdminResourceManagement';
+import AdminEngineerManagement from '@/pages/AdminEngineerManagement';
 import RegisterPrinter from '@/pages/RegisterPrinter';
 
 function Router() {
@@ -96,6 +99,9 @@ function Router() {
             
             {/* Admin pages */}
             <AdminRoute path="/admin/dashboard" component={AdminDashboard} />
+            <AdminRoute path="/admin/users" component={AdminUserManagement} />
+            <AdminRoute path="/admin/resources" component={AdminResourceManagement} />
+            <AdminRoute path="/admin/engineers" component={AdminEngineerManagement} />
             
             {/* Fallback to 404 */}
             <Route component={NotFound} />

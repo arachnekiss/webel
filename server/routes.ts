@@ -303,6 +303,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           howToUse: '화살표 키로 이동, 스페이스바로 점프, Z키로 공격합니다.',
           assemblyInstructions: null,
           category: '게임',
+          isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
         },
@@ -320,6 +321,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           howToUse: '마우스로 방향과 힘을 조절하여 공을 발사합니다.',
           assemblyInstructions: null,
           category: '게임',
+          isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
         },
@@ -337,6 +339,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           howToUse: 'WASD 키로 이동, 스페이스바로 발사, 1-5 키로 무기 변경.',
           assemblyInstructions: null,
           category: '게임',
+          isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
         },
@@ -354,6 +357,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           howToUse: '마우스 또는 터치로 패들을 움직입니다.',
           assemblyInstructions: null,
           category: '게임',
+          isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
         },
@@ -371,6 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           howToUse: '마우스로 조각을 끌어다 놓고 퍼즐을 완성하세요.',
           assemblyInstructions: null,
           category: '게임',
+          isFeatured: false,
           isCrawled: true,
           sourceSite: 'html5games.com'
         }
