@@ -28,7 +28,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 // 로그인 폼 유효성 검사를 위한 스키마
 const loginSchema = z.object({
@@ -53,6 +53,8 @@ interface AuthPageProps {
 
 const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [, navigate] = useLocation();
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
@@ -142,9 +144,22 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>비밀번호</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="비밀번호" {...field} />
-                          </FormControl>
+                          <div className="relative">
+                            <FormControl>
+                              <Input 
+                                type={showLoginPassword ? "text" : "password"} 
+                                placeholder="비밀번호" 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <button 
+                              type="button" 
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                              onClick={() => setShowLoginPassword(!showLoginPassword)}
+                            >
+                              {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -212,9 +227,22 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>비밀번호</FormLabel>
-                          <FormControl>
-                            <Input type="password" placeholder="6자 이상의 비밀번호" {...field} />
-                          </FormControl>
+                          <div className="relative">
+                            <FormControl>
+                              <Input 
+                                type={showRegisterPassword ? "text" : "password"} 
+                                placeholder="6자 이상의 비밀번호" 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <button 
+                              type="button" 
+                              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                              onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                            >
+                              {showRegisterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

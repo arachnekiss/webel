@@ -6,7 +6,7 @@ import type {
 } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 1
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 3000 // 3초 후 자동으로 사라지도록 설정
 
 type ToasterToast = ToastProps & {
   id: string
@@ -148,6 +148,11 @@ function toast({ ...props }: Toast) {
       toast: { ...props, id },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+
+  // 토스트가 생성되면 자동으로 3초 후에 사라지도록 설정
+  setTimeout(() => {
+    dismiss();
+  }, TOAST_REMOVE_DELAY);
 
   dispatch({
     type: "ADD_TOAST",
