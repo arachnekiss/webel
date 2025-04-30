@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 
 const Services: React.FC = () => {
@@ -196,10 +195,10 @@ const Services: React.FC = () => {
           </p>
         </div>
         
-        {/* 검색 및 필터 컨트롤 */}
-        <div className="bg-white rounded-lg shadow p-4 mb-8">
-          {/* 검색어 입력 필드 */}
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
+        {/* 검색 및 필터 컨트롤 - 쇼핑몰 스타일 */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          {/* 상단 검색 영역 */}
+          <div className="flex items-center p-4 border-b">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -209,255 +208,233 @@ const Services: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Button 
+              variant="default"
+              size="sm"
+              className="ml-2 px-4"
+              onClick={() => {
+                if (searchTerm) {
+                  // 검색 실행
+                }
+              }}
+            >
+              검색
+            </Button>
+          </div>
+          
+          {/* 위치 정보 영역 */}
+          <div className="p-4 flex items-center justify-between border-b bg-slate-50">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-primary" />
+              {locationLoading ? (
+                <div className="flex items-center">
+                  <span className="animate-spin mr-2 text-sm">⟳</span>
+                  <span className="font-medium">위치 확인 중...</span>
+                </div>
+              ) : currentLocation ? (
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">현재 위치:</span>
+                  <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
+                </div>
+              ) : (
+                <span className="font-medium">위치 정보 사용 불가</span>
+              )}
+            </div>
+            
             <div className="flex gap-2 items-center">
+              <Select value={distance} onValueChange={setDistance}>
+                <SelectTrigger className="w-24 h-9 bg-white">
+                  <SelectValue placeholder="검색 반경" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5">5km</SelectItem>
+                  <SelectItem value="10">10km</SelectItem>
+                  <SelectItem value="20">20km</SelectItem>
+                  <SelectItem value="50">50km</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          {/* 필터 및 정렬 영역 */}
+          <div className="p-4 flex flex-wrap justify-between items-center gap-2 border-b">
+            <div className="flex gap-2 items-center flex-wrap">
+              <Select value={manualLocation.city || ""} onValueChange={(city) => {
+                const updatedLocation = {...manualLocation, city, district: ''};
+                setManualLocation(updatedLocation);
+                
+                // 도시를 선택하면 바로 해당 위치 좌표 적용
+                const coords = getLocationCoordinates();
+                if (coords) {
+                  setManualLocation({
+                    ...updatedLocation,
+                    lat: coords.lat,
+                    long: coords.long
+                  });
+                }
+              }}>
+                <SelectTrigger className="w-28 h-9">
+                  <SelectValue placeholder="도시 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">전체</SelectItem>
+                  <SelectItem value="서울">서울</SelectItem>
+                  <SelectItem value="부산">부산</SelectItem>
+                  <SelectItem value="인천">인천</SelectItem>
+                  <SelectItem value="대전">대전</SelectItem>
+                  <SelectItem value="대구">대구</SelectItem>
+                  <SelectItem value="광주">광주</SelectItem>
+                  <SelectItem value="울산">울산</SelectItem>
+                  <SelectItem value="세종">세종</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {manualLocation.city && (
+                <Select value={manualLocation.district || ""} onValueChange={(district) => {
+                  const updatedLocation = {...manualLocation, district};
+                  setManualLocation(updatedLocation);
+                  
+                  // 구를 선택하면 바로 해당 위치 좌표 적용
+                  const coords = getLocationCoordinates();
+                  if (coords) {
+                    setManualLocation({
+                      ...updatedLocation,
+                      lat: coords.lat,
+                      long: coords.long
+                    });
+                  }
+                }}>
+                  <SelectTrigger className="w-28 h-9">
+                    <SelectValue placeholder="지역구" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">전체</SelectItem>
+                    {manualLocation.city === '서울' ? (
+                      <>
+                        <SelectItem value="강남구">강남구</SelectItem>
+                        <SelectItem value="강동구">강동구</SelectItem>
+                        <SelectItem value="강북구">강북구</SelectItem>
+                        <SelectItem value="강서구">강서구</SelectItem>
+                        <SelectItem value="관악구">관악구</SelectItem>
+                        <SelectItem value="광진구">광진구</SelectItem>
+                        <SelectItem value="구로구">구로구</SelectItem>
+                        <SelectItem value="금천구">금천구</SelectItem>
+                        <SelectItem value="노원구">노원구</SelectItem>
+                        <SelectItem value="도봉구">도봉구</SelectItem>
+                        <SelectItem value="동대문구">동대문구</SelectItem>
+                        <SelectItem value="동작구">동작구</SelectItem>
+                        <SelectItem value="마포구">마포구</SelectItem>
+                        <SelectItem value="서대문구">서대문구</SelectItem>
+                        <SelectItem value="서초구">서초구</SelectItem>
+                        <SelectItem value="성동구">성동구</SelectItem>
+                        <SelectItem value="성북구">성북구</SelectItem>
+                        <SelectItem value="송파구">송파구</SelectItem>
+                        <SelectItem value="양천구">양천구</SelectItem>
+                        <SelectItem value="영등포구">영등포구</SelectItem>
+                        <SelectItem value="용산구">용산구</SelectItem>
+                        <SelectItem value="은평구">은평구</SelectItem>
+                        <SelectItem value="종로구">종로구</SelectItem>
+                        <SelectItem value="중구">중구</SelectItem>
+                        <SelectItem value="중랑구">중랑구</SelectItem>
+                      </>
+                    ) : manualLocation.city === '부산' ? (
+                      <>
+                        <SelectItem value="금정구">금정구</SelectItem>
+                        <SelectItem value="남구">남구</SelectItem>
+                        <SelectItem value="동구">동구</SelectItem>
+                        <SelectItem value="동래구">동래구</SelectItem>
+                        <SelectItem value="부산진구">부산진구</SelectItem>
+                        <SelectItem value="북구">북구</SelectItem>
+                        <SelectItem value="사상구">사상구</SelectItem>
+                        <SelectItem value="사하구">사하구</SelectItem>
+                        <SelectItem value="서구">서구</SelectItem>
+                        <SelectItem value="수영구">수영구</SelectItem>
+                        <SelectItem value="연제구">연제구</SelectItem>
+                        <SelectItem value="영도구">영도구</SelectItem>
+                        <SelectItem value="중구">중구</SelectItem>
+                        <SelectItem value="해운대구">해운대구</SelectItem>
+                      </>
+                    ) : null}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+            
+            <div className="flex gap-2 items-center">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-36 h-9">
+                  <SelectValue placeholder="정렬 기준" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest" className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                    <span>최신순</span>
+                  </SelectItem>
+                  <SelectItem value="rating" className="flex items-center gap-2">
+                    <Star className="h-4 w-4" />
+                    <span>평점순</span>
+                  </SelectItem>
+                  {type === '3d_printing' && (
+                    <SelectItem value="lowPrice" className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span>낮은가격순</span>
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+              
               <Button 
                 variant="outline"
                 size="icon"
-                className="h-10 w-10"
+                className="h-9 w-9"
                 onClick={() => {
                   setSearchTerm("");
                   setSortBy("newest");
                   getLocation();
                   resetFilters();
                 }}
+                title="필터 초기화"
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
-              <div className="w-36">
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="정렬 기준" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest" className="flex items-center gap-2">
-                      <RefreshCw className="h-4 w-4" />
-                      <span>최신순</span>
-                    </SelectItem>
-                    <SelectItem value="rating" className="flex items-center gap-2">
-                      <Star className="h-4 w-4" />
-                      <span>평점순</span>
-                    </SelectItem>
-                    {type === '3d_printing' && (
-                      <SelectItem value="lowPrice" className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        <span>낮은가격순</span>
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
           </div>
           
-          {/* 위치 관련 컨트롤 */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-primary" />
-                {locationLoading ? (
-                  <div className="flex items-center">
-                    <span className="animate-spin mr-2 text-sm">⟳</span>
-                    <span className="font-medium">위치 확인 중...</span>
-                  </div>
-                ) : currentLocation ? (
-                  <div className="flex items-center gap-1">
-                    <span className="font-medium">현재 위치:</span>
-                    <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
-                  </div>
-                ) : (
-                  <span className="font-medium">위치 정보 사용 불가</span>
-                )}
-              </div>
-              
-              <div className="flex gap-2 items-center">
-                <Select value={distance} onValueChange={setDistance}>
-                  <SelectTrigger className="w-24">
-                    <SelectValue placeholder="검색 반경" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5km</SelectItem>
-                    <SelectItem value="10">10km</SelectItem>
-                    <SelectItem value="20">20km</SelectItem>
-                    <SelectItem value="50">50km</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="city">도시</Label>
-                <Select 
-                  value={manualLocation.city} 
-                  onValueChange={(city) => {
-                    const updatedLocation = {...manualLocation, city, district: ''};
-                    setManualLocation(updatedLocation);
-                    
-                    // 도시를 선택하면 바로 해당 위치 좌표 적용
-                    const coords = getLocationCoordinates();
-                    if (coords) {
-                      setManualLocation({
-                        ...updatedLocation,
-                        lat: coords.lat,
-                        long: coords.long
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="도시 선택" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="서울">서울</SelectItem>
-                    <SelectItem value="부산">부산</SelectItem>
-                    <SelectItem value="인천">인천</SelectItem>
-                    <SelectItem value="대전">대전</SelectItem>
-                    <SelectItem value="대구">대구</SelectItem>
-                    <SelectItem value="광주">광주</SelectItem>
-                    <SelectItem value="울산">울산</SelectItem>
-                    <SelectItem value="세종">세종</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="md:col-span-1">
-                <Label htmlFor="district">지역구</Label>
-                {manualLocation.city === '서울' ? (
-                  <Select 
-                    value={manualLocation.district} 
-                    onValueChange={(district) => {
-                      const updatedLocation = {...manualLocation, district};
-                      setManualLocation(updatedLocation);
-                      
-                      // 구를 선택하면 바로 해당 위치 좌표 적용
-                      const coords = getLocationCoordinates();
-                      if (coords) {
-                        setManualLocation({
-                          ...updatedLocation,
-                          lat: coords.lat,
-                          long: coords.long
-                        });
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="지역구 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="전체">전체</SelectItem>
-                      <SelectItem value="강남구">강남구</SelectItem>
-                      <SelectItem value="강동구">강동구</SelectItem>
-                      <SelectItem value="강북구">강북구</SelectItem>
-                      <SelectItem value="강서구">강서구</SelectItem>
-                      <SelectItem value="관악구">관악구</SelectItem>
-                      <SelectItem value="광진구">광진구</SelectItem>
-                      <SelectItem value="구로구">구로구</SelectItem>
-                      <SelectItem value="금천구">금천구</SelectItem>
-                      <SelectItem value="노원구">노원구</SelectItem>
-                      <SelectItem value="도봉구">도봉구</SelectItem>
-                      <SelectItem value="동대문구">동대문구</SelectItem>
-                      <SelectItem value="동작구">동작구</SelectItem>
-                      <SelectItem value="마포구">마포구</SelectItem>
-                      <SelectItem value="서대문구">서대문구</SelectItem>
-                      <SelectItem value="서초구">서초구</SelectItem>
-                      <SelectItem value="성동구">성동구</SelectItem>
-                      <SelectItem value="성북구">성북구</SelectItem>
-                      <SelectItem value="송파구">송파구</SelectItem>
-                      <SelectItem value="양천구">양천구</SelectItem>
-                      <SelectItem value="영등포구">영등포구</SelectItem>
-                      <SelectItem value="용산구">용산구</SelectItem>
-                      <SelectItem value="은평구">은평구</SelectItem>
-                      <SelectItem value="종로구">종로구</SelectItem>
-                      <SelectItem value="중구">중구</SelectItem>
-                      <SelectItem value="중랑구">중랑구</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : manualLocation.city === '부산' ? (
-                  <Select 
-                    value={manualLocation.district} 
-                    onValueChange={(district) => {
-                      const updatedLocation = {...manualLocation, district};
-                      setManualLocation(updatedLocation);
-                      
-                      // 구를 선택하면 바로 해당 위치 좌표 적용
-                      const coords = getLocationCoordinates();
-                      if (coords) {
-                        setManualLocation({
-                          ...updatedLocation,
-                          lat: coords.lat,
-                          long: coords.long
-                        });
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="지역구 선택" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="전체">전체</SelectItem>
-                      <SelectItem value="금정구">금정구</SelectItem>
-                      <SelectItem value="남구">남구</SelectItem>
-                      <SelectItem value="동구">동구</SelectItem>
-                      <SelectItem value="동래구">동래구</SelectItem>
-                      <SelectItem value="부산진구">부산진구</SelectItem>
-                      <SelectItem value="북구">북구</SelectItem>
-                      <SelectItem value="사상구">사상구</SelectItem>
-                      <SelectItem value="사하구">사하구</SelectItem>
-                      <SelectItem value="서구">서구</SelectItem>
-                      <SelectItem value="수영구">수영구</SelectItem>
-                      <SelectItem value="연제구">연제구</SelectItem>
-                      <SelectItem value="영도구">영도구</SelectItem>
-                      <SelectItem value="중구">중구</SelectItem>
-                      <SelectItem value="해운대구">해운대구</SelectItem>
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    id="district"
-                    placeholder="지역구"
-                    className="mt-1"
-                    value={manualLocation.district}
-                    onChange={(e) => {
-                      const updatedLocation = {...manualLocation, district: e.target.value};
-                      setManualLocation(updatedLocation);
-                      
-                      // 직접 입력시에도 좌표 업데이트
-                      const coords = getLocationCoordinates();
-                      if (coords) {
-                        setManualLocation({
-                          ...updatedLocation,
-                          lat: coords.lat,
-                          long: coords.long
-                        });
-                      }
-                    }}
-                  />
-                )}
-              </div>
-              
-              <div className="md:col-span-1">
-                <Label htmlFor="address">상세 주소</Label>
-                <Input
-                  id="address"
-                  placeholder="동/읍/면 또는 상세주소"
-                  className="mt-1"
-                  value={manualLocation.address}
-                  onChange={(e) => {
-                    const updatedLocation = {...manualLocation, address: e.target.value};
-                    setManualLocation(updatedLocation);
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          
-          {/* 적용된 필터 표시 */}
+          {/* 적용된 필터 표시 영역 */}
           {(searchTerm || sortBy !== "newest" || manualLocation.city) && (
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="px-4 py-2 flex flex-wrap gap-2 bg-slate-50 text-sm">
+              <span className="font-medium">적용 필터:</span>
               {searchTerm && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Search className="h-3 w-3" />
-                  <span>검색어: {searchTerm}</span>
+                  <span>{searchTerm}</span>
+                  <button 
+                    className="ml-1 hover:text-red-500"
+                    onClick={() => setSearchTerm("")}
+                  >
+                    ×
+                  </button>
+                </Badge>
+              )}
+              
+              {manualLocation.city && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span>{manualLocation.city} {manualLocation.district}</span>
+                  <button 
+                    className="ml-1 hover:text-red-500"
+                    onClick={() => {
+                      setManualLocation({
+                        city: "",
+                        district: "",
+                        address: "",
+                        lat: 37.5665,
+                        long: 126.9780
+                      });
+                    }}
+                  >
+                    ×
+                  </button>
                 </Badge>
               )}
               
@@ -469,17 +446,14 @@ const Services: React.FC = () => {
                     <Clock className="h-3 w-3" />
                   )}
                   <span>
-                    정렬: {sortBy === "rating" ? "평점순" : sortBy === "lowPrice" ? "낮은가격순" : "최신순"}
+                    {sortBy === "rating" ? "평점순" : sortBy === "lowPrice" ? "낮은가격순" : "최신순"}
                   </span>
-                </Badge>
-              )}
-              
-              {manualLocation.city && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>
-                    위치: {manualLocation.city} {manualLocation.district ? manualLocation.district + ' ' : ''}{manualLocation.address}
-                  </span>
+                  <button 
+                    className="ml-1 hover:text-red-500"
+                    onClick={() => setSortBy("newest")}
+                  >
+                    ×
+                  </button>
                 </Badge>
               )}
             </div>
@@ -492,7 +466,7 @@ const Services: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <SlidersHorizontal className="h-5 w-5 text-primary mr-2" />
-                <h3 className="text-lg font-medium">프린터 모델 필터</h3>
+                <h3 className="text-lg font-medium">보기 모드</h3>
               </div>
               
               <TabsList>
@@ -505,52 +479,6 @@ const Services: React.FC = () => {
                   <span>지도 보기</span>
                 </TabsTrigger>
               </TabsList>
-            </div>
-            
-            {/* 프린터 모델 필터 버튼들 */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              <Button 
-                variant={searchTerm === "" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("")}
-              >
-                전체
-              </Button>
-              <Button 
-                variant={searchTerm === "Prusa" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("Prusa")}
-              >
-                Prusa
-              </Button>
-              <Button 
-                variant={searchTerm === "Creality" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("Creality")}
-              >
-                Creality
-              </Button>
-              <Button 
-                variant={searchTerm === "Ultimaker" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("Ultimaker")}
-              >
-                Ultimaker
-              </Button>
-              <Button 
-                variant={searchTerm === "Formlabs" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("Formlabs")}
-              >
-                Formlabs
-              </Button>
-              <Button 
-                variant={searchTerm === "Anycubic" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setSearchTerm("Anycubic")}
-              >
-                Anycubic
-              </Button>
             </div>
 
             <TabsContent value="list">
