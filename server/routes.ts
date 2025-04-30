@@ -30,6 +30,17 @@ const upload = multer({
 
 import { setupAuth, isAdmin, isAuthenticated } from './auth';
 import { deleteUserByUsername } from './userDelete';
+import { 
+  getDashboardData,
+  getAllUsers,
+  deleteUser,
+  setAdminStatus,
+  getAllResources,
+  updateResource,
+  getAllServices,
+  verifyService,
+  deleteService
+} from './admin';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // 데이터베이스 초기화 엔드포인트 (개발 환경에서만 사용)
@@ -529,48 +540,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // 관리자 대시보드 API
-  app.get('/api/admin/dashboard', isAdmin, async (req: Request, res: Response) => {
-    try {
-      // 대시보드에 필요한 데이터 취합
-      const users = await storage.getUsers();
-      const services = await storage.getServices();
-      const resources = await storage.getResources();
-      const auctions = await storage.getAuctions();
-      
-      // 최근 가입 사용자 (최대 5명)
-      const recentUsers = users
-        .sort((a: any, b: any) => {
-          const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
-          const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
-          return dateB - dateA;
-        })
-        .slice(0, 5)
-        .map(({ password, ...user }: any) => user); // 비밀번호 제외
-      
-      // 최근 등록된 리소스 (최대 5개)
-      const recentResources = resources
-        .sort((a: any, b: any) => {
-          const dateA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
-          const dateB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
-          return dateB - dateA;
-        })
-        .slice(0, 5);
-      
-      // 대시보드 데이터 응답
-      res.json({
-        usersCount: users.length,
-        servicesCount: services.length,
-        resourcesCount: resources.length,
-        auctionsCount: auctions.length,
-        recentUsers,
-        recentResources
-      });
-    } catch (error: any) {
-      console.error('관리자 대시보드 데이터 조회 에러:', error);
-      res.status(500).json({ message: error.message || '서버 오류가 발생했습니다.' });
-    }
-  });
+  // 관리자 API 엔드포인트
+  app.get('/api/admin/dashboard', isAdmin, getDashboardData);
+  app.get('/api/admin/users', isAdmin, getAllUsers);
+  app.post('/api/admin/set-admin', isAdmin, setAdminStatus);
+  app.delete('/api/admin/users/:id', isAdmin, deleteUser);
+  app.get('/api/admin/resources', isAdmin, getAllResources);
+  app.get('/api/admin/services', isAdmin, getAllServices);
+  app.put('/api/admin/services/:id/verify', isAdmin, verifyService);
+  app.delete('/api/admin/services/:id', isAdmin, deleteService);
 
   const httpServer = createServer(app);
   return httpServer;
