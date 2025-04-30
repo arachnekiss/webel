@@ -31,12 +31,13 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     }
   }, [location]);
   
-  // Define query key based on type parameter
-  const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
-  
   // 무한 스크롤을 위한 설정
   const ITEMS_PER_PAGE = 12;
   const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // Define query key based on type parameter
+  // 타입이 없거나 undefined인 경우 기본값으로 모든 리소스 API 경로 사용
+  const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
   // 무한 쿼리 설정
   const {
@@ -46,9 +47,12 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     isFetchingNextPage,
     isLoading
   } = useInfiniteQuery({
-    queryKey: [queryKey],
+    // queryKey를 배열로 지정하고, type이 undefined인 경우에도 안전하게 처리
+    queryKey: [queryKey || '/api/resources'],
     queryFn: async ({ pageParam = 1 }) => {
-      const url = new URL(`${window.location.origin}${queryKey}`);
+      // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
+      const endpoint = queryKey || '/api/resources'; 
+      const url = new URL(`${window.location.origin}${endpoint}`);
       url.searchParams.append('page', String(pageParam));
       url.searchParams.append('limit', String(ITEMS_PER_PAGE));
       
@@ -145,7 +149,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     if (!resource || typeof resource !== 'object') return false;
     
     // 검색어가 없으면 모든 리소스 표시
-    if (!searchQuery.trim()) return true;
+    if (!searchQuery || !searchQuery.trim()) return true;
     
     const query = searchQuery.toLowerCase();
     return (
@@ -154,7 +158,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       (resource.tags && Array.isArray(resource.tags) && 
         resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query)))
     );
-  });
+  }) || [];
   
   return (
     <div>
