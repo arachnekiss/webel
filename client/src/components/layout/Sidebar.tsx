@@ -51,7 +51,7 @@ export const serviceItems: SidebarItemProps[] = [
     id: 'manufacturers',
     label: '생산업체 찾기',
     icon: <Building2 className="h-5 w-5" />,
-    href: '/services/type/manufacturers'
+    href: '/services/type/manufacturing'
   },
   {
     id: 'sponsor',

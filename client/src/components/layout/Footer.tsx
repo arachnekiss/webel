@@ -51,7 +51,8 @@ const Footer: React.FC = () => {
               <li><Link href="/services/type/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></Link></li>
               <li><Link href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></Link></li>
               <li><Link href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></Link></li>
-              <li><Link href="/services/type/manufacturers"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
+              <li><Link href="/services/type/engineer"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</div></Link></li>
+              <li><Link href="/services/type/manufacturing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
               <li><Link href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></Link></li>
             </ul>
           </div>
@@ -59,11 +60,11 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">리소스</h3>
             <ul className="space-y-2">
-              <li><Link href="/resources/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></Link></li>
-              <li><Link href="/resources/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></Link></li>
-              <li><Link href="/resources/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></Link></li>
-              <li><Link href="/resources/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></Link></li>
-              <li><Link href="/flash-games"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></Link></li>
+              <li><Link href="/resources/type/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></Link></li>
+              <li><Link href="/resources/type/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></Link></li>
+              <li><Link href="/resources/type/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></Link></li>
+              <li><Link href="/resources/type/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></Link></li>
+              <li><Link href="/resources/type/flash_game"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></Link></li>
             </ul>
           </div>
           
