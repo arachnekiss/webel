@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 
@@ -22,7 +21,7 @@ const Services: React.FC = () => {
   const [sortBy, setSortBy] = useState("newest"); // newest, rating, lowPrice
   const [manualLocation, setManualLocation] = useState({
     address: "",
-    city: "서울",
+    city: "",
     district: "",
     lat: 37.5665,
     long: 126.9780
@@ -171,6 +170,20 @@ const Services: React.FC = () => {
       default:
         return '모든 서비스';
     }
+  };
+
+  // 필터 초기화 함수
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSortBy("newest");
+    getLocation();
+    setManualLocation({
+      city: "",
+      district: "",
+      address: "",
+      lat: 37.5665,
+      long: 126.9780
+    });
   };
   
   return (
@@ -540,11 +553,7 @@ const Services: React.FC = () => {
                   <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
-                    onClick={() => {
-                      setSearchTerm("");
-                      setSortBy("newest");
-                      if (!useManualLocation) getLocation();
-                    }}
+                    onClick={resetFilters}
                   >
                     필터 초기화
                   </Button>
@@ -563,11 +572,7 @@ const Services: React.FC = () => {
                   <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
-                    onClick={() => {
-                      setSearchTerm("");
-                      setSortBy("newest");
-                      if (!useManualLocation) getLocation();
-                    }}
+                    onClick={resetFilters}
                   >
                     필터 초기화
                   </Button>
@@ -596,11 +601,7 @@ const Services: React.FC = () => {
                 <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
                 <Button 
                   className="bg-primary text-white hover:bg-blue-600"
-                  onClick={() => {
-                    setSearchTerm("");
-                    setSortBy("newest");
-                    if (!useManualLocation) getLocation();
-                  }}
+                  onClick={resetFilters}
                 >
                   필터 초기화
                 </Button>

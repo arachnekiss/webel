@@ -170,8 +170,8 @@ export default function Engineers() {
             engineer.description.toLowerCase().includes(term) ||
             (engineer.specialty && engineer.specialty.toLowerCase().includes(term)) ||
             (engineer.tags && engineer.tags.some(tag => tag.toLowerCase().includes(term))) ||
-            (engineer.experience && engineer.experience.toLowerCase().includes(term)) ||
-            (engineer.availableItems && engineer.availableItems.toLowerCase().includes(term))
+            (engineer.experience && typeof engineer.experience === 'string' && engineer.experience.toLowerCase().includes(term)) ||
+            (engineer.availableItems && typeof engineer.availableItems === 'string' && engineer.availableItems.toLowerCase().includes(term))
           );
         });
       });
