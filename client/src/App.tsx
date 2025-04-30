@@ -86,16 +86,10 @@ function Router() {
             {/* Auth pages */}
             <Route path="/auth" component={AuthPage}/>
             <Route path="/login">
-              {() => {
-                window.location.href = '/auth';
-                return null;
-              }}
+              {() => <AuthPage initialTab="login" />}
             </Route>
             <Route path="/register">
-              {() => {
-                window.location.href = '/auth';
-                return null;
-              }}
+              {() => <AuthPage initialTab="register" />}
             </Route>
             
             {/* Admin pages */}

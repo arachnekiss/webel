@@ -56,7 +56,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
       case '3d_model':
         return '3D 모델링';
       case 'software':
-        return '소프트웨어';
+        return '소프트웨어 오픈소스';
       case 'free_content':
         return '프리 콘텐츠';
       default:
