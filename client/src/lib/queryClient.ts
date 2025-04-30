@@ -11,11 +11,25 @@ export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined,
+  isFormData: boolean = false
 ): Promise<Response> {
+  const headers: Record<string, string> = {};
+  let body: string | FormData | undefined = undefined;
+
+  if (data) {
+    if (isFormData && data instanceof FormData) {
+      // FormData는 자동으로 적절한 Content-Type 헤더를 설정
+      body = data;
+    } else {
+      headers["Content-Type"] = "application/json";
+      body = JSON.stringify(data);
+    }
+  }
+
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
+    headers,
+    body,
     credentials: "include",
   });
 

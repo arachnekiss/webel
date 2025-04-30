@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Location } from '@/types';
+
+// Location 타입 직접 정의
+interface Location {
+  lat: number;
+  long: number;
+  address: string;
+  city?: string;
+  country?: string;
+}
 
 interface LocationContextType {
   currentLocation: Location | null;
@@ -8,7 +16,7 @@ interface LocationContextType {
   getLocation: () => Promise<void>;
 }
 
-const LocationContext = createContext<LocationContextType | undefined>(undefined);
+export const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export function LocationProvider({ children }: { children: ReactNode }) {
   const [currentLocation, setCurrentLocation] = useState<Location | null>(null);

@@ -21,6 +21,8 @@ import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
+import UploadResource from '@/pages/UploadResource'; // 새로 추가한 리소스 업로드 페이지
+import RegisterService from '@/pages/RegisterService'; // 새로 추가한 서비스 등록 페이지
 import Auctions from '@/pages/Auctions';
 import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
@@ -78,6 +80,11 @@ function Router() {
             {/* Auctions routes */}
             <Route path="/auctions" component={Auctions}/>
             <Route path="/auctions/:id" component={AuctionDetail}/>
+            
+            {/* Upload/Register pages */}
+            <Route path="/resources/upload" component={UploadResource}/>
+            <Route path="/services/register" component={RegisterService}/>
+            <Route path="/services/register/:type" component={RegisterService}/>
             
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>
