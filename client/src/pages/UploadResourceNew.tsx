@@ -106,6 +106,7 @@ export default function UploadResourceNew() {
       title: "",
       description: "",
       resourceType: "",
+      subcategory: "",
       tags: "",
       downloadUrl: "",
       sourceSite: "",
@@ -123,6 +124,14 @@ export default function UploadResourceNew() {
   
   // 선택된 카테고리에 따라 서브카테고리 옵션 업데이트
   const selectedCategory = basicForm.watch("resourceType");
+  
+  // 카테고리가 변경될 때 서브카테고리 초기화
+  useEffect(() => {
+    if (selectedCategory) {
+      // 카테고리가 변경되면 서브카테고리 필드를 초기화
+      basicForm.setValue("subcategory", "");
+    }
+  }, [selectedCategory, basicForm]);
 
   // 다음 단계로 이동
   const moveToNextStep = async () => {
@@ -267,6 +276,9 @@ export default function UploadResourceNew() {
       formData.append("title", basicData.title);
       formData.append("description", basicData.description);
       formData.append("resourceType", basicData.resourceType);
+      
+      // 서브카테고리 추가
+      if (basicData.subcategory) formData.append("subcategory", basicData.subcategory);
       
       if (tags.length > 0) formData.append("tags", tags.join(","));
       if (basicData.downloadUrl) formData.append("downloadUrl", basicData.downloadUrl);
