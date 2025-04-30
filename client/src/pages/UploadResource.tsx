@@ -254,20 +254,42 @@ export default function UploadResource() {
   return (
     <div className="container mx-auto py-8 px-4 md:px-6">
       <div className="max-w-3xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">리소스 업로드</CardTitle>
-            <CardDescription>
-              여러분의 리소스를 공유하고 커뮤니티에 기여해보세요!
-            </CardDescription>
+        <Card className="border-none shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Upload className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold">리소스 공유하기</CardTitle>
+                <CardDescription>
+                  여러분의 창작물을 커뮤니티와 함께 나눠보세요!
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
 
           <Tabs value={selectedTab} onValueChange={setSelectedTab}>
             <div className="px-6">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="basic">기본 정보</TabsTrigger>
-                <TabsTrigger value="details">상세 정보</TabsTrigger>
-                <TabsTrigger value="preview">미리보기</TabsTrigger>
+                <TabsTrigger value="basic">
+                  <div className="flex items-center">
+                    <FileText className="h-4 w-4 mr-2" />
+                    <span>작성</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="details">
+                  <div className="flex items-center">
+                    <ImageIcon className="h-4 w-4 mr-2" />
+                    <span>첨부</span>
+                  </div>
+                </TabsTrigger>
+                <TabsTrigger value="preview">
+                  <div className="flex items-center">
+                    <Download className="h-4 w-4 mr-2" />
+                    <span>완료</span>
+                  </div>
+                </TabsTrigger>
               </TabsList>
             </div>
 

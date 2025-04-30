@@ -367,9 +367,7 @@ export default function RegisterService() {
 
   // 서비스 유형별 아이콘 얻기
   const getServiceTypeIcon = (type: ServiceType) => {
-    const found = serviceTypeLabels.find(st => st.value === type);
-    if (!found) return Wrench;
-    return found.icon;
+    return true; // 아이콘을 직접 렌더링하기 위해 항상 true 반환
   };
 
   // 서비스 유형별 라벨 얻기
