@@ -1,9 +1,10 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Video, Users, Monitor, Clock, Calendar, ArrowRight, CheckCircle, MessageSquare, Share2, ExternalLink } from 'lucide-react';
+import { Video, Users, Monitor, Clock, Calendar, ArrowRight, CheckCircle, MessageSquare, Share2, ExternalLink, Info, Search, Upload, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
