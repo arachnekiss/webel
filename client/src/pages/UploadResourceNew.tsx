@@ -267,7 +267,7 @@ export default function UploadResourceNew() {
       // 기본 정보 추가
       formData.append("title", basicData.title);
       formData.append("description", basicData.description);
-      formData.append("resourceType", basicData.category as ResourceType);
+      formData.append("resourceType", basicData.category); // 카테고리를 resourceType으로 사용
       
       // 선택적 정보 추가
       if (basicData.subcategory) formData.append("category", basicData.subcategory);

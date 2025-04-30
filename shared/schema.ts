@@ -48,7 +48,7 @@ export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
+  resourceType: text("resource_type").notNull(), // 카테고리로 통합: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
   tags: text("tags").array(),
   imageUrl: text("image_url"),
   downloadUrl: text("download_url"),
@@ -123,4 +123,5 @@ export type Location = {
 
 // Service and Resource types
 export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing' | 'engineer';
+// 카테고리로 통합, 한글명: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
 export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content' | 'ai_model' | 'flash_game';
