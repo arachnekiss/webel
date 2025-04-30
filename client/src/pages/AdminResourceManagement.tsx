@@ -48,7 +48,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
@@ -149,7 +148,6 @@ export default function AdminResourceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [activeTab, setActiveTab] = useState("all");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
@@ -258,18 +256,13 @@ export default function AdminResourceManagement() {
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (resource.tags && resource.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
-    
-    // 탭 필터링
-    const matchesTab = 
-      activeTab === "all" || 
-      (activeTab === "featured" && resource.isFeatured);
 
     // 타입 필터링
     const matchesType = 
       typeFilter.length === 0 || 
       typeFilter.includes(resource.resourceType);
     
-    return matchesSearch && matchesTab && matchesType;
+    return matchesSearch && matchesType;
   });
 
   // 로딩 중 표시
@@ -309,64 +302,45 @@ export default function AdminResourceManagement() {
         </div>
       </div>
 
-      {/* 탭 및 필터링 */}
+      {/* 필터링 및 검색 */}
       <div className="mb-6">
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="all">모든 리소스</TabsTrigger>
-              <TabsTrigger value="featured">추천 리소스</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-1" />
-                    카테고리
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>카테고리 선택</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {Object.entries(resourceTypeLabels).map(([type, label]) => (
-                    <DropdownMenuCheckboxItem
-                      key={type}
-                      checked={typeFilter.includes(type)}
-                      onCheckedChange={() => toggleTypeFilter(type)}
-                    >
-                      {label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <Input
-                type="text"
-                placeholder="리소스 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-xs"
-              />
-            </div>
-          </div>
-
-          <TabsContent value="all">
-            <ResourceTable 
-              resources={filteredResources || []} 
-              onDelete={openDeleteDialog}
-              onToggleFeatured={handleToggleFeatured}
-            />
-          </TabsContent>
+        <div className="flex items-center gap-4 mb-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-1" />
+                카테고리
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>카테고리 선택</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {Object.entries(resourceTypeLabels).map(([type, label]) => (
+                <DropdownMenuCheckboxItem
+                  key={type}
+                  checked={typeFilter.includes(type)}
+                  onCheckedChange={() => toggleTypeFilter(type)}
+                >
+                  {label}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           
-          <TabsContent value="featured">
-            <ResourceTable 
-              resources={filteredResources || []} 
-              onDelete={openDeleteDialog}
-              onToggleFeatured={handleToggleFeatured}
-            />
-          </TabsContent>
-        </Tabs>
+          <Input
+            type="text"
+            placeholder="리소스 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-grow"
+          />
+        </div>
+
+        <ResourceTable 
+          resources={filteredResources || []} 
+          onDelete={openDeleteDialog}
+          onToggleFeatured={handleToggleFeatured}
+        />
       </div>
 
       {/* 리소스 삭제 확인 다이얼로그 */}
