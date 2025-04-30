@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation as useWouterLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useForm } from "react-hook-form";
@@ -595,7 +595,16 @@ export default function RegisterService() {
         <Card>
           <CardHeader>
             <div className="flex items-center">
-              {React.createElement(getServiceTypeIcon(serviceType), { className: "h-8 w-8 mr-3 text-primary" })}
+              {getServiceTypeIcon(serviceType) && 
+               <div className="h-8 w-8 mr-3 text-primary">
+                 {serviceType === "3d_printing" && <Printer className="h-8 w-8" />}
+                 {serviceType === "engineer" && <User className="h-8 w-8" />}
+                 {serviceType === "manufacturing" && <Building className="h-8 w-8" />}
+                 {serviceType === "electronics" && <Hexagon className="h-8 w-8" />}
+                 {serviceType === "woodworking" && <Wrench className="h-8 w-8" />}
+                 {serviceType === "metalworking" && <Wrench className="h-8 w-8" />}
+               </div>
+              }
               <div>
                 <CardTitle className="text-2xl font-bold">
                   {getServiceTypeLabel(serviceType)} 등록
@@ -644,7 +653,14 @@ export default function RegisterService() {
                               {serviceTypeLabels.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   <div className="flex items-center">
-                                    {React.createElement(option.icon, { className: "h-4 w-4 mr-2" })}
+                                    <span className="h-4 w-4 mr-2">
+                                      {option.value === "3d_printing" && <Printer className="h-4 w-4" />}
+                                      {option.value === "engineer" && <User className="h-4 w-4" />}
+                                      {option.value === "manufacturing" && <Building className="h-4 w-4" />}
+                                      {option.value === "electronics" && <Hexagon className="h-4 w-4" />}
+                                      {option.value === "woodworking" && <Wrench className="h-4 w-4" />}
+                                      {option.value === "metalworking" && <Wrench className="h-4 w-4" />}
+                                    </span>
                                     {option.label}
                                   </div>
                                 </SelectItem>
