@@ -222,15 +222,19 @@ export function setupAuth(app: Express): void {
 
       // 관리자 계정 생성
       const hashedPassword = await hashPassword(password);
-      const adminUser = await storage.createUser({
-        username,
-        password: hashedPassword,
-        email,
-        fullName,
-        isAdmin: true,
-        isServiceProvider: false,
-        createdAt: new Date()
-      });
+      
+      // 먼저 직접 데이터베이스에 삽입하여 isAdmin=true가 적용되도록 함
+      const [adminUser] = await db.insert(users)
+        .values({
+          username,
+          password: hashedPassword,
+          email,
+          fullName,
+          isAdmin: true,
+          isServiceProvider: false,
+          createdAt: new Date()
+        })
+        .returning();
 
       // 응답 반환 (비밀번호 제외)
       const { password: _, ...adminUserWithoutPassword } = adminUser;
