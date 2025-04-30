@@ -7,8 +7,28 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { db } from './db';
 import { users, services, resources, auctions, bids } from '@shared/schema';
+import { eq } from 'drizzle-orm';
+import multer from 'multer';
 
-import { setupAuth, isAdmin } from './auth';
+// 파일 업로드 설정
+const storage_config = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({
+  storage: storage_config,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB 제한
+  }
+});
+
+import { setupAuth, isAdmin, isAuthenticated } from './auth';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // 데이터베이스 초기화 엔드포인트 (개발 환경에서만 사용)
@@ -125,6 +145,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(resources);
   });
   
+  // 리소스 생성 - 인증 필요
+  app.post('/api/resources', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const resourceData = {
+        ...req.body,
+        createdAt: new Date()
+      };
+      
+      // 필수 필드 검증
+      if (!resourceData.title || !resourceData.description || !resourceData.resourceType) {
+        return res.status(400).json({
+          message: '필수 필드가 누락되었습니다. (title, description, resourceType)'
+        });
+      }
+      
+      const resource = await storage.createResource(resourceData);
+      res.status(201).json(resource);
+    } catch (error) {
+      console.error('리소스 생성 에러:', error);
+      res.status(500).json({ message: '리소스 생성 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 파일 업로드 - 인증 필요
+  app.post('/api/resources/upload', isAuthenticated, upload.single('file'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: '파일이 업로드되지 않았습니다.' });
+      }
+      
+      // 파일 메타데이터 반환
+      res.status(200).json({
+        fileName: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        path: req.file.path
+      });
+    } catch (error) {
+      console.error('파일 업로드 에러:', error);
+      res.status(500).json({ message: '파일 업로드 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 이미지 업로드 - 인증 필요
+  app.post('/api/resources/upload-image', isAuthenticated, upload.single('image'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: '이미지가 업로드되지 않았습니다.' });
+      }
+      
+      // 이미지 파일 확장자 검증
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        // 업로드된 파일 삭제
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({ message: '지원하지 않는 이미지 형식입니다. JPG, PNG, GIF, WEBP 형식만 지원합니다.' });
+      }
+      
+      // 상대 경로 반환 (프론트엔드에서 접근 가능하도록)
+      const relativePath = `/uploads/${req.file.filename}`;
+      
+      // 이미지 메타데이터 반환
+      res.status(200).json({
+        fileName: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        path: relativePath,
+        url: `${req.protocol}://${req.get('host')}${relativePath}`
+      });
+    } catch (error) {
+      console.error('이미지 업로드 에러:', error);
+      res.status(500).json({ message: '이미지 업로드 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 수정 - 인증 및 관리자 권한 필요
+  app.put('/api/resources/:id', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const resourceId = parseInt(req.params.id);
+      if (isNaN(resourceId)) {
+        return res.status(400).json({ message: '유효하지 않은 리소스 ID입니다.' });
+      }
+      
+      const resource = await storage.getResourceById(resourceId);
+      if (!resource) {
+        return res.status(404).json({ message: '리소스를 찾을 수 없습니다.' });
+      }
+      
+      const updatedResource = await storage.updateResource(resourceId, req.body);
+      res.json(updatedResource);
+    } catch (error) {
+      console.error('리소스 수정 에러:', error);
+      res.status(500).json({ message: '리소스 수정 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 삭제 - 관리자 권한 필요
+  app.delete('/api/resources/:id', isAdmin, async (req: Request, res: Response) => {
+    try {
+      const resourceId = parseInt(req.params.id);
+      if (isNaN(resourceId)) {
+        return res.status(400).json({ message: '유효하지 않은 리소스 ID입니다.' });
+      }
+      
+      const resource = await storage.getResourceById(resourceId);
+      if (!resource) {
+        return res.status(404).json({ message: '리소스를 찾을 수 없습니다.' });
+      }
+      
+      // 스토리지 인터페이스에 deleteResource 메서드 추가 필요
+      await db.delete(resources).where(eq(resources.id, resourceId));
+      
+      res.status(200).json({ message: '리소스가 성공적으로 삭제되었습니다.' });
+    } catch (error) {
+      console.error('리소스 삭제 에러:', error);
+      res.status(500).json({ message: '리소스 삭제 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 타입별 조회
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
     const type = req.params.type;
     let resources = await storage.getResourcesByType(type);
@@ -141,7 +283,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f',
           downloadUrl: 'https://html5games.com/Game/Pixel-Adventure/d1c395bd-3767-4c5e-845e-761b7b2508fa',
           downloadCount: 321,
-          createdAt: new Date()
+          createdAt: new Date(),
+          downloadFile: null,
+          howToUse: '화살표 키로 이동, 스페이스바로 점프, Z키로 공격합니다.',
+          assemblyInstructions: null,
+          category: '게임',
+          isCrawled: true,
+          sourceSite: 'html5games.com'
         },
         {
           id: 1002,
@@ -152,7 +300,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           imageUrl: 'https://images.unsplash.com/photo-1614465000772-1b1a4a12812d',
           downloadUrl: 'https://html5games.com/Game/Bounce-Ball/2fc4db72-c137-4857-9d77-25c32d60aed0',
           downloadCount: 245,
-          createdAt: new Date()
+          createdAt: new Date(),
+          downloadFile: null,
+          howToUse: '마우스로 방향과 힘을 조절하여 공을 발사합니다.',
+          assemblyInstructions: null,
+          category: '게임',
+          isCrawled: true,
+          sourceSite: 'html5games.com'
         },
         {
           id: 1003,
@@ -163,7 +317,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           imageUrl: 'https://images.unsplash.com/photo-1604871000636-074fa5117945',
           downloadUrl: 'https://html5games.com/Game/Space-Shooter/a8c31639-e2d4-4ccd-b6ad-cf3b4a0e8a5a',
           downloadCount: 189,
-          createdAt: new Date()
+          createdAt: new Date(),
+          downloadFile: null,
+          howToUse: 'WASD 키로 이동, 스페이스바로 발사, 1-5 키로 무기 변경.',
+          assemblyInstructions: null,
+          category: '게임',
+          isCrawled: true,
+          sourceSite: 'html5games.com'
         },
         {
           id: 1004,
@@ -174,7 +334,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           imageUrl: 'https://images.unsplash.com/photo-1577279549270-b9e297533cdd',
           downloadUrl: 'https://html5games.com/Game/Block-Breaker/5e259cf7-cf9d-4a3e-a7f5-2e4da59a8c11',
           downloadCount: 267,
-          createdAt: new Date()
+          createdAt: new Date(),
+          downloadFile: null,
+          howToUse: '마우스 또는 터치로 패들을 움직입니다.',
+          assemblyInstructions: null,
+          category: '게임',
+          isCrawled: true,
+          sourceSite: 'html5games.com'
         },
         {
           id: 1005,
@@ -185,7 +351,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           imageUrl: 'https://images.unsplash.com/photo-1591635566278-10dca0ca76ee',
           downloadUrl: 'https://html5games.com/Game/Puzzle-Mania/f57c21b7-49ef-4fe5-b4a4-e9886b77a25a',
           downloadCount: 178,
-          createdAt: new Date()
+          createdAt: new Date(),
+          downloadFile: null,
+          howToUse: '마우스로 조각을 끌어다 놓고 퍼즐을 완성하세요.',
+          assemblyInstructions: null,
+          category: '게임',
+          isCrawled: true,
+          sourceSite: 'html5games.com'
         }
       ];
       
@@ -195,40 +367,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(resources);
   });
   
+  // 리소스 카테고리별 조회
+  app.get('/api/resources/category/:category', async (req: Request, res: Response) => {
+    try {
+      const category = req.params.category;
+      // 데이터베이스에서 카테고리별 리소스 조회
+      const resourcesResult = await db.select().from(resources).where(eq(resources.category, category));
+      res.json(resourcesResult);
+    } catch (error) {
+      console.error('카테고리별 리소스 조회 에러:', error);
+      res.status(500).json({ message: '리소스 조회 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 리소스 다운로드 엔드포인트
   app.get('/api/resources/:id/download', async (req: Request, res: Response) => {
     const resourceId = parseInt(req.params.id);
     if (isNaN(resourceId)) {
-      return res.status(400).json({ message: 'Invalid resource ID' });
+      return res.status(400).json({ message: '유효하지 않은 리소스 ID입니다.' });
     }
     
     const resource = await storage.getResourceById(resourceId);
     
     if (!resource) {
-      return res.status(404).json({ message: 'Resource not found' });
+      return res.status(404).json({ message: '리소스를 찾을 수 없습니다.' });
     }
     
-    // Increment download count
+    // 다운로드 횟수 증가
     await storage.incrementDownloadCount(resourceId);
     
-    // In a real system, we would redirect to the actual file or serve it
-    // For this demo, we'll just return a success message
-    res.json({ 
-      success: true, 
-      message: `Download initiated for ${resource.title}`, 
-      resourceId 
-    });
+    // 외부 다운로드 URL이 있는 경우 리다이렉트
+    if (resource.downloadUrl) {
+      return res.json({
+        success: true,
+        message: `'${resource.title}' 다운로드가 시작됩니다.`,
+        redirectUrl: resource.downloadUrl
+      });
+    }
+    
+    // 서버에 저장된 파일 다운로드
+    if (resource.downloadFile) {
+      try {
+        const filePath = `./uploads/${resource.downloadFile}`;
+        if (fs.existsSync(filePath)) {
+          return res.download(filePath, resource.downloadFile);
+        } else {
+          return res.status(404).json({ message: '파일을 찾을 수 없습니다.' });
+        }
+      } catch (error) {
+        console.error('File download error:', error);
+        return res.status(500).json({ message: '파일 다운로드 중 오류가 발생했습니다.' });
+      }
+    }
+    
+    return res.status(404).json({ message: '다운로드 가능한 파일 또는 URL이 없습니다.' });
   });
   
+  // 리소스 상세 조회
   app.get('/api/resources/:id', async (req: Request, res: Response) => {
     const resourceId = parseInt(req.params.id);
     if (isNaN(resourceId)) {
-      return res.status(400).json({ message: 'Invalid resource ID' });
+      return res.status(400).json({ message: '유효하지 않은 리소스 ID입니다.' });
     }
     
     const resource = await storage.getResourceById(resourceId);
     
     if (!resource) {
-      return res.status(404).json({ message: 'Resource not found' });
+      return res.status(404).json({ message: '리소스를 찾을 수 없습니다.' });
     }
     
     res.json(resource);
