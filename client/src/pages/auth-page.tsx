@@ -32,13 +32,13 @@ import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 // 로그인 폼 유효성 검사를 위한 스키마
 const loginSchema = z.object({
-  username: z.string().min(3, '사용자 이름은 최소 3자 이상이어야 합니다.'),
+  username: z.string().min(3, '아이디는 최소 3자 이상이어야 합니다.'),
   password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
 });
 
 // 회원가입 폼 유효성 검사를 위한 스키마
 const registerSchema = z.object({
-  fullName: z.string().min(2, '이름은 최소 2자 이상이어야 합니다.'),
+  fullName: z.string().max(50, '닉네임은 최대 50자까지 입력 가능합니다.'),
   email: z.string().email('유효한 이메일 주소를 입력해주세요.'),
   username: z.string().min(3, '아이디는 최소 3자 이상이어야 합니다.'),
   password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
@@ -187,9 +187,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>이름</FormLabel>
+                          <FormLabel>닉네임</FormLabel>
                           <FormControl>
-                            <Input placeholder="실명 입력" {...field} />
+                            <Input placeholder="닉네임 입력" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
