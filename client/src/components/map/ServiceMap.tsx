@@ -1,37 +1,19 @@
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Icon, LatLngExpression } from 'leaflet';
+import { LatLngExpression } from 'leaflet';
 import { useLocation as useGeoLocation } from '@/contexts/LocationContext';
 import { Service } from '@/types';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
+import { customIcon, printerIcon } from './icon-marker';
 
-import 'leaflet/dist/leaflet.css';
+// Import leaflet CSS from local file
+import '../../leaflet.css';
 
 interface ServiceMapProps {
   services: Service[];
 }
-
-// 마커 아이콘 커스터마이즈
-const customIcon = new Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  shadowSize: [41, 41]
-});
-
-// 3D 프린터 전용 아이콘
-const printerIcon = new Icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-  shadowSize: [41, 41]
-});
 
 // 지도 중앙 위치를 동적으로 변경하기 위한 컴포넌트
 function ChangeView({ center }: { center: LatLngExpression }) {
@@ -67,6 +49,7 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
       
       <MapContainer 
         style={{ height: '100%', width: '100%' }}
+        center={defaultPosition}
         zoom={13}
       >
         <ChangeView center={defaultPosition} />
