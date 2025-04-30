@@ -60,6 +60,11 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       return await response.json();
     },
     getNextPageParam: (lastPage) => {
+      // lastPage가 undefined인 경우 방어 처리
+      if (!lastPage) {
+        return undefined;
+      }
+      
       // API가 페이지네이션 메타데이터를 반환하는 경우
       if (lastPage?.meta) {
         const { currentPage, totalPages } = lastPage.meta;

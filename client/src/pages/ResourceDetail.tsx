@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRoute, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
@@ -24,6 +24,20 @@ import {
   Edit,
   Trash2,
   AlertTriangle,
+  User,
+  Share2,
+  MessageSquare,
+  Star,
+  Heart,
+  ThumbsUp,
+  Clock,
+  List,
+  Box,
+  Tag,
+  ExternalLink,
+  Eye,
+  FileDown,
+  HelpCircle,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -40,6 +54,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 
@@ -168,132 +188,275 @@ export default function ResourceDetail() {
     ? format(new Date(resource.createdAt), 'yyyy년 MM월 dd일', { locale: ko })
     : '날짜 정보 없음';
 
+  // 좋아요 및 공유 기능을 위한 상태 변수
+  const [isLiked, setIsLiked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [showFullImage, setShowFullImage] = useState(false);
+
   return (
-    <div className="container mx-auto py-10">
-      <div className="mb-6">
-        <Button variant="outline" size="sm" onClick={() => setLocation('/resources')}>
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      {/* 제품 이미지 모달 */}
+      {showFullImage && resource.imageUrl && (
+        <div 
+          className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFullImage(false)}
+        >
+          <div className="max-w-4xl max-h-[90vh] relative">
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="absolute -top-10 right-0 text-white hover:bg-white/20"
+              onClick={() => setShowFullImage(false)}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+            <img 
+              src={resource.imageUrl}
+              alt={resource.title}
+              className="max-h-[85vh] max-w-full object-contain rounded-lg"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 상단 네비게이션 */}
+      <div className="mb-6 flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={() => setLocation('/resources')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          리소스 목록으로 돌아가기
+          목록으로 돌아가기
         </Button>
+        
+        <div className="flex items-center gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-500 hover:text-primary"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: resource.title,
+                        text: `${resource.title} - Webel 리소스 공유`,
+                        url: window.location.href,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "URL이 복사되었습니다",
+                        description: "공유 링크가 클립보드에 복사되었습니다.",
+                      });
+                    }
+                  }}
+                >
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>공유하기</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant={isLiked ? "default" : "ghost"} 
+                  size="sm" 
+                  className={isLiked ? "bg-pink-100 text-pink-600 hover:bg-pink-200 hover:text-pink-700" : "text-gray-500 hover:text-pink-500"}
+                  onClick={() => setIsLiked(!isLiked)}
+                >
+                  <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isLiked ? "좋아요 취소" : "좋아요"}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
-                    {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
-                  </Badge>
-                  
-                  {resource.category && (
-                    <Badge variant="outline" className="ml-2">
-                      {resource.category}
-                    </Badge>
-                  )}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* 메인 콘텐츠 영역 */}
+        <div className="lg:col-span-8">
+          {/* 헤더 및 이미지 섹션 */}
+          <div className="bg-white rounded-lg border shadow-sm mb-8">
+            <div className="p-6 pb-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="bg-primary/10 h-10 w-10 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex items-center text-sm text-gray-500">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>{formattedDate}</span>
+                <div>
+                  <div className="font-medium">{resource.userId ? `사용자 ${resource.userId}` : "Webel 사용자"}</div>
+                  <div className="text-xs text-muted-foreground flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {formattedDate}
+                  </div>
+                </div>
+                <Button 
+                  variant={isFollowing ? "default" : "outline"} 
+                  size="sm" 
+                  className="ml-auto"
+                  onClick={() => setIsFollowing(!isFollowing)}
+                >
+                  {isFollowing ? "팔로잉" : "팔로우"}
+                </Button>
+              </div>
+              
+              <h1 className="text-3xl font-bold leading-tight mb-3">{resource.title}</h1>
+              
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
+                  {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
+                </Badge>
+                
+                {resource.category && (
+                  <Badge variant="outline" className="ml-2">
+                    {resource.category}
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            {resource.imageUrl && (
+              <div className="border-t border-b relative group cursor-pointer" onClick={() => setShowFullImage(true)}>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors flex items-center justify-center">
+                  <Eye className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
+                </div>
+                <img
+                  src={resource.imageUrl}
+                  alt={resource.title}
+                  className="w-full object-contain max-h-[500px]"
+                />
+              </div>
+            )}
+            
+            <div className="p-6 pt-4 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-5">
+                <div className="flex items-center gap-1.5">
+                  <Button 
+                    variant={isLiked ? "default" : "ghost"} 
+                    size="sm" 
+                    className={isLiked ? "bg-pink-100 text-pink-600 hover:bg-pink-200 hover:text-pink-700" : "text-gray-500 hover:text-pink-500"}
+                    onClick={() => setIsLiked(!isLiked)}
+                  >
+                    <Heart className={`h-4 w-4 mr-1.5 ${isLiked ? "fill-current" : ""}`} />
+                    {isLiked ? "좋아요 취소" : "좋아요"}
+                  </Button>
+                </div>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Eye className="h-4 w-4 mr-1.5" />
+                        조회수 {Math.floor(Math.random() * 100) + 10}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>조회수</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <FileDown className="h-4 w-4 mr-1.5" />
+                        다운로드 {resource.downloadCount || 0}
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>다운로드 횟수</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+            </div>
+          </div>
+          
+          {/* 상세 정보 탭 */}
+          <div className="bg-white rounded-lg border shadow-sm mb-8">
+            <Tabs defaultValue="description" className="w-full">
+              <div className="border-b">
+                <div className="px-6">
+                  <TabsList className="w-full justify-start gap-6 bg-transparent h-12">
+                    <TabsTrigger value="description" className="data-[state=active]:border-b-2 border-primary data-[state=active]:shadow-none rounded-none h-12">
+                      <Info className="h-4 w-4 mr-2" />
+                      상세 설명
+                    </TabsTrigger>
+                    {resource.howToUse && (
+                      <TabsTrigger value="howToUse" className="data-[state=active]:border-b-2 border-primary data-[state=active]:shadow-none rounded-none h-12">
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        사용 방법
+                      </TabsTrigger>
+                    )}
+                    {resource.assemblyInstructions && (
+                      <TabsTrigger value="assembly" className="data-[state=active]:border-b-2 border-primary data-[state=active]:shadow-none rounded-none h-12">
+                        <Hammer className="h-4 w-4 mr-2" />
+                        조립 방법
+                      </TabsTrigger>
+                    )}
+                  </TabsList>
                 </div>
               </div>
-              <CardTitle className="text-3xl mt-2">{resource.title}</CardTitle>
-            </CardHeader>
-            
-            <CardContent>
-              {resource.imageUrl && (
-                <div className="mb-6 aspect-video overflow-hidden rounded-lg">
-                  <img
-                    src={resource.imageUrl}
-                    alt={resource.title}
-                    className="h-full w-full object-cover"
-                  />
+              
+              <TabsContent value="description" className="p-6">
+                <div className="prose prose-blue max-w-none">
+                  <p className="whitespace-pre-line text-base leading-relaxed">{resource.description}</p>
                 </div>
+              </TabsContent>
+              
+              {resource.howToUse && (
+                <TabsContent value="howToUse" className="p-6">
+                  <div className="prose prose-blue max-w-none">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      <HelpCircle className="h-5 w-5 mr-2 text-primary" />
+                      사용 방법
+                    </h3>
+                    <p className="whitespace-pre-line text-base leading-relaxed">{resource.howToUse}</p>
+                  </div>
+                </TabsContent>
               )}
               
-              <Tabs defaultValue="description">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="description">
-                    <Info className="h-4 w-4 mr-1" />
-                    설명
-                  </TabsTrigger>
-                  {typeof resource.howToUse === 'string' && (
-                    <TabsTrigger value="howToUse">
-                      <BookOpen className="h-4 w-4 mr-1" />
-                      사용 방법
-                    </TabsTrigger>
-                  )}
-                  {typeof resource.assemblyInstructions === 'string' && (
-                    <TabsTrigger value="assembly">
-                      <Hammer className="h-4 w-4 mr-1" />
-                      조립 설명서
-                    </TabsTrigger>
-                  )}
-                </TabsList>
-                
-                <TabsContent value="description" className="text-md">
-                  <p className="whitespace-pre-line">{resource.description}</p>
+              {resource.assemblyInstructions && (
+                <TabsContent value="assembly" className="p-6">
+                  <div className="prose prose-blue max-w-none">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      <Hammer className="h-5 w-5 mr-2 text-primary" />
+                      조립 방법
+                    </h3>
+                    <p className="whitespace-pre-line text-base leading-relaxed">{resource.assemblyInstructions}</p>
+                  </div>
                 </TabsContent>
-                
-                {typeof resource.howToUse === 'string' && (
-                  <TabsContent value="howToUse" className="text-md">
-                    <p className="whitespace-pre-line">{resource.howToUse}</p>
-                  </TabsContent>
-                )}
-                
-                {typeof resource.assemblyInstructions === 'string' && (
-                  <TabsContent value="assembly" className="text-md">
-                    <p className="whitespace-pre-line">{resource.assemblyInstructions}</p>
-                  </TabsContent>
-                )}
-              </Tabs>
-
+              )}
+              
               {resource.tags && Array.isArray(resource.tags) && resource.tags.length > 0 && (
-                <div className="mt-6">
-                  <Separator className="mb-4" />
-                  <div className="flex flex-wrap gap-2">
-                    {resource.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary">
-                        {tag}
-                      </Badge>
-                    ))}
+                <div className="px-6 py-4 border-t">
+                  <div className="flex items-start gap-2">
+                    <Tag className="h-4 w-4 mt-1 text-gray-500" />
+                    <div className="flex flex-wrap gap-2">
+                      {resource.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="bg-gray-100 hover:bg-gray-200 text-gray-800">
+                          #{tag}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
-            </CardContent>
-            
-            <CardFooter className="justify-between flex-wrap gap-4">
-              <div>
-                <Badge variant="outline" className="text-gray-600">
-                  다운로드: {resource.downloadCount || 0}회
-                </Badge>
-                
-                {resource.sourceSite && (
-                  <Badge variant="outline" className="ml-2 text-gray-600">
-                    출처: {resource.sourceSite}
-                  </Badge>
-                )}
-              </div>
-              
-              <Button onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                다운로드
-              </Button>
-            </CardFooter>
-          </Card>
+            </Tabs>
+          </div>
           
           {/* 관리자 전용 컨트롤 */}
           {isAdmin && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl">관리자 도구</CardTitle>
-                <CardDescription>
-                  이 리소스에 대한 관리 작업을 수행할 수 있습니다.
-                </CardDescription>
-              </CardHeader>
-              
-              <CardFooter className="flex justify-end gap-4">
+            <div className="bg-white rounded-lg border shadow-sm p-6 mb-8">
+              <h3 className="text-lg font-semibold mb-4">관리자 도구</h3>
+              <div className="flex items-center gap-4">
                 <Button variant="outline" onClick={() => setLocation(`/edit-resource/${resourceId}`)}>
                   <Edit className="mr-2 h-4 w-4" />
                   수정하기
@@ -322,58 +485,113 @@ export default function ResourceDetail() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           )}
         </div>
         
-        {/* 사이드바 섹션 */}
-        <div>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">다운로드 정보</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">다운로드 횟수:</span>
-                  <span className="font-medium">{resource.downloadCount || 0}회</span>
+        {/* 사이드바 영역 */}
+        <div className="lg:col-span-4">
+          {/* 다운로드 카드 */}
+          <div className="bg-white rounded-lg border shadow-sm mb-6">
+            <div className="p-6 pb-4 border-b">
+              <h3 className="text-lg font-semibold mb-1">다운로드</h3>
+              <p className="text-sm text-gray-500">
+                이 리소스의 파일 또는 링크를 다운로드하세요.
+              </p>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-md flex items-start gap-3">
+                  <FileDown className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <div className="font-medium mb-1">다운로드 정보</div>
+                    <div className="text-sm text-gray-500">
+                      {resource.downloadUrl 
+                        ? "외부 다운로드 링크로 이동합니다" 
+                        : "파일 다운로드가 시작됩니다"}
+                    </div>
+                    <div className="mt-2 flex items-center text-xs text-gray-500">
+                      <Eye className="h-3.5 w-3.5 mr-1" />
+                      다운로드 {resource.downloadCount || 0}회
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">등록일:</span>
+                
+                <Button className="w-full" onClick={handleDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  다운로드
+                </Button>
+                
+                {resource.downloadUrl && (
+                  <Button variant="outline" className="w-full" onClick={() => window.open(resource.downloadUrl, '_blank')}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    원본 링크로 이동
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          {/* 정보 카드 */}
+          <div className="bg-white rounded-lg border shadow-sm mb-6">
+            <div className="p-6 pb-4 border-b">
+              <h3 className="text-lg font-semibold mb-1">리소스 정보</h3>
+            </div>
+            
+            <div className="p-6">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-500">등록일</span>
                   <span className="font-medium">{formattedDate}</span>
                 </div>
+                
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-500">리소스 유형</span>
+                  <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
+                    {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
+                  </Badge>
+                </div>
+                
+                {resource.category && (
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-500">카테고리</span>
+                    <Badge variant="outline">{resource.category}</Badge>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-500">다운로드 횟수</span>
+                  <span className="font-medium">{resource.downloadCount || 0}회</span>
+                </div>
+                
                 {resource.sourceSite && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">출처:</span>
+                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span className="text-gray-500">출처</span>
                     <span className="font-medium">{resource.sourceSite}</span>
                   </div>
                 )}
               </div>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                다운로드
-              </Button>
-            </CardFooter>
-          </Card>
+            </div>
+          </div>
           
-          {/* 관련 리소스 추천 기능 - 미래에 구현 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">관련 리소스</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-500 text-sm">
+          {/* 관련 리소스 카드 */}
+          <div className="bg-white rounded-lg border shadow-sm">
+            <div className="p-6 pb-4 border-b">
+              <h3 className="text-lg font-semibold mb-1">관련 리소스</h3>
+              <p className="text-sm text-gray-500">
                 같은 카테고리의 다른 리소스를 확인해 보세요.
               </p>
+            </div>
+            
+            <div className="p-6">
               {/* 관련 리소스 목록은 미래 기능에서 구현 */}
-              <div className="text-center py-8 text-gray-400">
-                <p>관련 리소스 기능 준비 중</p>
+              <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-md">
+                <p className="text-sm">관련 리소스 기능 준비 중</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

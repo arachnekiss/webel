@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { ResourceType } from "@shared/schema";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, Image as ImageIcon, FileText, X, Plus, Download } from "lucide-react";
+import { Loader2, Upload, Image as ImageIcon, FileText, X, Plus, Download, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
