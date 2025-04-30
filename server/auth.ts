@@ -193,21 +193,20 @@ export function setupAuth(app: Express): void {
   // 시드 관리자 생성 라우트 (최초 관리자 계정 생성용)
   app.post("/api/create-admin", async (req: Request, res: Response) => {
     try {
-      const { username, password, email } = req.body;
-      
-      // 필수 필드 검증
-      if (!username || !password || !email) {
-        return res.status(400).json({ message: "모든 필드를 입력해주세요." });
+      // 개발 환경에서만 허용
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ message: "이 작업은 개발 환경에서만 허용됩니다." });
       }
 
       // 기존 관리자 확인
       const usersList = await db.select().from(users);
       const adminExists = usersList.some(user => user.isAdmin);
       
-      // 이미 관리자가 있는 경우 접근 거부
-      if (adminExists) {
-        return res.status(403).json({ message: "이미 관리자 계정이 존재합니다." });
-      }
+      // 특정 관리자 계정 정보 (요청된 계정 정보)
+      const username = "arachne";
+      const email = "arachnekiss@hotmail.com";
+      const password = "adminPass2024!";
+      const fullName = "아라크네";
 
       // 사용자 중복 확인
       const existingUser = await storage.getUserByUsername(username);
@@ -227,14 +226,17 @@ export function setupAuth(app: Express): void {
         username,
         password: hashedPassword,
         email,
+        fullName,
         isAdmin: true,
-        fullName: "관리자"
+        isServiceProvider: false,
+        createdAt: new Date()
       });
 
-      // 로그인 처리
-      req.login(adminUser, (err) => {
-        if (err) throw err;
-        return res.status(201).json(adminUser);
+      // 응답 반환 (비밀번호 제외)
+      const { password: _, ...adminUserWithoutPassword } = adminUser;
+      return res.status(201).json({
+        message: "관리자 계정이 성공적으로 생성되었습니다.",
+        user: adminUserWithoutPassword
       });
     } catch (error) {
       console.error("Admin creation error:", error);

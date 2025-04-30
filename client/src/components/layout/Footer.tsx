@@ -13,7 +13,7 @@ const Footer: React.FC = () => {
               </svg>
               <h2 className="text-xl font-bold">Webel</h2>
             </div>
-            <p className="text-gray-400 mb-4">생산 생태계를 혁신하는 플랫폼</p>
+            <p className="text-gray-400 mb-4">창작자와 엔지니어를 위한 오픈 리소스 플랫폼</p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">

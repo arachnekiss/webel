@@ -5,10 +5,32 @@ import { storage } from "./storage";
 import { getChatResponse, analyzeImage } from "./openai";
 import * as fs from 'fs';
 import * as path from 'path';
+import { db } from './db';
+import { users, services, resources, auctions, bids } from '@shared/schema';
 
 import { setupAuth, isAdmin } from './auth';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // 데이터베이스 초기화 엔드포인트 (개발 환경에서만 사용)
+  app.post('/api/reset-database', async (_req: Request, res: Response) => {
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ message: "이 작업은 개발 환경에서만 허용됩니다." });
+      }
+      
+      // 모든 테이블 truncate
+      await db.delete(bids);
+      await db.delete(auctions);
+      await db.delete(resources);
+      await db.delete(services);
+      await db.delete(users);
+      
+      res.status(200).json({ message: "데이터베이스가 초기화되었습니다." });
+    } catch (error) {
+      console.error("Database reset error:", error);
+      res.status(500).json({ message: "데이터베이스 초기화 중 오류가 발생했습니다." });
+    }
+  });
   // 인증 관련 라우트 설정
   setupAuth(app);
   // User routes
