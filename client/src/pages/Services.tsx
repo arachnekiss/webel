@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'wouter';
+import { useParams, Link, useLocation as useWouterLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Service } from '@/types';
 import LocationCard from '@/components/ui/LocationCard';
@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 const Services: React.FC = () => {
   const { type } = useParams();
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
+  const [_, navigate] = useWouterLocation();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest"); // newest, rating, lowPrice
@@ -198,7 +199,7 @@ const Services: React.FC = () => {
             </p>
           </div>
           <Button 
-            onClick={() => window.location.href = type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`} 
+            onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
             {type === '3d_printing' ? '프린터 등록' : '서비스 등록'}
