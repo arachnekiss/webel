@@ -255,7 +255,7 @@ const Services: React.FC = () => {
                 <span className="font-medium">위치 설정</span>
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex gap-2 items-center">
                 <Select value={distance} onValueChange={setDistance}>
                   <SelectTrigger className="w-24">
                     <SelectValue placeholder="검색 반경" />
@@ -268,16 +268,18 @@ const Services: React.FC = () => {
                   </SelectContent>
                 </Select>
                 
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  className="whitespace-nowrap"
-                  onClick={() => getLocation()}
-                  disabled={locationLoading}
-                >
-                  <MapPin className="h-4 w-4 mr-1" />
-                  내 위치 사용
-                </Button>
+                {locationLoading && (
+                  <div className="flex items-center text-gray-500 text-sm">
+                    <span className="animate-spin mr-2">⟳</span>
+                    위치 확인 중...
+                  </div>
+                )}
+                {locationError && (
+                  <div className="flex items-center text-red-500 text-sm">
+                    <AlertTriangle className="h-4 w-4 mr-1" />
+                    위치 접근 불가
+                  </div>
+                )}
               </div>
             </div>
             
