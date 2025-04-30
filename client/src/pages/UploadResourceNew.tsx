@@ -66,6 +66,7 @@ const resourceBasicFormSchema = z.object({
   title: z.string().min(2, "제목은 최소 2자 이상이어야 합니다").max(100, "제목은 최대 100자까지 가능합니다"),
   description: z.string().min(10, "설명은 최소 10자 이상이어야 합니다").max(2000, "설명은 최대 2000자까지 가능합니다"),
   resourceType: z.string().min(1, "카테고리를 선택해주세요"),
+  subcategory: z.string().optional(),
   tags: z.string().optional(),
   downloadUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
   sourceSite: z.string().optional(),
