@@ -12,7 +12,11 @@ import {
   Download, 
   CheckCircle2, 
   XCircle, 
-  Filter
+  Filter,
+  PlusCircle,
+  Image,
+  Link as LinkIcon,
+  File
 } from "lucide-react";
 import { 
   Table, 
@@ -45,6 +49,25 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 interface Resource {
   id: number;
@@ -82,6 +105,45 @@ const resourceTypeLabels: Record<string, string> = {
   'flash_game': '플래시 게임'
 };
 
+// 카테고리 목록
+const categoryOptions = [
+  { value: 'tutorial', label: '튜토리얼' },
+  { value: 'tool', label: '도구' },
+  { value: 'game', label: '게임' },
+  { value: 'library', label: '라이브러리' },
+  { value: 'template', label: '템플릿' },
+  { value: 'design', label: '디자인' },
+  { value: 'other', label: '기타' },
+];
+
+// 리소스 업로드 폼 스키마
+const resourceFormSchema = z.object({
+  title: z.string().min(3, "제목은 최소 3자 이상이어야 합니다"),
+  description: z.string().min(10, "설명은 최소 10자 이상이어야 합니다"),
+  resourceType: z.string().min(1, "리소스 유형을 선택해주세요"),
+  category: z.string().nullable().optional(),
+  tags: z.string().nullable().optional().transform(val => 
+    val ? val.split(',').map(tag => tag.trim()) : []
+  ),
+  downloadUrl: z.string().url("유효한 URL을 입력해주세요").nullable().optional(),
+  imageUrl: z.string().url("유효한 URL을 입력해주세요").nullable().optional(),
+  howToUse: z.string().nullable().optional(),
+  assemblyInstructions: z.string().nullable().optional(),
+});
+
+// 폼 기본값
+const defaultValues = {
+  title: "",
+  description: "",
+  resourceType: "",
+  category: null,
+  tags: "",
+  downloadUrl: "",
+  imageUrl: "",
+  howToUse: "",
+  assemblyInstructions: "",
+};
+
 export default function AdminResourceManagement() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,6 +151,7 @@ export default function AdminResourceManagement() {
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [activeTab, setActiveTab] = useState("all");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   // 리소스 목록 가져오기
   const { data: resourcesData, isLoading, error } = useQuery<ResourcesResponse>({
@@ -132,6 +195,26 @@ export default function AdminResourceManagement() {
     onError: (error: Error) => {
       toast({
         title: "리소스 삭제 실패",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // 리소스 생성 뮤테이션
+  const createResourceMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof resourceFormSchema>) => {
+      const res = await apiRequest("POST", "/api/resources", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "리소스 업로드 완료" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/resources'] });
+      setIsUploadDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "리소스 업로드 실패",
         description: error.message,
         variant: "destructive",
       });
@@ -218,6 +301,12 @@ export default function AdminResourceManagement() {
           </Button>
         </Link>
         <h1 className="text-3xl font-bold">리소스 관리</h1>
+        <div className="ml-auto">
+          <Button onClick={() => setIsUploadDialogOpen(true)} className="gap-1">
+            <PlusCircle className="h-4 w-4" />
+            리소스 업로드
+          </Button>
+        </div>
       </div>
 
       {/* 탭 및 필터링 */}
@@ -305,7 +394,242 @@ export default function AdminResourceManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* 리소스 업로드 다이얼로그 */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>새 리소스 업로드</DialogTitle>
+            <DialogDescription>
+              새로운 리소스 정보를 입력하세요. 필드에 알맞은 정보를 정확히 기입해주세요.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ResourceUploadForm 
+            onSubmit={(data) => createResourceMutation.mutate(data)} 
+            isSubmitting={createResourceMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// 리소스 업로드 폼 컴포넌트
+function ResourceUploadForm({
+  onSubmit,
+  isSubmitting
+}: {
+  onSubmit: (data: z.infer<typeof resourceFormSchema>) => void;
+  isSubmitting: boolean;
+}) {
+  const form = useForm<z.infer<typeof resourceFormSchema>>({
+    resolver: zodResolver(resourceFormSchema),
+    defaultValues,
+  });
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>제목</FormLabel>
+                <FormControl>
+                  <Input placeholder="리소스 제목" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="resourceType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>리소스 유형</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="리소스 유형 선택" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.entries(resourceTypeLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>설명</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="리소스에 대한 자세한 설명을 입력하세요" 
+                  className="min-h-[120px]" 
+                  {...field} 
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>카테고리</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value || ""}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="카테고리 선택 (선택사항)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categoryOptions.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>태그</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="태그 (쉼표로 구분, 예: 3d, printer, arduino)" 
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="imageUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>이미지 URL</FormLabel>
+                <FormControl>
+                  <div className="flex">
+                    <Input 
+                      placeholder="이미지 URL 입력 (선택사항)"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value || null)}
+                    />
+                    <Image className="h-5 w-5 ml-2 mt-2" />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="downloadUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>다운로드 URL</FormLabel>
+                <FormControl>
+                  <div className="flex">
+                    <Input 
+                      placeholder="다운로드 URL 입력 (선택사항)"
+                      {...field}
+                      value={field.value || ""}
+                      onChange={(e) => field.onChange(e.target.value || null)}
+                    />
+                    <LinkIcon className="h-5 w-5 ml-2 mt-2" />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="howToUse"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>사용 방법</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="리소스 사용 방법을 입력하세요 (선택사항)" 
+                  className="min-h-[100px]" 
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="assemblyInstructions"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>조립 지침</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="하드웨어 조립 지침이나 설치 방법 등을 입력하세요 (선택사항)" 
+                  className="min-h-[100px]" 
+                  {...field}
+                  value={field.value || ""}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <DialogFooter>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            리소스 업로드
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   );
 }
 
