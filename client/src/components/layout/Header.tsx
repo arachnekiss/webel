@@ -30,7 +30,7 @@ const resourceCategories = [
   },
   {
     id: 'software',
-    label: '소프트웨어',
+    label: '소프트웨어 오픈소스',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },

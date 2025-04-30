@@ -289,13 +289,15 @@ const FeaturedProduct: React.FC = () => {
               <Share className="h-5 w-5 mr-2" />
               공유하기
             </Button>
-            <Button
-              variant="outline"
-              className="px-6 py-3 bg-white text-slate-700 font-medium rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
-            >
-              <Phone className="h-5 w-5 mr-2" />
-              제작 문의
-            </Button>
+            <Link href="/services/type/3d_printing">
+              <Button
+                variant="outline"
+                className="px-6 py-3 bg-white text-slate-700 font-medium rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all"
+              >
+                <Phone className="h-5 w-5 mr-2" />
+                제작 문의
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
