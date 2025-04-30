@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
 
@@ -15,9 +15,21 @@ interface ResourcesProps {
 
 const Resources: React.FC<ResourcesProps> = (props) => {
   const routeParams = useParams();
+  const [location] = useLocation();
   // Use props.type if provided directly, or from params prop, or from route params
   const type = props.type || (props.params?.type) || routeParams.type;
   const [searchQuery, setSearchQuery] = useState<string>('');
+  
+  // URL에서 검색 쿼리 파라미터 추출
+  useEffect(() => {
+    if (location) {
+      const url = new URL(window.location.href);
+      const searchParam = url.searchParams.get('search');
+      if (searchParam) {
+        setSearchQuery(decodeURIComponent(searchParam));
+      }
+    }
+  }, [location]);
   
   // Define query key based on type parameter
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
@@ -85,7 +97,13 @@ const Resources: React.FC<ResourcesProps> = (props) => {
             <div className="flex gap-2">
               <Button 
                 variant="outline" 
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  // URL에서 검색 파라미터 제거
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('search');
+                  window.history.replaceState({}, '', url.toString());
+                }}
                 disabled={!searchQuery}
               >
                 필터 초기화
@@ -117,7 +135,13 @@ const Resources: React.FC<ResourcesProps> = (props) => {
             {searchQuery && (
               <Button 
                 className="bg-primary text-white hover:bg-blue-600"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  // URL에서 검색 파라미터 제거
+                  const url = new URL(window.location.href);
+                  url.searchParams.delete('search');
+                  window.history.replaceState({}, '', url.toString());
+                }}
               >
                 모든 리소스 보기
               </Button>

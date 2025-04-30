@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Search, 
   MenuIcon, 
@@ -65,6 +66,8 @@ const Header: React.FC = () => {
   const { isMobile } = useDeviceDetect();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logoutMutation, isAdmin } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -74,6 +77,23 @@ const Header: React.FC = () => {
     // 페이지 이동 후 메뉴 닫기
     if (isMobile) setIsMobileMenuOpen(false);
     navigate(path); // wouter의 navigate 함수 사용
+  };
+  
+  // 검색 처리 함수
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    if (!searchTerm.trim()) {
+      toast({
+        title: "검색어를 입력하세요",
+        description: "검색할 키워드를 입력해주세요.",
+        variant: "default",
+      });
+      return;
+    }
+    
+    // 검색 결과 페이지로 이동
+    handleNavigate(`/resources?search=${encodeURIComponent(searchTerm.trim())}`);
   };
 
   return (
@@ -124,20 +144,24 @@ const Header: React.FC = () => {
             
             {/* Search Bar - Desktop */}
             <div className="hidden md:block flex-1 max-w-xl mx-8">
-              <div className="relative">
+              <form onSubmit={handleSearch} className="relative">
                 <Input 
                   type="text" 
                   placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
                   className="w-full py-2 px-4 border border-slate-200 rounded-full bg-slate-50 focus:bg-white" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <Button 
+                  type="submit"
                   variant="ghost" 
                   className="absolute right-1 top-0 h-full rounded-full" 
                   size="icon"
                 >
                   <Search className="h-5 w-5" />
                 </Button>
-              </div>
+              </form>
             </div>
             
             {/* 로그인/회원가입 또는 사용자 메뉴 - Desktop */}
@@ -202,20 +226,24 @@ const Header: React.FC = () => {
         <div className="absolute top-full left-0 right-0 bg-white shadow-lg z-50 border-b border-slate-200">
           <div className="p-4 space-y-4">
             {/* 검색창 */}
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <Input 
                 type="text" 
-                placeholder="검색" 
+                placeholder="검색어를 입력하세요" 
                 className="w-full py-2 px-4 border border-slate-300 rounded-full" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
               <Button 
+                type="submit"
                 variant="ghost" 
                 className="absolute right-1 top-0 h-full rounded-full" 
                 size="icon"
               >
                 <Search className="h-5 w-5" />
               </Button>
-            </div>
+            </form>
             
             {/* 메뉴 아이템 */}
             <nav className="space-y-3">
