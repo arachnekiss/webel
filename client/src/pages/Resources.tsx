@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useLocation } from 'wouter';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
 
 import ResourceCard from '@/components/ui/ResourceCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 
 interface ResourcesProps {
   type?: string;
@@ -34,9 +34,53 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // Define query key based on type parameter
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
-  const { data: resources, isLoading } = useQuery<Resource[]>({
+  // 무한 스크롤을 위한 설정
+  const ITEMS_PER_PAGE = 12;
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  // 무한 쿼리 설정
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading
+  } = useInfiniteQuery({
     queryKey: [queryKey],
+    queryFn: async ({ pageParam = 1 }) => {
+      const url = new URL(`${window.location.origin}${queryKey}`);
+      url.searchParams.append('page', String(pageParam));
+      url.searchParams.append('limit', String(ITEMS_PER_PAGE));
+      
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('리소스를 불러오는데 실패했습니다.');
+      }
+      
+      return await response.json();
+    },
+    getNextPageParam: (lastPage) => {
+      // API가 페이지네이션 메타데이터를 반환하는 경우
+      if (lastPage.meta) {
+        const { currentPage, totalPages } = lastPage.meta;
+        return currentPage < totalPages ? currentPage + 1 : undefined;
+      }
+      
+      // 단순 배열을 반환하는 경우
+      return lastPage.length === ITEMS_PER_PAGE ? Number(lastPage.meta?.currentPage || 1) + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
+  
+  // 모든 페이지의 리소스를 하나의 배열로 병합
+  const resources = data?.pages.flatMap(page => {
+    // API가 {items, meta} 형식으로 반환하는 경우
+    if (page.items) {
+      return page.items;
+    }
+    // API가 리소스 배열을 직접 반환하는 경우
+    return page;
+  }) || [];
   
   // Get resource type name for display
   const getResourceTypeName = () => {
@@ -57,6 +101,32 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         return '모든 리소스';
     }
   };
+  
+  // 인터섹션 옵저버 설정 (무한 스크롤)
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const [entry] = entries;
+    if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // 무한 스크롤을 위한 인터섹션 옵저버 설정
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      rootMargin: '0px 0px 300px 0px', // 하단에서 300px 떨어진 지점에서 트리거
+      threshold: 0.1
+    });
+    
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+    
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [handleObserver, loadMoreRef.current]);
   
   // Filter resources by search query
   const filteredResources = resources?.filter(resource => {
@@ -128,11 +198,30 @@ const Resources: React.FC<ResourcesProps> = (props) => {
             ))}
           </div>
         ) : filteredResources && filteredResources.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredResources.map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredResources.map((resource) => (
+                <ResourceCard key={resource.id} resource={resource} />
+              ))}
+            </div>
+            
+            {/* 무한 스크롤을 위한 로딩 인디케이터 */}
+            <div 
+              ref={loadMoreRef} 
+              className="mt-8 w-full flex justify-center py-4"
+            >
+              {isFetchingNextPage ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">더 불러오는 중...</span>
+                </div>
+              ) : hasNextPage ? (
+                <span className="text-sm text-muted-foreground">스크롤하여 더 보기</span>
+              ) : filteredResources.length > ITEMS_PER_PAGE && (
+                <span className="text-sm text-muted-foreground">모든 리소스를 불러왔습니다</span>
+              )}
+            </div>
+          </>
         ) : (
           <div className="bg-gray-50 p-8 rounded-lg text-center">
             <p className="text-gray-600 mb-4">
