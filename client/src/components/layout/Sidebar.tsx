@@ -126,7 +126,7 @@ const Sidebar: React.FC = () => {
           <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
           <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
           <Link href="/services/type/3d_printing">
-            <div className="text-primary text-sm font-medium hover:underline">서비스 찾기 →</div>
+            <div className="text-primary text-sm font-medium hover:underline">프린터 찾기 →</div>
           </Link>
         </div>
         

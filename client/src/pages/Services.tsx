@@ -198,10 +198,10 @@ const Services: React.FC = () => {
             </p>
           </div>
           <Button 
-            onClick={() => window.location.href = `/services/register${type ? `/${type}` : ''}`} 
+            onClick={() => window.location.href = type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
-            서비스 등록
+            {type === '3d_printing' ? '프린터 등록' : '서비스 등록'}
           </Button>
         </div>
         

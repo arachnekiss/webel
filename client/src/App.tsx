@@ -90,6 +90,9 @@ function Router() {
             <Route path="/services/register">
               {() => <RegisterServiceUnified />}
             </Route>
+            <Route path="/services/register/3d_printing">
+              {() => <RegisterServiceUnified defaultType="3d_printing" />}
+            </Route>
             <Route path="/services/register/:type">
               {(params) => <RegisterServiceUnified defaultType={params.type} />}
             </Route>
