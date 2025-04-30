@@ -62,6 +62,16 @@ interface Resource {
   userId?: number | null;
 }
 
+interface ResourcesResponse {
+  items: Resource[];
+  meta: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
+}
+
 // 리소스 타입을 사람이 읽기 쉬운 형태로 변환
 const resourceTypeLabels: Record<string, string> = {
   'hardware_design': '하드웨어 설계',
@@ -81,10 +91,13 @@ export default function AdminResourceManagement() {
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
 
   // 리소스 목록 가져오기
-  const { data: resources, isLoading, error } = useQuery<Resource[]>({
+  const { data: resourcesData, isLoading, error } = useQuery<ResourcesResponse>({
     queryKey: ['/api/admin/resources'],
     queryFn: getQueryFn({ on401: 'throw' }),
   });
+  
+  // 리소스 목록 추출
+  const resources = resourcesData?.items;
 
   // 리소스 변경 뮤테이션 (featured 상태 변경)
   const updateResourceMutation = useMutation({
@@ -156,7 +169,7 @@ export default function AdminResourceManagement() {
   };
 
   // 검색어와 필터로 리소스 필터링
-  const filteredResources = resources?.filter(resource => {
+  const filteredResources = resources && Array.isArray(resources) ? resources.filter(resource => {
     // 검색어 필터링
     const matchesSearch = 
       resource.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,7 +187,7 @@ export default function AdminResourceManagement() {
       typeFilter.includes(resource.resourceType);
     
     return matchesSearch && matchesTab && matchesType;
-  });
+  }) : [];
 
   // 로딩 중 표시
   if (isLoading) {
