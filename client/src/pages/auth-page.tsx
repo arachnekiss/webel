@@ -242,8 +242,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
         <div className="max-w-md">
           <h2 className="text-3xl font-bold mb-4">Webel 플랫폼에 오신 것을 환영합니다</h2>
           <p className="mb-6 text-lg">
-            엔지니어, 소비자, 제조업체를 연결하는 지능형 리소스 매칭과 적응형 서비스 발견을 통해 
-            전자공학 및 하드웨어 커뮤니티를 위한 통합 생태계를 경험하세요.
+            3D 프린팅 서비스, 엔지니어링 자원, 제작 노하우가 한 곳에 모인 
+            메이커를 위한 통합 플랫폼을 경험하세요. 필요한 서비스와 자원을 빠르고 쉽게 찾아보세요.
           </p>
           <div className="space-y-4">
             <div className="flex items-start">
@@ -282,7 +282,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
               </div>
               <div>
                 <h3 className="font-semibold">AI 조립 비서</h3>
-                <p>GPT-4o 기반 인공지능이 하드웨어 조립, 문제 해결, 부품 선택에 대한 실시간 도움을 제공합니다.</p>
+                <p>지능형 AI 비서가 하드웨어 조립, 문제 해결, 부품 선택에 대한 실시간 도움을 제공합니다.</p>
               </div>
             </div>
           </div>
