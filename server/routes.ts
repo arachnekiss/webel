@@ -29,6 +29,7 @@ const upload = multer({
 });
 
 import { setupAuth, isAdmin, isAuthenticated } from './auth';
+import { deleteUserByUsername } from './userDelete';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // 데이터베이스 초기화 엔드포인트 (개발 환경에서만 사용)
@@ -53,6 +54,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   // 인증 관련 라우트 설정
   setupAuth(app);
+  
+  // 특정 사용자 삭제 엔드포인트 (개발 환경에서만 사용 가능)
+  app.delete('/api/dev/users/:username', deleteUserByUsername);
   // User routes
   app.get('/api/users/:id', async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
