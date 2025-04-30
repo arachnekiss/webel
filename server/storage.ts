@@ -136,24 +136,34 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(services).where(eq(services.serviceType, type));
   }
 
-  async getServicesByLocation(location: Location, maxDistance: number): Promise<Service[]> {
-    // 먼저 모든 서비스를 가져온 다음 거리 계산
-    const allServices = await this.getServices();
+  async getServicesByLocation(location: Location, maxDistance: number, serviceType?: string): Promise<Service[]> {
+    // 먼저 모든 서비스 또는 특정 타입의 서비스를 가져옴
+    const allServices = serviceType 
+      ? await this.getServicesByType(serviceType) 
+      : await this.getServices();
     
-    return allServices.filter(service => {
-      if (!service.location) return false;
-      const serviceLocation = service.location as Location;
-      
-      // 하버사인 공식으로 거리 계산
-      const distance = this.calculateDistance(
-        location.lat,
-        location.long,
-        serviceLocation.lat,
-        serviceLocation.long
-      );
-      
-      return distance <= maxDistance;
-    });
+    // 거리와 함께 결과 반환
+    const servicesWithDistance = allServices
+      .filter(service => {
+        if (!service.location) return false;
+        const serviceLocation = service.location as Location;
+        
+        // 하버사인 공식으로 거리 계산
+        const distance = this.calculateDistance(
+          location.lat,
+          location.long,
+          serviceLocation.lat,
+          serviceLocation.long
+        );
+        
+        // 거리 정보 추가 및 최대 거리 이내인 서비스만 필터링
+        (service as any).distance = parseFloat(distance.toFixed(1));
+        return distance <= maxDistance;
+      })
+      // 가까운 순으로 정렬
+      .sort((a, b) => (a as any).distance - (b as any).distance);
+    
+    return servicesWithDistance;
   }
 
   async createService(insertService: InsertService): Promise<Service> {
@@ -286,12 +296,15 @@ export class DatabaseStorage implements IStorage {
       const bidCount = auction.bidCount || 0;
       const currentLowestBid = auction.currentLowestBid;
       
-      await this.updateAuction(auction.id, {
-        bidCount: bidCount + 1,
-        currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
-          ? insertBid.amount
-          : currentLowestBid
-      });
+      // 타입 안전성을 위해 auction.id가 있는지 확인
+      if (auction.id !== undefined) {
+        await this.updateAuction(auction.id, {
+          bidCount: bidCount + 1,
+          currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
+            ? insertBid.amount
+            : currentLowestBid
+        });
+      }
     }
     
     return bid;

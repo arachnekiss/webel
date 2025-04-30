@@ -9,6 +9,13 @@ import { db } from './db';
 import { users, services, resources, auctions, bids } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import multer from 'multer';
+import { 
+  createPaymentIntent, 
+  createSponsorSubscription, 
+  createSponsorDonation, 
+  handleStripeWebhook,
+  checkStripeStatus
+} from './stripe';
 
 // 파일 업로드 설정
 const storage_config = multer.diskStorage({
@@ -118,23 +125,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const locationSchema = z.object({
       lat: z.number(),
       long: z.number(),
-      maxDistance: z.number().default(10) // default 10km
+      maxDistance: z.number().default(10), // default 10km
+      serviceType: z.string().optional() // 특정 서비스 타입 필터링 가능
     });
     
     try {
-      const { lat, long, maxDistance } = locationSchema.parse({
+      // 요청 파라미터 파싱
+      const { lat, long, maxDistance, serviceType } = locationSchema.parse({
         lat: parseFloat(req.query.lat as string),
         long: parseFloat(req.query.long as string),
-        maxDistance: req.query.maxDistance ? parseFloat(req.query.maxDistance as string) : 10
+        maxDistance: req.query.maxDistance ? parseFloat(req.query.maxDistance as string) : 10,
+        serviceType: req.query.serviceType as string || undefined
       });
       
+      // 위치와 서비스 타입 기반으로 서비스 검색
       const services = await storage.getServicesByLocation(
         { lat, long, address: '' },
-        maxDistance
+        maxDistance,
+        serviceType
       );
       
-      res.json(services);
+      res.json({
+        count: services.length,
+        services,
+        searchInfo: {
+          lat,
+          long,
+          maxDistance,
+          serviceType: serviceType || 'all'
+        }
+      });
     } catch (error) {
+      console.error('서비스 위치 검색 오류:', error);
       res.status(400).json({ message: 'Invalid location parameters' });
     }
   });
@@ -555,6 +577,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/services', isAdmin, getAllServices);
   app.put('/api/admin/services/:id/verify', isAdmin, verifyService);
   app.delete('/api/admin/services/:id', isAdmin, deleteService);
+
+  // ==================== Stripe 결제 관련 라우트 ====================
+  // (Stripe API 키가 없어 비활성화됨, 단순 응답만 반환)
+
+  // Stripe 결제 인텐트 생성 (일회성 결제) 
+  app.post('/api/payment/create-payment-intent', createPaymentIntent);
+  
+  // Webel 후원 - 일회성 후원
+  app.post('/api/sponsor/donate', createSponsorDonation);
+  
+  // Webel 후원 - 구독 생성
+  app.post('/api/sponsor/subscribe', createSponsorSubscription);
+  
+  // Stripe 결제 상태 확인
+  app.get('/api/sponsor/status', checkStripeStatus);
 
   const httpServer = createServer(app);
   return httpServer;
