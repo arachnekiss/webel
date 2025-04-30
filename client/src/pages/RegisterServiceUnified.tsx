@@ -823,30 +823,45 @@ export default function RegisterServiceUnified() {
                     control={form.control}
                     name="isIndividual"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
+                      <FormItem>
                         <FormLabel className="text-base">서비스 제공자 유형</FormLabel>
                         <FormDescription>
                           개인이 제공하는 서비스인지, 업체에서 제공하는 서비스인지 선택해주세요
                         </FormDescription>
                         <FormControl>
-                          <RadioGroup
-                            className="flex flex-col space-y-1"
-                            value={field.value ? "individual" : "business"}
-                            onValueChange={(value) => field.onChange(value === "individual")}
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="individual" id="individual" />
-                              <Label htmlFor="individual" className="font-normal">
-                                개인 서비스
-                              </Label>
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <div 
+                              className={`cursor-pointer border rounded-lg p-4 ${field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
+                              onClick={() => field.onChange(true)}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center">
+                                  <User className="mr-2 h-5 w-5 text-primary" />
+                                  <h3 className="font-medium">개인 서비스</h3>
+                                </div>
+                                {field.value && <Check className="h-5 w-5 text-primary" />}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                개인이 제공하는 서비스입니다
+                              </p>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="business" id="business" />
-                              <Label htmlFor="business" className="font-normal">
-                                업체 서비스
-                              </Label>
+                            
+                            <div 
+                              className={`cursor-pointer border rounded-lg p-4 ${!field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
+                              onClick={() => field.onChange(false)}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center">
+                                  <Building className="mr-2 h-5 w-5 text-primary" />
+                                  <h3 className="font-medium">업체 서비스</h3>
+                                </div>
+                                {!field.value && <Check className="h-5 w-5 text-primary" />}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                회사 또는 업체에서 제공하는 서비스입니다
+                              </p>
                             </div>
-                          </RadioGroup>
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
