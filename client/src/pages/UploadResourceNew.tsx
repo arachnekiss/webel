@@ -65,8 +65,7 @@ const subcategoryOptions: Record<string, string[]> = {
 const resourceBasicFormSchema = z.object({
   title: z.string().min(2, "제목은 최소 2자 이상이어야 합니다").max(100, "제목은 최대 100자까지 가능합니다"),
   description: z.string().min(10, "설명은 최소 10자 이상이어야 합니다").max(2000, "설명은 최대 2000자까지 가능합니다"),
-  category: z.string().min(1, "카테고리를 선택해주세요"),
-  subcategory: z.string().optional(),
+  resourceType: z.string().min(1, "카테고리를 선택해주세요"),
   tags: z.string().optional(),
   downloadUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
   sourceSite: z.string().optional(),
@@ -267,10 +266,8 @@ export default function UploadResourceNew() {
       // 기본 정보 추가
       formData.append("title", basicData.title);
       formData.append("description", basicData.description);
-      formData.append("resourceType", basicData.category); // 카테고리를 resourceType으로 사용
+      formData.append("resourceType", basicData.resourceType);
       
-      // 선택적 정보 추가
-      if (basicData.subcategory) formData.append("category", basicData.subcategory);
       if (tags.length > 0) formData.append("tags", tags.join(","));
       if (basicData.downloadUrl) formData.append("downloadUrl", basicData.downloadUrl);
       if (basicData.sourceSite) formData.append("sourceSite", basicData.sourceSite);
