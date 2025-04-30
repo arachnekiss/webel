@@ -43,7 +43,7 @@ const HeroSection: React.FC = () => {
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link href="/services/3d_printing">
+            <Link href="/services/type/3d_printing">
               <Button variant="outline" className="group px-6 py-6 bg-blue-500/30 text-white backdrop-blur-sm font-medium rounded-xl border-2 border-white/20 hover:bg-blue-500/40 hover:border-white/30 shadow-lg transition-all duration-300 text-base">
                 <MapPin className="h-5 w-5 mr-2" />
                 근처 3D 프린터 찾기
