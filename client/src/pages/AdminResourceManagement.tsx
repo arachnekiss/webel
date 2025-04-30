@@ -323,11 +323,11 @@ export default function AdminResourceManagement() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
                     <Filter className="h-4 w-4 mr-1" />
-                    리소스 타입
+                    카테고리
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>리소스 타입 선택</DropdownMenuLabel>
+                  <DropdownMenuLabel>카테고리 선택</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {Object.entries(resourceTypeLabels).map(([type, label]) => (
                     <DropdownMenuCheckboxItem
@@ -451,14 +451,14 @@ function ResourceUploadForm({
             name="resourceType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>리소스 유형</FormLabel>
+                <FormLabel>카테고리</FormLabel>
                 <Select 
                   onValueChange={field.onChange} 
                   defaultValue={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="리소스 유형 선택" />
+                      <SelectValue placeholder="카테고리 선택" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -650,7 +650,7 @@ function ResourceTable({
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>제목</TableHead>
-            <TableHead>타입</TableHead>
+            <TableHead>카테고리</TableHead>
             <TableHead>다운로드</TableHead>
             <TableHead>추천</TableHead>
             <TableHead>날짜</TableHead>
