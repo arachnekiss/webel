@@ -130,9 +130,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>사용자 이름</FormLabel>
+                          <FormLabel>아이디</FormLabel>
                           <FormControl>
-                            <Input placeholder="사용자 이름" {...field} />
+                            <Input placeholder="아이디" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

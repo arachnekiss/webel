@@ -67,7 +67,7 @@ export function setupAuth(app: Express): void {
       try {
         const user = await storage.getUserByUsername(username);
         if (!user) {
-          return done(null, false, { message: "유효하지 않은 사용자 이름입니다." });
+          return done(null, false, { message: "유효하지 않은 아이디입니다." });
         }
         
         const isValid = await comparePasswords(password, user.password);
@@ -100,10 +100,10 @@ export function setupAuth(app: Express): void {
   // 회원가입 라우트
   app.post("/api/register", async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // 사용자 이름 중복 확인
+      // 아이디 중복 확인
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
-        return res.status(400).json({ message: "이미 사용 중인 사용자 이름입니다." });
+        return res.status(400).json({ message: "이미 사용 중인 아이디입니다." });
       }
 
       // 이메일 중복 확인
@@ -116,7 +116,7 @@ export function setupAuth(app: Express): void {
       const hashedPassword = await hashPassword(req.body.password);
 
       // 사용자 생성
-      // 사용자 이름이 'admin'인 경우 관리자 권한 부여
+      // 아이디가 'admin'인 경우 관리자 권한 부여
       const isAdmin = req.body.username.toLowerCase() === 'admin';
       const user = await storage.createUser({
         ...req.body,
@@ -208,10 +208,10 @@ export function setupAuth(app: Express): void {
       const password = "adminPass2024!";
       const fullName = "아라크네";
 
-      // 사용자 중복 확인
+      // 아이디 중복 확인
       const existingUser = await storage.getUserByUsername(username);
       if (existingUser) {
-        return res.status(400).json({ message: "이미 사용 중인 사용자 이름입니다." });
+        return res.status(400).json({ message: "이미 사용 중인 아이디입니다." });
       }
 
       // 이메일 중복 확인
