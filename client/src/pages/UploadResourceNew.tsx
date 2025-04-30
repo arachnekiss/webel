@@ -104,8 +104,7 @@ export default function UploadResourceNew() {
     defaultValues: {
       title: "",
       description: "",
-      category: "",
-      subcategory: "",
+      resourceType: "",
       tags: "",
       downloadUrl: "",
       sourceSite: "",
@@ -122,7 +121,7 @@ export default function UploadResourceNew() {
   });
   
   // 선택된 카테고리에 따라 서브카테고리 옵션 업데이트
-  const selectedCategory = basicForm.watch("category");
+  const selectedCategory = basicForm.watch("resourceType");
 
   // 다음 단계로 이동
   const moveToNextStep = async () => {
@@ -477,7 +476,7 @@ export default function UploadResourceNew() {
                   {/* 카테고리 */}
                   <FormField
                     control={basicForm.control}
-                    name="category"
+                    name="resourceType"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>카테고리 *</FormLabel>
