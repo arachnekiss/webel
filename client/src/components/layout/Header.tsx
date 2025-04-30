@@ -139,7 +139,7 @@ const Header: React.FC = () => {
             </nav>
             
             {/* Search Bar - Desktop */}
-            <div className="hidden md:block flex-1 max-w-2xl mx-8">
+            <div className="hidden md:block flex-1 mx-8" style={{ width: "600px", maxWidth: "100%" }}>
               <form onSubmit={handleSearch} className="flex items-center">
                 <div className="relative flex-grow">
                   <Input 
@@ -223,7 +223,7 @@ const Header: React.FC = () => {
         <div className="absolute top-full left-0 right-0 bg-white shadow-lg z-50 border-b border-slate-200">
           <div className="p-4 space-y-4">
             {/* 검색창 */}
-            <form onSubmit={handleSearch} className="flex items-center">
+            <form onSubmit={handleSearch} className="flex items-center w-full">
               <div className="relative flex-grow">
                 <Input 
                   type="text" 
