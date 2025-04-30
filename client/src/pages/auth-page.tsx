@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useLocation } from 'wouter';
+import { useLocation, useRoute } from 'wouter';
 import { 
   Card, 
   CardHeader, 
@@ -56,6 +56,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [, navigate] = useLocation();
+  const [matchLogin] = useRoute('/login');
+  const [matchRegister] = useRoute('/register');
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
 
   // 로그인 상태라면 메인 페이지로 리디렉션
@@ -64,6 +66,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
       navigate('/');
     }
   }, [user, navigate]);
+  
+  // URL에 따라 탭 자동 전환
+  useEffect(() => {
+    if (matchLogin) {
+      setActiveTab('login');
+    } else if (matchRegister) {
+      setActiveTab('register');
+    }
+  }, [matchLogin, matchRegister]);
 
   // 로그인 폼 설정
   const loginForm = useForm<LoginFormValues>({
