@@ -205,24 +205,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // 리소스 파일 업로드 - 인증 필요
-  app.post('/api/resources/upload', isAuthenticated, upload.single('file'), async (req: Request, res: Response) => {
+  // 리소스 업로드 - 인증 필요
+  app.post('/api/resources/upload', isAuthenticated, upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'downloadFile', maxCount: 1 }
+  ]), async (req: Request, res: Response) => {
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: '파일이 업로드되지 않았습니다.' });
+      if (!req.body.title || !req.body.description || !req.body.resourceType) {
+        return res.status(400).json({ 
+          message: '필수 필드가 누락되었습니다. 제목, 설명, 카테고리는 필수입니다.' 
+        });
       }
       
-      // 파일 메타데이터 반환
-      res.status(200).json({
-        fileName: req.file.filename,
-        originalName: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype,
-        path: req.file.path
-      });
+      // 업로드된 파일들
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      // 리소스 데이터 준비
+      const resourceData: any = {
+        title: req.body.title,
+        description: req.body.description,
+        resourceType: req.body.resourceType,
+        userId: req.user.id,
+        createdAt: new Date()
+      };
+      
+      // 태그 처리
+      if (req.body.tags) {
+        try {
+          resourceData.tags = req.body.tags.split(',').map((tag: string) => tag.trim());
+        } catch (e) {
+          resourceData.tags = [];
+        }
+      }
+      
+      // 다운로드 URL 처리
+      if (req.body.downloadUrl) {
+        resourceData.downloadUrl = req.body.downloadUrl;
+      }
+      
+      // 이미지 파일 처리
+      if (files.image && files.image[0]) {
+        const imageFile = files.image[0];
+        const relativePath = `/uploads/${imageFile.filename}`;
+        resourceData.imageUrl = `${req.protocol}://${req.get('host')}${relativePath}`;
+      }
+      
+      // 다운로드 파일 처리
+      if (files.downloadFile && files.downloadFile[0]) {
+        const downloadFile = files.downloadFile[0];
+        const relativePath = `/uploads/${downloadFile.filename}`;
+        resourceData.downloadFile = relativePath;
+      }
+      
+      // 사용법과 조립방법 처리 (JSON 문자열을 파싱)
+      if (req.body.howToUse) {
+        try {
+          const howToUseData = JSON.parse(req.body.howToUse);
+          resourceData.howToUse = howToUseData.text;
+          // 멀티미디어 정보는 별도 필드에 저장할 수 있음
+          if (howToUseData.multimedia) {
+            resourceData.howToUseMultimedia = JSON.stringify(howToUseData.multimedia);
+          }
+        } catch (e) {
+          resourceData.howToUse = req.body.howToUse;
+        }
+      }
+      
+      if (req.body.assemblyInstructions) {
+        try {
+          const assemblyData = JSON.parse(req.body.assemblyInstructions);
+          resourceData.assemblyInstructions = assemblyData.text;
+          // 멀티미디어 정보는 별도 필드에 저장할 수 있음
+          if (assemblyData.multimedia) {
+            resourceData.assemblyMultimedia = JSON.stringify(assemblyData.multimedia);
+          }
+        } catch (e) {
+          resourceData.assemblyInstructions = req.body.assemblyInstructions;
+        }
+      }
+      
+      // 리소스 생성
+      const resource = await storage.createResource(resourceData);
+      res.status(201).json(resource);
     } catch (error) {
-      console.error('파일 업로드 에러:', error);
-      res.status(500).json({ message: '파일 업로드 중 오류가 발생했습니다.' });
+      console.error('리소스 업로드 에러:', error);
+      res.status(500).json({ message: '리소스 업로드 중 오류가 발생했습니다.' });
     }
   });
   
