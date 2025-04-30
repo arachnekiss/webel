@@ -139,7 +139,11 @@ const serviceFormSchema = z.object({
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
-export default function RegisterServiceUnified() {
+interface RegisterServiceUnifiedProps {
+  defaultType?: ServiceType;
+}
+
+export default function RegisterServiceUnified({ defaultType }: RegisterServiceUnifiedProps) {
   const { toast } = useToast();
   const [, navigate] = useWouterLocation();
   const location = useWouterLocation()[0];
@@ -154,7 +158,8 @@ export default function RegisterServiceUnified() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [selectedTab, setSelectedTab] = useState("basic");
-  const [serviceType, setServiceType] = useState<ServiceType>("3d_printing");
+  // defaultType prop이 있다면 그 값을 초기 상태로 사용
+  const [serviceType, setServiceType] = useState<ServiceType>(defaultType || "3d_printing");
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
   
@@ -190,7 +195,9 @@ export default function RegisterServiceUnified() {
       pricing: '10g당 1,000원',
       availableHours: '평일 10:00-18:00',
       isIndividual: true,
-      tags: 'PLA,ABS,시제품',
+      tags: serviceType === '3d_printing' ? 'PLA,ABS,시제품' : 
+            serviceType === 'engineer' ? '설계,PCB,전자기기' : 
+            '제조,가공,시제품',
       address: '',
       latitude: 0,
       longitude: 0,

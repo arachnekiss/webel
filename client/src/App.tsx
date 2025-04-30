@@ -83,9 +83,16 @@ function Router() {
             <Route path="/auctions" component={Auctions}/>
             <Route path="/auctions/:id" component={AuctionDetail}/>
             
-            {/* Register pages */}
-            <Route path="/services/register" component={RegisterServiceUnified}/>
-            <Route path="/services/register/:type" component={RegisterServiceUnified}/>
+            {/* Register pages - 3D 프린터 등록을 포함한 서비스 등록 페이지 통합 */}
+            <Route path="/register-printer">
+              {() => <RegisterServiceUnified defaultType="3d_printing" />}
+            </Route>
+            <Route path="/services/register">
+              {() => <RegisterServiceUnified />}
+            </Route>
+            <Route path="/services/register/:type">
+              {(params) => <RegisterServiceUnified defaultType={params.type} />}
+            </Route>
             <Route path="/services/register-old" component={RegisterService}/>
             <Route path="/services/register-old/:type" component={RegisterService}/>
             
@@ -98,7 +105,6 @@ function Router() {
             <Route path="/remote-support" component={RemoteSupport}/>
             <Route path="/services/type/engineer" component={Engineers}/>
             <Route path="/sponsor" component={Sponsor}/>
-            <Route path="/register-printer" component={RegisterServiceUnified}/>
             
             {/* Auth pages */}
             <Route path="/auth">
