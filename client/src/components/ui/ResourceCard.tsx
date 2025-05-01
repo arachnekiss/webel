@@ -82,8 +82,8 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
             <span className="text-gray-500">이미지 없음</span>
           </div>
         )}
-        <div className={`absolute top-0 left-0 ${getTypeColor(resource.resourceType)} text-white px-3 py-1 text-xs font-medium`}>
-          {getTypeName(resource.resourceType)}
+        <div className={`absolute top-0 left-0 ${getTypeColor(resource.resourceType || '')} text-white px-3 py-1 text-xs font-medium`}>
+          {getTypeName(resource.resourceType || '')}
         </div>
       </div>
       <CardContent className="p-4">
@@ -101,7 +101,11 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <Download className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-500 ml-1">{resource.downloadCount.toLocaleString()}</span>
+            <span className="text-sm text-gray-500 ml-1">
+              {typeof resource.downloadCount === 'number' 
+                ? resource.downloadCount.toLocaleString() 
+                : '0'}
+            </span>
           </div>
           <Button 
             className="px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
