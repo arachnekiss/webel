@@ -48,16 +48,17 @@ function Router() {
       {/* 헤더 영역 */}
       <Header />
       
-      <div className="flex-1 flex container mx-auto pt-6 gap-8">
-        {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
-        {!isMobile && (
-          <div className="w-64 shrink-0">
-            <Sidebar />
-          </div>
-        )}
-        
-        {/* 메인 콘텐츠 영역 */}
-        <div className="flex-1 flex flex-col overflow-x-hidden">
+      <div className="flex-1 container mx-auto pt-6 px-4 md:px-6">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
+          {!isMobile && (
+            <div className="w-64 shrink-0">
+              <Sidebar />
+            </div>
+          )}
+          
+          {/* 메인 콘텐츠 영역 */}
+          <div className="flex-1 flex flex-col overflow-x-hidden">
           <Switch>
             <Route path="/" component={Home}/>
             
@@ -132,6 +133,7 @@ function Router() {
             {/* Fallback to 404 */}
             <Route component={NotFound} />
           </Switch>
+          </div>
         </div>
       </div>
       
