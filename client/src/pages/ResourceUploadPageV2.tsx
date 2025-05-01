@@ -1699,7 +1699,7 @@ export default function ResourceUploadPageV2() {
 
               {/* AI 모델일 경우 */}
               {form.watch('resourceType') === 'ai_model' && (
-                <>
+                <div className="mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
@@ -1736,46 +1736,477 @@ export default function ResourceUploadPageV2() {
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="trainingData"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>학습 데이터</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="학습에 사용된 데이터셋에 대해 설명해주세요."
-                            className="min-h-[80px]"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
+                  
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">사용법 및 성능</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      모델 사용법, 성능 지표, 예시 등을 이미지와 텍스트로 설명해주세요.
+                    </p>
+                    
+                    {/* 고급 에디터 툴바 */}
+                    <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('heading')}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        제목
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('paragraph')}
+                      >
+                        <File className="h-4 w-4 mr-1" />
+                        텍스트
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('image')}
+                      >
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        이미지
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('youtube')}
+                      >
+                        <Youtube className="h-4 w-4 mr-1" />
+                        유튜브
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('code')}
+                      >
+                        <Code className="h-4 w-4 mr-1" />
+                        코드
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('list')}
+                      >
+                        <List className="h-4 w-4 mr-1" />
+                        목록
+                      </Button>
+                    </div>
+                    
+                    {/* 에디터 콘텐츠 */}
+                    <div className="space-y-1">
+                      {blocks.filter(block => block.type !== 'image').length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+                          <File className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">콘텐츠 없음</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                            위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠를 추가하세요.
+                            모델 성능 그래프, 사용 예시, 결과물 등을 보여주면 좋습니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+                            <div className="flex items-center">
+                              <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                              블록을 드래그하여 순서를 변경할 수 있습니다
+                            </div>
+                          </div>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={blocks.filter(block => block.type !== 'image').map(b => b.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-3">
+                                {blocks.filter(block => block.type !== 'image').map((block) => (
+                                  <SortableContentBlock
+                                    key={block.id}
+                                    block={block}
+                                    onUpdate={updateBlock}
+                                    onDelete={deleteBlock}
+                                  />
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
-
-              {/* 공통 사용 방법 */}
-              <FormField
-                control={form.control}
-                name="howToUse"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>사용 방법</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="이 리소스를 어떻게 사용하는지 간략하게 설명해주세요."
-                        className="min-h-[100px]"
-                        {...field}
-                        value={field.value || ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              
+              {/* 프리 콘텐츠일 경우 */}
+              {form.watch('resourceType') === 'free_content' && (
+                <div className="mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="contentType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>콘텐츠 유형</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="콘텐츠 유형 선택" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="education">교육 자료</SelectItem>
+                                <SelectItem value="template">템플릿</SelectItem>
+                                <SelectItem value="graphic">그래픽 리소스</SelectItem>
+                                <SelectItem value="audio">오디오 리소스</SelectItem>
+                                <SelectItem value="document">문서</SelectItem>
+                                <SelectItem value="other">기타</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormDescription>
+                            공유하려는 콘텐츠의 유형을 선택하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="contentFormat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>파일 포맷</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: PDF, PNG, MP3, ZIP"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            콘텐츠의 파일 형식을 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">콘텐츠 상세 설명</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      콘텐츠의 특징, 사용법, 활용 예시 등을 이미지와 텍스트로 설명해주세요.
+                    </p>
+                    
+                    {/* 고급 에디터 툴바 */}
+                    <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('heading')}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        제목
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('paragraph')}
+                      >
+                        <File className="h-4 w-4 mr-1" />
+                        텍스트
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('image')}
+                      >
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        이미지
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('youtube')}
+                      >
+                        <Youtube className="h-4 w-4 mr-1" />
+                        유튜브
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('list')}
+                      >
+                        <List className="h-4 w-4 mr-1" />
+                        목록
+                      </Button>
+                    </div>
+                    
+                    {/* 에디터 콘텐츠 */}
+                    <div className="space-y-1">
+                      {blocks.filter(block => block.type !== 'image').length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+                          <File className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">콘텐츠 없음</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                            위 버튼을 눌러 제목, 텍스트, 이미지, 동영상 등의 콘텐츠를 추가하세요.
+                            콘텐츠의 특징, 용도, 활용 예시 등을 상세히 설명하면 좋습니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+                            <div className="flex items-center">
+                              <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                              블록을 드래그하여 순서를 변경할 수 있습니다
+                            </div>
+                          </div>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={blocks.filter(block => block.type !== 'image').map(b => b.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-3">
+                                {blocks.filter(block => block.type !== 'image').map((block) => (
+                                  <SortableContentBlock
+                                    key={block.id}
+                                    block={block}
+                                    onUpdate={updateBlock}
+                                    onDelete={deleteBlock}
+                                  />
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* 플래시 게임일 경우 */}
+              {form.watch('resourceType') === 'flash_game' && (
+                <div className="mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="gameGenre"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>게임 장르</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="게임 장르 선택" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="action">액션</SelectItem>
+                                <SelectItem value="adventure">어드벤처</SelectItem>
+                                <SelectItem value="strategy">전략</SelectItem>
+                                <SelectItem value="simulation">시뮬레이션</SelectItem>
+                                <SelectItem value="puzzle">퍼즐</SelectItem>
+                                <SelectItem value="rpg">RPG</SelectItem>
+                                <SelectItem value="sports">스포츠</SelectItem>
+                                <SelectItem value="other">기타</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="gamePlatform"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>플랫폼</FormLabel>
+                          <FormControl>
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="플랫폼 선택" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="browser">웹 브라우저</SelectItem>
+                                <SelectItem value="desktop">데스크톱</SelectItem>
+                                <SelectItem value="mobile">모바일</SelectItem>
+                                <SelectItem value="multi">멀티플랫폼</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="mt-4">
+                    <FormField
+                      control={form.control}
+                      name="gameControls"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>게임 조작법</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="게임 조작 방법을 간략하게 설명해주세요."
+                              className="min-h-[80px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">게임 설명 및 플레이 방법</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      게임의 스토리, 목표, 플레이 방법 등을 이미지와 텍스트로 상세히 설명해주세요.
+                    </p>
+                    
+                    {/* 고급 에디터 툴바 */}
+                    <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('heading')}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        제목
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('paragraph')}
+                      >
+                        <File className="h-4 w-4 mr-1" />
+                        텍스트
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('image')}
+                      >
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        이미지
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('youtube')}
+                      >
+                        <Youtube className="h-4 w-4 mr-1" />
+                        유튜브
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('list')}
+                      >
+                        <List className="h-4 w-4 mr-1" />
+                        목록
+                      </Button>
+                    </div>
+                    
+                    {/* 에디터 콘텐츠 */}
+                    <div className="space-y-1">
+                      {blocks.filter(block => block.type !== 'image').length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+                          <File className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">콘텐츠 없음</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                            위 버튼을 눌러 제목, 텍스트, 이미지, 동영상 등의 콘텐츠를 추가하세요.
+                            게임플레이 스크린샷, 게임 특징, 플레이 팁 등을 소개하면 좋습니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+                            <div className="flex items-center">
+                              <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                              블록을 드래그하여 순서를 변경할 수 있습니다
+                            </div>
+                          </div>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={blocks.filter(block => block.type !== 'image').map(b => b.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-3">
+                                {blocks.filter(block => block.type !== 'image').map((block) => (
+                                  <SortableContentBlock
+                                    key={block.id}
+                                    block={block}
+                                    onUpdate={updateBlock}
+                                    onDelete={deleteBlock}
+                                  />
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </form>
