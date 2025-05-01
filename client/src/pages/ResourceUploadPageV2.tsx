@@ -1034,52 +1034,94 @@ export default function ResourceUploadPageV2() {
             
             {/* 썸네일 업로드 영역 */}
             <div>
-              <FormLabel>썸네일 이미지</FormLabel>
-              <div className="border rounded-md p-2 bg-muted/20 mt-2 flex justify-center">
-                {thumbnailFile ? (
-                  <div className="relative w-full aspect-video flex items-center justify-center overflow-hidden rounded-md">
-                    <img 
-                      src={thumbnailFile.preview || ''} 
-                      alt="Thumbnail preview" 
-                      className="object-cover w-full h-full"
-                    />
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="h-7 w-7 rounded-full"
-                        onClick={() => setThumbnailFile(null)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {thumbnailFile.progress > 0 && thumbnailFile.progress < 100 && (
-                      <Progress value={thumbnailFile.progress} className="absolute bottom-0 left-0 right-0 h-1" />
-                    )}
-                  </div>
-                ) : (
-                  <div 
-                    className="flex flex-col items-center justify-center p-4 cursor-pointer w-full aspect-video rounded-md border-2 border-dashed hover:bg-muted/30 transition-colors"
+              <FormLabel>상품 이미지</FormLabel>
+              <div className="mt-2 flex flex-col gap-2">
+                <div className="flex gap-2 items-center">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
                     onClick={() => {
                       const fileInput = document.getElementById('thumbnailInput') as HTMLInputElement;
                       if (fileInput) fileInput.click();
                     }}
                   >
-                    <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-                    <div className="text-sm font-medium text-center">썸네일 이미지 추가</div>
-                    <div className="text-xs text-muted-foreground text-center mt-1">
-                      권장 비율: 16:9, 최대 2MB
+                    <ImageIcon className="h-4 w-4 mr-1" />
+                    이미지 선택
+                  </Button>
+                  <div className="text-xs text-muted-foreground">
+                    {thumbnailFile ? thumbnailFile.name : "대표 이미지를 선택해주세요"}
+                  </div>
+                  <input
+                    id="thumbnailInput"
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={(e) => handleFileSelect(e, 'thumbnail')}
+                  />
+                </div>
+                
+                {thumbnailFile && (
+                  <div className="border rounded-md bg-background overflow-hidden">
+                    <div className="aspect-video w-full relative">
+                      <img 
+                        src={thumbnailFile.preview || ''} 
+                        alt="대표 이미지" 
+                        className="object-cover w-full h-full"
+                      />
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm"
+                          onClick={() => setThumbnailFile(null)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      {thumbnailFile.progress > 0 && thumbnailFile.progress < 100 && (
+                        <Progress value={thumbnailFile.progress} className="absolute bottom-0 left-0 right-0 h-1" />
+                      )}
                     </div>
-                    <input
-                      id="thumbnailInput"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => handleFileSelect(e, 'thumbnail')}
-                    />
                   </div>
                 )}
+                
+                {/* 갤러리 이미지 (추가 이미지) */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-1">
+                  {blocks.filter(block => block.type === 'image').map((block, index) => (
+                    <SortableImageItem 
+                      key={block.id}
+                      block={block}
+                      index={index}
+                      onUpdate={updateBlock}
+                      onDelete={deleteBlock}
+                    />
+                  ))}
+                  
+                  {/* 추가 이미지 버튼 */}
+                  <div 
+                    className="border border-dashed rounded-md flex flex-col items-center justify-center p-2 cursor-pointer hover:bg-muted/20 transition-colors aspect-video"
+                    onClick={() => {
+                      const newBlock: ContentBlock = {
+                        id: uuidv4(),
+                        type: 'image',
+                        content: "",
+                        caption: "",
+                      };
+                      setBlocks(prev => [...prev, newBlock]);
+                      
+                      // 약간의 지연 후 파일 선택 다이얼로그 표시
+                      setTimeout(() => {
+                        const input = document.getElementById(`image-upload-${newBlock.id}`) as HTMLInputElement;
+                        if (input) input.click();
+                      }, 100);
+                    }}
+                  >
+                    <Plus className="h-5 w-5 mb-1" />
+                    <span className="text-xs">추가 이미지</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1150,111 +1192,66 @@ export default function ResourceUploadPageV2() {
           </div>
 
           {/* 파일 업로드 섹션 */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <FormField
-                control={form.control}
-                name="downloadUrl"
-                render={({ field }) => (
-                  <FormItem className="space-y-4">
-                    <FormLabel>파일 업로드</FormLabel>
-                    <div className="flex flex-col space-y-2">
-                      <div className="border rounded-md p-4 bg-muted/20">
-                        {downloadFile ? (
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <FileIcon className="h-5 w-5 text-muted-foreground" />
-                                <span className="text-sm font-medium">{downloadFile.name}</span>
-                              </div>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setDownloadFile(null)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {(downloadFile.size / 1024 / 1024).toFixed(2)} MB
-                            </div>
-                            {downloadFile.progress > 0 && downloadFile.progress < 100 && (
-                              <Progress value={downloadFile.progress} className="h-1" />
-                            )}
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center py-4">
-                            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                            <div className="text-sm font-medium mb-1">파일을 끌어다 놓거나 클릭하여 업로드</div>
-                            <div className="text-xs text-muted-foreground">최대 100MB</div>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              className="mt-2"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              파일 선택
-                            </Button>
-                            <input 
-                              ref={fileInputRef}
-                              type="file" 
-                              className="hidden" 
-                              onChange={(e) => handleFileSelect(e, 'download')}
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        또는 직접 URL 입력:
-                      </div>
-                      <FormControl>
+          <div className="mt-6">
+            <FormField
+              control={form.control}
+              name="downloadUrl"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>파일 업로드</FormLabel>
+                  <div className="flex gap-3 items-center">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex-shrink-0"
+                    >
+                      <Upload className="h-4 w-4 mr-1" />
+                      파일 선택
+                    </Button>
+                    <div className="text-sm text-muted-foreground truncate">
+                      {downloadFile ? downloadFile.name : "다운로드 가능한 파일을 선택해주세요"}
+                    </div>
+                    <input 
+                      ref={fileInputRef}
+                      type="file" 
+                      className="hidden" 
+                      onChange={(e) => handleFileSelect(e, 'download')}
+                    />
+                  </div>
+                  
+                  {downloadFile && downloadFile.progress > 0 && downloadFile.progress < 100 && (
+                    <Progress value={downloadFile.progress} className="h-1 mt-2" />
+                  )}
+                  
+                  {/* URL 입력 필드는 파일이 없을 경우만 보여줌 */}
+                  {!downloadFile && (
+                    <div className="flex gap-2 items-center mt-2">
+                      <FormControl className="flex-1">
                         <Input
-                          placeholder="파일 다운로드 URL (선택사항)"
+                          placeholder="또는 파일 다운로드 URL을 직접 입력하세요"
                           {...field}
                           value={field.value || ""}
                         />
                       </FormControl>
                     </div>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="repositoryUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>저장소 URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="GitHub, GitLab 등의 저장소 URL (선택사항)"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    오픈 소스 프로젝트의 저장소 URL을 입력하세요.
-                  </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* 리소스 유형별 추가 정보 */}
+          {/* 리소스 유형별 상세 정보 */}
           {form.watch('resourceType') && (
             <>
-              <Separator />
-              <h2 className="text-xl font-semibold">{categoryLabels[form.watch('resourceType')]} 추가 정보</h2>
-
+              <Separator className="my-6" />
+              
               {/* 하드웨어 설계도일 경우 */}
               {form.watch('resourceType') === 'hardware_design' && (
                 <>
-                  <div className="grid grid-cols-1 gap-6 mt-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <FormField
                       control={form.control}
                       name="materials"
@@ -1276,9 +1273,7 @@ export default function ResourceUploadPageV2() {
                         </FormItem>
                       )}
                     />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    
                     <FormField
                       control={form.control}
                       name="dimensions"
@@ -1298,118 +1293,241 @@ export default function ResourceUploadPageV2() {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-1 gap-6 mt-4">
-                    <h3 className="text-lg font-semibold mt-4">조립 방법</h3>
-                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        아래에 조립 방법을 상세히 작성해주세요. 이미지, 영상 등을 추가하여 설명하면 더 효과적입니다.
-                      </p>
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">상세 설명</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      이미지, 영상, 텍스트 등을 추가하여 상품에 대한 상세한 정보를 제공해주세요.
+                    </p>
+                    
+                    {/* 고급 에디터 툴바 */}
+                    <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('heading')}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        제목
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('paragraph')}
+                      >
+                        <File className="h-4 w-4 mr-1" />
+                        텍스트
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('image')}
+                      >
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        이미지
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('youtube')}
+                      >
+                        <Youtube className="h-4 w-4 mr-1" />
+                        유튜브
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('code')}
+                      >
+                        <Code className="h-4 w-4 mr-1" />
+                        코드
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('list')}
+                      >
+                        <List className="h-4 w-4 mr-1" />
+                        목록
+                      </Button>
                     </div>
-                    <FormField
-                      control={form.control}
-                      name="assemblyInstructions"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea
-                              placeholder="조립 과정을 단계별로 설명해주세요."
-                              className="min-h-[150px]"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                    
+                    {/* 에디터 콘텐츠 */}
+                    <div className="space-y-1">
+                      {blocks.filter(block => block.type !== 'image').length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+                          <File className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">콘텐츠 없음</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                            위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠를 추가하세요.
+                            풍부한 콘텐츠를 제공하면 상품의 품질이 높아집니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+                            <div className="flex items-center">
+                              <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                              블록을 드래그하여 순서를 변경할 수 있습니다
+                            </div>
+                          </div>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={blocks.filter(block => block.type !== 'image').map(b => b.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-3">
+                                {blocks.filter(block => block.type !== 'image').map((block) => (
+                                  <SortableContentBlock
+                                    key={block.id}
+                                    block={block}
+                                    onUpdate={updateBlock}
+                                    onDelete={deleteBlock}
+                                  />
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
+                        </div>
                       )}
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 gap-6 mt-4">
-                    <h3 className="text-lg font-semibold mt-4">사용 방법</h3>
-                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        완성된 제품의 사용 방법을 설명해주세요. 주의사항이나 팁도 함께 작성하면 좋습니다.
-                      </p>
                     </div>
-                    <FormField
-                      control={form.control}
-                      name="howToUse"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Textarea
-                              placeholder="사용 방법을 설명해주세요."
-                              className="min-h-[150px]"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
                   </div>
                 </>
               )}
 
               {/* 소프트웨어일 경우 */}
               {form.watch('resourceType') === 'software' && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormField
-                      control={form.control}
-                      name="programmingLanguage"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>프로그래밍 언어</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="예: Python, JavaScript, C++"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                <div className="mt-4">
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4">사용법</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      이미지, 영상, 텍스트 등을 추가하여 소프트웨어 사용법을 자세히 설명해주세요.
+                    </p>
+                    
+                    {/* 고급 에디터 툴바 */}
+                    <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('heading')}
+                      >
+                        <FileText className="h-4 w-4 mr-1" />
+                        제목
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('paragraph')}
+                      >
+                        <File className="h-4 w-4 mr-1" />
+                        텍스트
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('image')}
+                      >
+                        <ImageIcon className="h-4 w-4 mr-1" />
+                        이미지
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('youtube')}
+                      >
+                        <Youtube className="h-4 w-4 mr-1" />
+                        유튜브
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('code')}
+                      >
+                        <Code className="h-4 w-4 mr-1" />
+                        코드
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-9"
+                        onClick={() => addBlock('list')}
+                      >
+                        <List className="h-4 w-4 mr-1" />
+                        목록
+                      </Button>
+                    </div>
+                    
+                    {/* 에디터 콘텐츠 */}
+                    <div className="space-y-1">
+                      {blocks.filter(block => block.type !== 'image').length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+                          <File className="h-12 w-12 text-muted-foreground mb-4" />
+                          <h3 className="text-lg font-medium mb-2">콘텐츠 없음</h3>
+                          <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+                            위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠를 추가하세요.
+                            셋업 방법, 사용 예시, 주요 기능 등을 소개하면 좋습니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+                            <div className="flex items-center">
+                              <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                              블록을 드래그하여 순서를 변경할 수 있습니다
+                            </div>
+                          </div>
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={blocks.filter(block => block.type !== 'image').map(b => b.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              <div className="space-y-3">
+                                {blocks.filter(block => block.type !== 'image').map((block) => (
+                                  <SortableContentBlock
+                                    key={block.id}
+                                    block={block}
+                                    onUpdate={updateBlock}
+                                    onDelete={deleteBlock}
+                                  />
+                                ))}
+                              </div>
+                            </SortableContext>
+                          </DndContext>
+                        </div>
                       )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="softwareRequirements"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>시스템 요구사항</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="예: Windows 10 이상, 4GB RAM 이상"
-                              {...field}
-                              value={field.value || ""}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    </div>
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="dependencies"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>의존성 패키지</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="예: numpy>=1.20.0, tensorflow>=2.5.0"
-                            className="min-h-[80px]"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
+                </div>
               )}
 
               {/* 3D 모델일 경우 */}
