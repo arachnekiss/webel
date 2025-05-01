@@ -66,9 +66,9 @@ export default function AdminDashboard() {
           icon={<FileText className="h-6 w-6" />} 
         />
         <StatCard 
-          title="경매" 
+          title="서비스" 
           value={data?.auctionsCount || 0} 
-          description="등록된 총 경매 수" 
+          description="등록된 총 서비스 수" 
           icon={<Gavel className="h-6 w-6" />} 
         />
       </div>
