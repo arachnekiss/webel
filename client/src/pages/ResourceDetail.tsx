@@ -38,6 +38,11 @@ import {
   Eye,
   FileDown,
   HelpCircle,
+  X,
+  CheckCircle,
+  ShoppingCart,
+  Upload,
+  Package,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
