@@ -149,6 +149,146 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 // 드래그 가능한 콘텐츠 블록 컴포넌트
+function SortableImageItem({
+  block,
+  index,
+  onUpdate,
+  onDelete,
+}: {
+  block: ContentBlock;
+  index: number;
+  onUpdate: (id: string, content: string, caption?: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: block.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  
+  const { toast } = useToast();
+  
+  return (
+    <div ref={setNodeRef} style={style} className="group relative">
+      <div className="border rounded-md bg-background overflow-hidden">
+        <div className="aspect-video w-full relative">
+          {block.content ? (
+            <img 
+              src={block.content} 
+              alt={block.caption || `이미지 ${index + 1}`} 
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=이미지+로드+실패';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted/20">
+              <ImageIcon className="h-10 w-10 text-muted-foreground" />
+            </div>
+          )}
+          
+          {/* 드래그 핸들 */}
+          <div 
+            className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" 
+            {...listeners}
+            {...attributes}
+          >
+            <div className="bg-background/80 backdrop-blur-sm rounded-full p-1.5">
+              <Grip className="h-4 w-4 text-foreground" />
+            </div>
+          </div>
+          
+          {/* 삭제 버튼 */}
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="bg-background/80 backdrop-blur-sm rounded-full p-1.5">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 p-0 rounded-full hover:bg-destructive/10"
+                onClick={() => onDelete(block.id)}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          </div>
+          
+          {/* 파일 업로드 버튼 */}
+          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="bg-background/80 backdrop-blur-sm"
+              onClick={() => {
+                const input = document.getElementById(`image-upload-${block.id}`) as HTMLInputElement;
+                if (input) input.click();
+              }}
+            >
+              <ImageIcon className="h-4 w-4 mr-1" />
+              이미지 변경
+            </Button>
+            <input
+              id={`image-upload-${block.id}`}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const files = e.target.files;
+                if (!files || files.length === 0) return;
+                
+                const file = files[0];
+                
+                // 이미지 파일 유효성 및 크기 검사
+                if (!file.type.startsWith('image/')) {
+                  toast({
+                    title: "잘못된 파일 형식",
+                    description: "이미지 파일만 업로드할 수 있습니다.",
+                    variant: "destructive",
+                  });
+                  e.target.value = '';
+                  return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                  toast({
+                    title: "파일 크기 초과",
+                    description: "이미지 크기는 5MB 이하여야 합니다.",
+                    variant: "destructive",
+                  });
+                  e.target.value = '';
+                  return;
+                }
+                
+                // 이미지 미리보기 URL 생성
+                const previewUrl = URL.createObjectURL(file);
+                onUpdate(block.id, previewUrl, block.caption);
+                
+                e.target.value = '';
+              }}
+            />
+          </div>
+        </div>
+        <div className="p-2">
+          <Input
+            placeholder="이미지 설명 입력"
+            value={block.caption || ""}
+            onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
+            className="text-sm"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SortableContentBlock({
   block,
   onUpdate,
@@ -1526,206 +1666,95 @@ export default function ResourceUploadPageV2() {
       {/* 썸네일 갤러리 섹션 */}
       <div className="mt-10">
         <Separator className="mb-6" />
-        <div className="flex items-center mb-4 border-b pb-2">
-          <h2 className="text-lg font-medium">본문 작성</h2>
+        <div className="flex items-center mb-4">
+          <h2 className="text-xl font-semibold">상품 이미지 갤러리</h2>
         </div>
-        <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('heading')}
-          >
-            <FileText className="h-4 w-4 mr-1" />
-            제목
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('paragraph')}
-          >
-            <File className="h-4 w-4 mr-1" />
-            텍스트
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('image')}
-          >
-            <ImageIcon className="h-4 w-4 mr-1" />
-            이미지
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('youtube')}
-          >
-            <Youtube className="h-4 w-4 mr-1" />
-            유튜브
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('code')}
-          >
-            <Code className="h-4 w-4 mr-1" />
-            코드
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-9"
-            onClick={() => addBlock('list')}
-          >
-            <List className="h-4 w-4 mr-1" />
-            목록
-          </Button>
+        <div className="text-sm text-muted-foreground mb-4">
+          기본 대표 이미지(썸네일) 외에 추가 이미지를 올려 상세한 정보를 제공하세요. 이미지 순서는 드래그로 변경할 수 있습니다.
         </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={blocks.filter(block => block.type === 'image').map(b => b.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+              {/* 이미지 블록들을 갤러리 형태로 표시 */}
+              {blocks.filter(block => block.type === 'image').map((block, index) => (
+                <SortableImageItem 
+                  key={block.id}
+                  block={block}
+                  index={index}
+                  onUpdate={updateBlock}
+                  onDelete={deleteBlock}
+                />
+              ))}
+              
+              {/* 새 이미지 추가 버튼 */}
+              <div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-dashed h-full min-h-[180px] w-full flex flex-col items-center justify-center"
+                  onClick={() => {
+                    const newBlock: ContentBlock = {
+                      id: uuidv4(),
+                      type: 'image',
+                      content: "",
+                      caption: "",
+                    };
+                    setBlocks(prev => [...prev, newBlock]);
+                    
+                    // 약간의 지연 후 파일 선택 다이얼로그 표시
+                    setTimeout(() => {
+                      const input = document.getElementById(`image-upload-${newBlock.id}`) as HTMLInputElement;
+                      if (input) input.click();
+                    }, 100);
+                  }}
+                >
+                  <Plus className="h-8 w-8 mb-2" />
+                  <span>이미지 추가하기</span>
+                  <span className="text-xs text-muted-foreground mt-1">최대 10MB</span>
+                </Button>
+              </div>
+            </div>
+          </SortableContext>
+        </DndContext>
         
-        {blocks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
-            <File className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">콘텐츠 블록 없음</h3>
-            <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
-              위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠 블록을 추가하세요.
-              풍부한 콘텐츠를 제공하면 자료의 품질이 높아집니다.
+        {blocks.filter(block => block.type === 'image').length === 0 && (
+          <div className="rounded-lg border-2 border-dashed p-8 text-center bg-muted/10 mt-4">
+            <div className="flex justify-center mb-4">
+              <ImageIcon className="h-12 w-12 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <h3 className="text-lg font-medium mb-2">추가 이미지 없음</h3>
+            <p className="text-muted-foreground max-w-md mx-auto mb-4">
+              상품에 대한 상세 이미지를 추가하면 사용자에게 더 많은 정보를 제공할 수 있습니다.
+              여러 각도에서 촬영한 이미지나 사용 예시 이미지 등을 추가해보세요.
             </p>
-            <div className="flex flex-wrap justify-center gap-2 mt-2 max-w-md">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addBlock('heading')}
-                className="flex items-center gap-1"
-              >
-                <FileText className="h-4 w-4" /> 제목
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addBlock('paragraph')}
-                className="flex items-center gap-1"
-              >
-                <File className="h-4 w-4" /> 텍스트
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addBlock('image')}
-                className="flex items-center gap-1"
-              >
-                <ImageIcon className="h-4 w-4" /> 이미지
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addBlock('code')}
-                className="flex items-center gap-1"
-              >
-                <Code className="h-4 w-4" /> 코드
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-1">
-            <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
-              <div className="flex items-center">
-                <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
-                블록을 드래그하여 순서를 변경할 수 있습니다
-              </div>
-            </div>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+            <Button
+              type="button"
+              onClick={() => {
+                const newBlock: ContentBlock = {
+                  id: uuidv4(),
+                  type: 'image',
+                  content: "",
+                  caption: "",
+                };
+                setBlocks(prev => [...prev, newBlock]);
+                
+                // 약간의 지연 후 파일 선택 다이얼로그 표시
+                setTimeout(() => {
+                  const input = document.getElementById(`image-upload-${newBlock.id}`) as HTMLInputElement;
+                  if (input) input.click();
+                }, 100);
+              }}
             >
-              <SortableContext
-                items={blocks.map(b => b.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-3">
-                  {blocks.map((block) => (
-                    <SortableContentBlock
-                      key={block.id}
-                      block={block}
-                      onUpdate={updateBlock}
-                      onDelete={deleteBlock}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-            
-            <div className="mt-6 bg-muted/10 border border-dashed rounded-md p-4">
-              <p className="text-sm text-center text-muted-foreground mb-3">
-                다양한 종류의 콘텐츠를 추가해 보세요
-              </p>
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('heading')}
-                  className="flex items-center gap-1"
-                >
-                  <FileText className="h-4 w-4" /> 제목
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('paragraph')}
-                  className="flex items-center gap-1"
-                >
-                  <File className="h-4 w-4" /> 텍스트
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('image')}
-                  className="flex items-center gap-1"
-                >
-                  <ImageIcon className="h-4 w-4" /> 이미지
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('youtube')}
-                  className="flex items-center gap-1"
-                >
-                  <Youtube className="h-4 w-4" /> 유튜브
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('code')}
-                  className="flex items-center gap-1"
-                >
-                  <Code className="h-4 w-4" /> 코드
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addBlock('list')}
-                  className="flex items-center gap-1"
-                >
-                  <List className="h-4 w-4" /> 목록
-                </Button>
-              </div>
-            </div>
+              <ImageIcon className="h-4 w-4 mr-1" />
+              이미지 갤러리 추가하기
+            </Button>
           </div>
         )}
       </div>
