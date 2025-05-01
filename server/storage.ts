@@ -186,12 +186,36 @@ export class DatabaseStorage implements IStorage {
 
   // Resource operations
   async getResources(): Promise<Resource[]> {
-    return db.select().from(resources).orderBy(desc(resources.createdAt));
+    try {
+      const results = await db.select().from(resources).orderBy(desc(resources.createdAt));
+      
+      // Add resourceType field to match category for type safety
+      return results.map(resource => {
+        if (resource.category) {
+          (resource as any).resourceType = resource.category;
+        }
+        return resource;
+      });
+    } catch (error) {
+      console.error('Error getting all resources:', error);
+      return [];
+    }
   }
 
   async getResourceById(id: number): Promise<Resource | undefined> {
-    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
-    return resource;
+    try {
+      const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+      
+      if (resource && resource.category) {
+        // Add resourceType field based on category for type compatibility
+        (resource as any).resourceType = resource.category;
+      }
+      
+      return resource;
+    } catch (error) {
+      console.error(`Error getting resource with id ${id}:`, error);
+      return undefined;
+    }
   }
 
   async getResourcesByType(type: string): Promise<Resource[]> {
@@ -200,38 +224,105 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getResourcesByCategory(category: string): Promise<Resource[]> {
-    return db.select().from(resources).where(eq(resources.category, category));
+    // Query by category - the only column that exists in the actual database
+    try {
+      const results = await db.select().from(resources).where(eq(resources.category, category));
+      
+      // Add resourceType field to each resource to match category for type safety
+      return results.map(resource => {
+        if (resource) {
+          (resource as any).resourceType = category; // Use the requested category
+        }
+        return resource;
+      });
+    } catch (error) {
+      console.error(`Error getting resources by category '${category}':`, error);
+      return []; // Return empty array instead of throwing error to avoid breaking the UI
+    }
   }
 
   async createResource(insertResource: InsertResource): Promise<Resource> {
-    const [resource] = await db.insert(resources).values({
-      ...insertResource,
-      downloadCount: 0
-    }).returning();
-    return resource;
+    try {
+      // Check if resourceType is provided but category is not
+      if (insertResource.resourceType && !insertResource.category) {
+        // Set category to match resourceType for consistency
+        insertResource.category = insertResource.resourceType;
+      }
+      
+      // Remove resourceType if it's included to avoid DB errors
+      const sanitizedResource = { ...insertResource };
+      delete (sanitizedResource as any).resourceType;
+      
+      const [resource] = await db.insert(resources).values({
+        ...sanitizedResource,
+        downloadCount: 0
+      }).returning();
+      
+      // For TypeScript compatibility, add resourceType back to the returned object
+      // since the schema expects it (even though DB doesn't have it)
+      if (resource && resource.category) {
+        (resource as any).resourceType = resource.category;
+      }
+      
+      return resource;
+    } catch (error) {
+      console.error('Error creating resource:', error);
+      throw error;
+    }
   }
 
   async updateResource(id: number, resourceUpdate: Partial<Resource>): Promise<Resource | undefined> {
-    const [updatedResource] = await db
-      .update(resources)
-      .set(resourceUpdate)
-      .where(eq(resources.id, id))
-      .returning();
-    return updatedResource;
+    try {
+      // Handle resourceType to category mapping
+      if (resourceUpdate.resourceType && !resourceUpdate.category) {
+        resourceUpdate.category = resourceUpdate.resourceType;
+      }
+      
+      // Remove resourceType field to avoid DB errors
+      const sanitizedUpdate = { ...resourceUpdate };
+      delete (sanitizedUpdate as any).resourceType;
+      
+      const [updatedResource] = await db
+        .update(resources)
+        .set(sanitizedUpdate)
+        .where(eq(resources.id, id))
+        .returning();
+      
+      // Add resourceType back to the returned object for type compatibility
+      if (updatedResource && updatedResource.category) {
+        (updatedResource as any).resourceType = updatedResource.category;
+      }
+      
+      return updatedResource;
+    } catch (error) {
+      console.error(`Error updating resource with id ${id}:`, error);
+      throw error;
+    }
   }
 
   async incrementDownloadCount(id: number): Promise<Resource | undefined> {
-    const [resource] = await db.select().from(resources).where(eq(resources.id, id));
-    if (!resource) return undefined;
+    try {
+      const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+      if (!resource) return undefined;
 
-    const [updatedResource] = await db
-      .update(resources)
-      .set({
-        downloadCount: (resource.downloadCount || 0) + 1
-      })
-      .where(eq(resources.id, id))
-      .returning();
-    return updatedResource;
+      const [updatedResource] = await db
+        .update(resources)
+        .set({
+          downloadCount: (resource.downloadCount || 0) + 1
+        })
+        .where(eq(resources.id, id))
+        .returning();
+      
+      // Add resourceType back for type compatibility
+      if (updatedResource && updatedResource.category) {
+        (updatedResource as any).resourceType = updatedResource.category;
+      }
+      
+      return updatedResource;
+    } catch (error) {
+      console.error(`Error incrementing download count for resource ${id}:`, error);
+      return undefined;
+    }
   }
 
   // Auction operations
