@@ -67,11 +67,11 @@ import {
 
 // 카테고리 라벨 (이전 resourceType)
 const categoryLabels: Record<string, string> = {
-  "hardware_design": "하드웨어 디자인",
-  "software": "소프트웨어",
-  "3d_model": "3D 모델",
+  "hardware_design": "하드웨어 설계도",
+  "software": "소프트웨어 오픈소스",
+  "3d_model": "3D 모델링 파일",
   "ai_model": "AI 모델",
-  "free_content": "무료 콘텐츠",
+  "free_content": "프리 콘텐츠",
   "flash_game": "플래시 게임",
 };
 
@@ -118,7 +118,15 @@ const formSchema = z.object({
   title: z.string().min(2, { message: "제목은 최소 2자 이상이어야 합니다." }),
   resourceType: z.string({ required_error: "카테고리를 선택해주세요." }),
   description: z.string().min(10, { message: "설명은 최소 10자 이상이어야 합니다." }),
-  tags: z.string().transform(val => val.split(",").map(tag => tag.trim()).filter(Boolean)),
+  tags: z.string().transform(val => {
+    // # 태그 처리: #태그1 #태그2 형식을 ['태그1', '태그2'] 배열로 변환
+    if (val.includes('#')) {
+      const hashtags = val.match(/#[a-zA-Z0-9가-힣_]+/g) || [];
+      return hashtags.map(tag => tag.slice(1)); // # 제거
+    }
+    // 기존 쉼표 구분 처리 (하위 호환성)
+    return val.split(",").map(tag => tag.trim()).filter(Boolean);
+  }),
   license: z.string().optional(),
   version: z.string().optional(),
   downloadUrl: z.string().optional(),
@@ -128,6 +136,7 @@ const formSchema = z.object({
   softwareRequirements: z.string().optional(),
   dependencies: z.string().optional(),
   dimensions: z.string().optional(),
+  materials: z.string().optional(), // 추가: 필요한 재료
   assemblyInstructions: z.string().optional(),
   fileFormat: z.string().optional(),
   polygonCount: z.string().optional(),
@@ -356,7 +365,6 @@ export default function ResourceUploadPageV2() {
   const [setLocation] = useLocation();
   const { toast } = useToast();
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
-  const [autoSaveTimerId, setAutoSaveTimerId] = useState<NodeJS.Timeout | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [savedLocally, setSavedLocally] = useState(false);
 
@@ -384,27 +392,6 @@ export default function ResourceUploadPageV2() {
       }
     }
   }, []);
-
-  // 자동 저장 타이머 설정
-  useEffect(() => {
-    // 이전 타이머 정리
-    if (autoSaveTimerId) {
-      clearInterval(autoSaveTimerId);
-    }
-    
-    // 60초마다 자동 저장
-    const timerId = setInterval(() => {
-      saveFormLocally();
-    }, 60000);
-    
-    setAutoSaveTimerId(timerId);
-    
-    return () => {
-      if (autoSaveTimerId) {
-        clearInterval(autoSaveTimerId);
-      }
-    };
-  }, [blocks]);
 
   // 파일 업로드 상태 관리
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -810,13 +797,12 @@ export default function ResourceUploadPageV2() {
             <ArrowLeft className="h-4 w-4 mr-1" />
             돌아가기
           </Button>
-          <h1 className="text-3xl font-bold">리소스 업로드</h1>
         </div>
         <div className="flex items-center space-x-2">
-          {savedLocally && (
+          {lastSaved && (
             <div className="text-xs text-muted-foreground flex items-center">
               <Clock className="h-3 w-3 mr-1" />
-              {lastSaved ? `마지막 저장: ${lastSaved.toLocaleTimeString()}` : "임시 저장됨"}
+              {`마지막 저장: ${lastSaved.toLocaleTimeString()}`}
             </div>
           )}
           <Button
@@ -829,6 +815,53 @@ export default function ResourceUploadPageV2() {
             임시 저장
           </Button>
           <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const savedForm = localStorage.getItem("resourceForm");
+              const savedBlocks = localStorage.getItem("resourceBlocks");
+              
+              if (savedForm) {
+                try {
+                  const parsedForm = JSON.parse(savedForm);
+                  form.reset(parsedForm);
+                  setSavedLocally(true);
+                  
+                  if (savedBlocks) {
+                    try {
+                      const parsedBlocks = JSON.parse(savedBlocks);
+                      setBlocks(parsedBlocks);
+                      
+                      toast({
+                        title: "임시 저장 내용 불러오기 성공",
+                        description: "마지막으로 저장된 내용을 불러왔습니다.",
+                      });
+                    } catch (e) {
+                      console.error("저장된 블록 데이터 파싱 오류:", e);
+                    }
+                  }
+                } catch (e) {
+                  console.error("저장된 폼 데이터 파싱 오류:", e);
+                  toast({
+                    title: "불러오기 실패",
+                    description: "저장된 데이터를 불러오는데 실패했습니다.",
+                    variant: "destructive",
+                  });
+                }
+              } else {
+                toast({
+                  title: "저장된 내용 없음",
+                  description: "불러올 임시 저장 데이터가 없습니다.",
+                  variant: "destructive",
+                });
+              }
+            }}
+            disabled={mutation.isPending}
+          >
+            <FileUp className="h-4 w-4 mr-1" />
+            불러오기
+          </Button>
+          <Button
             type="submit"
             form="resource-form"
             disabled={mutation.isPending}
@@ -838,16 +871,6 @@ export default function ResourceUploadPageV2() {
           </Button>
         </div>
       </div>
-
-      {savedLocally && (
-        <Alert className="mb-6">
-          <Info className="h-4 w-4" />
-          <AlertTitle>임시 저장된 내용이 있습니다</AlertTitle>
-          <AlertDescription>
-            이전에 작성 중이던 내용이 복원되었습니다. 새로 시작하시려면 페이지를 새로고침한 후 임시 저장 내용을 지워주세요.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <Form {...form}>
         <form id="resource-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -859,9 +882,9 @@ export default function ResourceUploadPageV2() {
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>제목 *</FormLabel>
+                    <FormLabel>리소스 명 *</FormLabel>
                     <FormControl>
-                      <Input placeholder="리소스 제목" {...field} />
+                      <Input placeholder="리소스 이름을 입력하세요" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -964,30 +987,7 @@ export default function ResourceUploadPageV2() {
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>세부 카테고리</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="세부 카테고리 선택 (선택사항)" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {detailCategoryOptions.map(({ value, label }) => (
-                        <SelectItem key={value} value={value}>{label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+          <div className="grid grid-cols-1 gap-6">
             <FormField
               control={form.control}
               name="tags"
@@ -996,28 +996,13 @@ export default function ResourceUploadPageV2() {
                   <FormLabel>태그</FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="태그 (쉼표로 구분, 예: arduino, 3d, electronics)"
+                      placeholder="#태그1 #태그2 #태그3 형식으로 입력 (예: #아두이노 #전자공학 #DIY #라즈베리파이)"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="license"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>라이센스</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="예: MIT, GPL, Apache 2.0 등"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
+                  <FormDescription>
+                    검색을 위해 # 기호와 함께 태그를 입력하세요. 태그를 클릭하면 같은 태그를 가진 리소스를 모아볼 수 있습니다.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1126,27 +1111,105 @@ export default function ResourceUploadPageV2() {
               <Separator />
               <h2 className="text-xl font-semibold">{categoryLabels[form.watch('resourceType')]} 추가 정보</h2>
 
-              {/* 하드웨어 디자인일 경우 */}
+              {/* 하드웨어 설계도일 경우 */}
               {form.watch('resourceType') === 'hardware_design' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="dimensions"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>크기/치수</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="예: 100mm x 50mm x 20mm"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <>
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="materials"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>필요한 재료</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="제작에 필요한 재료를 입력하세요 (한 줄에 하나씩)"
+                              className="min-h-[100px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            재료명, 수량, 규격 등을 포함하여 상세히 작성해주세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="dimensions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>크기/치수</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: 100mm x 50mm x 20mm"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <h3 className="text-lg font-semibold mt-4">조립 방법</h3>
+                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        아래에 조립 방법을 상세히 작성해주세요. 이미지, 영상 등을 추가하여 설명하면 더 효과적입니다.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="assemblyInstructions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder="조립 과정을 단계별로 설명해주세요."
+                              className="min-h-[150px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <h3 className="text-lg font-semibold mt-4">사용 방법</h3>
+                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        완성된 제품의 사용 방법을 설명해주세요. 주의사항이나 팁도 함께 작성하면 좋습니다.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="howToUse"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder="사용 방법을 설명해주세요."
+                              className="min-h-[150px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
               )}
 
               {/* 소프트웨어일 경우 */}
@@ -1211,42 +1274,169 @@ export default function ResourceUploadPageV2() {
 
               {/* 3D 모델일 경우 */}
               {form.watch('resourceType') === '3d_model' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="fileFormat"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>파일 형식</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="예: STL, OBJ, FBX"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="polygonCount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>폴리곤 수</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="예: 10,000"
-                            {...field}
-                            value={field.value || ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <>
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="materials"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>필요한 재료</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="제작에 필요한 재료를 입력하세요 (한 줄에 하나씩)"
+                              className="min-h-[100px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            3D 출력에 필요한 재료나 추천하는 재료를 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="fileFormat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>파일 형식</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: STL, OBJ, FBX"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            모델 파일의 형식을 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dimensions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>크기/치수</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: 100mm x 50mm x 20mm"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            모델의 실제 크기를 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="polygonCount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>폴리곤 수</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: 10,000"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            모델의 복잡도를 나타내는 폴리곤 수를 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="version"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>버전</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="예: 1.0, v2.3"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            모델의 버전 정보를 입력하세요.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <h3 className="text-lg font-semibold mt-4">출력 방법</h3>
+                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        모델 출력을 위한 설정 및 권장 사항을 설명해주세요. 슬라이서 설정, 서포트, 리트랙션 등의 정보를 포함하면 좋습니다.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="assemblyInstructions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder="출력 방법을 설명해주세요."
+                              className="min-h-[150px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-6 mt-4">
+                    <h3 className="text-lg font-semibold mt-4">후처리 및 조립 방법</h3>
+                    <div className="border-l-2 pl-4 border-primary/20 mb-4">
+                      <p className="text-sm text-muted-foreground mb-2">
+                        출력 후 필요한 후처리 과정과 조립 방법을 설명해주세요.
+                      </p>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="howToUse"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Textarea
+                              placeholder="후처리 및 조립 방법을 설명해주세요."
+                              className="min-h-[150px]"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
               )}
 
               {/* AI 모델일 경우 */}
