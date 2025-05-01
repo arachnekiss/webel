@@ -509,6 +509,10 @@ export async function deleteService(req: Request, res: Response) {
 
     // 서비스 삭제
     await db.delete(services).where(eq(services.id, serviceId));
+    
+    // 캐시 초기화
+    invalidateServicesCache();
+    invalidateDashboardCache();
 
     res.status(200).json({ message: '서비스가 성공적으로 삭제되었습니다.' });
   } catch (error) {
