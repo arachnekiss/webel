@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import { Loader2, Users, Wrench, Archive, Gavel, FileText, Package } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -16,6 +17,8 @@ interface DashboardData {
 }
 
 export default function AdminDashboard() {
+  const [_, setLocation] = useLocation();
+  
   // 대시보드 데이터 가져오기
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ['/api/admin/dashboard'],
@@ -145,19 +148,19 @@ export default function AdminDashboard() {
             title="사용자 관리" 
             description="사용자 계정 및 권한 관리" 
             icon={<Users className="h-5 w-5" />}
-            onClick={() => window.location.href = '/admin/users'}
+            onClick={() => setLocation('/admin/users')}
           />
           <ActionCard 
             title="리소스 관리" 
             description="리소스 등록 및 관리" 
             icon={<Archive className="h-5 w-5" />}
-            onClick={() => window.location.href = '/admin/resources'}
+            onClick={() => setLocation('/admin/resources')}
           />
           <ActionCard 
             title="엔지니어 관리" 
             description="엔지니어 등록 및 관리" 
             icon={<Wrench className="h-5 w-5" />}
-            onClick={() => window.location.href = '/admin/engineers'}
+            onClick={() => setLocation('/admin/engineers')}
           />
         </div>
       </div>
