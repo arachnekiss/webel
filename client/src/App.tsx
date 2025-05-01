@@ -106,11 +106,13 @@ function Router() {
             <Route path="/resources/create" component={ResourceManagementPage}/>
             <Route path="/resources/manage/:id" component={ResourceManagementPage}/>
             
+            {/* Resource upload pages */}
+            <Route path="/resources/upload" component={ResourceUploadPage}/>
+            <AdminRoute path="/admin/resources/upload" component={ResourceUploadPage}/>
+            
             {/* Legacy Resource upload pages */}
-            <Route path="/resources/upload" component={ResourceUploadPageV2}/>
-            <AdminRoute path="/admin/resources/upload" component={ResourceUploadPageV2}/>
-            <Route path="/resources/upload-old" component={ResourceUploadPage}/>
-            <AdminRoute path="/resources/upload-v1" component={UploadResource}/>
+            <Route path="/resources/upload-v2" component={ResourceUploadPageV2}/>
+            <Route path="/resources/upload-v1" component={UploadResource}/>
             
             {/* Other pages */}
             <Route path="/ai-assembly" component={AiAssembly}/>
