@@ -41,7 +41,11 @@ import {
   Check,
   ChevronRight,
   ChevronDown,
-  Link2
+  ChevronLeft,
+  Link2,
+  Video,
+  FolderOpen,
+  Smile
 } from "lucide-react";
 
 // 카테고리 라벨
@@ -87,7 +91,7 @@ const formSchema = z.object({
   resourceType: z.string({
     required_error: "카테고리를 선택해주세요.",
   }),
-  subcategory: z.string().optional(),
+  uploadDate: z.string().optional(),
   tags: z.string().optional(),
   downloadUrl: z.string().optional(),
   howToUse: z.string().optional(),
@@ -469,24 +473,20 @@ export default function ResourceUploadPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
-                    name="subcategory"
+                    name="uploadDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>세부 카테고리</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="세부 카테고리 선택 (선택사항)" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {detailCategoryOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <FormLabel>업로드 일자</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="date" 
+                            {...field}
+                            value={field.value || new Date().toISOString().split('T')[0]}
+                            onChange={(e) => field.onChange(e.target.value)}
+                          />
+                        </FormControl>
                         <FormDescription>
-                          리소스의 더 구체적인 분류를 선택해주세요.
+                          리소스가 생성된 날짜를 선택해주세요. 기본값은 오늘입니다.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -776,15 +776,75 @@ export default function ResourceUploadPage() {
                             <FormItem>
                               <FormLabel>조립 방법</FormLabel>
                               <FormControl>
-                                <Textarea
-                                  placeholder="단계별 조립 방법을 상세히 설명해주세요."
-                                  className="min-h-[200px] resize-y"
-                                  {...field}
-                                  value={field.value || ""}
-                                />
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </div>
                               </FormControl>
                               <FormDescription>
-                                조립에 필요한 단계와 방법을 순서대로 설명해주세요. 마크다운 형식을 지원합니다.
+                                조립에 필요한 단계와 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="howToUse"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>사용법</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    placeholder="하드웨어 사용 방법과 주의사항을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                하드웨어 제품의 사용법, 주의사항, 팁 등을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -801,15 +861,34 @@ export default function ResourceUploadPage() {
                           <FormItem>
                             <FormLabel>사용 방법</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="설치 방법과 사용법을 상세히 설명해주세요."
-                                className="min-h-[300px] resize-y"
-                                {...field}
-                                value={field.value || ""}
-                              />
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                </div>
+                                <Textarea
+                                  placeholder="설치 방법과 사용법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                  className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </div>
                             </FormControl>
                             <FormDescription>
-                              소프트웨어 설치 및 사용 방법을 단계별로 설명해주세요. 코드 예제도 포함하면 좋습니다.
+                              소프트웨어 설치 및 사용 방법을 단계별로 설명해주세요. 코드 예제도 포함하면 좋습니다. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -819,28 +898,6 @@ export default function ResourceUploadPage() {
                     
                     {form.watch('resourceType') === '3d_model' && (
                       <>
-                        <FormField
-                          control={form.control}
-                          name="howToUse"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>프린팅 설정</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="권장 프린팅 설정을 입력하세요 (예: 층 높이, 충전률, 서포트 설정 등)"
-                                  className="min-h-[150px] resize-y"
-                                  {...field}
-                                  value={field.value || ""}
-                                />
-                              </FormControl>
-                              <FormDescription>
-                                최적의 프린팅 결과를 위한 설정값을 공유해주세요.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
                         <FormField
                           control={form.control}
                           name="dimensions"
@@ -861,6 +918,88 @@ export default function ResourceUploadPage() {
                             </FormItem>
                           )}
                         />
+                        
+                        <FormField
+                          control={form.control}
+                          name="assemblyInstructions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>조립 방법</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    placeholder="3D 모델의 조립 방법과 단계를 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                모델의 조립 과정과 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={form.control}
+                          name="howToUse"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>사용법</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                  </div>
+                                  <Textarea
+                                    placeholder="3D 모델 사용 방법과 프린팅 설정 등을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                3D 모델 사용 방법, 최적의 프린팅 설정(층 높이, 충전률, 서포트 등)을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
                       </>
                     )}
                     
@@ -872,15 +1011,34 @@ export default function ResourceUploadPage() {
                           <FormItem>
                             <FormLabel>사용 방법 및 모델 설명</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="모델의 구조, 훈련 방법, 사용법 등을 설명해주세요."
-                                className="min-h-[300px] resize-y"
-                                {...field}
-                                value={field.value || ""}
-                              />
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                </div>
+                                <Textarea
+                                  placeholder="모델의 구조, 훈련 방법, 사용법 등을 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                  className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </div>
                             </FormControl>
                             <FormDescription>
-                              모델 구조, 파라미터, 성능지표, 사용 예제 등을 포함해주세요.
+                              모델 구조, 파라미터, 성능지표, 사용 예제 등을 포함해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -896,15 +1054,34 @@ export default function ResourceUploadPage() {
                           <FormItem>
                             <FormLabel>콘텐츠 설명 및 라이센스</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="콘텐츠에 대한 설명과 라이센스 정보를 입력해주세요."
-                                className="min-h-[200px] resize-y"
-                                {...field}
-                                value={field.value || ""}
-                              />
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                </div>
+                                <Textarea
+                                  placeholder="콘텐츠에 대한 설명과 라이센스 정보를 입력해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                  className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </div>
                             </FormControl>
                             <FormDescription>
-                              콘텐츠 이용 조건, 출처, 라이센스 정보를 명확히 기재해주세요.
+                              콘텐츠 이용 조건, 출처, 라이센스 정보를 명확히 기재해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -920,15 +1097,34 @@ export default function ResourceUploadPage() {
                           <FormItem>
                             <FormLabel>게임 설명 및 조작법</FormLabel>
                             <FormControl>
-                              <Textarea
-                                placeholder="게임 설명, 목표, 조작법 등을 설명해주세요."
-                                className="min-h-[200px] resize-y"
-                                {...field}
-                                value={field.value || ""}
-                              />
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                </div>
+                                <Textarea
+                                  placeholder="게임 설명, 목표, 조작법 등을 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                  className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </div>
                             </FormControl>
                             <FormDescription>
-                              게임 목표, 조작키, 게임 플레이 방법을 자세히 설명해주세요.
+                              게임 목표, 조작키, 게임 플레이 방법을 자세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1153,24 +1349,5 @@ export default function ResourceUploadPage() {
         </Tabs>
       </div>
     </div>
-  );
-}
-
-function ChevronLeft(props: any) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
   );
 }
