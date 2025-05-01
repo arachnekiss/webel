@@ -161,169 +161,171 @@ function SortableContentBlock({
     transform: CSS.Transform.toString(transform),
     transition,
   };
+  
+  const { toast } = useToast();
 
   return (
-    <div ref={setNodeRef} style={style} className="mb-4">
-      <Card>
-        <CardHeader className="pb-2 flex flex-row items-center">
-          <div className="cursor-grab mr-2" {...attributes} {...listeners}>
-            <Grip className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <CardTitle className="text-sm flex-1 flex items-center">
-            {block.type === 'heading' && '제목'}
-            {block.type === 'paragraph' && '텍스트'}
-            {block.type === 'image' && (
-              <div className="flex items-center">
-                <ImageIcon className="h-4 w-4 mr-1" />
-                이미지
-              </div>
-            )}
-            {block.type === 'video' && (
-              <div className="flex items-center">
-                <Video className="h-4 w-4 mr-1" />
-                비디오
-              </div>
-            )}
-            {block.type === 'youtube' && (
-              <div className="flex items-center">
-                <Youtube className="h-4 w-4 mr-1" />
-                유튜브
-              </div>
-            )}
-            {block.type === 'gif' && (
-              <div className="flex items-center">
-                <FileVideo className="h-4 w-4 mr-1" />
-                GIF
-              </div>
-            )}
-            {block.type === 'code' && '코드'}
-            {block.type === 'list' && '목록'}
-          </CardTitle>
+    <div ref={setNodeRef} style={style} className="mb-5 group relative">
+      <div className="relative border rounded-md px-4 py-3 hover:border-muted-foreground/30 transition-colors">
+        <div className="absolute -left-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" {...attributes} {...listeners}>
+          <Grip className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={() => onDelete(block.id)}
-            className="h-8 w-8 p-0 ml-2"
+            className="h-7 w-7 p-0 rounded-full"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
-        </CardHeader>
-        <CardContent>
-          {(block.type === 'heading' || block.type === 'paragraph' || block.type === 'code' || block.type === 'list') && (
-            <Textarea
+        </div>
+        
+        {/* 헤딩 블록 */}
+        {block.type === 'heading' && (
+          <Textarea
+            placeholder="제목을 입력하세요..."
+            value={block.content}
+            onChange={(e) => onUpdate(block.id, e.target.value)}
+            className="resize-none text-xl font-medium border-0 focus-visible:ring-0 p-0 focus:outline-none w-full"
+            rows={1}
+          />
+        )}
+        
+        {/* 단락 블록 */}
+        {block.type === 'paragraph' && (
+          <Textarea
+            placeholder="텍스트를 입력하세요..."
+            value={block.content}
+            onChange={(e) => onUpdate(block.id, e.target.value)}
+            className="resize-none border-0 focus-visible:ring-0 p-0 focus:outline-none w-full min-h-[100px]"
+            rows={4}
+          />
+        )}
+        
+        {/* 코드 블록 */}
+        {block.type === 'code' && (
+          <Textarea
+            placeholder="코드를 입력하세요..."
+            value={block.content}
+            onChange={(e) => onUpdate(block.id, e.target.value)}
+            className="resize-none font-mono text-sm border border-muted bg-muted/50 p-2 rounded focus-visible:ring-0 focus:outline-none w-full min-h-[100px]"
+            rows={4}
+          />
+        )}
+        
+        {/* 목록 블록 */}
+        {block.type === 'list' && (
+          <Textarea
+            placeholder="목록 항목을 한 줄에 하나씩 입력하세요"
+            value={block.content}
+            onChange={(e) => onUpdate(block.id, e.target.value)}
+            className="resize-none border-0 focus-visible:ring-0 p-0 focus:outline-none w-full"
+            rows={3}
+          />
+        )}
+
+        {/* 이미지 및 미디어 블록 */}
+        {block.type === 'image' && (
+          <div className="space-y-3 mt-3">
+            <div className="flex gap-2">
+              <Input
+                placeholder="이미지 URL"
+                value={block.content && !block.content.startsWith('blob:') ? block.content : ''}
+                onChange={(e) => onUpdate(block.id, e.target.value)}
+                className="flex-1"
+              />
+              <div className="relative">
+                <input
+                  type="file"
+                  id={`block-image-${block.id}`}
+                  onChange={async (e) => {
+                    const files = e.target.files;
+                    if (!files || files.length === 0) return;
+                    
+                    const file = files[0];
+                    
+                    // 이미지 파일 유효성 및 크기 검사
+                    if (!file.type.startsWith('image/')) {
+                      toast({
+                        title: "잘못된 파일 형식",
+                        description: "이미지 파일만 업로드할 수 있습니다.",
+                        variant: "destructive",
+                      });
+                      e.target.value = '';
+                      return;
+                    }
+                    
+                    if (file.size > 5 * 1024 * 1024) { // 5MB
+                      toast({
+                        title: "파일 크기 초과",
+                        description: "이미지 크기는 5MB 이하여야 합니다.",
+                        variant: "destructive",
+                      });
+                      e.target.value = '';
+                      return;
+                    }
+                    
+                    // 이미지 미리보기 URL 생성
+                    const previewUrl = URL.createObjectURL(file);
+                    onUpdate(block.id, previewUrl);
+                    
+                    e.target.value = '';
+                  }}
+                  className="hidden"
+                  accept="image/*"
+                />
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById(`block-image-${block.id}`) as HTMLInputElement;
+                    if (input) input.click();
+                  }}
+                >
+                  업로드
+                </Button>
+              </div>
+            </div>
+            <Input
+              placeholder="이미지 설명 (선택사항)"
+              value={block.caption || ""}
+              onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
+              className="w-full"
+            />
+          </div>
+        )}
+        
+        {/* 유튜브, 비디오, GIF 블록 */}
+        {(block.type === 'video' || block.type === 'youtube' || block.type === 'gif') && (
+          <div className="mt-3 space-y-2">
+            <Input
               placeholder={
-                block.type === 'heading' ? "섹션 제목을 입력하세요" :
-                block.type === 'paragraph' ? "텍스트 내용을 입력하세요" :
-                block.type === 'code' ? "코드를 입력하세요" :
-                "목록 항목을 한 줄에 하나씩 입력하세요"
+                block.type === 'youtube'
+                  ? "유튜브 영상 URL 또는 임베드 코드"
+                  : `${block.type} URL`
               }
-              className={block.type === 'heading' ? "font-bold text-lg" : ""}
               value={block.content}
               onChange={(e) => onUpdate(block.id, e.target.value)}
-              rows={block.type === 'paragraph' || block.type === 'code' ? 4 : 2}
+              className="w-full"
             />
-          )}
-
-          {(block.type === 'image' || block.type === 'video' || block.type === 'youtube' || block.type === 'gif') && (
-            <>
-              {block.type === 'image' ? (
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="이미지 URL"
-                      value={block.content && !block.content.startsWith('blob:') ? block.content : ''}
-                      onChange={(e) => onUpdate(block.id, e.target.value)}
-                      className="flex-1"
-                    />
-                    <div className="relative">
-                      <input
-                        type="file"
-                        id={`block-image-${block.id}`}
-                        onChange={async (e) => {
-                          const files = e.target.files;
-                          if (!files || files.length === 0) return;
-                          
-                          const file = files[0];
-                          
-                          // 이미지 파일 유효성 및 크기 검사
-                          if (!file.type.startsWith('image/')) {
-                            toast({
-                              title: "잘못된 파일 형식",
-                              description: "이미지 파일만 업로드할 수 있습니다.",
-                              variant: "destructive",
-                            });
-                            e.target.value = '';
-                            return;
-                          }
-                          
-                          if (file.size > 5 * 1024 * 1024) { // 5MB
-                            toast({
-                              title: "파일 크기 초과",
-                              description: "이미지 크기는 5MB 이하여야 합니다.",
-                              variant: "destructive",
-                            });
-                            e.target.value = '';
-                            return;
-                          }
-                          
-                          // 이미지 미리보기 URL 생성
-                          const previewUrl = URL.createObjectURL(file);
-                          onUpdate(block.id, previewUrl);
-                          
-                          e.target.value = '';
-                        }}
-                        className="hidden"
-                        accept="image/*"
-                      />
-                      <Button
-                        type="button"
-                        onClick={() => {
-                          const input = document.getElementById(`block-image-${block.id}`) as HTMLInputElement;
-                          if (input) input.click();
-                        }}
-                      >
-                        업로드
-                      </Button>
-                    </div>
-                  </div>
-                  <Input
-                    placeholder="이미지 설명 (선택사항)"
-                    value={block.caption || ""}
-                    onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-              ) : (
-                <>
-                  <Input
-                    placeholder={
-                      block.type === 'youtube'
-                        ? "유튜브 영상 URL 또는 임베드 코드"
-                        : `${block.type} URL`
-                    }
-                    value={block.content}
-                    onChange={(e) => onUpdate(block.id, e.target.value)}
-                    className="w-full mb-2"
-                  />
-                  <Input
-                    placeholder="설명 (선택사항)"
-                    value={block.caption || ""}
-                    onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
-                    className="w-full"
-                  />
-                </>
-              )}
-            </>
-          )}
-        </CardContent>
+            <Input
+              placeholder="설명 (선택사항)"
+              value={block.caption || ""}
+              onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
+              className="w-full"
+            />
+          </div>
+        )}
+        
+        {/* 이미지 미리보기 */}
         {block.type === 'image' && block.content && (
-          <CardFooter className="pt-0">
+          <div className="mt-3">
             <div className="relative w-full">
               <img
                 src={block.content}
                 alt={block.caption || "Preview"}
-                className="max-h-56 max-w-full rounded object-contain mx-auto"
+                className="max-h-56 max-w-full rounded object-contain mx-auto border"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=이미지+미리보기+실패';
                 }}
@@ -343,9 +345,9 @@ function SortableContentBlock({
                 <X className="h-4 w-4" />
               </Button>
             </div>
-          </CardFooter>
+          </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
@@ -1334,107 +1336,70 @@ export default function ResourceUploadPageV2() {
       {/* 상세 콘텐츠 섹션 */}
       <div className="mt-8">
         <Separator className="mb-4" />
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">상세 콘텐츠</h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  className="flex items-center"
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  블록 추가
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent className="w-80 p-0">
-                <div className="grid grid-cols-4 gap-1 p-2">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('heading')}
-                  >
-                    <FileText className="h-8 w-8 mb-1" />
-                    <span className="text-xs">제목</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('paragraph')}
-                  >
-                    <FileText className="h-8 w-8 mb-1" />
-                    <span className="text-xs">텍스트</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('image')}
-                  >
-                    <ImageIcon className="h-8 w-8 mb-1" />
-                    <span className="text-xs">이미지</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('video')}
-                  >
-                    <Video className="h-8 w-8 mb-1" />
-                    <span className="text-xs">비디오</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('youtube')}
-                  >
-                    <Youtube className="h-8 w-8 mb-1" />
-                    <span className="text-xs">유튜브</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('gif')}
-                  >
-                    <FileVideo className="h-8 w-8 mb-1" />
-                    <span className="text-xs">GIF</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('code')}
-                  >
-                    <Code className="h-8 w-8 mb-1" />
-                    <span className="text-xs">코드</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="flex flex-col items-center justify-center h-20 w-full"
-                    onClick={() => addBlock('list')}
-                  >
-                    <List className="h-8 w-8 mb-1" />
-                    <span className="text-xs">목록</span>
-                  </Button>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        <div className="flex items-center mb-4 border-b pb-2">
+          <h2 className="text-lg font-medium">본문 작성</h2>
+        </div>
+        <div className="flex gap-1 mb-4 bg-muted/20 p-2 rounded-md flex-wrap">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('heading')}
+          >
+            <FileText className="h-4 w-4 mr-1" />
+            제목
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('paragraph')}
+          >
+            <File className="h-4 w-4 mr-1" />
+            텍스트
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('image')}
+          >
+            <ImageIcon className="h-4 w-4 mr-1" />
+            이미지
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('youtube')}
+          >
+            <Youtube className="h-4 w-4 mr-1" />
+            유튜브
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('code')}
+          >
+            <Code className="h-4 w-4 mr-1" />
+            코드
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9"
+            onClick={() => addBlock('list')}
+          >
+            <List className="h-4 w-4 mr-1" />
+            목록
+          </Button>
         </div>
         
         {blocks.length === 0 ? (
