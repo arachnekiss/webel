@@ -29,6 +29,48 @@ export async function analyzeImage(imageData: string, prompt: string) {
   }
 }
 
+// 구조화된 이미지 분석 API 호출 (JSON 응답)
+export async function analyzeImageWithStructure(imageData: string, prompt: string) {
+  try {
+    const res = await apiRequest('POST', '/api/assembly/analyze-image-json', { 
+      imageData,
+      prompt 
+    });
+    const data = await res.json();
+    
+    return data.analysis;
+  } catch (error: any) {
+    console.error('Structured Image Analysis API Error:', error);
+    throw new Error(error.message || '이미지 분석 중 오류가 발생했습니다.');
+  }
+}
+
+// 음성 인식 API 호출
+export async function transcribeAudio(audioData: string) {
+  try {
+    const res = await apiRequest('POST', '/api/assembly/transcribe-audio', { audioData });
+    const data = await res.json();
+    
+    return data.transcription;
+  } catch (error: any) {
+    console.error('Audio Transcription API Error:', error);
+    throw new Error(error.message || '음성 인식 중 오류가 발생했습니다.');
+  }
+}
+
+// 이미지 생성 API 호출
+export async function generateImage(prompt: string) {
+  try {
+    const res = await apiRequest('POST', '/api/assembly/generate-image', { prompt });
+    const data = await res.json();
+    
+    return data.imageUrl;
+  } catch (error: any) {
+    console.error('Image Generation API Error:', error);
+    throw new Error(error.message || '이미지 생성 중 오류가 발생했습니다.');
+  }
+}
+
 // 이미지 파일을 Base64로 변환
 export function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {

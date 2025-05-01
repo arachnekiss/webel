@@ -2,7 +2,13 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
-import { getChatResponse, analyzeImage } from "./openai";
+import { 
+  getChatResponse, 
+  analyzeImage, 
+  analyzeImageWithStructuredResponse, 
+  transcribeAudio,
+  generateImage 
+} from "./openai";
 import * as fs from 'fs';
 import * as path from 'path';
 import { db } from './db';
@@ -621,6 +627,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('이미지 분석 에러:', error);
       res.status(500).json({ message: error.message || '이미지 분석 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 구조화된 이미지 분석 엔드포인트 (JSON 응답)
+  app.post('/api/assembly/analyze-image-json', async (req: Request, res: Response) => {
+    try {
+      const { imageData, prompt } = req.body;
+      
+      if (!imageData || !prompt) {
+        return res.status(400).json({ message: '이미지 데이터와 프롬프트가 필요합니다.' });
+      }
+      
+      // Base64 형식 확인
+      const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
+      
+      const analysis = await analyzeImageWithStructuredResponse(base64Data, prompt);
+      res.json({ analysis });
+    } catch (error: any) {
+      console.error('구조화된 이미지 분석 에러:', error);
+      res.status(500).json({ message: error.message || '이미지 분석 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 음성 인식 엔드포인트
+  app.post('/api/assembly/transcribe-audio', async (req: Request, res: Response) => {
+    try {
+      const { audioData } = req.body;
+      
+      if (!audioData) {
+        return res.status(400).json({ message: '오디오 데이터가 필요합니다.' });
+      }
+      
+      const transcription = await transcribeAudio(audioData);
+      res.json({ transcription });
+    } catch (error: any) {
+      console.error('음성 인식 에러:', error);
+      res.status(500).json({ message: error.message || '음성 인식 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 이미지 생성 엔드포인트
+  app.post('/api/assembly/generate-image', async (req: Request, res: Response) => {
+    try {
+      const { prompt } = req.body;
+      
+      if (!prompt) {
+        return res.status(400).json({ message: '이미지 생성을 위한 프롬프트가 필요합니다.' });
+      }
+      
+      const imageUrl = await generateImage(prompt);
+      res.json({ imageUrl });
+    } catch (error: any) {
+      console.error('이미지 생성 에러:', error);
+      res.status(500).json({ message: error.message || '이미지 생성 중 오류가 발생했습니다.' });
     }
   });
 
