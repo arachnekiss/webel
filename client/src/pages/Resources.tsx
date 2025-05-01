@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, PlusCircle } from 'lucide-react';
 
+// 브라우저 환경인지 확인하는 전역 변수
+const isBrowser = typeof window !== 'undefined';
+
 interface ResourcesProps {
   type?: string;
   params?: any;
@@ -144,20 +147,28 @@ const Resources: React.FC<ResourcesProps> = (props) => {
 
   // 무한 스크롤을 위한 인터섹션 옵저버 설정
   useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      rootMargin: '0px 0px 300px 0px', // 하단에서 300px 떨어진 지점에서 트리거
-      threshold: 0.1
-    });
+    // 브라우저 환경에서만 IntersectionObserver 사용
+    if (!isBrowser) return;
     
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-    
-    return () => {
+    try {
+      const observer = new IntersectionObserver(handleObserver, {
+        rootMargin: '0px 0px 300px 0px', // 하단에서 300px 떨어진 지점에서 트리거
+        threshold: 0.1
+      });
+      
       if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
+        observer.observe(loadMoreRef.current);
       }
-    };
+      
+      return () => {
+        if (loadMoreRef.current) {
+          observer.unobserve(loadMoreRef.current);
+        }
+      };
+    } catch (error) {
+      console.error('인터섹션 옵저버 설정 중 오류:', error);
+      return () => {};
+    }
   }, [handleObserver, loadMoreRef.current]);
   
   // 리소스 데이터가 유효한지 확인
@@ -220,10 +231,16 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                 variant="outline" 
                 onClick={() => {
                   setSearchQuery('');
-                  // URL에서 검색 파라미터 제거
-                  const url = new URL(window.location.href);
-                  url.searchParams.delete('search');
-                  window.history.replaceState({}, '', url.toString());
+                  // URL에서 검색 파라미터 제거 (브라우저 환경에서만)
+                  if (isBrowser) {
+                    try {
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('search');
+                      window.history.replaceState({}, '', url.toString());
+                    } catch (error) {
+                      console.error('URL 파라미터 제거 중 오류:', error);
+                    }
+                  }
                 }}
                 disabled={!searchQuery}
               >
@@ -282,10 +299,16 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                 className="bg-primary text-white hover:bg-blue-600"
                 onClick={() => {
                   setSearchQuery('');
-                  // URL에서 검색 파라미터 제거
-                  const url = new URL(window.location.href);
-                  url.searchParams.delete('search');
-                  window.history.replaceState({}, '', url.toString());
+                  // URL에서 검색 파라미터 제거 (브라우저 환경에서만)
+                  if (isBrowser) {
+                    try {
+                      const url = new URL(window.location.href);
+                      url.searchParams.delete('search');
+                      window.history.replaceState({}, '', url.toString());
+                    } catch (error) {
+                      console.error('URL 파라미터 제거 중 오류:', error);
+                    }
+                  }
                 }}
               >
                 모든 리소스 보기
