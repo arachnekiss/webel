@@ -101,6 +101,7 @@ function Router() {
             
             {/* Resource upload pages */}
             <Route path="/resources/upload" component={ResourceUploadPage}/>
+            <AdminRoute path="/admin/resources/upload" component={ResourceUploadPage}/>
             <AdminRoute path="/resources/upload-old" component={UploadResource}/>
             
             {/* Other pages */}

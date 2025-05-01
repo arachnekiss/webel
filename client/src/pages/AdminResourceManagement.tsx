@@ -255,7 +255,7 @@ export default function AdminResourceManagement() {
         </Link>
         <h1 className="text-3xl font-bold">리소스 관리</h1>
         <div className="ml-auto">
-          <Link href="/resources/upload">
+          <Link href="/admin/resources/upload">
             <Button className="gap-1">
               <PlusCircle className="h-4 w-4" />
               리소스 업로드
