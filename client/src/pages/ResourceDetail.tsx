@@ -500,41 +500,68 @@ export default function ResourceDetail() {
           {/* 다운로드 카드 */}
           <div className="bg-white rounded-lg border shadow-sm mb-6">
             <div className="p-6 pb-4 border-b">
-              <h3 className="text-lg font-semibold mb-1">다운로드</h3>
+              <h3 className="text-lg font-semibold mb-1 flex items-center">
+                <Package className="h-5 w-5 mr-2 text-primary" />
+                무료 리소스
+              </h3>
               <p className="text-sm text-gray-500">
-                이 리소스의 파일 또는 링크를 다운로드하세요.
+                이 리소스는 무료로 다운로드할 수 있습니다.
               </p>
             </div>
             
             <div className="p-6">
               <div className="space-y-4">
-                <div className="bg-gray-50 p-4 rounded-md flex items-start gap-3">
-                  <FileDown className="h-5 w-5 text-primary mt-0.5" />
-                  <div>
-                    <div className="font-medium mb-1">다운로드 정보</div>
-                    <div className="text-sm text-gray-500">
-                      {resource.downloadUrl 
-                        ? "외부 다운로드 링크로 이동합니다" 
-                        : "파일 다운로드가 시작됩니다"}
+                <div className="bg-primary/5 p-4 rounded-md">
+                  <div className="flex items-center gap-2 mb-3">
+                    <CheckCircle className="h-5 w-5 text-green-600" />
+                    <div className="font-medium">무료로 제공</div>
+                  </div>
+                  
+                  <div className="flex flex-col space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-700 gap-2">
+                      <FileDown className="h-4 w-4 text-primary" />
+                      <span>다운로드 수: <strong>{resource.downloadCount || 0}회</strong></span>
                     </div>
-                    <div className="mt-2 flex items-center text-xs text-gray-500">
-                      <Eye className="h-3.5 w-3.5 mr-1" />
-                      다운로드 {resource.downloadCount || 0}회
+                    <div className="flex items-center text-sm text-gray-700 gap-2">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      <span>업로드 날짜: <strong>{formattedDate}</strong></span>
                     </div>
+                    <div className="flex items-center text-sm text-gray-700 gap-2">
+                      <User className="h-4 w-4 text-primary" />
+                      <span>제공자: <strong>{resource.userId ? `사용자 ${resource.userId}` : "Webel 사용자"}</strong></span>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm text-gray-600 mb-4 pb-4 border-b">
+                    {resource.downloadUrl 
+                      ? "외부 다운로드 링크로 이동합니다." 
+                      : "파일 다운로드가 즉시 시작됩니다."}
                   </div>
                 </div>
                 
-                <Button className="w-full" onClick={handleDownload}>
-                  <Download className="mr-2 h-4 w-4" />
-                  다운로드
+                <Button 
+                  onClick={handleDownload} 
+                  className="w-full h-12 text-base font-medium"
+                  size="lg"
+                >
+                  <Download className="mr-2 h-5 w-5" />
+                  무료 다운로드
                 </Button>
                 
                 {resource.downloadUrl && (
-                  <Button variant="outline" className="w-full" onClick={() => window.open(resource.downloadUrl, '_blank')}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => window.open(resource.downloadUrl, '_blank')}
+                  >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     원본 링크로 이동
                   </Button>
                 )}
+
+                <div className="text-center text-xs text-gray-500 mt-2">
+                  다운로드 버튼을 클릭하면 Webel의 <a href="#" className="text-primary hover:underline">이용약관</a>에 동의하게 됩니다.
+                </div>
               </div>
             </div>
           </div>
@@ -542,61 +569,167 @@ export default function ResourceDetail() {
           {/* 정보 카드 */}
           <div className="bg-white rounded-lg border shadow-sm mb-6">
             <div className="p-6 pb-4 border-b">
-              <h3 className="text-lg font-semibold mb-1">리소스 정보</h3>
+              <h3 className="text-lg font-semibold mb-1 flex items-center">
+                <Info className="h-5 w-5 mr-2 text-primary" />
+                리소스 정보
+              </h3>
             </div>
             
             <div className="p-6">
               <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-500">등록일</span>
-                  <span className="font-medium">{formattedDate}</span>
-                </div>
-                
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-500">리소스 유형</span>
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600 font-medium">리소스 유형</span>
                   <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
                     {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
                   </Badge>
                 </div>
                 
                 {resource.category && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-500">카테고리</span>
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">카테고리</span>
                     <Badge variant="outline">{resource.category}</Badge>
                   </div>
                 )}
                 
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-500">다운로드 횟수</span>
-                  <span className="font-medium">{resource.downloadCount || 0}회</span>
+                {resource.license && (
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">라이센스</span>
+                    <span>{resource.license}</span>
+                  </div>
+                )}
+                
+                {resource.version && (
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">버전</span>
+                    <span>{resource.version}</span>
+                  </div>
+                )}
+                
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600 font-medium">등록일</span>
+                  <span>{formattedDate}</span>
+                </div>
+                
+                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                  <span className="text-gray-600 font-medium">다운로드 횟수</span>
+                  <span>{resource.downloadCount || 0}회</span>
                 </div>
                 
                 {resource.sourceSite && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                    <span className="text-gray-500">출처</span>
-                    <span className="font-medium">{resource.sourceSite}</span>
+                  <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">출처</span>
+                    <span>{resource.sourceSite}</span>
                   </div>
                 )}
               </div>
             </div>
           </div>
           
+          {/* 소셜 공유 카드 */}
+          <div className="bg-white rounded-lg border shadow-sm mb-6">
+            <div className="p-4">
+              <div className="flex flex-col space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: resource.title,
+                        text: `${resource.title} - Webel 리소스 공유`,
+                        url: window.location.href,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(window.location.href);
+                      toast({
+                        title: "URL이 복사되었습니다",
+                        description: "공유 링크가 클립보드에 복사되었습니다.",
+                      });
+                    }
+                  }}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  리소스 공유하기
+                </Button>
+                
+                <Button 
+                  variant={isLiked ? "default" : "outline"} 
+                  className={`w-full justify-start ${isLiked ? "bg-pink-100 hover:bg-pink-200 text-pink-600 border-pink-200" : ""}`}
+                  onClick={() => setIsLiked(!isLiked)}
+                >
+                  <Heart className={`h-4 w-4 mr-2 ${isLiked ? "fill-current" : ""}`} />
+                  {isLiked ? "좋아요 취소" : "좋아요"}
+                </Button>
+                
+                <Button 
+                  variant={isFollowing ? "default" : "outline"} 
+                  className="w-full justify-start"
+                  onClick={() => setIsFollowing(!isFollowing)}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  {isFollowing ? "팔로잉" : "업로더 팔로우"}
+                </Button>
+              </div>
+            </div>
+          </div>
+
           {/* 관련 리소스 카드 */}
-          <div className="bg-white rounded-lg border shadow-sm">
+          <div className="bg-white rounded-lg border shadow-sm mb-6">
             <div className="p-6 pb-4 border-b">
-              <h3 className="text-lg font-semibold mb-1">관련 리소스</h3>
+              <h3 className="text-lg font-semibold mb-1 flex items-center">
+                <Tag className="h-5 w-5 mr-2 text-primary" />
+                관련 리소스
+              </h3>
               <p className="text-sm text-gray-500">
                 같은 카테고리의 다른 리소스를 확인해 보세요.
               </p>
             </div>
             
             <div className="p-6">
-              {/* 관련 리소스 목록은 미래 기능에서 구현 */}
-              <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-md">
-                <p className="text-sm">관련 리소스 기능 준비 중</p>
+              {/* 관련 리소스 목록 - 미래 기능에서 실제 데이터로 구현 */}
+              <div className="space-y-3">
+                <div className="bg-gray-50 hover:bg-gray-100 rounded-md p-3 transition-colors cursor-pointer">
+                  <div className="text-sm font-medium line-clamp-1">유사한 리소스 추천 기능 준비 중</div>
+                  <div className="text-xs text-gray-500 mt-1">곧 제공될 예정입니다</div>
+                </div>
+                <div className="bg-gray-50 hover:bg-gray-100 rounded-md p-3 transition-colors cursor-pointer">
+                  <div className="text-sm font-medium line-clamp-1">AI 기반 맞춤형 리소스 추천</div>
+                  <div className="text-xs text-gray-500 mt-1">개발 중</div>
+                </div>
+                <div className="bg-gray-50 hover:bg-gray-100 rounded-md p-3 transition-colors cursor-pointer">
+                  <div className="text-sm font-medium line-clamp-1">인기 리소스 보기</div>
+                  <div className="text-xs text-gray-500 mt-1">베타 기능</div>
+                </div>
               </div>
             </div>
           </div>
+          
+          {/* 태그 카드 */}
+          {resource.tags && Array.isArray(resource.tags) && resource.tags.length > 0 && (
+            <div className="bg-white rounded-lg border shadow-sm">
+              <div className="p-6 pb-4 border-b">
+                <h3 className="text-lg font-semibold mb-1 flex items-center">
+                  <List className="h-5 w-5 mr-2 text-primary" />
+                  태그
+                </h3>
+              </div>
+              
+              <div className="p-6">
+                <div className="flex flex-wrap gap-2">
+                  {resource.tags.map((tag, index) => (
+                    <Badge 
+                      key={index} 
+                      variant="secondary"
+                      className="px-3 py-1 cursor-pointer hover:bg-secondary/80"
+                      onClick={() => setLocation(`/resources?tag=${tag}`)}
+                    >
+                      #{tag}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
