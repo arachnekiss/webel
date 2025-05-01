@@ -44,36 +44,44 @@ export const services = pgTable("services", {
 });
 
 // Resources schema
-// We'll define this based on the actual database structure
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
-  // userId는 실제 DB에 아직 없음 - 추후 마이그레이션으로 추가 예정
-  // userId: integer("user_id").references(() => users.id),
+  // 사용자 정보
+  userId: integer("user_id").references(() => users.id),
+  
+  // 기본 정보
   title: text("title").notNull(),
   description: text("description").notNull(),
-  // Note: resourceType doesn't exist in the actual DB, but we need it for type safety
-  // We'll manually add it when fetching data
   category: text("category").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
+  subcategory: text("subcategory"), // 세부 카테고리 
   tags: text("tags").array(),
-  imageUrl: text("image_url"),
-  thumbnailUrl: text("thumbnail_url"), // New field for storing thumbnail images
-  // 아직 실제 DB에 없는 필드들 - 추후 마이그레이션으로 추가 예정
-  // thumbnails: jsonb("thumbnails"),
-  downloadUrl: text("download_url"),
-  downloadFile: text("download_file"), // Path or reference to the uploaded file
-  downloadCount: integer("download_count").default(0),
-  howToUse: text("how_to_use"), // Instructions for using the resource
-  assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
-  // version: text("version"),
-  // license: text("license"),
-  sourceSite: text("source_site"), // Original source website
-  createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
-  subcategory: text("subcategory"), // More specific categorization within category
-  isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
-  isCrawled: boolean("is_crawled").default(false) // Flag for automatically crawled resources
   
-  // Add a virtual field to mirror category for backwards compatibility
-  // This is not in the database, but we'll add it in our code
+  // 이미지 및 시각 자료
+  imageUrl: text("image_url"), // 주요 대표 이미지
+  thumbnailUrl: text("thumbnail_url"), // 썸네일 이미지
+  galleryImages: jsonb("gallery_images"), // 추가 이미지 목록 (배열)
+  
+  // 다운로드 정보
+  downloadUrl: text("download_url"), // 외부 다운로드 링크
+  downloadFile: text("download_file"), // 업로드된 파일 경로
+  downloadCount: integer("download_count").default(0), // 다운로드 횟수
+  
+  // 콘텐츠 상세 정보
+  howToUse: text("how_to_use"), // 사용 방법/사용법
+  assemblyInstructions: text("assembly_instructions"), // 조립 방법 (텍스트)
+  version: text("version"), // 버전 정보
+  license: text("license"), // 라이센스 정보
+  sourceSite: text("source_site"), // 원본 출처 사이트
+  
+  // 메타 정보
+  createdAt: timestamp("created_at").defaultNow(), // 업로드 일자
+  updatedAt: timestamp("updated_at"), // 마지막 수정 일자
+  
+  // 상태 플래그
+  isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
+  isCrawled: boolean("is_crawled").default(false), // 크롤링된 리소스 여부
+  isApproved: boolean("is_approved").default(true), // 승인 여부 (기본값: 승인됨)
+  viewCount: integer("view_count").default(0) // 조회수
 });
 
 // Auctions schema
@@ -123,13 +131,10 @@ export type ResourceBase = typeof resources.$inferSelect;
 export type Resource = ResourceBase & {
   // Virtual field that mirrors category
   resourceType?: string;
-  // 확장된 리소스 필드들
-  userId?: number;
-  version?: string;
-  license?: string;
-  howToUse?: string;
-  assemblyInstructions?: string;
-  tags?: string[];
+  // 시각화 및 가상 필드
+  galleryImages?: string[] | null; // 갤러리 이미지들 (배열)
+  uploadDate?: Date; // createdAt의 별칭
+  uploadDateFormatted?: string; // 포맷된 업로드 일자 (YYYY년 MM월 DD일 형식)
 };
 
 export type InsertResource = z.infer<typeof insertResourceSchema> & {
