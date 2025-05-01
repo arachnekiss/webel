@@ -1443,16 +1443,42 @@ export default function ResourceUploadPageV2() {
             <h3 className="text-lg font-medium mb-2">콘텐츠 블록 없음</h3>
             <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
               위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠 블록을 추가하세요.
-              블록을 추가하면 리소스에 대한 자세한 설명을 작성할 수 있습니다.
+              풍부한 콘텐츠를 제공하면 자료의 품질이 높아집니다.
             </p>
-            <Button
-              type="button"
-              onClick={() => addBlock('paragraph')}
-              className="mt-2"
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              텍스트 블록 추가하기
-            </Button>
+            <div className="flex flex-wrap justify-center gap-2 mt-2 max-w-md">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addBlock('heading')}
+                className="flex items-center gap-1"
+              >
+                <FileText className="h-4 w-4" /> 제목
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addBlock('paragraph')}
+                className="flex items-center gap-1"
+              >
+                <File className="h-4 w-4" /> 텍스트
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addBlock('image')}
+                className="flex items-center gap-1"
+              >
+                <ImageIcon className="h-4 w-4" /> 이미지
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addBlock('code')}
+                className="flex items-center gap-1"
+              >
+                <Code className="h-4 w-4" /> 코드
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="space-y-1">
@@ -1484,17 +1510,66 @@ export default function ResourceUploadPageV2() {
               </SortableContext>
             </DndContext>
             
-            <div className="flex justify-center mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => addBlock('paragraph')}
-                className="w-full max-w-xs"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                텍스트 블록 추가
-              </Button>
+            <div className="mt-6 bg-muted/10 border border-dashed rounded-md p-4">
+              <p className="text-sm text-center text-muted-foreground mb-3">
+                다양한 종류의 콘텐츠를 추가해 보세요
+              </p>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('heading')}
+                  className="flex items-center gap-1"
+                >
+                  <FileText className="h-4 w-4" /> 제목
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('paragraph')}
+                  className="flex items-center gap-1"
+                >
+                  <File className="h-4 w-4" /> 텍스트
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('image')}
+                  className="flex items-center gap-1"
+                >
+                  <ImageIcon className="h-4 w-4" /> 이미지
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('youtube')}
+                  className="flex items-center gap-1"
+                >
+                  <Youtube className="h-4 w-4" /> 유튜브
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('code')}
+                  className="flex items-center gap-1"
+                >
+                  <Code className="h-4 w-4" /> 코드
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addBlock('list')}
+                  className="flex items-center gap-1"
+                >
+                  <List className="h-4 w-4" /> 목록
+                </Button>
+              </div>
             </div>
           </div>
         )}
