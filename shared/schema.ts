@@ -47,7 +47,8 @@ export const services = pgTable("services", {
 // We'll define this based on the actual database structure
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id), // 리소스 작성자 ID
+  // userId는 실제 DB에 아직 없음 - 추후 마이그레이션으로 추가 예정
+  // userId: integer("user_id").references(() => users.id),
   title: text("title").notNull(),
   description: text("description").notNull(),
   // Note: resourceType doesn't exist in the actual DB, but we need it for type safety
@@ -56,15 +57,16 @@ export const resources = pgTable("resources", {
   tags: text("tags").array(),
   imageUrl: text("image_url"),
   thumbnailUrl: text("thumbnail_url"), // New field for storing thumbnail images
-  thumbnails: jsonb("thumbnails"), // 여러 썸네일 이미지들을 저장하는 배열 필드
+  // 아직 실제 DB에 없는 필드들 - 추후 마이그레이션으로 추가 예정
+  // thumbnails: jsonb("thumbnails"),
   downloadUrl: text("download_url"),
   downloadFile: text("download_file"), // Path or reference to the uploaded file
   downloadCount: integer("download_count").default(0),
   howToUse: text("how_to_use"), // Instructions for using the resource
   assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
-  version: text("version"), // 리소스 버전
-  license: text("license"), // 라이센스 정보
-  sourceSite: text("source_site"), // 원본 소스 사이트
+  // version: text("version"),
+  // license: text("license"),
+  sourceSite: text("source_site"), // Original source website
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
   subcategory: text("subcategory"), // More specific categorization within category
   isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 

@@ -314,8 +314,20 @@ export default function ResourceDetail() {
               <h1 className="text-3xl font-bold leading-tight mb-3">{resource.title}</h1>
               
               <div className="flex flex-wrap gap-2 mb-4">
-                <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
-                  {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
+                <Badge className={
+                  resource.resourceType && resourceTypeMap[resource.resourceType] 
+                    ? resourceTypeMap[resource.resourceType].color 
+                    : resource.category && resourceTypeMap[resource.category] 
+                      ? resourceTypeMap[resource.category].color 
+                      : 'bg-gray-100'
+                }>
+                  {
+                    resource.resourceType && resourceTypeMap[resource.resourceType]
+                      ? resourceTypeMap[resource.resourceType].name
+                      : resource.category && resourceTypeMap[resource.category]
+                        ? resourceTypeMap[resource.category].name
+                        : resource.resourceType || resource.category || '기타'
+                  }
                 </Badge>
                 
                 {resource.category && (
@@ -552,7 +564,12 @@ export default function ResourceDetail() {
                   <Button 
                     variant="outline" 
                     className="w-full"
-                    onClick={() => window.open(resource.downloadUrl, '_blank')}
+                    onClick={() => {
+                      // downloadUrl이 string인 경우에만 window.open 실행
+                      if (typeof resource.downloadUrl === 'string') {
+                        window.open(resource.downloadUrl, '_blank');
+                      }
+                    }}
                   >
                     <ExternalLink className="mr-2 h-4 w-4" />
                     원본 링크로 이동
@@ -579,8 +596,20 @@ export default function ResourceDetail() {
               <div className="space-y-4">
                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
                   <span className="text-gray-600 font-medium">리소스 유형</span>
-                  <Badge className={resourceTypeMap[resource.resourceType]?.color || 'bg-gray-100'}>
-                    {resourceTypeMap[resource.resourceType]?.name || resource.resourceType}
+                  <Badge className={
+                    resource.resourceType && resourceTypeMap[resource.resourceType] 
+                      ? resourceTypeMap[resource.resourceType].color 
+                      : resource.category && resourceTypeMap[resource.category] 
+                        ? resourceTypeMap[resource.category].color 
+                        : 'bg-gray-100'
+                  }>
+                    {
+                      resource.resourceType && resourceTypeMap[resource.resourceType]
+                        ? resourceTypeMap[resource.resourceType].name
+                        : resource.category && resourceTypeMap[resource.category]
+                          ? resourceTypeMap[resource.category].name
+                          : resource.resourceType || resource.category || '기타'
+                    }
                   </Badge>
                 </div>
                 
