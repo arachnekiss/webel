@@ -22,12 +22,16 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // URL에서 검색 쿼리 파라미터 추출
   useEffect(() => {
-    if (location) {
-      const url = new URL(window.location.href);
-      const searchParam = url.searchParams.get('search');
-      if (searchParam) {
-        setSearchQuery(decodeURIComponent(searchParam));
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.href) {
+        const url = new URL(window.location.href);
+        const searchParam = url.searchParams.get('search');
+        if (searchParam) {
+          setSearchQuery(decodeURIComponent(searchParam));
+        }
       }
+    } catch (error) {
+      console.error('URL 파라미터 파싱 중 오류:', error);
     }
   }, [location]);
   
@@ -51,18 +55,30 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     queryKey: [queryKey || '/api/resources'],
     enabled: true, // 쿼리를 항상 사용
     queryFn: async ({ pageParam = 1 }) => {
-      // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
-      const endpoint = queryKey || '/api/resources'; 
-      const url = new URL(`${window.location.origin}${endpoint}`);
-      url.searchParams.append('page', String(pageParam));
-      url.searchParams.append('limit', String(ITEMS_PER_PAGE));
-      
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        throw new Error('리소스를 불러오는데 실패했습니다.');
+      try {
+        // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
+        const endpoint = queryKey || '/api/resources'; 
+        
+        // window 객체가 존재하는지 확인
+        if (typeof window === 'undefined' || !window.location || !window.location.origin) {
+          return { items: [] };
+        }
+        
+        const url = new URL(`${window.location.origin}${endpoint}`);
+        url.searchParams.append('page', String(pageParam));
+        url.searchParams.append('limit', String(ITEMS_PER_PAGE));
+        
+        const response = await fetch(url.toString());
+        if (!response.ok) {
+          console.error('API 응답 에러:', response.status);
+          return { items: [] };
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('리소스 로딩 중 오류:', error);
+        return { items: [] };
       }
-      
-      return await response.json();
     },
     getNextPageParam: (lastPage) => {
       // lastPage가 undefined인 경우 방어 처리
@@ -224,7 +240,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
               <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
             ))}
           </div>
-        ) : filteredResources && filteredResources.length > 0 ? (
+        ) : (Array.isArray(filteredResources) && filteredResources.length > 0) ? (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredResources.map((resource, index) => (
@@ -247,7 +263,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                 </div>
               ) : hasNextPage ? (
                 <span className="text-sm text-muted-foreground">스크롤하여 더 보기</span>
-              ) : filteredResources && filteredResources.length > ITEMS_PER_PAGE ? (
+              ) : (Array.isArray(filteredResources) && filteredResources.length > ITEMS_PER_PAGE) ? (
                 <span className="text-sm text-muted-foreground">모든 리소스를 불러왔습니다</span>
               ) : (
                 <span className="text-sm text-muted-foreground"></span>
