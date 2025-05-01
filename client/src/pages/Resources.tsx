@@ -155,8 +155,14 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     return (
       (resource.title && resource.title.toLowerCase().includes(query)) ||
       (resource.description && resource.description.toLowerCase().includes(query)) ||
-      (resource.tags && Array.isArray(resource.tags) && 
-        resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query)))
+      (resource.tags && (
+        // tags가 배열인 경우
+        (Array.isArray(resource.tags) && 
+         resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query))) ||
+        // tags가 문자열인 경우 (쉼표로 구분된 태그 목록일 수 있음)
+        (typeof resource.tags === 'string' && 
+         resource.tags.toLowerCase().includes(query))
+      ))
     );
   }) : [];
   
