@@ -48,6 +48,8 @@ import {
   FileVideo,
   Trash2,
   Save,
+  File as FileIcon,
+  X,
   Upload,
   FileText,
   Grip,
@@ -61,7 +63,6 @@ import {
   List,
   File,
   Check,
-  X,
 } from "lucide-react";
 
 // 카테고리 라벨 (이전 resourceType)
@@ -627,6 +628,57 @@ export default function ResourceUploadPageV2() {
                 )}
               />
             </div>
+            
+            {/* 썸네일 업로드 영역 */}
+            <div>
+              <FormLabel>썸네일 이미지</FormLabel>
+              <div className="border rounded-md p-2 bg-muted/20 mt-2 flex justify-center">
+                {thumbnailFile ? (
+                  <div className="relative w-full aspect-video flex items-center justify-center overflow-hidden rounded-md">
+                    <img 
+                      src={thumbnailFile.preview || ''} 
+                      alt="Thumbnail preview" 
+                      className="object-cover w-full h-full"
+                    />
+                    <div className="absolute top-2 right-2 flex gap-1">
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="h-7 w-7 rounded-full"
+                        onClick={() => setThumbnailFile(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {thumbnailFile.progress > 0 && thumbnailFile.progress < 100 && (
+                      <Progress value={thumbnailFile.progress} className="absolute bottom-0 left-0 right-0 h-1" />
+                    )}
+                  </div>
+                ) : (
+                  <div 
+                    className="flex flex-col items-center justify-center p-4 cursor-pointer w-full aspect-video rounded-md border-2 border-dashed hover:bg-muted/30 transition-colors"
+                    onClick={() => {
+                      const fileInput = document.getElementById('thumbnailInput') as HTMLInputElement;
+                      if (fileInput) fileInput.click();
+                    }}
+                  >
+                    <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                    <div className="text-sm font-medium text-center">썸네일 이미지 추가</div>
+                    <div className="text-xs text-muted-foreground text-center mt-1">
+                      권장 비율: 16:9, 최대 2MB
+                    </div>
+                    <input
+                      id="thumbnailInput"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileSelect(e, 'thumbnail')}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div>
               <FormField
@@ -732,24 +784,79 @@ export default function ResourceUploadPageV2() {
             />
           </div>
 
+          {/* 파일 업로드 섹션 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="downloadUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>다운로드 URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="파일 다운로드 URL (선택사항)"
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div>
+              <FormField
+                control={form.control}
+                name="downloadUrl"
+                render={({ field }) => (
+                  <FormItem className="space-y-4">
+                    <FormLabel>파일 업로드</FormLabel>
+                    <div className="flex flex-col space-y-2">
+                      <div className="border rounded-md p-4 bg-muted/20">
+                        {downloadFile ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <FileIcon className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-sm font-medium">{downloadFile.name}</span>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDownloadFile(null)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {(downloadFile.size / 1024 / 1024).toFixed(2)} MB
+                            </div>
+                            {downloadFile.progress > 0 && downloadFile.progress < 100 && (
+                              <Progress value={downloadFile.progress} className="h-1" />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center py-4">
+                            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                            <div className="text-sm font-medium mb-1">파일을 끌어다 놓거나 클릭하여 업로드</div>
+                            <div className="text-xs text-muted-foreground">최대 100MB</div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="mt-2"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              파일 선택
+                            </Button>
+                            <input 
+                              ref={fileInputRef}
+                              type="file" 
+                              className="hidden" 
+                              onChange={(e) => handleFileSelect(e, 'download')}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        또는 직접 URL 입력:
+                      </div>
+                      <FormControl>
+                        <Input
+                          placeholder="파일 다운로드 URL (선택사항)"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -764,6 +871,9 @@ export default function ResourceUploadPageV2() {
                       value={field.value || ""}
                     />
                   </FormControl>
+                  <FormDescription>
+                    오픈 소스 프로젝트의 저장소 URL을 입력하세요.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
