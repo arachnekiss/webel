@@ -16,10 +16,18 @@ import {
   UploadCloud,
   XCircle,
   Loader,
-  Image
+  Image,
+  Wand2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { sendChatMessage, analyzeImage, fileToBase64 } from '@/lib/api';
+import { 
+  sendChatMessage, 
+  analyzeImage, 
+  analyzeImageWithStructure, 
+  transcribeAudio, 
+  generateImage, 
+  fileToBase64 
+} from '@/lib/api';
 
 // Simple class for handling audio recording
 class SimpleAudioRecorder {
@@ -100,6 +108,7 @@ const AiAssembly = () => {
 
   // 오디오 녹음 상태 관리
   const [isRecording, setIsRecording] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const audioRecorder = useRef<SimpleAudioRecorder>(new SimpleAudioRecorder());
 
   // 스크롤 처리
@@ -210,19 +219,89 @@ const AiAssembly = () => {
       setMessages(prev => [...prev, userMessage]);
       setIsLoading(true);
       
-      // 이미지 분석 API 호출
-      const prompt = "이 이미지는 조립 중인 부품이나 장치를 보여주고 있습니다. 부품을 확인하고 조립 방법에 대해 조언해 주세요. 문제점이 있다면 지적해 주시고 해결 방법도 알려주세요.";
-      const analysis = await analyzeImage(base64String, prompt);
-      
-      // AI 응답 메시지
-      const aiResponse: Message = {
+      // '이미지 분석 중' 메시지 표시
+      const processingMessage: Message = {
         id: generateId(),
-        role: 'assistant',
-        content: analysis,
+        role: 'system',
+        content: '이미지를 분석하고 있습니다...',
         timestamp: new Date()
       };
       
-      setMessages(prev => [...prev, aiResponse]);
+      setMessages(prev => [...prev, processingMessage]);
+      
+      // 이미지 분석 API 호출 - 구조화된 JSON 응답 사용
+      const prompt = "이 이미지는 조립 중인 부품이나 장치를 보여주고 있습니다. 부품을 확인하고 조립 방법에 대해 조언해 주세요. 문제점이 있다면 지적해 주시고 해결 방법도 알려주세요.";
+      
+      // 구조화된 JSON 응답 가져오기 시도
+      let structuredAnalysis;
+      try {
+        structuredAnalysis = await analyzeImageWithStructure(base64String, prompt);
+      } catch (structuredError) {
+        console.error('구조화된 이미지 분석 실패, 일반 텍스트 응답으로 대체:', structuredError);
+      }
+      
+      // 처리 중 메시지 제거
+      setMessages(prev => prev.filter(msg => msg.id !== processingMessage.id));
+      
+      if (structuredAnalysis) {
+        // 구조화된 응답을 사용하여 포맷된 메시지 생성
+        let formattedContent = '';
+        
+        if (structuredAnalysis.partIdentification) {
+          formattedContent += `**식별된 부품:**\n${structuredAnalysis.partIdentification}\n\n`;
+        }
+        
+        if (structuredAnalysis.assemblySteps && Array.isArray(structuredAnalysis.assemblySteps)) {
+          formattedContent += '**조립 단계:**\n';
+          structuredAnalysis.assemblySteps.forEach((step: string, index: number) => {
+            formattedContent += `${index + 1}. ${step}\n`;
+          });
+          formattedContent += '\n';
+        }
+        
+        if (structuredAnalysis.issuesDetected && Array.isArray(structuredAnalysis.issuesDetected)) {
+          formattedContent += '**문제점:**\n';
+          structuredAnalysis.issuesDetected.forEach((issue: string, index: number) => {
+            formattedContent += `- ${issue}\n`;
+          });
+          formattedContent += '\n';
+        }
+        
+        if (structuredAnalysis.solutions && Array.isArray(structuredAnalysis.solutions)) {
+          formattedContent += '**해결 방법:**\n';
+          structuredAnalysis.solutions.forEach((solution: string, index: number) => {
+            formattedContent += `- ${solution}\n`;
+          });
+          formattedContent += '\n';
+        }
+        
+        if (structuredAnalysis.additionalNotes) {
+          formattedContent += `**추가 정보:**\n${structuredAnalysis.additionalNotes}`;
+        }
+        
+        // 구조화된 응답 메시지
+        const aiResponse: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: formattedContent || JSON.stringify(structuredAnalysis, null, 2),
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        // 구조화된 분석이 실패한 경우 일반 텍스트 분석으로 대체
+        const analysis = await analyzeImage(base64String, prompt);
+        
+        // 일반 텍스트 응답 메시지
+        const aiResponse: Message = {
+          id: generateId(),
+          role: 'assistant',
+          content: analysis,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, aiResponse]);
+      }
     } catch (error: any) {
       toast({
         title: "이미지 분석 오류",
@@ -263,9 +342,21 @@ const AiAssembly = () => {
       const audioBase64 = await audioRecorder.current.stop();
       setIsRecording(false);
       
-      // 실제로는 녹음된 음성을 텍스트로 변환하는 API 호출이 필요하지만,
-      // 지금은 OpenAI Whisper API를 직접 호출하기는 어려우므로 임시 텍스트 사용
-      const transcribedText = "음성 인식 결과: 이 부품을 어떻게 조립해야 할까요?";
+      // '음성 변환 중' 메시지 표시
+      const processingMessage: Message = {
+        id: generateId(),
+        role: 'system',
+        content: '음성을 변환하고 있습니다...',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, processingMessage]);
+      
+      // OpenAI Whisper API를 사용하여 음성을 텍스트로 변환
+      const transcribedText = await transcribeAudio(audioBase64);
+      
+      // 처리 중 메시지 제거
+      setMessages(prev => prev.filter(msg => msg.id !== processingMessage.id));
       
       // 사용자 메시지 추가
       const userMessage: Message = {
@@ -282,6 +373,14 @@ const AiAssembly = () => {
         role: msg.role,
         content: msg.content
       }));
+      
+      // 시스템 메시지 추가 (없을 경우)
+      if (!apiMessages.some(msg => msg.role === 'system')) {
+        apiMessages.unshift({
+          role: 'system',
+          content: '당신은 Webel의 AI 조립 비서입니다. 다양한 부품과 장치의 조립과 관련된 질문에 전문적이고 친절하게 답변해야 합니다. 조립 과정에서 발생할 수 있는 문제점들에 대해 해결책을 제시하고, 안전하고 정확한 조립 방법을 안내해 주세요.'
+        });
+      }
       
       const response = await sendChatMessage(apiMessages);
       
@@ -304,6 +403,66 @@ const AiAssembly = () => {
     }
   };
 
+  // 이미지 생성 함수
+  const handleGenerateImage = async () => {
+    // 이미지 생성에 필요한 프롬프트를 현재의 대화 컨텍스트에서 추출
+    if (messages.length === 0) {
+      toast({
+        title: "대화 필요",
+        description: "이미지 생성을 위해 먼저 AI와 대화를 시작해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsGeneratingImage(true);
+    setIsLoading(true);
+    
+    try {
+      // 프롬프트 생성 - 최근 3개의 메시지에서 컨텍스트 추출
+      const recentMessages = messages.slice(-3);
+      const contextPrompt = recentMessages.map(msg => msg.content).join(" ");
+      
+      // 실제 프롬프트 생성 (조립 관련 부분 강조)
+      const imagePrompt = `조립 방법 도표 또는 도해: ${contextPrompt}. 단계별 조립 과정을 보여주는 명확한 다이어그램 또는 그림으로 도식화하세요. 사람의 손이나 정확한 부품 배치를 포함하세요.`;
+      
+      // '이미지 생성 중' 메시지 표시
+      const processingMessage: Message = {
+        id: generateId(),
+        role: 'system',
+        content: '요청하신 조립 이미지를 생성하고 있습니다...',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, processingMessage]);
+      
+      // 이미지 생성 API 호출
+      const imageUrl = await generateImage(imagePrompt);
+      
+      // 처리 중 메시지 제거
+      setMessages(prev => prev.filter(msg => msg.id !== processingMessage.id));
+      
+      // 생성된 이미지 메시지 추가
+      const imageMessage: Message = {
+        id: generateId(),
+        role: 'assistant',
+        content: `조립 이미지가 생성되었습니다.\n\n![조립 도해](${imageUrl})`,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, imageMessage]);
+    } catch (error: any) {
+      toast({
+        title: "이미지 생성 오류",
+        description: error.message || "이미지 생성 중 문제가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingImage(false);
+      setIsLoading(false);
+    }
+  };
+  
   // 채팅 인터페이스 표시
   const handleStartChat = () => {
     setShowChatInterface(true);
@@ -466,6 +625,20 @@ const AiAssembly = () => {
                   aria-label={isRecording ? "Stop recording" : "Start recording"}
                 >
                   <Mic className={`h-5 w-5 ${isRecording ? 'text-red-500 animate-pulse' : 'text-slate-500'}`} />
+                </Button>
+                
+                {/* 이미지 생성 버튼 */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className={`h-10 w-10 rounded-full ${isGeneratingImage ? 'bg-purple-50 border-purple-200' : ''}`}
+                  onClick={handleGenerateImage}
+                  disabled={isLoading || isRecording || !!selectedFile || messages.length === 0}
+                  aria-label="Generate image"
+                  title="AI 조립 이미지 생성"
+                >
+                  <Wand2 className={`h-5 w-5 ${isGeneratingImage ? 'text-purple-500 animate-pulse' : 'text-slate-500'}`} />
                 </Button>
               </div>
               
