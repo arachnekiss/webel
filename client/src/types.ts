@@ -1,10 +1,10 @@
 import { Resource as DbResource } from "@shared/schema";
 
-// Resource 타입 확장
-export interface Resource extends DbResource {
+// Resource 타입 확장 - DbResource의 필드들에 추가 필드 정의
+export interface Resource extends Omit<DbResource, 'category'> {
   resourceType?: string;
-  category?: string;
-  uploadDate?: Date;
+  category: string;
+  uploadDate?: Date; 
   galleryImages?: string[] | null;
   uploadDateFormatted?: string;
   howToUse?: string;
