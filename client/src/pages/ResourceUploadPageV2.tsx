@@ -36,6 +36,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
 
 // 아이콘
 import {
@@ -53,10 +55,17 @@ import {
   AlertCircle,
   Info,
   Clock,
+  FileUp,
+  FolderInput,
+  Code,
+  List,
+  File,
+  Check,
+  X,
 } from "lucide-react";
 
-// 리소스 타입 라벨
-const resourceTypeLabels: Record<string, string> = {
+// 카테고리 라벨 (이전 resourceType)
+const categoryLabels: Record<string, string> = {
   "hardware_design": "하드웨어 디자인",
   "software": "소프트웨어",
   "3d_model": "3D 모델",
@@ -65,8 +74,8 @@ const resourceTypeLabels: Record<string, string> = {
   "flash_game": "플래시 게임",
 };
 
-// 카테고리 옵션
-const categoryOptions = [
+// 세부 카테고리 옵션
+const detailCategoryOptions = [
   { value: "arduino", label: "아두이노" },
   { value: "raspberry_pi", label: "라즈베리 파이" },
   { value: "electronics", label: "전자공학" },
@@ -92,12 +101,22 @@ interface ContentBlock {
   caption?: string;
 }
 
+// 파일 정보 인터페이스
+interface FileInfo {
+  file: File | null;
+  preview: string | null;
+  name: string;
+  size: number;
+  type: string;
+  uploaded: boolean;
+  progress: number;
+}
+
 // 리소스 폼 스키마
 const formSchema = z.object({
   title: z.string().min(2, { message: "제목은 최소 2자 이상이어야 합니다." }),
-  resourceType: z.string({ required_error: "리소스 유형을 선택해주세요." }),
+  resourceType: z.string({ required_error: "카테고리를 선택해주세요." }),
   description: z.string().min(10, { message: "설명은 최소 10자 이상이어야 합니다." }),
-  category: z.string().optional(),
   tags: z.string().transform(val => val.split(",").map(tag => tag.trim()).filter(Boolean)),
   license: z.string().optional(),
   version: z.string().optional(),
@@ -296,6 +315,12 @@ export default function ResourceUploadPageV2() {
     };
   }, [blocks]);
 
+  // 파일 업로드 상태 관리
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [downloadFile, setDownloadFile] = useState<FileInfo | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<FileInfo | null>(null);
+  const [uploading, setUploading] = useState(false);
+  
   // 폼
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -303,7 +328,6 @@ export default function ResourceUploadPageV2() {
       title: "",
       description: "",
       resourceType: "",
-      category: "",
       tags: "",
       license: "",
       version: "",
@@ -360,11 +384,115 @@ export default function ResourceUploadPageV2() {
   function deleteBlock(id: string) {
     setBlocks((prev) => prev.filter((block) => block.id !== id));
   }
+  
+  // 파일 업로드 함수
+  async function handleFileUpload(file: File, type: 'download' | 'thumbnail'): Promise<string> {
+    if (!file) return '';
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      setUploading(true);
+      const endpoint = type === 'download' ? '/api/resources/upload-file' : '/api/resources/upload-image';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error(`파일 업로드 실패: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setUploading(false);
+      
+      return data.url;
+    } catch (error) {
+      setUploading(false);
+      console.error('파일 업로드 에러:', error);
+      toast({
+        title: "파일 업로드 실패",
+        description: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+      return '';
+    }
+  }
+  
+  // 파일 선택 처리
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>, type: 'download' | 'thumbnail') {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    const file = files[0];
+    const fileInfo: FileInfo = {
+      file,
+      preview: URL.createObjectURL(file),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      uploaded: false,
+      progress: 0,
+    };
+    
+    if (type === 'download') {
+      setDownloadFile(fileInfo);
+    } else {
+      setThumbnailFile(fileInfo);
+    }
+    
+    // 자동으로 이미지 컨텐츠 블록 추가 (썸네일 이미지일 경우)
+    if (type === 'thumbnail' && fileInfo.preview) {
+      // 첫 번째 블록으로 추가
+      const newBlock: ContentBlock = {
+        id: uuidv4(),
+        type: 'image',
+        content: fileInfo.preview,
+        caption: '대표 이미지',
+      };
+      
+      setBlocks((prev) => [newBlock, ...prev]);
+    }
+  }
 
   // 폼 제출 처리
   const mutation = useMutation({
     mutationFn: async (data: FormValues & { contentBlocks: ContentBlock[] }) => {
-      const response = await apiRequest("POST", "/api/resources", data);
+      // 먼저 파일들을 업로드
+      let downloadUrl = data.downloadUrl || '';
+      
+      if (downloadFile && downloadFile.file && !downloadFile.uploaded) {
+        downloadUrl = await handleFileUpload(downloadFile.file, 'download');
+      }
+      
+      // 이미지 URL을 서버에 저장된 URL로 업데이트
+      const updatedBlocks = await Promise.all(
+        data.contentBlocks.map(async (block) => {
+          if (block.type === 'image' && block.content && block.content.startsWith('blob:')) {
+            // blob URL인 경우, 서버에 이미지 업로드
+            try {
+              const response = await fetch(block.content);
+              const blob = await response.blob();
+              const file = new File([blob], `image-${block.id}.${blob.type.split('/')[1] || 'png'}`, { type: blob.type });
+              const uploadedUrl = await handleFileUpload(file, 'thumbnail');
+              
+              return { ...block, content: uploadedUrl || block.content };
+            } catch (error) {
+              console.error('이미지 변환 중 오류:', error);
+              return block;
+            }
+          }
+          return block;
+        })
+      );
+      
+      const response = await apiRequest("POST", "/api/resources", {
+        ...data,
+        downloadUrl,
+        contentBlocks: updatedBlocks,
+      });
       return response.json();
     },
     onSuccess: () => {
@@ -506,15 +634,15 @@ export default function ResourceUploadPageV2() {
                 name="resourceType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>리소스 유형 *</FormLabel>
+                    <FormLabel>카테고리 *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="리소스 유형 선택" />
+                          <SelectValue placeholder="카테고리 선택" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {Object.entries(resourceTypeLabels).map(([value, label]) => (
+                        {Object.entries(categoryLabels).map(([value, label]) => (
                           <SelectItem key={value} value={value}>{label}</SelectItem>
                         ))}
                       </SelectContent>
@@ -550,15 +678,15 @@ export default function ResourceUploadPageV2() {
               name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>카테고리</FormLabel>
+                  <FormLabel>세부 카테고리</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="카테고리 선택 (선택사항)" />
+                        <SelectValue placeholder="세부 카테고리 선택 (선택사항)" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categoryOptions.map(({ value, label }) => (
+                      {detailCategoryOptions.map(({ value, label }) => (
                         <SelectItem key={value} value={value}>{label}</SelectItem>
                       ))}
                     </SelectContent>
@@ -646,7 +774,7 @@ export default function ResourceUploadPageV2() {
           {form.watch('resourceType') && (
             <>
               <Separator />
-              <h2 className="text-xl font-semibold">{resourceTypeLabels[form.watch('resourceType')]} 추가 정보</h2>
+              <h2 className="text-xl font-semibold">{categoryLabels[form.watch('resourceType')]} 추가 정보</h2>
 
               {/* 하드웨어 디자인일 경우 */}
               {form.watch('resourceType') === 'hardware_design' && (
