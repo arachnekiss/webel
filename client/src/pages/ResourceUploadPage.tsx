@@ -999,22 +999,89 @@ export default function ResourceUploadPage() {
                               <FormControl>
                                 <div className="border rounded-md">
                                   <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
-                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("assemblyInstructions")}
+                                    >
                                       <ImageIcon className="h-4 w-4 mr-1" /> 이미지
                                     </Button>
-                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
+                                    >
                                       <Video className="h-4 w-4 mr-1" /> 동영상
                                     </Button>
-                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
+                                    >
                                       <FolderOpen className="h-4 w-4 mr-1" /> 파일
                                     </Button>
-                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
+                                    >
                                       <Link2 className="h-4 w-4 mr-1" /> URL
                                     </Button>
-                                    <Button variant="outline" size="sm" type="button" className="h-8">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
                                       <Smile className="h-4 w-4 mr-1" /> GIF
                                     </Button>
                                   </div>
+                                  {urlInputActive && currentEditor === "assemblyInstructions" && (
+                                    <div className="p-2 border-b bg-muted/5">
+                                      <div className="flex gap-2">
+                                        <Input
+                                          ref={urlInputRef}
+                                          value={urlInput}
+                                          onChange={(e) => setUrlInput(e.target.value)}
+                                          placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                          className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
+                                        />
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setUrlInputActive(false);
+                                            setUrlInput("");
+                                          }}
+                                        >
+                                          취소
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
                                   <Textarea
                                     placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -1093,15 +1160,27 @@ export default function ResourceUploadPage() {
                                   </div>
                                   {urlInputActive && currentEditor === "howToUse" && (
                                     <div className="p-2 border-b bg-muted/5">
-                                      <form onSubmit={handleUrlSubmit} className="flex gap-2">
+                                      <div className="flex gap-2">
                                         <Input
                                           ref={urlInputRef}
                                           value={urlInput}
                                           onChange={(e) => setUrlInput(e.target.value)}
                                           placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
                                           className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
                                         />
-                                        <Button type="submit" size="sm">추가</Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
                                         <Button 
                                           type="button" 
                                           size="sm" 
@@ -1113,7 +1192,7 @@ export default function ResourceUploadPage() {
                                         >
                                           취소
                                         </Button>
-                                      </form>
+                                      </div>
                                     </div>
                                   )}
                                   <Textarea
