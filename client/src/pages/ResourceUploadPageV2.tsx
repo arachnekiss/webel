@@ -1523,9 +1523,9 @@ export default function ResourceUploadPageV2() {
         </form>
       </Form>
 
-      {/* 상세 콘텐츠 섹션 */}
-      <div className="mt-8">
-        <Separator className="mb-4" />
+      {/* 썸네일 갤러리 섹션 */}
+      <div className="mt-10">
+        <Separator className="mb-6" />
         <div className="flex items-center mb-4 border-b pb-2">
           <h2 className="text-lg font-medium">본문 작성</h2>
         </div>
