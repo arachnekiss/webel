@@ -49,6 +49,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   } = useInfiniteQuery({
     // queryKey를 배열로 지정하고, type이 undefined인 경우에도 안전하게 처리
     queryKey: [queryKey || '/api/resources'],
+    enabled: true, // 쿼리를 항상 사용
     queryFn: async ({ pageParam = 1 }) => {
       // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
       const endpoint = queryKey || '/api/resources'; 
@@ -143,8 +144,11 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     };
   }, [handleObserver, loadMoreRef.current]);
   
+  // 리소스 데이터가 유효한지 확인
+  const validResources = resources || [];
+
   // Filter resources by search query
-  const filteredResources = resources ? resources.filter(resource => {
+  const filteredResources = validResources.filter(resource => {
     // 잘못된 리소스 객체 필터링
     if (!resource || typeof resource !== 'object') return false;
     
@@ -152,19 +156,21 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     if (!searchQuery || !searchQuery.trim()) return true;
     
     const query = searchQuery.toLowerCase();
+    
+    // 안전하게 속성 확인 후 검색
+    const title = resource.title || '';
+    const description = resource.description || '';
+    const tags = resource.tags || '';
+    
     return (
-      (resource.title && resource.title.toLowerCase().includes(query)) ||
-      (resource.description && resource.description.toLowerCase().includes(query)) ||
-      (resource.tags && (
-        // tags가 배열인 경우
-        (Array.isArray(resource.tags) && 
-         resource.tags.some((tag: string) => tag && typeof tag === 'string' && tag.toLowerCase().includes(query))) ||
-        // tags가 문자열인 경우 (쉼표로 구분된 태그 목록일 수 있음)
-        (typeof resource.tags === 'string' && 
-         resource.tags.toLowerCase().includes(query))
+      title.toLowerCase().includes(query) ||
+      description.toLowerCase().includes(query) ||
+      (typeof tags === 'string' && tags.toLowerCase().includes(query)) ||
+      (Array.isArray(tags) && tags.some(tag => 
+        tag && typeof tag === 'string' && tag.toLowerCase().includes(query)
       ))
     );
-  }) : [];
+  });
   
   return (
     <div>
