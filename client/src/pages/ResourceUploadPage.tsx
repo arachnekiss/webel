@@ -378,7 +378,7 @@ export default function ResourceUploadPage() {
   };
 
   // YouTube 링크 감지 및 변환 함수
-  const processYouTubeLinks = (text: string): string => {
+  const processYouTubeLinks = async (text: string): Promise<string> => {
     if (!text) return text;
 
     // YouTube 링크 패턴 (youtu.be/ID 또는 youtube.com/watch?v=ID)
@@ -750,8 +750,8 @@ export default function ResourceUploadPage() {
                           placeholder="리소스에 대한 간략한 설명을 입력하세요 (이 내용은 리소스 목록에서 미리보기로 표시됩니다)"
                           className="min-h-[120px] resize-y"
                           {...field}
-                          onChange={(e) => {
-                            const newValue = processYouTubeLinks(e.target.value);
+                          onChange={async (e) => {
+                            const newValue = await processYouTubeLinks(e.target.value);
                             field.onChange(newValue);
                           }}
                         />
@@ -1020,9 +1020,9 @@ export default function ResourceUploadPage() {
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                     {...field}
                                     value={field.value || ""}
-                                    onChange={(e) => {
+                                    onChange={async (e) => {
                                       // YouTube URL 감지 및 변환
-                                      const newValue = processYouTubeLinks(e.target.value);
+                                      const newValue = await processYouTubeLinks(e.target.value);
                                       field.onChange(newValue);
                                     }}
                                   />
@@ -1121,8 +1121,8 @@ export default function ResourceUploadPage() {
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                     {...field}
                                     value={field.value || ""}
-                                    onChange={(e) => {
-                                      const newValue = processYouTubeLinks(e.target.value);
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
                                       field.onChange(newValue);
                                     }}
                                   />
@@ -1236,8 +1236,8 @@ export default function ResourceUploadPage() {
                                   className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                   {...field}
                                   value={field.value || ""}
-                                  onChange={(e) => {
-                                    const newValue = processYouTubeLinks(e.target.value);
+                                  onChange={async (e) => {
+                                    const newValue = await processYouTubeLinks(e.target.value);
                                     field.onChange(newValue);
                                   }}
                                 />
@@ -1372,8 +1372,8 @@ export default function ResourceUploadPage() {
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                     {...field}
                                     value={field.value || ""}
-                                    onChange={(e) => {
-                                      const newValue = processYouTubeLinks(e.target.value);
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
                                       field.onChange(newValue);
                                     }}
                                   />
@@ -1484,8 +1484,8 @@ export default function ResourceUploadPage() {
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                     {...field}
                                     value={field.value || ""}
-                                    onChange={(e) => {
-                                      const newValue = processYouTubeLinks(e.target.value);
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
                                       field.onChange(newValue);
                                     }}
                                   />
@@ -1599,8 +1599,8 @@ export default function ResourceUploadPage() {
                                   className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                   {...field}
                                   value={field.value || ""}
-                                  onChange={(e) => {
-                                    const newValue = processYouTubeLinks(e.target.value);
+                                  onChange={async (e) => {
+                                    const newValue = await processYouTubeLinks(e.target.value);
                                     field.onChange(newValue);
                                   }}
                                 />
@@ -1713,8 +1713,8 @@ export default function ResourceUploadPage() {
                                   className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                   {...field}
                                   value={field.value || ""}
-                                  onChange={(e) => {
-                                    const newValue = processYouTubeLinks(e.target.value);
+                                  onChange={async (e) => {
+                                    const newValue = await processYouTubeLinks(e.target.value);
                                     field.onChange(newValue);
                                   }}
                                 />
@@ -1827,8 +1827,8 @@ export default function ResourceUploadPage() {
                                   className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                   {...field}
                                   value={field.value || ""}
-                                  onChange={(e) => {
-                                    const newValue = processYouTubeLinks(e.target.value);
+                                  onChange={async (e) => {
+                                    const newValue = await processYouTubeLinks(e.target.value);
                                     field.onChange(newValue);
                                   }}
                                 />
