@@ -183,18 +183,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // 리소스 생성 - 인증 필요
-  app.post('/api/resources', isAuthenticated, async (req: Request, res: Response) => {
+  app.post('/api/resources', isAuthenticated, upload.none(), async (req: Request, res: Response) => {
     try {
-      const resourceData = {
-        ...req.body,
+      // 필수 필드 검증
+      if (!req.body.title || !req.body.description || !req.body.resourceType) {
+        return res.status(400).json({
+          message: '필수 필드가 누락되었습니다. (title, description, resourceType)'
+        });
+      }
+      
+      // 리소스 데이터 준비
+      const resourceData: any = {
+        title: req.body.title,
+        description: req.body.description,
+        resourceType: req.body.resourceType,
+        userId: req.user?.id || null,
         createdAt: new Date()
       };
       
-      // 필수 필드 검증
-      if (!resourceData.title || !resourceData.description || !resourceData.category) {
-        return res.status(400).json({
-          message: '필수 필드가 누락되었습니다. (title, description, category)'
-        });
+      // 선택적 필드 추가
+      if (req.body.category) resourceData.category = req.body.category;
+      if (req.body.imageUrl) resourceData.imageUrl = req.body.imageUrl;
+      if (req.body.downloadUrl) resourceData.downloadUrl = req.body.downloadUrl;
+      if (req.body.howToUse) resourceData.howToUse = req.body.howToUse;
+      if (req.body.assemblyInstructions) resourceData.assemblyInstructions = req.body.assemblyInstructions;
+      if (req.body.license) resourceData.license = req.body.license;
+      if (req.body.version) resourceData.version = req.body.version;
+      
+      // 태그 처리
+      if (req.body.tags) {
+        try {
+          resourceData.tags = Array.isArray(req.body.tags) 
+            ? req.body.tags 
+            : JSON.parse(req.body.tags);
+        } catch (e) {
+          resourceData.tags = typeof req.body.tags === 'string'
+            ? req.body.tags.split(',').map((tag: string) => tag.trim())
+            : [];
+        }
+      }
+
+      // 리소스 유형별 추가 데이터
+      const additionalFields = [
+        'programmingLanguage', 'dependencies', 'softwareRequirements',
+        'aiModelType', 'trainingData', 'modelAccuracy',
+        'fileFormat', 'polygonCount', 'dimensions'
+      ];
+      
+      additionalFields.forEach(field => {
+        if (req.body[field]) resourceData[field] = req.body[field];
+      });
+      
+      // 멀티미디어 데이터 처리
+      if (req.body.multimedia) {
+        try {
+          resourceData.multimedia = JSON.parse(req.body.multimedia);
+        } catch (e) {
+          console.error('멀티미디어 데이터 파싱 에러:', e);
+        }
       }
       
       const resource = await storage.createResource(resourceData);
@@ -318,11 +364,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
         size: req.file.size,
         mimetype: req.file.mimetype,
         path: relativePath,
-        url: `${req.protocol}://${req.get('host')}${relativePath}`
+        imageUrl: relativePath
       });
     } catch (error) {
       console.error('이미지 업로드 에러:', error);
       res.status(500).json({ message: '이미지 업로드 중 오류가 발생했습니다.' });
+    }
+  });
+  
+  // 파일 업로드 API - 인증 필요
+  app.post('/api/resources/upload-file', isAuthenticated, upload.single('file'), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: '파일이 없습니다.' });
+      }
+      
+      // 파일 경로 생성
+      const relativePath = `/uploads/${req.file.filename}`;
+      
+      res.status(200).json({ 
+        fileName: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        path: relativePath,
+        downloadUrl: relativePath,
+        message: '파일이 성공적으로 업로드되었습니다.'
+      });
+    } catch (error) {
+      console.error('파일 업로드 에러:', error);
+      res.status(500).json({ message: '파일 업로드 중 오류가 발생했습니다.' });
     }
   });
   

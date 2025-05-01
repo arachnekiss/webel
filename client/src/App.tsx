@@ -22,7 +22,7 @@ import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
 import UploadResource from '@/pages/UploadResource'; 
-import UploadResourceNew from '@/pages/UploadResourceNew'; // 개선된 리소스 업로드 페이지
+import ResourceUploadPage from '@/pages/ResourceUploadPage'; // 개선된 리소스 업로드 페이지
 import RegisterService from '@/pages/RegisterService'; 
 import RegisterServiceUnified from '@/pages/RegisterServiceUnified'; // 통합된 서비스 등록 페이지
 import Auctions from '@/pages/Auctions';
@@ -100,7 +100,7 @@ function Router() {
             <Route path="/services/register-old/:type" component={RegisterService}/>
             
             {/* Resource upload pages */}
-            <Route path="/resources/upload" component={UploadResourceNew}/>
+            <Route path="/resources/upload" component={ResourceUploadPage}/>
             <AdminRoute path="/resources/upload-old" component={UploadResource}/>
             
             {/* Other pages */}
