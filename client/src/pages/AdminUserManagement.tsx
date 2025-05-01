@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserCheck, UserX, UserCog, Shield, ShieldX, ArrowLeft } from "lucide-react";
@@ -44,6 +45,7 @@ interface User {
 
 export default function AdminUserManagement() {
   const { toast } = useToast();
+  const [_, setLocation] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -146,12 +148,15 @@ export default function AdminUserManagement() {
   return (
     <div className="container mx-auto p-4 md:p-6">
       <div className="flex items-center mb-6">
-        <Link href="/admin/dashboard">
-          <Button variant="ghost" size="sm" className="mr-2">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            돌아가기
-          </Button>
-        </Link>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="mr-2"
+          onClick={() => setLocation('/admin/dashboard')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          돌아가기
+        </Button>
         <h1 className="text-3xl font-bold">사용자 관리</h1>
       </div>
 
