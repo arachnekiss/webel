@@ -117,19 +117,19 @@ export default function ResourceUploadPage() {
   const [currentTab, setCurrentTab] = useState<string>("basic");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [resourceTypeInfo, setResourceTypeInfo] = useState<string>("");
-  
+
   // 미디어 에디터 관련 상태
   const [urlInputActive, setUrlInputActive] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [currentEditor, setCurrentEditor] = useState<string | null>(null);
-  
+
   // 미디어 파일 입력 참조
   const mediaImageInputRef = useRef<HTMLInputElement>(null);
   const mediaGifInputRef = useRef<HTMLInputElement>(null);
   const mediaVideoInputRef = useRef<HTMLInputElement>(null);
   const mediaFileInputRef = useRef<HTMLInputElement>(null);
   const urlInputRef = useRef<HTMLInputElement>(null);
-  
+
   // 폼 초기화
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -238,14 +238,14 @@ export default function ResourceUploadPage() {
   const saveFormLocally = () => {
     const formValues = form.getValues();
     localStorage.setItem("resourceForm", JSON.stringify(formValues));
-    
+
     const filesInfo = {
       hasThumbnail: !!thumbnailFile,
       galleryCount: galleryFiles.length,
       hasDownload: !!downloadFile
     };
     localStorage.setItem("resourceFilesInfo", JSON.stringify(filesInfo));
-    
+
     setLastSaved(new Date());
     toast({
       title: "임시 저장 완료",
@@ -260,7 +260,7 @@ export default function ResourceUploadPage() {
       try {
         const parsedForm = JSON.parse(savedForm);
         form.reset(parsedForm);
-        
+
         toast({
           title: "임시 저장 내용 불러오기 성공",
           description: "마지막으로 저장된 내용을 불러왔습니다.",
@@ -286,27 +286,27 @@ export default function ResourceUploadPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const formData = new FormData();
-      
+
       // 기본 정보 추가
       Object.entries(values).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
           formData.append(key, String(value));
         }
       });
-      
+
       // 파일 추가
       if (thumbnailFile) {
         formData.append("image", thumbnailFile);
       }
-      
+
       galleryFiles.forEach((file, index) => {
         formData.append(`gallery_${index}`, file);
       });
-      
+
       if (downloadFile) {
         formData.append("file", downloadFile);
       }
-      
+
       await mutation.mutateAsync(formData);
     } catch (error) {
       console.error("폼 제출 오류:", error);
@@ -369,25 +369,25 @@ export default function ResourceUploadPage() {
 
     // 현재 필드의 값 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
-    
+
     // 커서 위치에 삽입하는 대신 텍스트 끝에 추가
     form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
-    
+
     // 입력창 초기화
     if (e.target) e.target.value = '';
   };
-  
+
   // YouTube 링크 감지 및 변환 함수
   const processYouTubeLinks = (text: string): string => {
     if (!text) return text;
-    
+
     // YouTube 링크 패턴 (youtu.be/ID 또는 youtube.com/watch?v=ID)
     const youtubePattern = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:&[^&\s]*)*(?:\s|$)/g;
-    
+
     return text.replace(youtubePattern, (match, videoId) => {
       // 이미 iframe으로 변환된 경우 건너뛰기
       if (match.includes('iframe')) return match;
-      
+
       return `\n<div class="youtube-embed">
       <iframe 
         width="100%" 
@@ -411,9 +411,9 @@ export default function ResourceUploadPage() {
     // YouTube URL 감지 및 처리
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = urlInput.match(youtubeRegex);
-    
+
     let markdownContent = '';
-    
+
     if (match && match[1]) {
       // YouTube 비디오 임베드
       const videoId = match[1];
@@ -444,7 +444,7 @@ export default function ResourceUploadPage() {
 
     const currentValue = form.getValues(currentEditor as any) || '';
     form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
-    
+
     setUrlInput('');
     setUrlInputActive(false);
   };
@@ -532,7 +532,7 @@ export default function ResourceUploadPage() {
               <p className="text-muted-foreground">새로운 리소스를 생성하고 공유하세요</p>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             {lastSaved && (
               <div className="text-xs text-muted-foreground flex items-center">
@@ -572,7 +572,7 @@ export default function ResourceUploadPage() {
             </Button>
           </div>
         </div>
-        
+
         {/* 탭 네비게이션 */}
         <Tabs defaultValue="basic" value={currentTab} onValueChange={setCurrentTab} className="w-full">
           <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6">
@@ -593,10 +593,10 @@ export default function ResourceUploadPage() {
               파일 업로드
             </TabsTrigger>
           </TabsList>
-          
+
           <Form {...form}>
             <form id="resource-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              
+
               {/* 기본 정보 탭 */}
               <TabsContent value="basic" className="space-y-6 mt-2">
                 <Alert className="mb-6">
@@ -606,7 +606,7 @@ export default function ResourceUploadPage() {
                     정확한 정보를 제공할수록 사용자들이 리소스를 더 쉽게 찾고 활용할 수 있습니다.
                   </AlertDescription>
                 </Alert>
-                
+
                 {/* 제목 및 카테고리 그리드 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -622,7 +622,7 @@ export default function ResourceUploadPage() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="resourceType"
@@ -654,7 +654,7 @@ export default function ResourceUploadPage() {
                     )}
                   />
                 </div>
-                
+
                 {/* 세부 카테고리 및 출처 사이트 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
@@ -709,7 +709,7 @@ export default function ResourceUploadPage() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="sourceSite"
@@ -737,7 +737,7 @@ export default function ResourceUploadPage() {
                     )}
                   />
                 </div>
-                
+
                 {/* 설명 */}
                 <FormField
                   control={form.control}
@@ -750,13 +750,17 @@ export default function ResourceUploadPage() {
                           placeholder="리소스에 대한 간략한 설명을 입력하세요 (이 내용은 리소스 목록에서 미리보기로 표시됩니다)"
                           className="min-h-[120px] resize-y"
                           {...field}
+                          onChange={(e) => {
+                            const newValue = processYouTubeLinks(e.target.value);
+                            field.onChange(newValue);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 {/* 태그 */}
                 <FormField
                   control={form.control}
@@ -784,7 +788,7 @@ export default function ResourceUploadPage() {
                     </FormItem>
                   )}
                 />
-                
+
                 <div className="flex justify-between pt-4 border-t">
                   <div></div>
                   <Button type="button" onClick={() => setCurrentTab("images")}>
@@ -793,7 +797,7 @@ export default function ResourceUploadPage() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               {/* 이미지 갤러리 탭 */}
               <TabsContent value="images" className="space-y-6 mt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -803,7 +807,7 @@ export default function ResourceUploadPage() {
                     <p className="text-sm text-muted-foreground mb-4">
                       리소스 목록에 표시될 대표 이미지를 업로드해주세요. 권장 비율은 16:9입니다.
                     </p>
-                    
+
                     <div className="flex flex-col gap-4">
                       {thumbnailFile ? (
                         <div className="relative group">
@@ -858,14 +862,14 @@ export default function ResourceUploadPage() {
                       </Button>
                     </div>
                   </div>
-                  
+
                   {/* 갤러리 이미지 업로드 영역 */}
                   <div>
                     <h3 className="text-lg font-semibold mb-2">갤러리 이미지</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
+                    <p className="textsm text-muted-foreground mb-4">
                       추가 이미지를 업로드하여 리소스를 더 상세하게 보여주세요. 최대 10개까지 가능합니다.
                     </p>
-                    
+
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                       {galleryFiles.map((file, index) => (
                         <FilePreviewCard 
@@ -874,7 +878,7 @@ export default function ResourceUploadPage() {
                           onDelete={() => removeGalleryFile(index)}
                         />
                       ))}
-                      
+
                       {galleryFiles.length < 10 && (
                         <div 
                           className="border border-dashed rounded-md flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-muted/20 transition-colors aspect-video"
@@ -888,7 +892,7 @@ export default function ResourceUploadPage() {
                         </div>
                       )}
                     </div>
-                    
+
                     <input
                       id="galleryInput"
                       type="file"
@@ -896,7 +900,7 @@ export default function ResourceUploadPage() {
                       accept="image/*"
                       onChange={(e) => handleFileSelect(e, 'gallery')}
                     />
-                    
+
                     <Button
                       type="button"
                       variant="outline"
@@ -913,7 +917,7 @@ export default function ResourceUploadPage() {
                     </Button>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setCurrentTab("basic")}>
                     <ChevronLeft className="mr-2 h-4 w-4" />
@@ -925,7 +929,7 @@ export default function ResourceUploadPage() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               {/* 상세 정보 탭 */}
               <TabsContent value="details" className="space-y-6 mt-2">
                 {!form.watch('resourceType') ? (
@@ -963,7 +967,7 @@ export default function ResourceUploadPage() {
                               </FormItem>
                             )}
                           />
-                          
+
                           <FormField
                             control={form.control}
                             name="dimensions"
@@ -985,7 +989,7 @@ export default function ResourceUploadPage() {
                             )}
                           />
                         </div>
-                        
+
                         <FormField
                           control={form.control}
                           name="assemblyInstructions"
@@ -1016,6 +1020,11 @@ export default function ResourceUploadPage() {
                                     className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                     {...field}
                                     value={field.value || ""}
+                                    onChange={(e) => {
+                                      // YouTube URL 감지 및 변환
+                                      const newValue = processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
                                   />
                                 </div>
                               </FormControl>
@@ -1026,7 +1035,7 @@ export default function ResourceUploadPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name="howToUse"
@@ -1128,7 +1137,7 @@ export default function ResourceUploadPage() {
                         />
                       </>
                     )}
-                    
+
                     {form.watch('resourceType') === 'software' && (
                       <FormField
                         control={form.control}
@@ -1242,7 +1251,7 @@ export default function ResourceUploadPage() {
                         )}
                       />
                     )}
-                    
+
                     {form.watch('resourceType') === '3d_model' && (
                       <>
                         <FormField
@@ -1265,7 +1274,7 @@ export default function ResourceUploadPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name="assemblyInstructions"
@@ -1377,7 +1386,7 @@ export default function ResourceUploadPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
                           name="howToUse"
@@ -1491,7 +1500,7 @@ export default function ResourceUploadPage() {
                         />
                       </>
                     )}
-                    
+
                     {form.watch('resourceType') === 'ai_model' && (
                       <FormField
                         control={form.control}
@@ -1605,7 +1614,7 @@ export default function ResourceUploadPage() {
                         )}
                       />
                     )}
-                    
+
                     {form.watch('resourceType') === 'free_content' && (
                       <FormField
                         control={form.control}
@@ -1719,7 +1728,7 @@ export default function ResourceUploadPage() {
                         )}
                       />
                     )}
-                    
+
                     {form.watch('resourceType') === 'flash_game' && (
                       <FormField
                         control={form.control}
@@ -1835,7 +1844,7 @@ export default function ResourceUploadPage() {
                     )}
                   </>
                 )}
-                
+
                 <div className="flex justify-between pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setCurrentTab("images")}>
                     <ChevronLeft className="mr-2 h-4 w-4" />
@@ -1847,7 +1856,7 @@ export default function ResourceUploadPage() {
                   </Button>
                 </div>
               </TabsContent>
-              
+
               {/* 파일 업로드 탭 */}
               <TabsContent value="files" className="space-y-6 mt-2">
                 <Card>
@@ -1858,7 +1867,7 @@ export default function ResourceUploadPage() {
                         <p className="text-sm text-muted-foreground mb-4">
                           사용자가 다운로드할 수 있는 파일을 업로드하거나 외부 URL을 입력해주세요.
                         </p>
-                        
+
                         {downloadFile ? (
                           <div className="border rounded-md p-4 bg-muted/10 mb-4">
                             <div className="flex items-center justify-between">
@@ -1893,14 +1902,14 @@ export default function ResourceUploadPage() {
                             <p className="text-xs text-muted-foreground">최대 100MB</p>
                           </div>
                         )}
-                        
+
                         <input 
                           ref={fileInputRef}
                           type="file" 
                           className="hidden" 
                           onChange={(e) => handleFileSelect(e, 'download')}
                         />
-                        
+
                         <div className="flex items-center gap-4 mt-4">
                           <Button
                             type="button"
@@ -1911,9 +1920,9 @@ export default function ResourceUploadPage() {
                             <Upload className="h-4 w-4 mr-1" />
                             파일 선택
                           </Button>
-                          
+
                           <Separator orientation="vertical" className="h-8" />
-                          
+
                           <div className="flex-1">
                             <FormField
                               control={form.control}
@@ -1934,18 +1943,18 @@ export default function ResourceUploadPage() {
                             />
                           </div>
                         </div>
-                        
+
                         {downloadFile && downloadFile.progress !== undefined && downloadFile.progress > 0 && downloadFile.progress < 100 && (
                           <div className="mt-4">
                             <ProgressStatus />
                           </div>
                         )}
                       </div>
-                      
+
                       {/* 업로드 요약 및 완료 버튼 */}
                       <div className="mt-6 pt-6 border-t">
                         <h3 className="text-lg font-semibold mb-4">업로드 요약</h3>
-                        
+
                         <div className="grid grid-cols-2 gap-x-8 gap-y-2 mb-6">
                           <div className="flex items-center">
                             <div className="w-6 text-primary mr-2">
@@ -1984,7 +1993,7 @@ export default function ResourceUploadPage() {
                             <span className="text-sm">갤러리 이미지 ({galleryFiles.length}개)</span>
                           </div>
                         </div>
-                        
+
                         <div className="flex gap-4">
                           <Button
                             type="button"
@@ -2012,7 +2021,7 @@ export default function ResourceUploadPage() {
                             )}
                           </Button>
                         </div>
-                        
+
                         {mutation.isPending && (
                           <div className="mt-4">
                             <ProgressStatus />
@@ -2022,7 +2031,7 @@ export default function ResourceUploadPage() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <div className="flex justify-between pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setCurrentTab("details")}>
                     <ChevronLeft className="mr-2 h-4 w-4" />
