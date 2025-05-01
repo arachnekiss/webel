@@ -21,6 +21,8 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 // 아이콘
 import {
@@ -45,7 +47,8 @@ import {
   Link2,
   Video,
   FolderOpen,
-  Smile
+  Smile,
+  CalendarIcon
 } from "lucide-react";
 
 // 카테고리 라벨
@@ -298,6 +301,126 @@ export default function ResourceUploadPage() {
     }
   };
 
+  // 미디어 첨부 도구 관련 상태 및 참조
+  const mediaImageInputRef = useRef<HTMLInputElement>(null);
+  const mediaGifInputRef = useRef<HTMLInputElement>(null);
+  const mediaVideoInputRef = useRef<HTMLInputElement>(null);
+  const mediaFileInputRef = useRef<HTMLInputElement>(null);
+  const [urlInputActive, setUrlInputActive] = useState(false);
+  const [currentEditor, setCurrentEditor] = useState<string | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const urlInputRef = useRef<HTMLInputElement>(null);
+
+  // 미디어 첨부 핸들러 함수들
+  const handleMediaImageSelect = (fieldName: string) => {
+    setCurrentEditor(fieldName);
+    mediaImageInputRef.current?.click();
+  };
+
+  const handleMediaGifSelect = (fieldName: string) => {
+    setCurrentEditor(fieldName);
+    mediaGifInputRef.current?.click();
+  };
+
+  const handleMediaVideoSelect = (fieldName: string) => {
+    setCurrentEditor(fieldName);
+    mediaVideoInputRef.current?.click();
+  };
+
+  const handleMediaFileSelect = (fieldName: string) => {
+    setCurrentEditor(fieldName);
+    mediaFileInputRef.current?.click();
+  };
+
+  const handleMediaUrlSelect = (fieldName: string) => {
+    setCurrentEditor(fieldName);
+    setUrlInputActive(true);
+    setTimeout(() => urlInputRef.current?.focus(), 100);
+  };
+
+  const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !currentEditor) {
+      return;
+    }
+
+    const file = files[0];
+    const fileUrl = URL.createObjectURL(file);
+    let markdownContent = '';
+
+    switch (type) {
+      case 'image':
+        markdownContent = `\n![이미지](${fileUrl})\n`;
+        break;
+      case 'gif':
+        markdownContent = `\n![GIF](${fileUrl})\n`;
+        break;
+      case 'video':
+        markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
+        break;
+      case 'file':
+        markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
+        break;
+    }
+
+    // 현재 필드의 값 가져오기
+    const currentValue = form.getValues(currentEditor as any) || '';
+    
+    // 커서 위치에 삽입하는 대신 텍스트 끝에 추가
+    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    
+    // 입력창 초기화
+    if (e.target) e.target.value = '';
+  };
+
+  const handleUrlSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim() || !currentEditor) {
+      setUrlInputActive(false);
+      return;
+    }
+
+    // YouTube URL 감지 및 처리
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = urlInput.match(youtubeRegex);
+    
+    let markdownContent = '';
+    
+    if (match && match[1]) {
+      // YouTube 비디오 임베드
+      const videoId = match[1];
+      markdownContent = `\n<div class="youtube-embed">
+      <iframe 
+        width="100%" 
+        height="315" 
+        src="https://www.youtube.com/embed/${videoId}" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen
+      ></iframe>
+      </div>\n`;
+    } else {
+      // 일반 URL - 카드 형태로 표시
+      markdownContent = `\n<div class="url-card">
+      <a href="${urlInput}" target="_blank" rel="noopener noreferrer">
+        <div class="url-preview">
+          <div class="url-icon">🔗</div>
+          <div class="url-content">
+            <div class="url-title">${urlInput}</div>
+            <div class="url-link">${urlInput}</div>
+          </div>
+        </div>
+      </a>
+      </div>\n`;
+    }
+
+    const currentValue = form.getValues(currentEditor as any) || '';
+    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    
+    setUrlInput('');
+    setUrlInputActive(false);
+  };
+
   // 진행률 표시 컴포넌트
   const ProgressStatus = () => (
     <div className="flex items-center space-x-2">
@@ -326,9 +449,44 @@ export default function ResourceUploadPage() {
     </div>
   );
 
+  // 미디어 파일 입력 참조용 숨겨진 input 요소들
+  const renderHiddenInputs = () => (
+    <>
+      <input
+        ref={mediaImageInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={(e) => handleMediaFileUpload(e, 'image')}
+      />
+      <input
+        ref={mediaGifInputRef}
+        type="file"
+        className="hidden"
+        accept="image/gif"
+        onChange={(e) => handleMediaFileUpload(e, 'gif')}
+      />
+      <input
+        ref={mediaVideoInputRef}
+        type="file"
+        className="hidden"
+        accept="video/*"
+        onChange={(e) => handleMediaFileUpload(e, 'video')}
+      />
+      <input
+        ref={mediaFileInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleMediaFileUpload(e, 'file')}
+      />
+    </>
+  );
+
   return (
     <div className="container mx-auto py-6">
       <div className="flex flex-col space-y-6">
+        {/* 미디어 첨부용 숨겨진 input 요소들 */}
+        {renderHiddenInputs()}
         {/* 헤더 섹션 */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b">
           <div className="flex items-center">
@@ -478,15 +636,46 @@ export default function ResourceUploadPage() {
                       <FormItem>
                         <FormLabel>업로드 일자</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="date" 
-                            {...field}
-                            value={field.value || new Date().toISOString().split('T')[0]}
-                            onChange={(e) => field.onChange(e.target.value)}
-                          />
+                          <div className="relative">
+                            <Input 
+                              type="text" 
+                              placeholder="YYYY-MM-DD" 
+                              {...field}
+                              value={field.value || new Date().toISOString().split('T')[0]}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              pattern="\d{4}-\d{2}-\d{2}"
+                            />
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8"
+                                    type="button"
+                                  >
+                                    <CalendarIcon className="h-4 w-4" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="end">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value ? new Date(field.value) : new Date()}
+                                    onSelect={(date) => {
+                                      if (date) {
+                                        const dateStr = date.toISOString().split('T')[0];
+                                        field.onChange(dateStr);
+                                      }
+                                    }}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                          </div>
                         </FormControl>
                         <FormDescription>
-                          리소스가 생성된 날짜를 선택해주세요. 기본값은 오늘입니다.
+                          리소스가 생성된 날짜를 입력하거나 달력에서 선택해주세요. 형식: YYYY-MM-DD
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
