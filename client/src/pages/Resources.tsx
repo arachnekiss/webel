@@ -46,24 +46,17 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // 타입이 없거나 undefined인 경우 기본값으로 모든 리소스 API 경로 사용
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
-  // 무한 쿼리 설정
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading
-  } = useInfiniteQuery({
-    // queryKey를 배열로 지정하고, type이 undefined인 경우에도 안전하게 처리
+  // 무한 쿼리 설정 - 훨씬 더 안전하게 처리
+  const infiniteQueryResult = useInfiniteQuery({
     queryKey: [queryKey || '/api/resources'],
-    enabled: true, // 쿼리를 항상 사용
+    enabled: isBrowser, // 브라우저 환경에서만 쿼리 활성화
     queryFn: async ({ pageParam = 1 }) => {
       try {
         // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
         const endpoint = queryKey || '/api/resources'; 
         
-        // window 객체가 존재하는지 확인
-        if (typeof window === 'undefined' || !window.location || !window.location.origin) {
+        // 중복 체크지만 안전을 위해 유지
+        if (!isBrowser) {
           return { items: [] };
         }
         
@@ -84,28 +77,30 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       }
     },
     getNextPageParam: (lastPage) => {
-      // lastPage가 undefined인 경우 방어 처리
-      if (!lastPage) {
-        return undefined;
-      }
+      if (!lastPage) return undefined;
       
-      // API가 페이지네이션 메타데이터를 반환하는 경우
       if (lastPage?.meta) {
         const { currentPage, totalPages } = lastPage.meta;
         return currentPage < totalPages ? currentPage + 1 : undefined;
       }
       
-      // 단순 배열을 반환하는 경우 (lastPage가 배열인지 확인)
       if (Array.isArray(lastPage)) {
-        // 배열에는 meta 속성이 없으므로, 단순히 배열 길이로 판단
         return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
       }
       
-      // 기본값으로 undefined 반환 (다음 페이지 없음)
       return undefined;
     },
     initialPageParam: 1,
   });
+  
+  // 기본값을 제공하여 안전하게 구조 분해
+  const {
+    data = { pages: [] },
+    fetchNextPage = () => {},
+    hasNextPage = false,
+    isFetchingNextPage = false,
+    isLoading = false
+  } = infiniteQueryResult || {};
   
   // 모든 페이지의 리소스를 하나의 배열로 병합
   const resources = data?.pages?.flatMap(page => {
