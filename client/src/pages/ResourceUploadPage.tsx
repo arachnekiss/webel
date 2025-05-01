@@ -118,6 +118,18 @@ export default function ResourceUploadPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [resourceTypeInfo, setResourceTypeInfo] = useState<string>("");
   
+  // 미디어 에디터 관련 상태
+  const [urlInputActive, setUrlInputActive] = useState(false);
+  const [urlInput, setUrlInput] = useState("");
+  const [currentEditor, setCurrentEditor] = useState<string | null>(null);
+  
+  // 미디어 파일 입력 참조
+  const mediaImageInputRef = useRef<HTMLInputElement>(null);
+  const mediaGifInputRef = useRef<HTMLInputElement>(null);
+  const mediaVideoInputRef = useRef<HTMLInputElement>(null);
+  const mediaFileInputRef = useRef<HTMLInputElement>(null);
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  
   // 폼 초기화
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -301,15 +313,7 @@ export default function ResourceUploadPage() {
     }
   };
 
-  // 미디어 첨부 도구 관련 상태 및 참조
-  const mediaImageInputRef = useRef<HTMLInputElement>(null);
-  const mediaGifInputRef = useRef<HTMLInputElement>(null);
-  const mediaVideoInputRef = useRef<HTMLInputElement>(null);
-  const mediaFileInputRef = useRef<HTMLInputElement>(null);
-  const [urlInputActive, setUrlInputActive] = useState(false);
-  const [currentEditor, setCurrentEditor] = useState<string | null>(null);
-  const [urlInput, setUrlInput] = useState("");
-  const urlInputRef = useRef<HTMLInputElement>(null);
+  // 미디어 첨부 도구 관련 함수들
 
   // 미디어 첨부 핸들러 함수들
   const handleMediaImageSelect = (fieldName: string) => {
