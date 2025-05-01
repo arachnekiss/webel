@@ -227,35 +227,122 @@ function SortableContentBlock({
 
           {(block.type === 'image' || block.type === 'video' || block.type === 'youtube' || block.type === 'gif') && (
             <>
-              <Input
-                placeholder={
-                  block.type === 'youtube'
-                    ? "유튜브 영상 URL 또는 임베드 코드"
-                    : `${block.type} URL`
-                }
-                value={block.content}
-                onChange={(e) => onUpdate(block.id, e.target.value)}
-                className="w-full mb-2"
-              />
-              <Input
-                placeholder="설명 (선택사항)"
-                value={block.caption || ""}
-                onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
-                className="w-full"
-              />
+              {block.type === 'image' ? (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="이미지 URL"
+                      value={block.content && !block.content.startsWith('blob:') ? block.content : ''}
+                      onChange={(e) => onUpdate(block.id, e.target.value)}
+                      className="flex-1"
+                    />
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id={`block-image-${block.id}`}
+                        onChange={async (e) => {
+                          const files = e.target.files;
+                          if (!files || files.length === 0) return;
+                          
+                          const file = files[0];
+                          
+                          // 이미지 파일 유효성 및 크기 검사
+                          if (!file.type.startsWith('image/')) {
+                            toast({
+                              title: "잘못된 파일 형식",
+                              description: "이미지 파일만 업로드할 수 있습니다.",
+                              variant: "destructive",
+                            });
+                            e.target.value = '';
+                            return;
+                          }
+                          
+                          if (file.size > 5 * 1024 * 1024) { // 5MB
+                            toast({
+                              title: "파일 크기 초과",
+                              description: "이미지 크기는 5MB 이하여야 합니다.",
+                              variant: "destructive",
+                            });
+                            e.target.value = '';
+                            return;
+                          }
+                          
+                          // 이미지 미리보기 URL 생성
+                          const previewUrl = URL.createObjectURL(file);
+                          onUpdate(block.id, previewUrl);
+                          
+                          e.target.value = '';
+                        }}
+                        className="hidden"
+                        accept="image/*"
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          const input = document.getElementById(`block-image-${block.id}`) as HTMLInputElement;
+                          if (input) input.click();
+                        }}
+                      >
+                        업로드
+                      </Button>
+                    </div>
+                  </div>
+                  <Input
+                    placeholder="이미지 설명 (선택사항)"
+                    value={block.caption || ""}
+                    onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              ) : (
+                <>
+                  <Input
+                    placeholder={
+                      block.type === 'youtube'
+                        ? "유튜브 영상 URL 또는 임베드 코드"
+                        : `${block.type} URL`
+                    }
+                    value={block.content}
+                    onChange={(e) => onUpdate(block.id, e.target.value)}
+                    className="w-full mb-2"
+                  />
+                  <Input
+                    placeholder="설명 (선택사항)"
+                    value={block.caption || ""}
+                    onChange={(e) => onUpdate(block.id, block.content, e.target.value)}
+                    className="w-full"
+                  />
+                </>
+              )}
             </>
           )}
         </CardContent>
         {block.type === 'image' && block.content && (
           <CardFooter className="pt-0">
-            <img
-              src={block.content}
-              alt={block.caption || "Preview"}
-              className="max-h-48 max-w-full rounded"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=이미지+미리보기+실패';
-              }}
-            />
+            <div className="relative w-full">
+              <img
+                src={block.content}
+                alt={block.caption || "Preview"}
+                className="max-h-56 max-w-full rounded object-contain mx-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=이미지+미리보기+실패';
+                }}
+              />
+              {block.content.startsWith('blob:') && (
+                <div className="absolute bottom-2 right-2 bg-background/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-muted-foreground flex items-center">
+                  <p>로컬 미리보기 - 저장 시 업로드 됨</p>
+                </div>
+              )}
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="absolute top-2 right-2 h-7 w-7 rounded-full"
+                onClick={() => onUpdate(block.id, "")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </CardFooter>
         )}
       </Card>
