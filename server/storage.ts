@@ -224,14 +224,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getResourcesByCategory(category: string): Promise<Resource[]> {
-    // Query by category - the only column that exists in the actual database
+    // Query only by the category column that exists in the database
     try {
-      const results = await db.select().from(resources).where(eq(resources.category, category));
+      // Use sql to construct a query with only the columns that exist in the database
+      const query = db
+        .select()
+        .from(resources)
+        .where(eq(resources.category, category));
       
-      // Add resourceType field to each resource to match category for type safety
+      const results = await query;
+      
+      // Add resourceType field to each resource for type compatibility
       return results.map(resource => {
         if (resource) {
-          (resource as any).resourceType = category; // Use the requested category
+          (resource as any).resourceType = category;
         }
         return resource;
       });

@@ -44,50 +44,29 @@ export const services = pgTable("services", {
 });
 
 // Resources schema
+// We'll define this based on the actual database structure
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
-  resourceType: text("resource_type").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
-  category: text("category"), // 카테고리로 통합: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
+  // Note: resourceType doesn't exist in the actual DB, but we need it for type safety
+  // We'll manually add it when fetching data
+  category: text("category").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
   tags: text("tags").array(),
   imageUrl: text("image_url"),
   downloadUrl: text("download_url"),
   downloadFile: text("download_file"), // Path or reference to the uploaded file
   downloadCount: integer("download_count").default(0),
   howToUse: text("how_to_use"), // Instructions for using the resource
-  assemblyInstructions: text("assembly_instructions"), // Step by step assembly instructions
-  assemblyMultimedia: jsonb("assembly_multimedia"), // Multimedia for assembly instructions
-  contentBlocks: jsonb("content_blocks"), // v2 UI 통합 레이아웃의 콘텐츠 블록
-  multimedia: jsonb("multimedia"), // v1 UI 멀티미디어 데이터
+  assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
   subcategory: text("subcategory"), // More specific categorization within category
   isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
   isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
   sourceSite: text("source_site"), // Original source if crawled
-  userId: integer("user_id").references(() => users.id), // Creator of the resource
-  status: text("status").default("published"), // published, draft, archived
-  version: text("version"), // Version of the resource
-  license: text("license"), // License type
-  repositoryUrl: text("repository_url"), // Repository URL
-  fileSize: integer("file_size"), // Size of the download file
   
-  // 소프트웨어 관련 필드
-  programmingLanguage: text("programming_language"),
-  softwareRequirements: text("software_requirements"),
-  dependencies: text("dependencies"),
-  
-  // 하드웨어 디자인 관련 필드
-  dimensions: text("dimensions"),
-  
-  // 3D 모델 관련 필드
-  fileFormat: text("file_format"),
-  polygonCount: text("polygon_count"),
-  
-  // AI 모델 관련 필드
-  aiModelType: text("ai_model_type"),
-  modelAccuracy: text("model_accuracy"),
-  trainingData: text("training_data"),
+  // Add a virtual field to mirror category for backwards compatibility
+  // This is not in the database, but we'll add it in our code
 });
 
 // Auctions schema
@@ -130,8 +109,19 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
 
-export type Resource = typeof resources.$inferSelect;
-export type InsertResource = z.infer<typeof insertResourceSchema>;
+// Base Resource type from database
+export type ResourceBase = typeof resources.$inferSelect;
+
+// Extended Resource type with virtual field
+export type Resource = ResourceBase & {
+  // Virtual field that mirrors category
+  resourceType?: string;
+};
+
+export type InsertResource = z.infer<typeof insertResourceSchema> & {
+  // Include resourceType in insert type for backwards compatibility
+  resourceType?: string;
+};
 
 export type Auction = typeof auctions.$inferSelect;
 export type InsertAuction = z.infer<typeof insertAuctionSchema>;
