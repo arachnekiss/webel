@@ -54,6 +54,7 @@ export const resources = pgTable("resources", {
   category: text("category").notNull(), // hardware_design, software, 3d_model, free_content, ai_model, flash_game
   tags: text("tags").array(),
   imageUrl: text("image_url"),
+  thumbnailUrl: text("thumbnail_url"), // New field for storing thumbnail images
   downloadUrl: text("download_url"),
   downloadFile: text("download_file"), // Path or reference to the uploaded file
   downloadCount: integer("download_count").default(0),

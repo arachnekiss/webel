@@ -122,6 +122,7 @@ const formSchema = z.object({
   license: z.string().optional(),
   version: z.string().optional(),
   downloadUrl: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
   repositoryUrl: z.string().optional(),
   programmingLanguage: z.string().optional(),
   softwareRequirements: z.string().optional(),
@@ -428,9 +429,44 @@ export default function ResourceUploadPageV2() {
     if (!files || files.length === 0) return;
     
     const file = files[0];
+    
+    // 파일 크기 제한 확인 (2MB = 2 * 1024 * 1024 bytes) 썸네일용
+    if (type === 'thumbnail' && file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "파일 크기 초과",
+        description: "썸네일 이미지는 2MB 이하여야 합니다.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // 파일 크기 제한 확인 (100MB = 100 * 1024 * 1024 bytes) 다운로드 파일용
+    if (type === 'download' && file.size > 100 * 1024 * 1024) {
+      toast({
+        title: "파일 크기 초과",
+        description: "업로드 파일은 100MB 이하여야 합니다.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // 이미지 파일 유효성 검사 (썸네일)
+    if (type === 'thumbnail' && !file.type.startsWith('image/')) {
+      toast({
+        title: "잘못된 파일 형식",
+        description: "썸네일에는 이미지 파일만 업로드할 수 있습니다.",
+        variant: "destructive",
+      });
+      e.target.value = '';
+      return;
+    }
+    
+    // FileInfo 객체 생성
     const fileInfo: FileInfo = {
       file,
-      preview: URL.createObjectURL(file),
+      preview: type === 'thumbnail' ? URL.createObjectURL(file) : null,
       name: file.name,
       size: file.size,
       type: file.type,
@@ -438,24 +474,131 @@ export default function ResourceUploadPageV2() {
       progress: 0,
     };
     
+    // 파일 타입에 따라 상태 업데이트
     if (type === 'download') {
       setDownloadFile(fileInfo);
+      
+      // 비동기로 파일 업로드 시작
+      (async () => {
+        try {
+          const progressUpdater = (progress: number) => {
+            setDownloadFile(prev => prev ? {...prev, progress} : null);
+          };
+          
+          // 0%에서 60%까지 진행 표시 (가상)
+          let progress = 0;
+          const interval = setInterval(() => {
+            progress += 5;
+            if (progress <= 60) {
+              progressUpdater(progress);
+            } else {
+              clearInterval(interval);
+            }
+          }, 200);
+          
+          // 실제 파일 업로드
+          const url = await handleFileUpload(file, 'download');
+          
+          // 업로드 완료 후 URL을 폼에 설정
+          if (url) {
+            form.setValue('downloadUrl', url);
+            clearInterval(interval);
+            progressUpdater(100);
+            
+            setTimeout(() => {
+              setDownloadFile(prev => prev ? {...prev, uploaded: true} : null);
+            }, 500);
+            
+            toast({
+              title: "파일 업로드 완료",
+              description: "파일이 성공적으로 업로드되었습니다.",
+            });
+          } else {
+            clearInterval(interval);
+            setDownloadFile(null);
+          }
+        } catch (error: any) {
+          toast({
+            title: "파일 업로드 실패",
+            description: error.message || "파일 업로드 중 오류가 발생했습니다.",
+            variant: "destructive",
+          });
+          setDownloadFile(null);
+        }
+      })();
+      
     } else {
       setThumbnailFile(fileInfo);
+      
+      // 썸네일 이미지 업로드
+      (async () => {
+        try {
+          const progressUpdater = (progress: number) => {
+            setThumbnailFile(prev => prev ? {...prev, progress} : null);
+          };
+          
+          // 0%에서 60%까지 진행 표시 (가상)
+          let progress = 0;
+          const interval = setInterval(() => {
+            progress += 10;
+            if (progress <= 60) {
+              progressUpdater(progress);
+            } else {
+              clearInterval(interval);
+            }
+          }, 100);
+          
+          // 실제 이미지 업로드
+          const url = await handleFileUpload(file, 'thumbnail');
+          
+          // 업로드 완료 후 URL을 폼에 설정
+          if (url) {
+            // 썸네일 URL은 나중에 폼 제출 시 사용
+            clearInterval(interval);
+            progressUpdater(100);
+            
+            setTimeout(() => {
+              setThumbnailFile(prev => prev ? {...prev, uploaded: true} : null);
+            }, 500);
+            
+            // 자동으로 이미지 컨텐츠 블록 추가 (썸네일 이미지일 경우)
+            const newBlock: ContentBlock = {
+              id: uuidv4(),
+              type: 'image',
+              content: url,
+              caption: '대표 이미지',
+            };
+            
+            // 기존 대표 이미지 블록이 없으면 추가
+            const hasMainImage = blocks.some(block => 
+              block.type === 'image' && block.caption === '대표 이미지'
+            );
+            
+            if (!hasMainImage) {
+              setBlocks((prev) => [newBlock, ...prev]);
+            }
+            
+            toast({
+              title: "이미지 업로드 완료",
+              description: "썸네일 이미지가 성공적으로 업로드되었습니다.",
+            });
+          } else {
+            clearInterval(interval);
+            setThumbnailFile(null);
+          }
+        } catch (error: any) {
+          toast({
+            title: "이미지 업로드 실패",
+            description: error.message || "이미지 업로드 중 오류가 발생했습니다.",
+            variant: "destructive",
+          });
+          setThumbnailFile(null);
+        }
+      })();
     }
     
-    // 자동으로 이미지 컨텐츠 블록 추가 (썸네일 이미지일 경우)
-    if (type === 'thumbnail' && fileInfo.preview) {
-      // 첫 번째 블록으로 추가
-      const newBlock: ContentBlock = {
-        id: uuidv4(),
-        type: 'image',
-        content: fileInfo.preview,
-        caption: '대표 이미지',
-      };
-      
-      setBlocks((prev) => [newBlock, ...prev]);
-    }
+    // Reset the input value so the same file can be selected again if needed
+    e.target.value = '';
   }
 
   // 폼 제출 처리
@@ -463,9 +606,16 @@ export default function ResourceUploadPageV2() {
     mutationFn: async (data: FormValues & { contentBlocks: ContentBlock[] }) => {
       // 먼저 파일들을 업로드
       let downloadUrl = data.downloadUrl || '';
+      let thumbnailUrl = data.thumbnailUrl || '';
       
+      // 다운로드 파일 업로드 (아직 업로드되지 않은 경우)
       if (downloadFile && downloadFile.file && !downloadFile.uploaded) {
         downloadUrl = await handleFileUpload(downloadFile.file, 'download');
+      }
+      
+      // 썸네일 이미지 업로드 (아직 업로드되지 않은 경우)
+      if (thumbnailFile && thumbnailFile.file && !thumbnailFile.uploaded) {
+        thumbnailUrl = await handleFileUpload(thumbnailFile.file, 'thumbnail');
       }
       
       // 이미지 URL을 서버에 저장된 URL로 업데이트
@@ -492,6 +642,7 @@ export default function ResourceUploadPageV2() {
       const response = await apiRequest("POST", "/api/resources", {
         ...data,
         downloadUrl,
+        thumbnailUrl,
         contentBlocks: updatedBlocks,
       });
       return response.json();
@@ -1098,152 +1249,168 @@ export default function ResourceUploadPageV2() {
         <Separator className="mb-4" />
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">상세 콘텐츠</h2>
-          <div className="flex flex-wrap gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="flex items-center"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  블록 추가
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent className="w-80 p-0">
+                <div className="grid grid-cols-4 gap-1 p-2">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('heading')}
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    제목
+                    <FileText className="h-8 w-8 mb-1" />
+                    <span className="text-xs">제목</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>섹션 제목 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('paragraph')}
                   >
-                    <FileText className="h-4 w-4 mr-1" />
-                    텍스트
+                    <FileText className="h-8 w-8 mb-1" />
+                    <span className="text-xs">텍스트</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>텍스트 단락 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('image')}
                   >
-                    <ImageIcon className="h-4 w-4 mr-1" />
-                    이미지
+                    <ImageIcon className="h-8 w-8 mb-1" />
+                    <span className="text-xs">이미지</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>이미지 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('video')}
                   >
-                    <Video className="h-4 w-4 mr-1" />
-                    비디오
+                    <Video className="h-8 w-8 mb-1" />
+                    <span className="text-xs">비디오</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>비디오 URL 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('youtube')}
                   >
-                    <Youtube className="h-4 w-4 mr-1" />
-                    유튜브
+                    <Youtube className="h-8 w-8 mb-1" />
+                    <span className="text-xs">유튜브</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>유튜브 임베드 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
                     onClick={() => addBlock('gif')}
                   >
-                    <FileVideo className="h-4 w-4 mr-1" />
-                    GIF
+                    <FileVideo className="h-8 w-8 mb-1" />
+                    <span className="text-xs">GIF</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>GIF 이미지 추가</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
+                    onClick={() => addBlock('code')}
+                  >
+                    <Code className="h-8 w-8 mb-1" />
+                    <span className="text-xs">코드</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="flex flex-col items-center justify-center h-20 w-full"
+                    onClick={() => addBlock('list')}
+                  >
+                    <List className="h-8 w-8 mb-1" />
+                    <span className="text-xs">목록</span>
+                  </Button>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
-
-        <div className="mt-4">
-          <DndContext 
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext 
-              items={blocks.map(block => block.id)}
-              strategy={verticalListSortingStrategy}
+        
+        {blocks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-md bg-muted/10">
+            <File className="h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">콘텐츠 블록 없음</h3>
+            <p className="text-sm text-muted-foreground text-center mb-4 max-w-md">
+              위 버튼을 눌러 제목, 텍스트, 이미지, 동영상, 코드 등의 콘텐츠 블록을 추가하세요.
+              블록을 추가하면 리소스에 대한 자세한 설명을 작성할 수 있습니다.
+            </p>
+            <Button
+              type="button"
+              onClick={() => addBlock('paragraph')}
+              className="mt-2"
             >
-              {blocks.map((block) => (
-                <SortableContentBlock
-                  key={block.id}
-                  block={block}
-                  onUpdate={updateBlock}
-                  onDelete={deleteBlock}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
-
-          {blocks.length === 0 && (
-            <div className="text-center py-10 border-2 border-dashed rounded-md">
-              <p className="text-muted-foreground">
-                상세 콘텐츠를 추가하려면 위의 버튼을 클릭하세요.
-              </p>
+              <Plus className="h-4 w-4 mr-1" />
+              텍스트 블록 추가하기
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-1">
+            <div className="bg-muted/20 px-3 py-2 rounded text-sm font-medium mb-2">
+              <div className="flex items-center">
+                <Grip className="h-4 w-4 mr-2 text-muted-foreground" />
+                블록을 드래그하여 순서를 변경할 수 있습니다
+              </div>
             </div>
-          )}
-        </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={blocks.map(b => b.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-3">
+                  {blocks.map((block) => (
+                    <SortableContentBlock
+                      key={block.id}
+                      block={block}
+                      onUpdate={updateBlock}
+                      onDelete={deleteBlock}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+            
+            <div className="flex justify-center mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => addBlock('paragraph')}
+                className="w-full max-w-xs"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                텍스트 블록 추가
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 하단 버튼 */}
