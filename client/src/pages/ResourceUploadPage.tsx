@@ -626,7 +626,7 @@ export default function ResourceUploadPage() {
                     name="resourceType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>카테고리 *</FormLabel>
+                        <FormLabel>카테고리</FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           form.trigger("resourceType");
@@ -742,7 +742,7 @@ export default function ResourceUploadPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>설명 *</FormLabel>
+                      <FormLabel>설명 (선택)</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="리소스에 대한 간략한 설명을 입력하세요 (이 내용은 리소스 목록에서 미리보기로 표시됩니다)"
@@ -930,15 +930,7 @@ export default function ResourceUploadPage() {
 
               {/* 상세 정보 탭 */}
               <TabsContent value="details" className="space-y-6 mt-2">
-                {!form.watch('resourceType') ? (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>카테고리 선택 필요</AlertTitle>
-                    <AlertDescription>
-                      기본 정보 탭에서 리소스 카테고리를 먼저 선택해주세요.
-                    </AlertDescription>
-                  </Alert>
-                ) : (
+                {(
                   <>
                     {/* 카테고리별 상세 정보 */}
                     {form.watch('resourceType') === 'hardware_design' && (
@@ -2094,7 +2086,7 @@ export default function ResourceUploadPage() {
                             {mutation.isPending ? (
                               <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
                             ) : (
-                              <>리소스 업로드 완료 <Check className="ml-2 h-4 w-4" /></>
+                              <>최소 정보로 업로드 완료 <Check className="ml-2 h-4 w-4" /></>
                             )}
                           </Button>
                         </div>
@@ -2118,16 +2110,13 @@ export default function ResourceUploadPage() {
                     type="submit"
                     disabled={
                       mutation.isPending || 
-                      !form.watch('title') || 
-                      !form.watch('description') || 
-                      !form.watch('resourceType') ||
-                      !thumbnailFile
+                      !form.watch('resourceType')
                     }
                   >
                     {mutation.isPending ? (
                       <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
                     ) : (
-                      <>리소스 업로드 <Upload className="ml-2 h-4 w-4" /></>
+                      <>최소 정보로 업로드 <Upload className="ml-2 h-4 w-4" /></>
                     )}
                   </Button>
                 </div>
