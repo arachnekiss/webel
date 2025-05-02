@@ -194,6 +194,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       pricing: '10g당 1,000원',
       availableHours: '평일 10:00-18:00',
       isIndividual: true,
+      isFreeService: false, // 기본적으로 유료 서비스로 시작
       tags: serviceType === '3d_printing' ? ['PLA', 'ABS', '시제품'] : 
             serviceType === 'engineer' ? ['설계', 'PCB', '전자기기'] : 
             ['제조', '가공', '시제품'],
