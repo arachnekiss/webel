@@ -83,17 +83,15 @@ interface FileWithPreview extends File {
   progress?: number;
 }
 
-// 폼 유효성 검사 스키마
+// 폼 유효성 검사 스키마 - 모든 필드를 선택 사항으로 변경
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "리소스 제목은 최소 2자 이상이어야 합니다.",
-  }),
+  }).optional(),
   description: z.string().min(10, {
     message: "설명은 최소 10자 이상이어야 합니다.",
-  }),
-  resourceType: z.string({
-    required_error: "카테고리를 선택해주세요.",
-  }),
+  }).optional(),
+  resourceType: z.string().default("hardware_design"),
   uploadDate: z.string().optional(),
   tags: z.string().optional(),
   downloadUrl: z.string().optional(),
@@ -614,7 +612,7 @@ export default function ResourceUploadPage() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>리소스 제목 *</FormLabel>
+                        <FormLabel>리소스 제목 (선택)</FormLabel>
                         <FormControl>
                           <Input placeholder="간결하고 명확한 제목을 입력하세요" {...field} />
                         </FormControl>
