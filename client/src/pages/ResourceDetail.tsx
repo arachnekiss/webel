@@ -222,110 +222,94 @@ const ResourceDetail: React.FC = () => {
               )}
             </div>
             
-            {/* 리소스 정보 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center">
-                <Calendar className="h-4 w-4 text-gray-500 mr-2" />
+            {/* 리소스 정보 - GitHub 스타일 레이아웃 */}
+            <div className="flex flex-col md:flex-row gap-6 mt-2">
+              {/* 등록일 정보 */}
+              <div className="flex items-center bg-blue-50 rounded-md px-4 py-3 border border-blue-100">
+                <Calendar className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0" />
                 <div>
-                  <span className="text-gray-500 block">등록일</span>
-                  <span>{formatDate(createdAt ? (typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : undefined) : undefined)}</span>
+                  <span className="text-gray-700 font-medium block">등록일</span>
+                  <span className="text-gray-600">{formatDate(createdAt ? (typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : undefined) : undefined)}</span>
                 </div>
               </div>
               
-              {Array.isArray(resource.tags) && resource.tags.length > 0 && (
-                <div className="flex items-center">
-                  <Tag className="h-4 w-4 text-gray-500 mr-2" />
-                  <div>
-                    <span className="text-gray-500 block">태그</span>
-                    <span className="truncate max-w-[200px]">{resource.tags.join(', ')}</span>
+              {/* 다운로드 URL - GitHub 스타일 박스 */}
+              <div className="flex-1">
+                {resource.downloadUrl ? (
+                  <div className="bg-gray-50 border border-gray-200 rounded-md overflow-hidden">
+                    <div className="flex items-center justify-between bg-gray-100 px-4 py-2 border-b border-gray-200">
+                      <div className="flex items-center">
+                        <Link2 className="h-4 w-4 text-gray-600 mr-2" />
+                        <span className="font-medium text-gray-700">다운로드 URL</span>
+                      </div>
+                      <a 
+                        href={resource.downloadUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-xs px-2 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded transition-colors"
+                      >
+                        새 탭에서 열기
+                      </a>
+                    </div>
+                    <div className="p-3 font-mono text-sm bg-white break-all overflow-x-auto">
+                      <a 
+                        href={resource.downloadUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {resource.downloadUrl}
+                      </a>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              {resource.downloadUrl && (
-                <div className="flex items-center">
-                  <Link2 className="h-4 w-4 text-gray-500 mr-2" />
-                  <div>
-                    <span className="text-gray-500 block">다운로드 URL</span>
-                    <a 
-                      href={resource.downloadUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline truncate max-w-[200px] inline-block"
-                    >
-                      다운로드 링크
-                    </a>
+                ) : (
+                  <div className="bg-gray-50 border border-gray-200 rounded-md p-4 flex items-center">
+                    <Link2 className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                    <span className="text-gray-500">다운로드 URL이 제공되지 않았습니다.</span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
-          {/* 태그 및 다운로드 URL 섹션 */}
+          {/* 태그 섹션 */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-            <div className="flex flex-col space-y-4">
-              {/* 태그 섹션 */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Tag className="h-5 w-5 text-gray-600" />
-                  <h3 className="font-semibold text-lg">태그</h3>
-                </div>
-                {Array.isArray(resource.tags) && resource.tags?.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {resource.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-800 px-3 py-1">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">태그 정보가 없습니다.</p>
-                )}
-              </div>
-              
-              {/* 다운로드 URL 섹션 */}
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <Link2 className="h-5 w-5 text-gray-600" />
-                  <h3 className="font-semibold text-lg">다운로드 URL</h3>
-                </div>
-                {resource.downloadUrl ? (
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <a 
-                      href={resource.downloadUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline break-all"
-                    >
-                      {resource.downloadUrl}
-                    </a>
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-sm">다운로드 URL이 제공되지 않았습니다.</p>
-                )}
-              </div>
-              
-              {/* 소스 사이트 (출처 URL) 섹션 - 다운로드 URL과 다른 경우에만 표시 */}
-              {resource.sourceSite && resource.sourceSite !== resource.downloadUrl && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <FileText className="h-5 w-5 text-gray-600" />
-                    <h3 className="font-semibold text-lg">출처 사이트</h3>
-                  </div>
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <a 
-                      href={resource.sourceSite} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline break-all"
-                    >
-                      {resource.sourceSite}
-                    </a>
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center gap-2 mb-3">
+              <Tag className="h-5 w-5 text-gray-600" />
+              <h3 className="font-semibold text-lg">태그</h3>
             </div>
+            {Array.isArray(resource.tags) && resource.tags?.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {resource.tags.map((tag, index) => (
+                  <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-800 px-3 py-1">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">태그 정보가 없습니다.</p>
+            )}
           </div>
+              
+          {/* 소스 사이트 (출처 URL) 섹션 - 다운로드 URL과 다른 경우에만 표시 */}
+          {resource.sourceSite && resource.sourceSite !== resource.downloadUrl && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="h-5 w-5 text-gray-600" />
+                <h3 className="font-semibold text-lg">출처 사이트</h3>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-md">
+                <a 
+                  href={resource.sourceSite} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline break-all"
+                >
+                  {resource.sourceSite}
+                </a>
+              </div>
+            </div>
+          )}
           
           {/* 리소스 설명 섹션 */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
