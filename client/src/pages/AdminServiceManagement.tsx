@@ -68,6 +68,8 @@ interface Service {
   imageUrl: string | null;
   createdAt: string;
   isVerified?: boolean;
+  isPaid?: boolean;
+  price?: number;
   contactEmail?: string;
   contactPhone?: string;
   printerModel?: string;
@@ -104,21 +106,21 @@ export default function AdminServiceManagement() {
   // 실제 서비스 배열 (items 필드에서 추출)
   const services = servicesData?.items || [];
 
-  // 서비스 검증 상태 변경 뮤테이션
-  const verifyServiceMutation = useMutation({
-    mutationFn: async ({ serviceId, isVerified }: { serviceId: number; isVerified: boolean }) => {
-      const res = await apiRequest("PUT", `/api/admin/services/${serviceId}/verify`, { 
-        isVerified 
+  // 서비스 유료/무료 상태 변경 뮤테이션
+  const toggleServicePaidStatusMutation = useMutation({
+    mutationFn: async ({ serviceId, isPaid }: { serviceId: number; isPaid: boolean }) => {
+      const res = await apiRequest("PUT", `/api/admin/services/${serviceId}/paid-status`, { 
+        isPaid 
       });
       return await res.json();
     },
     onSuccess: () => {
-      toast({ title: "서비스 검증 상태가 변경되었습니다." });
+      toast({ title: "서비스 유료/무료 상태가 변경되었습니다." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
     },
     onError: (error: Error) => {
       toast({
-        title: "서비스 검증 상태 변경 실패",
+        title: "서비스 상태 변경 실패",
         description: error.message,
         variant: "destructive",
       });
@@ -158,11 +160,12 @@ export default function AdminServiceManagement() {
     }
   };
 
-  // 서비스 검증 상태 변경 핸들러
-  const handleToggleVerified = (service: Service) => {
-    verifyServiceMutation.mutate({
+  // 서비스 유료/무료 상태 변경 핸들러
+  const handleTogglePaidStatus = (service: Service) => {
+    const isPaid = !(service.isPaid || (service.price && service.price > 0));
+    toggleServicePaidStatusMutation.mutate({
       serviceId: service.id,
-      isVerified: !service.isVerified
+      isPaid: isPaid
     });
   };
 
@@ -187,8 +190,8 @@ export default function AdminServiceManagement() {
     // 탭 필터링
     const matchesTab = 
       activeTab === "all" || 
-      (activeTab === "verified" && service.isVerified) ||
-      (activeTab === "unverified" && !service.isVerified);
+      (activeTab === "paid" && (service.isPaid || (service.price && service.price > 0))) ||
+      (activeTab === "free" && (!service.isPaid && (!service.price || service.price === 0)));
 
     // 타입 필터링
     const matchesType = 
@@ -235,8 +238,8 @@ export default function AdminServiceManagement() {
           <div className="flex justify-between items-center mb-4">
             <TabsList>
               <TabsTrigger value="all">모든 서비스</TabsTrigger>
-              <TabsTrigger value="verified">검증됨</TabsTrigger>
-              <TabsTrigger value="unverified">미검증</TabsTrigger>
+              <TabsTrigger value="paid">유료 서비스</TabsTrigger>
+              <TabsTrigger value="free">무료 서비스</TabsTrigger>
             </TabsList>
             
             <div className="flex items-center gap-2">
@@ -276,23 +279,23 @@ export default function AdminServiceManagement() {
             <ServiceTable 
               services={filteredServices || []} 
               onDelete={openDeleteDialog}
-              onToggleVerified={handleToggleVerified}
+              onToggleVerified={handleTogglePaidStatus}
             />
           </TabsContent>
           
-          <TabsContent value="verified">
+          <TabsContent value="paid">
             <ServiceTable 
               services={filteredServices || []} 
               onDelete={openDeleteDialog}
-              onToggleVerified={handleToggleVerified}
+              onToggleVerified={handleTogglePaidStatus}
             />
           </TabsContent>
           
-          <TabsContent value="unverified">
+          <TabsContent value="free">
             <ServiceTable 
               services={filteredServices || []} 
               onDelete={openDeleteDialog}
-              onToggleVerified={handleToggleVerified}
+              onToggleVerified={handleTogglePaidStatus}
             />
           </TabsContent>
         </Tabs>
@@ -399,10 +402,10 @@ function ServiceTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  {service.isVerified ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-200">검증됨</Badge>
+                  {service.isPaid || (service.price && service.price > 0) ? (
+                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">유료</Badge>
                   ) : (
-                    <Badge variant="outline" className="text-muted-foreground">미검증</Badge>
+                    <Badge variant="outline" className="text-muted-foreground">무료</Badge>
                   )}
                 </TableCell>
                 <TableCell>
@@ -424,15 +427,15 @@ function ServiceTable({
                       <DropdownMenuSeparator />
                       
                       <DropdownMenuItem onClick={() => onToggleVerified(service)}>
-                        {service.isVerified ? (
+                        {service.isPaid || (service.price && service.price > 0) ? (
                           <>
                             <XCircle className="h-4 w-4 mr-2" />
-                            검증 해제
+                            무료로 변경
                           </>
                         ) : (
                           <>
                             <CheckCircle2 className="h-4 w-4 mr-2" />
-                            검증됨으로 표시
+                            유료로 변경
                           </>
                         )}
                       </DropdownMenuItem>
