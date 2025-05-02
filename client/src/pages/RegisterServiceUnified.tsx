@@ -307,74 +307,80 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   // 서비스 등록 API 요청
   const registerServiceMutation = useMutation({
     mutationFn: async (data: ServiceFormValues) => {
-      // FormData를 사용하여 멀티파트 요청 준비
-      const formData = new FormData();
-      
-      // 기본 필드 추가
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('serviceType', data.serviceType);
-      
-      // 위치 정보 추가
-      const locationData = {
-        lat: data.latitude,
-        long: data.longitude,
-        address: data.address,
-      };
-      formData.append('location', JSON.stringify(locationData));
-      
-      // 기타 필드 추가
-      formData.append('tags', data.tags.join(','));
-      formData.append('contactPhone', data.contactPhone);
-      formData.append('contactEmail', data.contactEmail);
-      formData.append('pricing', data.pricing);
-      formData.append('availableHours', data.availableHours);
-      formData.append('isIndividual', data.isIndividual.toString());
-      
-      // 서비스 유형별 추가 정보
-      if (data.serviceType === "3d_printing" && data.printerModel) {
-        formData.append('printerModel', data.printerModel);
-        if (selectedMaterials.length > 0) {
-          formData.append('materials', selectedMaterials.join(','));
-        }
-        if (selectedFileFormats.length > 0) {
-          formData.append('fileFormats', selectedFileFormats.join(','));
-        }
-      } else if (data.serviceType === "engineer") {
-        if (data.hourlyRate) formData.append('hourlyRate', data.hourlyRate);
-        if (selectedSpecializations.length > 0) {
-          formData.append('specializations', selectedSpecializations.join(','));
-        }
-        if (selectedSpecializations.includes('기타') && otherSpecializationInput) {
-          formData.append('otherSpecializations', otherSpecializationInput);
-        }
-      } else if (data.serviceType === "manufacturing") {
-        if (selectedCapabilities.length > 0) {
-          formData.append('productionItems', selectedCapabilities.join(','));
-        }
-        if (selectedCapabilities.includes('기타') && otherProductInput) {
-          formData.append('otherProductionItems', otherProductInput);
-        }
-      }
-      
-      // 이미지 파일 추가
-      if (imageFile) {
-        formData.append('imageFile', imageFile);
-      }
-      
-      // 샘플 이미지 추가
-      sampleImages.forEach((sample, index) => {
-        formData.append(`sampleImage${index}`, sample.file);
-      });
-      formData.append('sampleImagesCount', sampleImages.length.toString());
+      try {
+        // 서비스 데이터 준비 - JSON으로 전송
+        const serviceData: any = {
+          title: data.title || '',
+          description: data.description || '',
+          serviceType: data.serviceType || '',
+          isIndividual: data.isIndividual,
+          tags: data.tags ? (typeof data.tags === 'string' ? data.tags.split(',').map(tag => tag.trim()) : data.tags) : [],
+          contactPhone: data.contactPhone || '',
+          contactEmail: data.contactEmail || '',
+          pricing: data.pricing || '',
+          availableHours: data.availableHours || ''
+        };
 
-      // API 요청
-      const response = await apiRequest('POST', '/api/services', formData, true);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '서비스 등록에 실패했습니다');
+        // 위치 정보 추가
+        if (useCurrentLocation && currentLocation) {
+          serviceData.location = currentLocation;
+        } else {
+          serviceData.location = {
+            lat: data.latitude || form.getValues('latitude'),
+            long: data.longitude || form.getValues('longitude'),
+            address: addressInput || data.address || ''
+          };
+        }
+
+        // 서비스 유형별 특화 필드 추가
+        if (data.serviceType === '3d_printing') {
+          serviceData.printerModel = data.printerModel || '';
+          serviceData.materials = selectedMaterials;
+          serviceData.fileFormats = selectedFileFormats;
+        } 
+        else if (data.serviceType === 'engineer') {
+          serviceData.specialty = selectedSpecializations.join(',');
+          serviceData.otherSpecialty = selectedSpecializations.includes('기타') ? otherSpecializationInput : '';
+          serviceData.experience = data.experience || 0;
+          serviceData.portfolioUrl = data.portfolioUrl || '';
+          serviceData.hourlyRate = data.hourlyRate || 0;
+          serviceData.availableItems = selectedServices.join(',');
+        } 
+        else if (data.serviceType === 'manufacturing') {
+          serviceData.availableItems = selectedCapabilities.join(',');
+          serviceData.otherItems = selectedCapabilities.includes('기타') ? otherProductInput : '';
+        }
+        else if (data.serviceType === 'electronics' || 
+                 data.serviceType === 'woodworking' || 
+                 data.serviceType === 'metalworking') {
+          serviceData.specialty = selectedSpecializations.join(',');
+          serviceData.otherSpecialty = selectedSpecializations.includes('기타') ? otherSpecializationInput : '';
+        }
+
+        // 이미지 URL 설정 (향후 실제 파일 업로드로 대체 필요)
+        serviceData.imageUrl = 'https://via.placeholder.com/500x300?text=Service+Image';
+
+        console.log('서비스 등록 데이터:', serviceData);
+
+        // API 요청 (JSON 형식으로 전송)
+        const response = await fetch('/api/services', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(serviceData)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || '서비스 등록에 실패했습니다');
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('서비스 등록 에러:', error);
+        throw error;
       }
-      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -988,15 +994,29 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
                             form.setValue('latitude', 37.5665);
                             form.setValue('longitude', 126.978);
+                            form.setValue('address', addressInput);
+                            
+                            // 주소가 추가되었음을 표시
+                            toast({
+                              title: "주소가 추가되었습니다",
+                              description: addressInput,
+                            });
                           }}
                           className="w-full"
                         >
-                          주소 확인
+                          주소 추가
                         </Button>
                         <FormMessage>
                           {form.formState.errors.latitude?.message ||
                             form.formState.errors.longitude?.message}
                         </FormMessage>
+                      </div>
+                    )}
+                    
+                    {!useCurrentLocation && addressInput && form.getValues('latitude') !== 0 && (
+                      <div className="bg-muted p-3 rounded-md text-sm mt-2">
+                        <div className="font-medium">추가된 주소:</div>
+                        <div>{addressInput}</div>
                       </div>
                     )}
 
