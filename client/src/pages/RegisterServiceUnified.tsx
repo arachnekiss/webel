@@ -79,16 +79,18 @@ const materialOptions = [
 
 // 전문 분야 옵션 (엔지니어용)
 const specializationOptions = [
-  "전자공학", "기계공학", "소프트웨어 개발", "3D 모델링", 
+  "전체", "전자공학", "기계공학", "소프트웨어 개발", "3D 모델링", 
   "PCB 설계", "임베디드 시스템", "로봇공학", "AI/ML", 
-  "자동화", "IoT", "생산 엔지니어링", "품질 관리", "기타"
+  "양자 컴퓨팅", "뉴럴 인터페이스", "자동화", "IoT", "생성형 AI", 
+  "나노 기술", "생체공학", "생산 엔지니어링", "품질 관리", "기타"
 ];
 
-// 제조 역량 옵션 (제조업체용)
-const manufacturingCapabilityOptions = [
-  "CNC 가공", "3D 프린팅", "사출 성형", "판금", "용접", 
-  "조립", "PCB 제작", "표면 처리", "레이저 가공", 
-  "밀링", "터닝", "와이어 컷팅", "드릴링", "기타"
+// 생산 품목 옵션 (생산업체용)
+const productionItemOptions = [
+  "전체", "스마트 장치", "AI 시스템", "모듈형 로봇", "바이오닉 부품",
+  "홀로그램 디스플레이", "3D 프린팅 구조물", "스마트 소재", "친환경 제품", 
+  "웨어러블 기기", "드론 및 자율 이동체", "의료 장비", "첨단 가전", 
+  "에너지 시스템", "고효율 배터리", "나노 소재", "기타"
 ];
 
 // 서비스 유형 별 라벨
@@ -341,9 +343,15 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         if (selectedSpecializations.length > 0) {
           formData.append('specializations', selectedSpecializations.join(','));
         }
+        if (selectedSpecializations.includes('기타') && otherSpecializationInput) {
+          formData.append('otherSpecializations', otherSpecializationInput);
+        }
       } else if (data.serviceType === "manufacturing") {
         if (selectedCapabilities.length > 0) {
-          formData.append('capabilities', selectedCapabilities.join(','));
+          formData.append('productionItems', selectedCapabilities.join(','));
+        }
+        if (selectedCapabilities.includes('기타') && otherProductInput) {
+          formData.append('otherProductionItems', otherProductInput);
         }
       }
       
@@ -743,6 +751,16 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             </div>
                           ))}
                         </div>
+                        
+                        {selectedSpecializations.includes('기타') && (
+                          <div className="mt-2">
+                            <Input
+                              placeholder="기타 전문 분야를 입력해주세요"
+                              value={otherSpecializationInput}
+                              onChange={(e) => setOtherSpecializationInput(e.target.value)}
+                            />
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
@@ -750,26 +768,36 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                   {/* 제조업체 특화 필드 */}
                   {serviceType === "manufacturing" && (
                     <>
-                      {/* 제조 역량 */}
+                      {/* 생산 품목 */}
                       <div className="space-y-3">
-                        <FormLabel>제조 역량</FormLabel>
+                        <FormLabel>생산 품목</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {manufacturingCapabilityOptions.map(capability => (
-                            <div key={capability} className="flex items-center space-x-2">
+                          {productionItemOptions.map(item => (
+                            <div key={item} className="flex items-center space-x-2">
                               <Checkbox 
-                                id={`cap-${capability}`} 
-                                checked={selectedCapabilities.includes(capability)}
-                                onCheckedChange={() => toggleCheckbox(selectedCapabilities, setSelectedCapabilities, capability)}
+                                id={`item-${item}`} 
+                                checked={selectedCapabilities.includes(item)}
+                                onCheckedChange={() => toggleCheckbox(selectedCapabilities, setSelectedCapabilities, item)}
                               />
                               <label
-                                htmlFor={`cap-${capability}`}
+                                htmlFor={`item-${item}`}
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                               >
-                                {capability}
+                                {item}
                               </label>
                             </div>
                           ))}
                         </div>
+                        
+                        {selectedCapabilities.includes('기타') && (
+                          <div className="mt-2">
+                            <Input
+                              placeholder="기타 생산 품목을 입력해주세요"
+                              value={otherProductInput}
+                              onChange={(e) => setOtherProductInput(e.target.value)}
+                            />
+                          </div>
+                        )}
                       </div>
                     </>
                   )}
