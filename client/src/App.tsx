@@ -41,6 +41,8 @@ import AdminUserManagement from '@/pages/AdminUserManagement';
 import AdminResourceManagement from '@/pages/AdminResourceManagement';
 import AdminServiceManagement from '@/pages/AdminServiceManagement';
 import RegisterPrinter from '@/pages/RegisterPrinter';
+import PaymentPage from '@/pages/PaymentPage';
+import PaymentResult from '@/pages/PaymentResult';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
@@ -134,6 +136,15 @@ function Router() {
             </Route>
             <Route path="/register">
               {() => <AuthPage initialTab="register" />}
+            </Route>
+            
+            {/* Payment pages */}
+            <Route path="/payment/service/:id" component={PaymentPage} />
+            <Route path="/payment/success">
+              <PaymentResult status="success" />
+            </Route>
+            <Route path="/payment/fail">
+              <PaymentResult status="fail" />
             </Route>
             
             {/* Admin pages */}

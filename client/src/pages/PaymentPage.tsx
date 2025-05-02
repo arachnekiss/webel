@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useParams, useNavigate } from 'wouter';
+import { useLocation, useParams } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,11 @@ import { useAuth } from '@/hooks/use-auth';
 import PaymentForm from '@/components/payment/PaymentForm';
 import { Service } from '@shared/schema';
 
-const PaymentPage = () => {
-  const { id } = useParams<{ id: string }>();
+interface PaymentPageProps {
+  id: string;
+}
+
+const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
   const serviceId = parseInt(id);
   const [location, navigate] = useLocation();
   const { toast } = useToast();

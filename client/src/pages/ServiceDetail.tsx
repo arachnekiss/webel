@@ -2,21 +2,24 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, useLocation as useWouterLocation } from 'wouter';
 import type { Service } from '@shared/schema';
-import { Loader2, MapPin, Phone, Mail, Calendar, Clock, Tag, DollarSign, Wrench, Award, Star, User, Briefcase, Building, Home } from 'lucide-react';
+import { Loader2, MapPin, Phone, Mail, Calendar, Clock, Tag, DollarSign, Wrench, Award, Star, User, Briefcase, Building, Home, CreditCard, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import ServiceMap from '@/components/map/ServiceMap';
 
 const ServiceDetail: React.FC = () => {
   const { id } = useParams();
   const [_, navigate] = useWouterLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('details');
+  const [isPaymentEnabled, setIsPaymentEnabled] = useState(false);
 
   // 서비스 데이터 가져오기
   console.log('ServiceDetail 컴포넌트 로드됨, ID 파라미터:', id);
@@ -469,6 +472,92 @@ const ServiceDetail: React.FC = () => {
                 </Button>
               </div>
             </CardContent>
+          </Card>
+          
+          {/* 가격 및 결제 카드 */}
+          <Card className="border-primary">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center">
+                <DollarSign className="h-5 w-5 mr-2 text-primary" />
+                가격 및 결제
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pb-2">
+              <div className="space-y-2">
+                {/* 기본 요금 */}
+                <div className="flex justify-between items-baseline">
+                  <span className="text-muted-foreground">기본 요금</span>
+                  <span className="font-semibold text-xl">
+                    {service.basePrice ? `${service.basePrice.toLocaleString()}원` : '문의 필요'}
+                  </span>
+                </div>
+                
+                {/* 시간당 요금 (있는 경우) */}
+                {service.hourlyRate && service.hourlyRate > 0 && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-muted-foreground">시간당 요금</span>
+                    <span className="font-medium">{service.hourlyRate.toLocaleString()}원/시간</span>
+                  </div>
+                )}
+                
+                {/* 수수료 정보 */}
+                <div className="flex justify-between items-baseline text-sm">
+                  <span className="text-muted-foreground">Webel 수수료(10%)</span>
+                  <span className="text-muted-foreground">
+                    {service.basePrice ? `${Math.round(service.basePrice * 0.1).toLocaleString()}원` : '-'}
+                  </span>
+                </div>
+                
+                <Separator className="my-2" />
+                
+                {/* 총 결제 금액 */}
+                <div className="flex justify-between items-baseline">
+                  <span className="font-medium">총 결제 금액</span>
+                  <span className="font-bold text-primary text-2xl">
+                    {service.basePrice ? `${service.basePrice.toLocaleString()}원` : '문의 필요'}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col space-y-2 pt-0">
+              {/* 결제하기 버튼 - 사용자의 자신의 서비스가 아닐 때만 표시 */}
+              {user && service.userId !== user.id ? (
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate(`/payment/service/${service.id}`)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  {service.basePrice ? '결제하기' : '문의하기'}
+                </Button>
+              ) : user && service.userId === user.id ? (
+                <div className="text-center w-full p-2 bg-amber-50 text-amber-700 rounded-md text-sm">
+                  ⓘ 자신의 서비스는 결제할 수 없습니다
+                </div>
+              ) : (
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate('/login')}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-2" />
+                  로그인 후 결제하기
+                </Button>
+              )}
+              
+              {/* 문의하기 버튼 */}
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={handleContactClick}
+              >
+                문의하기
+              </Button>
+              
+              <div className="text-xs text-center text-muted-foreground mt-2">
+                결제는 안전하게 처리되며, 서비스 완료 후 제공자에게 금액이 전달됩니다.
+              </div>
+            </CardFooter>
           </Card>
           
           {/* 제공자 정보 카드 */}
