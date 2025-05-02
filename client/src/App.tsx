@@ -21,6 +21,7 @@ import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
 import Resources from '@/pages/Resources';
 import ResourceDetail from '@/pages/ResourceDetail';
+import ResourceGallery from '@/pages/ResourceGallery'; // 추가: 전문가용 리소스 갤러리
 import UploadResource from '@/pages/UploadResource'; 
 import ResourceUploadPage from '@/pages/ResourceUploadPage'; // 개선된 리소스 업로드 페이지
 import ResourceUploadPageV2 from '@/pages/ResourceUploadPageV2'; // 통합 레이아웃 리소스 업로드 페이지
@@ -75,6 +76,11 @@ function Router() {
               {() => <Resources />}
             </Route>
             <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
+            
+            {/* 전문가용 리소스 갤러리 - 하드웨어, 소프트웨어, 3D 모델, AI 모델 전용 */}
+            <Route path="/resources/gallery">
+              {() => <ResourceGallery />}
+            </Route>
             
             {/* Flash Games page */}
             <Route path="/flash-games">
