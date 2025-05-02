@@ -89,6 +89,7 @@ const ResourceDetail: React.FC = () => {
   // 리소스 데이터 가져오기
   const { data: resource, isLoading, error } = useQuery<Resource>({
     queryKey: [`/api/resources/${id}`],
+    enabled: !!id && !isNaN(Number(id)), // id가 존재하고 숫자로 변환 가능한 경우에만 쿼리 실행
   });
 
   // 다운로드 처리 함수

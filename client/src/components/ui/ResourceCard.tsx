@@ -99,6 +99,9 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
     }
   };
 
+  // 디버깅을 위해 리소스 ID 확인
+  console.log('Resource card ID:', resource.id, typeof resource.id);
+
   return (
     <Card className="h-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
       <div className="relative h-48 bg-gray-200 overflow-hidden">
