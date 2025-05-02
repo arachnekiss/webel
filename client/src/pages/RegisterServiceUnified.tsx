@@ -496,7 +496,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>서비스 제목*</FormLabel>
+                        <FormLabel>서비스 제목</FormLabel>
                         <FormControl>
                           <Input
                             placeholder={serviceType === "3d_printing" 
@@ -518,7 +518,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>서비스 설명*</FormLabel>
+                        <FormLabel>서비스 설명</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="제공하는 서비스, 특장점, 재료 등에 대해 상세히 작성해주세요"
@@ -754,7 +754,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       name="contactPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>연락처*</FormLabel>
+                          <FormLabel>연락처</FormLabel>
                           <FormControl>
                             <Input
                               placeholder="예: 010-1234-5678"
@@ -771,7 +771,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       name="contactEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>이메일*</FormLabel>
+                          <FormLabel>이메일</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
@@ -790,7 +790,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="pricing"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>가격 정책*</FormLabel>
+                        <FormLabel>가격 정책</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
@@ -810,7 +810,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="availableHours"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>이용 가능 시간*</FormLabel>
+                        <FormLabel>이용 가능 시간</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="예: 평일 10:00-18:00, 주말 예약제"
