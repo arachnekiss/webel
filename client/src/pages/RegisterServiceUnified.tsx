@@ -161,6 +161,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   // 여러 주소 관리를 위한 상태
   const [locationList, setLocationList] = useState<{lat: number; long: number; address: string}[]>([]);
   
+  // 빈 배열로 초기화하여 페이지 최초 접속 시 선택된 항목이 없도록 함
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [selectedFileFormats, setSelectedFileFormats] = useState<string[]>([]);
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
@@ -198,9 +199,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       availableHours: '평일 10:00-18:00',
       isIndividual: true,
       isFreeService: true, // 기본적으로 무료 서비스로 시작
-      tags: serviceType === '3d_printing' ? ['PLA', 'ABS', '시제품'] : 
-            serviceType === 'engineer' ? ['설계', 'PCB', '전자기기'] : 
-            ['제조', '가공', '시제품'],
+      tags: [], // 페이지 최초 접속 시 빈 태그 배열로 설정
       address: '',
       latitude: 0,
       longitude: 0,
@@ -1002,20 +1001,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           <InfoIcon className="h-4 w-4 mr-1" /> 유료 서비스 인증 요구사항
                         </h3>
                         <p className="text-sm text-amber-700 mb-2">
-                          유료 서비스를 제공하기 위해서는 마이페이지에서 다음 절차를 완료해야 합니다:
+                          유료 서비스를 제공하기 위해서는 다음 절차를 완료해야 합니다:
                         </p>
                         <ul className="text-xs text-amber-700 list-disc pl-5 space-y-1">
                           <li>휴대폰 본인 인증</li>
                           <li>계좌 정보 등록 및 인증</li>
                         </ul>
-                        <Button 
-                          variant="outline"
-                          size="sm"
-                          className="mt-2 text-amber-800 border-amber-300 hover:bg-amber-100"
-                          onClick={() => navigate('/my/verification')}
-                        >
-                          본인 인증 페이지로 이동
-                        </Button>
                       </div>
 
                       <FormField
