@@ -649,7 +649,7 @@ export default function ResourceUploadPage() {
                   />
                 </div>
 
-                {/* 세부 카테고리 및 출처 사이트 */}
+                {/* 세부 카테고리 및 날짜 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
