@@ -106,7 +106,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       case 'flash_game':
         return '플래시 게임';
       default:
-        return '리소스';
+        return '모든 리소스';
     }
   };
   
@@ -166,10 +166,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         <div className="mb-8 md:flex md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">{getResourceTypeName()}</h1>
-            <p className="text-gray-600">
-              {type ? "무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요." :
-                "설계도, 소프트웨어, 모델링 파일 등 다양한 리소스를 확인하세요"}
-            </p>
+            {/* 설명 제거 */}
           </div>
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
         </div>
