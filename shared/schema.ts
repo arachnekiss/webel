@@ -85,7 +85,7 @@ export const resources = pgTable("resources", {
   assemblyInstructions: jsonb("assembly_instructions"), // Step by step assembly instructions
   // version: text("version"),
   // license: text("license"),
-  sourceSite: text("source_site"), // Original source website
+  sourceSite: text("source_site"), // 다운로드 URL (출처 사이트에서 변경됨)
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
   subcategory: text("subcategory"), // More specific categorization within category
   isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
