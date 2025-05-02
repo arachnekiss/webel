@@ -158,7 +158,7 @@ const Services: React.FC = () => {
   const getServiceTypeName = () => {
     switch (type) {
       case '3d_printing':
-        return '3D 프린팅 서비스';
+        return '근처 3D 프린터';
       case 'electronics':
         return '전자 회로 제작 서비스';
       case 'woodworking':
@@ -166,9 +166,9 @@ const Services: React.FC = () => {
       case 'metalworking':
         return '금속 가공 서비스';
       case 'manufacturing':
-        return '생산업체';
+        return '생산업체 찾기';
       case 'engineer':
-        return '전문 엔지니어';
+        return '엔지니어 찾기';
       default:
         return '모든 서비스';
     }
@@ -511,7 +511,7 @@ const Services: React.FC = () => {
                 </div>
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">검색 조건에 맞는 3D 프린터 서비스가 없습니다.</p>
+                  <p className="text-gray-600 mb-4">검색 조건에 맞는 근처 3D 프린터가 없습니다.</p>
                   <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
@@ -530,7 +530,7 @@ const Services: React.FC = () => {
                 <ServiceMap services={filteredServices} />
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 3D 프린터 서비스가 없습니다.</p>
+                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 근처 3D 프린터가 없습니다.</p>
                   <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
