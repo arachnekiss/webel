@@ -123,90 +123,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
   );
 };
 
-// 플래시 게임 타입 정의
-interface FlashGame {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl?: string;
-}
-
-interface FlashGamesSectionProps {
-  games?: FlashGame[];
-  isLoading?: boolean;
-}
-
-// 플래시 게임 섹션 컴포넌트
-const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false }) => {
-  // 플래시 게임 데이터 가져오기
-  const { data: flashGames = [], isLoading: isGamesLoading } = useQuery<any[]>({
-    queryKey: ['/api/resources/type/flash_game'],
-    enabled: true,
-  });
-
-  return (
-    <section className="rounded-3xl shadow-sm border border-slate-100 bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden mb-16 w-full">
-      <div className="px-6 py-6 border-b border-indigo-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 mr-3">
-            <Gamepad2 className="h-5 w-5 text-indigo-600" />
-          </div>
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">플래시 게임</h2>
-            <p className="text-slate-500 text-sm mt-1">인기 플래시 게임을 Webel에서 바로 즐겨보세요</p>
-          </div>
-        </div>
-        <Link href="/resources/type/flash_game">
-          <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
-            더 많은 게임
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Button>
-        </Link>
-      </div>
-      
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 p-6">
-        {isGamesLoading || isLoading ? (
-          // 로딩 스켈레톤
-          Array(5).fill(0).map((_, idx) => (
-            <div key={idx} className="bg-white/80 backdrop-blur-sm rounded-xl p-4 border border-indigo-100 flex flex-col animate-pulse">
-              <div className="w-full aspect-square bg-slate-200 rounded mb-3"></div>
-              <div className="h-5 bg-slate-200 rounded mb-2"></div>
-              <div className="h-4 bg-slate-200 rounded w-2/3"></div>
-            </div>
-          ))
-        ) : flashGames.length > 0 ? (
-          flashGames.slice(0, 5).map((game, idx) => (
-            <Link key={idx} href={`/resources/${game.id}`}>
-              <div className="group bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl p-4 border border-indigo-100 hover:border-indigo-300 flex flex-col cursor-pointer transition-all hover:shadow-md">
-                <div className="w-full aspect-square bg-indigo-50 rounded mb-3 overflow-hidden">
-                  {game.imageUrl ? (
-                    <img 
-                      src={game.imageUrl} 
-                      alt={game.title} 
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Gamepad2 className="h-10 w-10 text-indigo-200" />
-                    </div>
-                  )}
-                </div>
-                <h3 className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">{game.title}</h3>
-                <p className="text-slate-500 text-xs">{game.description}</p>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="col-span-5 text-center py-10">
-            <Gamepad2 className="h-12 w-12 mx-auto text-indigo-200 mb-4" />
-            <h3 className="text-lg font-bold mb-2">아직 등록된 게임이 없습니다</h3>
-            <p className="text-slate-500">곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!</p>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-};
+// 플래시 게임 섹션 컴포넌트 - 제거됨
 
 const Home: React.FC = () => {
   // API 응답 타입 정의 (items와 meta 구조)
@@ -248,12 +165,7 @@ const Home: React.FC = () => {
   });
   const modelingFiles = modelingFilesData?.items || [];
 
-  // 프리 콘텐츠 데이터 가져오기
-  const { data: freeContentsData, isLoading: isFreeContentLoading } = useQuery<ResourceResponse>({
-    queryKey: ['/api/resources/type/free_content'],
-    enabled: true,
-  });
-  const freeContents = freeContentsData?.items || [];
+  // 프리 콘텐츠 데이터 로딩 제거됨
 
   return (
     <div className="pb-16">
@@ -302,18 +214,7 @@ const Home: React.FC = () => {
           bg="bg-gradient-to-br from-slate-50 to-slate-100"
         />
         
-        {/* 프리 콘텐츠 섹션 */}
-        <ResourceCategorySection 
-          title="프리 콘텐츠" 
-          description="자유롭게 이용 가능한 다양한 콘텐츠" 
-          icon={<FileText className="h-5 w-5 text-slate-600" />}
-          items={freeContents?.slice(0, 6)} 
-          category="free_content"
-          isLoading={isFreeContentLoading}
-        />
-        
-        {/* 플래시 게임 섹션 */}
-        <FlashGamesSection isLoading={false} />
+        {/* 프리 콘텐츠와 플래시 게임 섹션 제거됨 */}
       </div>
       
       <div className="space-y-12">
