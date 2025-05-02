@@ -505,16 +505,6 @@ const ServiceDetail: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          
-          {/* 관련 서비스 추천 (향후 구현) */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-medium mb-4">관련 서비스</h3>
-              <div className="text-center py-4 text-gray-500">
-                <p>추천 서비스가 없습니다.</p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
