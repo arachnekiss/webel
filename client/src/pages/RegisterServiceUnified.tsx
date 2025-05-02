@@ -491,6 +491,54 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-6"
                 >
+                  {/* 서비스 이미지 */}
+                  <div className="space-y-3">
+                    <FormLabel>서비스 대표 이미지</FormLabel>
+                    <div className="border rounded-md p-4 text-center flex flex-col items-center justify-center min-h-[200px]">
+                      {imagePreview ? (
+                        <div className="relative w-full h-full">
+                          <img
+                            src={imagePreview}
+                            alt="미리보기"
+                            className="max-h-[180px] max-w-full object-contain mx-auto"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => {
+                              setImagePreview(null);
+                              setImageFile(null);
+                              if (fileInputRef.current) {
+                                fileInputRef.current.value = "";
+                              }
+                            }}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            제거
+                          </Button>
+                        </div>
+                      ) : (
+                        <div
+                          className="flex flex-col items-center justify-center cursor-pointer"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground mb-1">클릭하여 이미지 업로드</p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, GIF (최대 5MB)</p>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                      />
+                    </div>
+                  </div>
+
                   <FormField
                     control={form.control}
                     name="title"
@@ -928,54 +976,6 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         <div>{currentLocation.address}</div>
                       </div>
                     )}
-                  </div>
-
-                  {/* 서비스 이미지 */}
-                  <div className="space-y-3">
-                    <FormLabel>서비스 대표 이미지</FormLabel>
-                    <div className="border rounded-md p-4 text-center flex flex-col items-center justify-center min-h-[200px]">
-                      {imagePreview ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={imagePreview}
-                            alt="미리보기"
-                            className="max-h-[180px] max-w-full object-contain mx-auto"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="absolute top-2 right-2"
-                            onClick={() => {
-                              setImagePreview(null);
-                              setImageFile(null);
-                              if (fileInputRef.current) {
-                                fileInputRef.current.value = "";
-                              }
-                            }}
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            제거
-                          </Button>
-                        </div>
-                      ) : (
-                        <div
-                          className="flex flex-col items-center justify-center cursor-pointer"
-                          onClick={() => fileInputRef.current?.click()}
-                        >
-                          <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-                          <p className="text-sm text-muted-foreground mb-1">클릭하여 이미지 업로드</p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, GIF (최대 5MB)</p>
-                        </div>
-                      )}
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                      />
-                    </div>
                   </div>
 
                   <div className="flex justify-end">
