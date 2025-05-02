@@ -91,8 +91,12 @@ export async function verifyPhone(req: Request, res: Response) {
     verifiedUsers.add(req.user.id);
     delete verificationCodes[key];
 
-    // 실제 구현에서는 사용자 DB에 인증 상태 업데이트
-    // await storage.updateUser(req.user.id, { phoneVerified: true, phoneNumber });
+    // 사용자 DB에 인증 상태 업데이트
+    const updatedUser = await storage.verifyPhone(req.user.id, phoneNumber);
+    
+    if (!updatedUser) {
+      return res.status(500).json({ message: "사용자 정보 업데이트 중 오류가 발생했습니다" });
+    }
 
     return res.status(200).json({ message: "휴대폰 인증이 완료되었습니다", success: true });
   } catch (error) {
@@ -136,13 +140,18 @@ export async function registerBankAccount(req: Request, res: Response) {
     // 인증 성공 처리
     verifiedBanks.add(req.user.id);
 
-    // 실제 구현에서는 사용자 DB에 계좌 정보 업데이트
-    // await storage.updateUser(req.user.id, { 
-    //   bankVerified: true, 
-    //   bankName,
-    //   accountNumber,
-    //   accountHolder
-    // });
+    // 사용자 DB에 계좌 정보 업데이트
+    const bankInfo = {
+      bank: bankName,
+      accountNumber: cleanedAccountNumber,
+      accountHolder: accountHolder
+    };
+    
+    const updatedUser = await storage.registerBankAccount(req.user.id, bankInfo);
+    
+    if (!updatedUser) {
+      return res.status(500).json({ message: "계좌 정보 업데이트 중 오류가 발생했습니다" });
+    }
 
     return res.status(200).json({ 
       message: "계좌 등록이 완료되었습니다", 
@@ -163,18 +172,22 @@ export async function getVerificationStatus(req: Request, res: Response) {
       return res.status(401).json({ message: "인증이 필요합니다" });
     }
 
-    // 인증 상태 조회
-    const phoneVerified = verifiedUsers.has(req.user.id);
-    const bankVerified = verifiedBanks.has(req.user.id);
-
-    // 실제 구현에서는 DB에서 사용자 인증 정보 조회
-    // const user = await storage.getUser(req.user.id);
-    // const phoneVerified = user.phoneVerified || false;
-    // const bankVerified = user.bankVerified || false;
+    // 인증 상태 조회 - DB에서 가져오기
+    const verificationStatus = await storage.getVerificationStatus(req.user.id);
+    
+    if (!verificationStatus) {
+      return res.status(500).json({ message: "인증 상태 조회 중 오류가 발생했습니다" });
+    }
+    
+    // 인메모리 데이터와 DB 데이터 둘 다 확인 (둘 중 하나만 true여도 인증됨)
+    const phoneVerified = verifiedUsers.has(req.user.id) || verificationStatus.isPhoneVerified;
+    const bankVerified = verifiedBanks.has(req.user.id) || verificationStatus.isAccountVerified;
 
     return res.status(200).json({
       phoneVerified,
-      bankVerified
+      bankVerified,
+      phoneNumber: verificationStatus.phoneNumber,
+      bankAccountInfo: verificationStatus.bankAccountInfo
     });
   } catch (error) {
     console.error("인증 상태 조회 오류:", error);

@@ -550,6 +550,75 @@ export class DatabaseStorage implements IStorage {
     return updatedTransaction;
   }
 
+  // 인증 관련 메서드
+  async verifyPhone(id: number, phoneNumber: string): Promise<User | undefined> {
+    try {
+      // 사용자 업데이트
+      const [user] = await db
+        .update(users)
+        .set({
+          phoneNumber,
+          isPhoneVerified: true
+        })
+        .where(eq(users.id, id))
+        .returning();
+      
+      return user;
+    } catch (error) {
+      console.error('휴대폰 인증 업데이트 오류:', error);
+      return undefined;
+    }
+  }
+
+  async registerBankAccount(id: number, bankInfo: any): Promise<User | undefined> {
+    try {
+      // 유효성 검사
+      if (!bankInfo || !bankInfo.bank || !bankInfo.accountNumber || !bankInfo.accountHolder) {
+        throw new Error('은행 계좌 정보가 불완전합니다');
+      }
+      
+      // 사용자 업데이트
+      const [user] = await db
+        .update(users)
+        .set({
+          bankAccountInfo: bankInfo,
+          isAccountVerified: true
+        })
+        .where(eq(users.id, id))
+        .returning();
+      
+      return user;
+    } catch (error) {
+      console.error('계좌 등록 오류:', error);
+      return undefined;
+    }
+  }
+
+  async getVerificationStatus(id: number): Promise<{
+    isPhoneVerified: boolean;
+    isAccountVerified: boolean;
+    phoneNumber?: string;
+    bankAccountInfo?: any;
+  } | undefined> {
+    try {
+      const user = await this.getUser(id);
+      
+      if (!user) {
+        return undefined;
+      }
+      
+      return {
+        isPhoneVerified: user.isPhoneVerified || false,
+        isAccountVerified: user.isAccountVerified || false,
+        phoneNumber: user.phoneNumber,
+        bankAccountInfo: user.bankAccountInfo
+      };
+    } catch (error) {
+      console.error('인증 상태 조회 오류:', error);
+      return undefined;
+    }
+  }
+
   // Helper functions
   private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
     const R = 6371; // Radius of the earth in km
