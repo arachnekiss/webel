@@ -2086,7 +2086,7 @@ export default function ResourceUploadPage() {
                             {mutation.isPending ? (
                               <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
                             ) : (
-                              <>최소 정보로 업로드 완료 <Check className="ml-2 h-4 w-4" /></>
+                              <>리소스 업로드 완료 <Check className="ml-2 h-4 w-4" /></>
                             )}
                           </Button>
                         </div>
@@ -2116,7 +2116,7 @@ export default function ResourceUploadPage() {
                     {mutation.isPending ? (
                       <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
                     ) : (
-                      <>최소 정보로 업로드 <Upload className="ml-2 h-4 w-4" /></>
+                      <>리소스 업로드 <Upload className="ml-2 h-4 w-4" /></>
                     )}
                   </Button>
                 </div>
