@@ -149,6 +149,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const [serviceType, setServiceType] = useState<ServiceType>(defaultType || "3d_printing");
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
+  // 여러 주소 관리를 위한 상태
+  const [locationList, setLocationList] = useState<{lat: number; long: number; address: string}[]>([]);
   
   const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [selectedFileFormats, setSelectedFileFormats] = useState<string[]>([]);
