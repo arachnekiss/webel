@@ -125,7 +125,7 @@ const PayPalPayment = ({
   return (
     <div className="w-full">
       <PayPalScriptProvider options={{ 
-        "client-id": paypalConfig.clientId,
+        clientId: paypalConfig.clientId,
         currency: "USD"
       }}>
         <PayPalButtons
@@ -137,6 +137,7 @@ const PayPalPayment = ({
           }}
           createOrder={(_data, actions) => {
             return actions.order.create({
+              intent: "CAPTURE",
               purchase_units: [
                 {
                   amount: {

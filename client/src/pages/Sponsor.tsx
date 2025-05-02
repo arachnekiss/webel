@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { 
   Heart, Star, Zap, Shield, CheckCircle, Gift, 
   MessageSquare, User, Calendar, Copy, ExternalLink,
-  CreditCard, Building, Smartphone, DollarSign, Globe
+  CreditCard, Building, Smartphone, DollarSign, Globe, Coffee
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
@@ -317,6 +317,33 @@ const Sponsor: React.FC = () => {
                   <span className="text-gray-600 mr-1">예금주:</span>
                   <span className="font-medium">홍길동</span>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
+      
+      {/* Buy Me a Coffee 후원 */}
+      <section className="mb-8">
+        <Card className="border-2 border-amber-200 bg-gradient-to-r from-[#ffdd00]/10 to-[#ffdd00]/30">
+          <CardContent className="p-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-shrink-0">
+                <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" className="h-12" />
+              </div>
+              <div className="flex-grow">
+                <h3 className="text-xl font-bold text-gray-800 mb-1">Buy Me a Coffee로 후원하기</h3>
+                <p className="text-gray-600 mb-3">커피 한잔 가격으로 Webel 프로젝트 개발을 응원해주세요!</p>
+                <Button 
+                  className="bg-[#ffdd00] hover:bg-[#ffdd00]/80 text-black font-bold"
+                  onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+                >
+                  <Coffee className="h-5 w-5 mr-2" />
+                  Buy Me a Coffee
+                </Button>
+              </div>
+              <div className="flex-shrink-0 hidden md:block">
+                <img src="https://cdn.buymeacoffee.com/uploads/profile_pictures/default-yellow.png" alt="Coffee" className="h-24 rounded-full" />
               </div>
             </div>
           </CardContent>
