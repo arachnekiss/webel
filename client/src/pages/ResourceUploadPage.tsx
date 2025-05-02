@@ -83,14 +83,10 @@ interface FileWithPreview extends File {
   progress?: number;
 }
 
-// 폼 유효성 검사 스키마 - 모든 필드를 선택 사항으로 변경
+// 폼 유효성 검사 스키마 - 모든 필드를 선택 사항으로 변경하고 최소 문자수 제한 제거
 const formSchema = z.object({
-  title: z.string().min(2, {
-    message: "리소스 제목은 최소 2자 이상이어야 합니다.",
-  }).optional(),
-  description: z.string().min(10, {
-    message: "설명은 최소 10자 이상이어야 합니다.",
-  }).optional(),
+  title: z.string().optional(),
+  description: z.string().optional(),
   resourceType: z.string().default("hardware_design"),
   uploadDate: z.string().optional(),
   tags: z.string().optional(),
