@@ -398,7 +398,14 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || '서비스 등록에 실패했습니다');
+          // 여기서 응답을 상세히 처리할 수 있도록 에러 객체에 response 추가
+          const error = new Error(errorData.message || '서비스 등록에 실패했습니다');
+          // @ts-ignore - 에러 객체를 확장하여 onError에서 더 많은 정보를 사용할 수 있게 함
+          error.response = { 
+            status: response.status, 
+            data: errorData 
+          };
+          throw error;
         }
         
         return await response.json();
@@ -431,11 +438,29 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       // ID가 유효하지 않으면 서비스 타입 목록 페이지로 이동
       navigate(`/services/type/${serviceType}`);
     },
-    onError: (error: Error) => {
-      // 팝업 없이 조용히 처리
-      console.error('서비스 등록 실패:', error.message);
-      // 에러가 발생해도 서비스 목록 페이지로 이동
-      navigate(`/services/type/${serviceType}`);
+    onError: (error: any) => {
+      console.error('서비스 등록 실패:', error);
+      
+      // 인증 관련 에러인지 확인
+      if (error.response && error.response.data && error.response.data.verificationType === 'required') {
+        // 인증 필요 에러인 경우 사용자에게 알리고 인증 페이지로 이동 여부 확인
+        toast({
+          title: "유료 서비스 등록 불가",
+          description: error.response.data.message || "유료 서비스를 등록하기 위해서는 본인 인증이 필요합니다.",
+          variant: "destructive",
+        });
+        
+        if (window.confirm("본인 인증 페이지로 이동하시겠습니까?")) {
+          navigate('/my/verification');
+        }
+      } else {
+        // 일반 에러인 경우
+        toast({
+          title: "서비스 등록 실패",
+          description: error.message || "서비스 등록 중 오류가 발생했습니다.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -451,46 +476,14 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       return;
     }
 
-    // 유료 서비스인 경우 사용자 인증 상태 확인
+    // 유료 서비스인 경우 사용자 인증 상태를 서버에서 확인하게 함
+    // 클라이언트에서 추가적으로 확인하지 않고 서버 측 검증에 의존
     if (!data.isFreeService) {
-      try {
-        // 사용자 인증 정보 가져오기
-        const userResponse = await fetch('/api/user/verification', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        });
-        
-        if (!userResponse.ok) {
-          throw new Error('사용자 인증 정보를 가져오는데 실패했습니다.');
-        }
-        
-        const userData = await userResponse.json();
-        
-        // 휴대폰 인증과 계좌 등록 여부 확인
-        if (!userData.isPhoneVerified || !userData.isAccountVerified) {
-          toast({
-            title: "유료 서비스를 등록할 수 없습니다",
-            description: "유료 서비스를 등록하기 위해서는 휴대폰 인증 및 계좌 인증이 필요합니다.",
-            variant: "destructive",
-          });
-          
-          // 확인 후 인증 페이지로 이동
-          if (window.confirm("본인 인증 페이지로 이동하시겠습니까?")) {
-            navigate('/my/verification');
-          }
-          return;
-        }
-      } catch (error) {
-        console.error("인증 정보 확인 실패:", error);
-        toast({
-          title: "인증 정보 확인 실패",
-          description: "인증 정보를 확인하는 중 오류가 발생했습니다. 다시 시도해주세요.",
-          variant: "destructive",
-        });
-        return;
-      }
+      // 사용자에게 안내 메시지 표시
+      toast({
+        title: "유료 서비스 등록 신청",
+        description: "유료 서비스는 휴대폰 및 계좌 인증이 필요합니다. 인증 상태를 확인 중입니다.",
+      });
     }
 
     // 위치 정보가 없으면 기본값을 설정 (서울 중심부로 설정)

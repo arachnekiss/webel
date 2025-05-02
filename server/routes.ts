@@ -133,6 +133,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/services', isAuthenticated, async (req: Request, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: '로그인이 필요합니다.' });
+      }
+      
       // 유료 서비스인 경우 본인 인증이 필요한지 확인
       if (req.body.isFreeService === false || req.body.basePrice > 0) {
         // 인증 상태 확인
