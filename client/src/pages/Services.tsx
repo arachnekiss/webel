@@ -168,7 +168,7 @@ const Services: React.FC = () => {
       case 'manufacturing':
         return '생산업체';
       case 'engineer':
-        return '엔지니어 서비스';
+        return '전문 엔지니어';
       default:
         return '모든 서비스';
     }
@@ -202,7 +202,7 @@ const Services: React.FC = () => {
             onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
-            {type === '3d_printing' ? '프린터 등록' : '서비스 등록'}
+            {type === '3d_printing' ? '프린터 등록' : type === 'engineer' ? '엔지니어 등록' : type === 'manufacturing' ? '생산업체 등록' : '서비스 등록'}
           </Button>
         </div>
         
