@@ -94,7 +94,7 @@ const manufacturingCapabilityOptions = [
 // 서비스 유형 별 라벨
 const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
   { value: "3d_printing", label: "3D 프린터", icon: Printer },
-  { value: "engineer", label: "엔지니어 등록", icon: User },
+  { value: "engineer", label: "엔지니어", icon: User },
   { value: "manufacturing", label: "생산 서비스", icon: Building },
 ];
 
