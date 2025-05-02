@@ -179,7 +179,7 @@ export default function ResourceUploadPage() {
       setIsUploading(true);
       const response = await apiRequest(
         "POST",
-        "/api/resources",
+        "/api/resources/upload",
         formData,
         { 
           isFormData: true, 
@@ -302,7 +302,7 @@ export default function ResourceUploadPage() {
       });
 
       if (downloadFile) {
-        formData.append("file", downloadFile);
+        formData.append("downloadFile", downloadFile);
       }
 
       await mutation.mutateAsync(formData);
