@@ -503,7 +503,7 @@ const ResourceDetail: React.FC = () => {
                 <p className="text-sm text-indigo-700 mb-4">
                   직접 조립하기 어렵다면 근처 엔지니어에게 조립을 의뢰해보세요.
                 </p>
-                <Link href="/engineers">
+                <Link href="/services/type/engineer">
                   <Button variant="outline" className="w-full bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50 py-2">
                     <span className="truncate">엔지니어 찾기</span>
                   </Button>

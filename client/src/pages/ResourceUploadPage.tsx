@@ -706,10 +706,10 @@ export default function ResourceUploadPage() {
 
                   <FormField
                     control={form.control}
-                    name="sourceSite"
+                    name="downloadUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>출처 사이트</FormLabel>
+                        <FormLabel>다운로드 URL</FormLabel>
                         <FormControl>
                           <div className="flex">
                             <span className="inline-flex items-center px-3 bg-muted text-muted-foreground rounded-l-md border border-r-0 border-input">
@@ -717,14 +717,14 @@ export default function ResourceUploadPage() {
                             </span>
                             <Input
                               className="rounded-l-none"
-                              placeholder="원본 URL (있는 경우)"
+                              placeholder="다운로드 URL (있는 경우)"
                               {...field}
                               value={field.value || ""}
                             />
                           </div>
                         </FormControl>
                         <FormDescription>
-                          리소스의 원본 출처가 있다면 URL을 입력해주세요.
+                          리소스를 다운로드할 수 있는 URL을 입력해주세요.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
