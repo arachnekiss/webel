@@ -52,6 +52,7 @@ export const services = pgTable("services", {
   paymentOptions: text("payment_options").array(), // 지원하는 결제 옵션 (예: paypal, kakao_pay, toss)
   
   isIndividual: boolean("is_individual").default(false), // true면 개인, false면 사업자
+  isFreeService: boolean("is_free_service").default(false), // true면 무료, false면 유료 서비스
   // 엔지니어 서비스 관련 정보
   specialty: text("specialty"), // 전문 분야 (전자, 기계, 소프트웨어 등)
   experience: integer("experience"), // 경력 연수

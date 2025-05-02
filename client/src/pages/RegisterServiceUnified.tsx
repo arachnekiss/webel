@@ -28,6 +28,7 @@ import {
   Hexagon,
   Info,
   Check,
+  AlertCircle as InfoIcon,
   AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -325,6 +326,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           description: data.description || '',
           serviceType: data.serviceType || '',
           isIndividual: data.isIndividual,
+          isFreeService: data.isFreeService,
           tags: Array.isArray(data.tags) ? data.tags : [],
           contactPhone: data.contactPhone || '',
           contactEmail: data.contactEmail || '',
@@ -908,6 +910,59 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                   <FormField
                     control={form.control}
+                    name="isFreeService"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mb-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">무료/유료 서비스</FormLabel>
+                          <FormDescription>
+                            무료 서비스는 인증 요구사항이 없으나, 유료 서비스는 본인 인증 및 계좌 등록이 필요합니다.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              // 무료 서비스로 설정하면 가격 정책을 "무료"로 자동 설정
+                              if (checked) {
+                                form.setValue("pricing", "무료");
+                              } else {
+                                // 유료로 다시 변경하면 기본 가격 템플릿으로 설정
+                                form.setValue("pricing", "10g당 1,000원, 기본 출력비 5,000원 + 재료비");
+                              }
+                            }}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {!form.watch("isFreeService") && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                      <h3 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
+                        <InfoIcon className="h-4 w-4 mr-1" /> 유료 서비스 인증 요구사항
+                      </h3>
+                      <p className="text-sm text-amber-700 mb-2">
+                        유료 서비스를 제공하기 위해서는 마이페이지에서 다음 절차를 완료해야 합니다:
+                      </p>
+                      <ul className="text-xs text-amber-700 list-disc pl-5 space-y-1">
+                        <li>휴대폰 본인 인증</li>
+                        <li>계좌 정보 등록 및 인증</li>
+                      </ul>
+                      <Button 
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 text-amber-800 border-amber-300 hover:bg-amber-100"
+                        onClick={() => navigate('/my/verification')}
+                      >
+                        본인 인증 페이지로 이동
+                      </Button>
+                    </div>
+                  )}
+
+                  <FormField
+                    control={form.control}
                     name="pricing"
                     render={({ field }) => (
                       <FormItem>
@@ -916,6 +971,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           <Input
                             placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
                             {...field}
+                            disabled={form.watch("isFreeService")}
                           />
                         </FormControl>
                         <FormDescription>
