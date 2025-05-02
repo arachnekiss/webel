@@ -209,6 +209,27 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         form.setValue('longitude', currentLocation.long);
         form.setValue('address', currentLocation.address);
         setAddressInput(currentLocation.address);
+        
+        // 현재 위치를 주소 목록에 추가하기 위해 주소 입력 필드에 설정
+        const currentLoc = {
+          lat: currentLocation.lat,
+          long: currentLocation.long,
+          address: currentLocation.address
+        };
+        
+        // 동일한 주소가 이미 목록에 있는지 확인
+        const addressExists = locationList.some(
+          loc => loc.address === currentLocation.address
+        );
+        
+        // 주소가 목록에 없으면 추가
+        if (!addressExists) {
+          setLocationList(prev => [...prev, currentLoc]);
+          toast({
+            title: "현재 위치가 추가되었습니다",
+            description: currentLocation.address,
+          });
+        }
       }
     }
   };
@@ -318,7 +339,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           description: data.description || '',
           serviceType: data.serviceType || '',
           isIndividual: data.isIndividual,
-          tags: data.tags ? (typeof data.tags === 'string' ? data.tags.split(',').map(tag => tag.trim()) : data.tags) : [],
+          tags: typeof data.tags === 'string' ? data.tags.split(',').map(tag => tag.trim()) : 
+                Array.isArray(data.tags) ? data.tags : [],
           contactPhone: data.contactPhone || '',
           contactEmail: data.contactEmail || '',
           pricing: data.pricing || '',
@@ -992,67 +1014,67 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       </div>
                     </div>
 
-                    {!useCurrentLocation && (
-                      <div className="space-y-2">
-                        <Label htmlFor="address-input">주소 입력</Label>
-                        <Input
-                          id="address-input"
-                          placeholder="정확한 주소를 입력해주세요"
-                          value={addressInput}
-                          onChange={handleAddressChange}
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            if (!addressInput.trim()) {
-                              toast({
-                                title: "주소를 입력해주세요",
-                                description: "추가할 주소를 입력해주세요.",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
-                            
-                            // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
-                            const lat = 37.5665 + (Math.random() * 0.02 - 0.01); // 약간의 변동 추가
-                            const long = 126.978 + (Math.random() * 0.02 - 0.01);
-                            
-                            // 첫 번째 주소라면 폼 값 설정
-                            if (locationList.length === 0) {
-                              form.setValue('latitude', lat);
-                              form.setValue('longitude', long);
-                              form.setValue('address', addressInput);
-                            }
-                            
-                            // 주소 목록에 추가
-                            setLocationList([...locationList, {
-                              lat: lat,
-                              long: long,
-                              address: addressInput
-                            }]);
-                            
-                            // 주소가 추가되었음을 표시
+                    <div className="space-y-2">
+                      <Label htmlFor="address-input">주소 입력</Label>
+                      <Input
+                        id="address-input"
+                        placeholder="정확한 주소를 입력해주세요"
+                        value={addressInput}
+                        onChange={handleAddressChange}
+                        disabled={useCurrentLocation}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={useCurrentLocation}
+                        onClick={() => {
+                          if (!addressInput.trim()) {
                             toast({
-                              title: "주소가 추가되었습니다",
-                              description: addressInput,
+                              title: "주소를 입력해주세요",
+                              description: "추가할 주소를 입력해주세요.",
+                              variant: "destructive",
                             });
-                            
-                            // 입력 필드 초기화
-                            setAddressInput('');
-                          }}
-                          className="w-full"
-                        >
-                          주소 추가
-                        </Button>
-                        <FormMessage>
-                          {form.formState.errors.latitude?.message ||
-                            form.formState.errors.longitude?.message}
-                        </FormMessage>
-                      </div>
-                    )}
+                            return;
+                          }
+                          
+                          // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
+                          const lat = 37.5665 + (Math.random() * 0.02 - 0.01); // 약간의 변동 추가
+                          const long = 126.978 + (Math.random() * 0.02 - 0.01);
+                          
+                          // 첫 번째 주소라면 폼 값 설정
+                          if (locationList.length === 0) {
+                            form.setValue('latitude', lat);
+                            form.setValue('longitude', long);
+                            form.setValue('address', addressInput);
+                          }
+                          
+                          // 주소 목록에 추가
+                          setLocationList([...locationList, {
+                            lat: lat,
+                            long: long,
+                            address: addressInput
+                          }]);
+                          
+                          // 주소가 추가되었음을 표시
+                          toast({
+                            title: "주소가 추가되었습니다",
+                            description: addressInput,
+                          });
+                          
+                          // 입력 필드 초기화
+                          setAddressInput('');
+                        }}
+                        className="w-full"
+                      >
+                        주소 추가
+                      </Button>
+                      <FormMessage>
+                        {form.formState.errors.latitude?.message ||
+                          form.formState.errors.longitude?.message}
+                      </FormMessage>
+                    </div>
                     
-                    {!useCurrentLocation && locationList.length > 0 && (
+                    {locationList.length > 0 && (
                       <div className="bg-muted p-3 rounded-md text-sm mt-2">
                         <div className="font-medium mb-2">추가된 주소 목록:</div>
                         <div className="space-y-2">
