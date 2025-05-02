@@ -152,66 +152,33 @@ const Sponsor: React.FC = () => {
     setSelectedPaymentMethod(method);
   };
   
-  // 금액에 따라 캐릭터 배경색과 표정 결정
+  // 금액에 따라 캐릭터 배경색 결정
   const getCharacterColor = (amount: number, isActivated = false): string => {
     // 기본 색상 (활성화 상태일 때 더 밝은 색상)
     const colors: Record<number, [string, string]> = {
-      500: ['f0f4ff', 'e0e7ff'], // 라이트 블루
-      1000: ['ecfdf5', 'dcfce7'], // 라이트 그린
-      5000: ['fff7ed', 'ffedd5'], // 라이트 오렌지
-      10000: ['fef2f2', 'fee2e2'], // 라이트 레드
-      50000: ['faf5ff', 'f3e8ff'], // 라이트 퍼플
-      100000: ['fffbeb', 'fef3c7'], // 라이트 옐로우
+      500: ['bg-blue-50', 'bg-blue-100'], // 라이트 블루
+      1000: ['bg-green-50', 'bg-green-100'], // 라이트 그린
+      5000: ['bg-orange-50', 'bg-orange-100'], // 라이트 오렌지
+      10000: ['bg-red-50', 'bg-red-100'], // 라이트 레드
+      50000: ['bg-purple-50', 'bg-purple-100'], // 라이트 퍼플
+      100000: ['bg-yellow-50', 'bg-yellow-100'], // 라이트 옐로우
     };
     
-    return colors[amount] ? colors[amount][isActivated ? 1 : 0] : 'f5f5f4'; // 기본값은 라이트 그레이
+    return colors[amount] ? colors[amount][isActivated ? 1 : 0] : 'bg-gray-50'; // 기본값은 라이트 그레이
   };
   
-  // 금액별로 다른 캐릭터 표정 옵션
-  const getCharacterOptions = (amount: number, state: 'default' | 'hover' | 'activated'): string => {
-    // 각 금액별로 특색 있는, 재미있는 표정과 옵션들
-    const optionsByAmount: Record<number, Record<string, string>> = {
-      500: {
-        default: 'translateY=4', 
-        hover: 'mouth=smile&eyes=happy', 
-        activated: 'mouth=laughing&eyes=wink&translateY=2&scale=110'
-      },
-      1000: {
-        default: 'translateY=2', 
-        hover: 'mouth=surprise&eyes=wink', 
-        activated: 'mouth=laughing&eyes=starstruck&translateY=0&scale=110'
-      },
-      5000: {
-        default: '', 
-        hover: 'mouth=smile&eyes=happy', 
-        activated: 'mouth=laughing&eyes=hearts&scale=115'
-      },
-      10000: {
-        default: '', 
-        hover: 'mouth=smile&eyes=happy&translateY=2', 
-        activated: 'mouth=laughing&eyes=dizzy&translateY=-3&scale=115'
-      },
-      50000: {
-        default: 'translateY=3', 
-        hover: 'mouth=surprise&eyes=starstruck', 
-        activated: 'mouth=laughing&eyes=hearts&scale=120'
-      },
-      100000: {
-        default: '', 
-        hover: 'mouth=smile&eyes=wink', 
-        activated: 'mouth=laughing&eyes=wink&shades=true&scale=120'
-      }
+  // 금액별 아이콘 결정
+  const getAmountIcon = (amount: number) => {
+    const icons: Record<number, React.ReactNode> = {
+      500: <Star className="h-8 w-8 text-blue-500" />,
+      1000: <Zap className="h-8 w-8 text-green-500" />,
+      5000: <Heart className="h-8 w-8 text-orange-500" />,
+      10000: <Gift className="h-8 w-8 text-red-500" />,
+      50000: <Shield className="h-8 w-8 text-purple-500" />,
+      100000: <DollarSign className="h-8 w-8 text-yellow-500" />,
     };
     
-    // 기본 옵션
-    const defaultOptions = {
-      default: '',
-      hover: 'mouth=smile&eyes=happy',
-      activated: 'mouth=laughing&eyes=wink&scale=110'
-    };
-    
-    const options = optionsByAmount[amount] || defaultOptions;
-    return options[state];
+    return icons[amount] || <Star className="h-8 w-8 text-gray-500" />;
   };
   
   return (
@@ -343,7 +310,9 @@ const Sponsor: React.FC = () => {
                 </Button>
               </div>
               <div className="flex-shrink-0 hidden md:block">
-                <img src="https://cdn.buymeacoffee.com/uploads/profile_pictures/default-yellow.png" alt="Coffee" className="h-24 rounded-full" />
+                <div className="h-24 w-24 bg-[#ffdd00] rounded-full flex items-center justify-center">
+                  <Coffee className="h-12 w-12 text-amber-900" />
+                </div>
               </div>
             </div>
           </CardContent>
@@ -364,28 +333,17 @@ const Sponsor: React.FC = () => {
               
               <CardContent className="p-4 relative">
                 <div className="w-full aspect-square flex items-center justify-center mb-3 relative overflow-hidden">
-                  {/* 기본 캐릭터 이미지 - 금액별로 다양한 색상과 표정 적용 */}
-                  <img 
-                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}&${getCharacterOptions(amount, 'default')}&backgroundColor=${getCharacterColor(amount)}`} 
-                    alt={`${amount}원 캐릭터`} 
-                    className={`w-full h-full object-contain transition-all duration-300 ${activatedAmount === amount ? 'opacity-0 scale-90' : 'group-hover:scale-110'}`}
-                  />
-                  
-                  {/* 호버 시 변화된 표정 */}
-                  <img 
-                    src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}&${getCharacterOptions(amount, 'hover')}&backgroundColor=${getCharacterColor(amount)}`} 
-                    alt={`${amount}원 캐릭터 (호버)`} 
-                    className={`w-full h-full object-contain absolute inset-0 transition-all duration-300 ${activatedAmount === amount ? 'opacity-0 scale-90' : 'opacity-0 group-hover:opacity-100'}`}
-                  />
+                  {/* 금액별 아이콘으로 변경 */}
+                  <div className={`rounded-full w-24 h-24 ${getCharacterColor(amount)} flex items-center justify-center transition-all duration-300 ${activatedAmount === amount ? 'opacity-0 scale-90' : 'group-hover:scale-110'}`}>
+                    {getAmountIcon(amount)}
+                  </div>
                   
                   {/* 후원 완료 시 표시되는 극적인 변화 */}
                   {activatedAmount === amount && (
                     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center animate-in zoom-in-95 duration-500">
-                      <img 
-                        src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${amount}&${getCharacterOptions(amount, 'activated')}&backgroundColor=${getCharacterColor(amount, true)}`} 
-                        alt={`${amount}원 캐릭터 (감사!)`} 
-                        className="w-full h-full object-contain animate-bounce"
-                      />
+                      <div className={`rounded-full w-24 h-24 ${getCharacterColor(amount, true)} flex items-center justify-center animate-bounce`}>
+                        {getAmountIcon(amount)}
+                      </div>
                       <div className="absolute -top-5 left-1/2 -translate-x-1/2 animate-float">
                         <div className="bg-amber-500 text-white text-lg font-bold px-3 py-1 rounded-full shadow-lg">
                           감사합니다!
