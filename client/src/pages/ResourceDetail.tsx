@@ -225,8 +225,8 @@ const ResourceDetail: React.FC = () => {
             {/* 리소스 정보 - GitHub 스타일 레이아웃 */}
             <div className="flex flex-col md:flex-row gap-6 mt-2">
               {/* 등록일 정보 */}
-              <div className="flex items-center bg-blue-50 rounded-md px-4 py-3 border border-blue-100">
-                <Calendar className="h-5 w-5 text-blue-600 mr-3 flex-shrink-0" />
+              <div className="flex items-center bg-gray-50 rounded-md px-4 py-3 border border-gray-200">
+                <Calendar className="h-5 w-5 text-gray-600 mr-3 flex-shrink-0" />
                 <div>
                   <span className="text-gray-700 font-medium block">등록일</span>
                   <span className="text-gray-600">{formatDate(createdAt ? (typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : undefined) : undefined)}</span>
