@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useParams } from 'wouter';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
   const serviceId = parseInt(id);
   const [location, navigate] = useLocation();
   const { toast } = useToast();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   
@@ -29,7 +29,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
   
   // 로그인 확인
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!user) {
       toast({
         title: '로그인이 필요합니다',
         description: '결제를 진행하려면 로그인이 필요합니다.',
@@ -37,7 +37,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
       });
       navigate(`/login?redirect=${encodeURIComponent(location)}`);
     }
-  }, [isAuthenticated]);
+  }, [user]);
   
   // 유효한 서비스 확인
   useEffect(() => {
@@ -64,7 +64,7 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
   }, [service, user]);
   
   const handleOpenPaymentModal = (amount: number) => {
-    if (!isAuthenticated) {
+    if (!user) {
       toast({
         title: '로그인이 필요합니다',
         description: '결제를 진행하려면 로그인이 필요합니다.',
