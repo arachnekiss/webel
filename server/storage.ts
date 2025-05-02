@@ -4,6 +4,8 @@ import {
   resources, type Resource, type InsertResource,
   auctions, type Auction, type InsertAuction,
   bids, type Bid, type InsertBid,
+  orders, type Order, type InsertOrder,
+  transactions, type Transaction, type InsertTransaction,
   type Location
 } from "@shared/schema";
 import { db, pool } from "./db";
@@ -56,6 +58,23 @@ export interface IStorage {
   // Bid operations
   getBidsByAuctionId(auctionId: number): Promise<Bid[]>;
   createBid(bid: InsertBid): Promise<Bid>;
+  
+  // Order operations
+  getOrders(): Promise<Order[]>;
+  getOrderById(id: number): Promise<Order | undefined>;
+  getOrdersByUserId(userId: number): Promise<Order[]>;
+  getOrdersByProviderId(providerId: number): Promise<Order[]>;
+  getOrdersByServiceId(serviceId: number): Promise<Order[]>;
+  createOrder(order: InsertOrder): Promise<Order>;
+  updateOrder(id: number, order: Partial<Order>): Promise<Order | undefined>;
+  
+  // Transaction operations
+  getTransactions(): Promise<Transaction[]>;
+  getTransactionById(id: number): Promise<Transaction | undefined>;
+  getTransactionsByUserId(userId: number): Promise<Transaction[]>;
+  getTransactionsByOrderId(orderId: number): Promise<Transaction[]>;
+  createTransaction(transaction: InsertTransaction): Promise<Transaction>;
+  updateTransaction(id: number, transaction: Partial<Transaction>): Promise<Transaction | undefined>;
 }
 
 // Database implementation of storage interface
@@ -429,6 +448,96 @@ export class DatabaseStorage implements IStorage {
     }
     
     return bid;
+  }
+
+  // Order operations
+  async getOrders(): Promise<Order[]> {
+    return db.select().from(orders).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrderById(id: number): Promise<Order | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order;
+  }
+
+  async getOrdersByUserId(userId: number): Promise<Order[]> {
+    return db.select().from(orders).where(eq(orders.userId, userId)).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrdersByProviderId(providerId: number): Promise<Order[]> {
+    return db.select().from(orders).where(eq(orders.providerId, providerId)).orderBy(desc(orders.createdAt));
+  }
+
+  async getOrdersByServiceId(serviceId: number): Promise<Order[]> {
+    return db.select().from(orders).where(eq(orders.serviceId, serviceId)).orderBy(desc(orders.createdAt));
+  }
+
+  async createOrder(insertOrder: InsertOrder): Promise<Order> {
+    // 수수료 계산 로직 (10%)
+    if (!insertOrder.webFee) {
+      insertOrder.webFee = Math.round(insertOrder.totalAmount * 0.1);
+    }
+    
+    // 제공자 정산액 계산 (90%)
+    if (!insertOrder.providerAmount) {
+      insertOrder.providerAmount = insertOrder.totalAmount - insertOrder.webFee;
+    }
+    
+    const [order] = await db.insert(orders).values(insertOrder).returning();
+    return order;
+  }
+
+  async updateOrder(id: number, orderUpdate: Partial<Order>): Promise<Order | undefined> {
+    const [updatedOrder] = await db
+      .update(orders)
+      .set(orderUpdate)
+      .where(eq(orders.id, id))
+      .returning();
+    return updatedOrder;
+  }
+  
+  // Transaction operations
+  async getTransactions(): Promise<Transaction[]> {
+    return db.select().from(transactions).orderBy(desc(transactions.createdAt));
+  }
+
+  async getTransactionById(id: number): Promise<Transaction | undefined> {
+    const [transaction] = await db.select().from(transactions).where(eq(transactions.id, id));
+    return transaction;
+  }
+
+  async getTransactionsByUserId(userId: number): Promise<Transaction[]> {
+    return db.select().from(transactions).where(eq(transactions.userId, userId)).orderBy(desc(transactions.createdAt));
+  }
+
+  async getTransactionsByOrderId(orderId: number): Promise<Transaction[]> {
+    return db.select().from(transactions).where(eq(transactions.orderId, orderId)).orderBy(desc(transactions.createdAt));
+  }
+
+  async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
+    // 현재 시간 업데이트
+    const now = new Date();
+    
+    const [transaction] = await db.insert(transactions).values({
+      ...insertTransaction,
+      updatedAt: now
+    }).returning();
+    return transaction;
+  }
+
+  async updateTransaction(id: number, transactionUpdate: Partial<Transaction>): Promise<Transaction | undefined> {
+    // 업데이트된 시간 자동 설정
+    const now = new Date();
+    
+    const [updatedTransaction] = await db
+      .update(transactions)
+      .set({
+        ...transactionUpdate,
+        updatedAt: now
+      })
+      .where(eq(transactions.id, id))
+      .returning();
+    return updatedTransaction;
   }
 
   // Helper functions
