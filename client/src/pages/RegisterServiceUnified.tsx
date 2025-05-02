@@ -93,47 +93,32 @@ const manufacturingCapabilityOptions = [
 
 // 서비스 유형 별 라벨
 const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
-  { value: "3d_printing", label: "3D 프린팅 서비스", icon: Printer },
-  { value: "engineer", label: "엔지니어 서비스", icon: User },
-  { value: "manufacturing", label: "제조 서비스", icon: Building },
-  { value: "electronics", label: "전자기기 서비스", icon: Hexagon },
-  { value: "woodworking", label: "목공 서비스", icon: Wrench },
-  { value: "metalworking", label: "금속가공 서비스", icon: Wrench },
+  { value: "3d_printing", label: "3D 프린터", icon: Printer },
+  { value: "engineer", label: "엔지니어 등록", icon: User },
+  { value: "manufacturing", label: "생산 서비스", icon: Building },
 ];
 
 // 서비스 등록 폼 스키마
 const serviceFormSchema = z.object({
-  title: z.string().min(5, {
-    message: '제목은 최소 5글자 이상이어야 합니다',
-  }),
-  description: z.string().min(10, {
-    message: '설명은 최소 10글자 이상이어야 합니다',
-  }),
-  serviceType: z.enum(["3d_printing", "electronics", "woodworking", "metalworking", "manufacturing", "engineer"]),
-  printerModel: z.string().min(3, {
-    message: '프린터 모델명을 입력해주세요',
-  }).optional(),
-  contactPhone: z.string().min(8, {
-    message: '유효한 전화번호를 입력해주세요',
-  }),
+  title: z.string().min(1, {
+    message: '제목을 입력해주세요',
+  }).optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
+  serviceType: z.enum(["3d_printing", "manufacturing", "engineer"]),
+  printerModel: z.string().optional().or(z.literal("")),
+  contactPhone: z.string().optional().or(z.literal("")),
   contactEmail: z.string().email({
     message: '유효한 이메일을 입력해주세요',
-  }),
-  pricing: z.string().min(3, {
-    message: '가격 정보를 입력해주세요',
-  }),
-  availableHours: z.string().min(3, {
-    message: '이용 가능 시간을 입력해주세요',
-  }),
+  }).optional().or(z.literal("")),
+  pricing: z.string().optional().or(z.literal("")),
+  availableHours: z.string().optional().or(z.literal("")),
   isIndividual: z.boolean().default(true),
-  tags: z.string().transform((val) => val.split(',').map((tag) => tag.trim())),
-  address: z.string().min(5, {
-    message: '주소를 입력해주세요',
-  }),
-  latitude: z.number(),
-  longitude: z.number(),
-  nickname: z.string().optional(),
-  hourlyRate: z.string().optional(),
+  tags: z.string().transform((val) => val.split(',').map((tag) => tag.trim())).optional().or(z.literal("")),
+  address: z.string().optional().or(z.literal("")),
+  latitude: z.number().optional().or(z.literal(0)),
+  longitude: z.number().optional().or(z.literal(0)),
+  nickname: z.string().optional().or(z.literal("")),
+  hourlyRate: z.string().optional().or(z.literal("")),
   portfolioUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
 });
 
@@ -167,6 +152,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const [selectedFileFormats, setSelectedFileFormats] = useState<string[]>([]);
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
+  const [otherMaterialInput, setOtherMaterialInput] = useState<string>('');
   
   const [sampleImages, setSampleImages] = useState<{ file: File; preview: string }[]>([]);
   
@@ -553,7 +539,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         name="printerModel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>3D 프린터 모델*</FormLabel>
+                            <FormLabel>3D 프린터 모델</FormLabel>
                             <FormControl>
                               <Input
                                 placeholder="예: Prusa i3 MK3S+"
@@ -561,7 +547,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               />
                             </FormControl>
                             <FormDescription>
-                              사용 중인 3D 프린터의 정확한 모델명을 입력해주세요
+                              사용 중인 3D 프린터 모델명을 입력해주세요 (선택사항)
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -610,6 +596,16 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             </div>
                           ))}
                         </div>
+                        
+                        {selectedMaterials.includes('기타') && (
+                          <div className="mt-2">
+                            <Input
+                              placeholder="기타 재료를 입력해주세요"
+                              value={otherMaterialInput}
+                              onChange={(e) => setOtherMaterialInput(e.target.value)}
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* 샘플 이미지 */}
