@@ -443,16 +443,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       
       // 인증 관련 에러인지 확인
       if (error.response && error.response.data && error.response.data.verificationType === 'required') {
-        // 인증 필요 에러인 경우 사용자에게 알리고 인증 페이지로 이동 여부 확인
+        // 인증 필요 에러인 경우 사용자에게 알리기만 함
         toast({
           title: "유료 서비스 등록 불가",
           description: error.response.data.message || "유료 서비스를 등록하기 위해서는 본인 인증이 필요합니다.",
           variant: "destructive",
         });
-        
-        if (window.confirm("본인 인증 페이지로 이동하시겠습니까?")) {
-          navigate('/my/verification');
-        }
       } else {
         // 일반 에러인 경우
         toast({
@@ -476,15 +472,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       return;
     }
 
-    // 유료 서비스인 경우 사용자 인증 상태를 서버에서 확인하게 함
-    // 클라이언트에서 추가적으로 확인하지 않고 서버 측 검증에 의존
-    if (!data.isFreeService) {
-      // 사용자에게 안내 메시지 표시
-      toast({
-        title: "유료 서비스 등록 신청",
-        description: "유료 서비스는 휴대폰 및 계좌 인증이 필요합니다. 인증 상태를 확인 중입니다.",
-      });
-    }
+    // 유료 서비스인 경우 서버 측에서 인증 상태 검증
+    // 클라이언트에서는 사전 검증 없이 바로 서버로 요청
 
     // 위치 정보가 없으면 기본값을 설정 (서울 중심부로 설정)
     if (data.latitude === 0 || data.longitude === 0) {
