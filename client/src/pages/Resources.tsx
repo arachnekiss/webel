@@ -136,27 +136,48 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // 모든 페이지의 리소스를 하나의 배열로 병합 (안전하게 처리)
   const resources = useMemo(() => {
     try {
-      if (!data) return [];
-      if (!data.pages) return [];
-      if (!Array.isArray(data.pages)) return [];
+      // 데이터 검증
+      if (!data) {
+        console.log('[Resources] data가 없습니다.');
+        return [];
+      }
+      if (!data.pages) {
+        console.log('[Resources] data.pages가 없습니다:', data);
+        return [];
+      }
+      if (!Array.isArray(data.pages)) {
+        console.log('[Resources] data.pages가 배열이 아닙니다:', typeof data.pages);
+        return [];
+      }
       
-      return data.pages.flatMap(page => {
+      console.log('[Resources] data.pages 길이:', data.pages.length);
+      
+      const result = data.pages.flatMap(page => {
         // null, undefined 체크
-        if (!page) return [];
+        if (!page) {
+          console.log('[Resources] 페이지가 null/undefined입니다.');
+          return [];
+        }
         
         // API가 {items, meta} 형식으로 반환하는 경우
         if (page.items && Array.isArray(page.items)) {
+          console.log('[Resources] items 형식의 응답:', page.items.length);
           return page.items;
         }
         
         // API가 리소스 배열을 직접 반환하는 경우
         if (Array.isArray(page)) {
+          console.log('[Resources] 배열 형식의 응답:', page.length);
           return page;
         }
         
+        console.log('[Resources] 알 수 없는 응답 형식:', page);
         // 기타 경우 빈 배열 반환
         return [];
       });
+      
+      console.log('[Resources] 최종 리소스 배열 길이:', result.length);
+      return result;
     } catch (error) {
       console.error('[Resources] 리소스 데이터 처리 중 오류:', error);
       return [];
@@ -219,30 +240,51 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // 리소스 데이터가 유효한지 확인
   const validResources = resources || [];
+  console.log('[Resources] validResources의 타입:', typeof validResources, '길이:', Array.isArray(validResources) ? validResources.length : '배열 아님');
 
-  // Filter resources by search query
-  const filteredResources = validResources.filter((resource: Resource) => {
-    // 잘못된 리소스 객체 필터링
-    if (!resource || typeof resource !== 'object') return false;
-    
-    // 검색어가 없으면 모든 리소스 표시
-    if (!searchQuery || !searchQuery.trim()) return true;
-    
-    const query = searchQuery.toLowerCase();
-    
-    // 안전하게 속성 확인 후 검색
-    const title = resource.title || '';
-    const description = resource.description || '';
-    const tags = resource.tags || [];
-    
-    return (
-      title.toLowerCase().includes(query) ||
-      description.toLowerCase().includes(query) ||
-      (Array.isArray(tags) && tags.some(tag => 
-        tag && typeof tag === 'string' && tag.toLowerCase().includes(query)
-      ))
-    );
-  });
+  // Filter resources by search query - try/catch로 안전하게 처리
+  const filteredResources = useMemo(() => {
+    try {
+      if (!Array.isArray(validResources)) {
+        console.error('[Resources] validResources가 배열이 아닙니다:', validResources);
+        return [];
+      }
+      
+      return validResources.filter((resource: any) => {
+        try {
+          // 잘못된 리소스 객체 필터링
+          if (!resource || typeof resource !== 'object') {
+            console.log('[Resources] 유효하지 않은 리소스 객체:', resource);
+            return false;
+          }
+          
+          // 검색어가 없으면 모든 리소스 표시
+          if (!searchQuery || !searchQuery.trim()) return true;
+          
+          const query = searchQuery.toLowerCase();
+          
+          // 안전하게 속성 확인 후 검색
+          const title = resource.title || '';
+          const description = resource.description || '';
+          const tags = resource.tags || [];
+          
+          return (
+            title.toLowerCase().includes(query) ||
+            description.toLowerCase().includes(query) ||
+            (Array.isArray(tags) && tags.some(tag => 
+              tag && typeof tag === 'string' && tag.toLowerCase().includes(query)
+            ))
+          );
+        } catch (error) {
+          console.error('[Resources] 리소스 필터링 중 오류:', error);
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('[Resources] 전체 필터링 중 오류:', error);
+      return [];
+    }
+  }, [validResources, searchQuery]);
   
   return (
     <div>

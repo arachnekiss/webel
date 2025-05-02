@@ -21,7 +21,7 @@ const HeroSection: React.FC = () => {
           <div className="inline-block px-3 py-1 mb-6 rounded-full bg-blue-400/20 backdrop-blur-sm border border-blue-300/20">
             <span className="text-xs font-medium text-white flex items-center">
               <Sparkles className="h-3 w-3 mr-1" />
-              하드웨어 디자인부터 소프트웨어, 3D 모델까지 한 곳에서
+              하드웨어 설계도부터 소프트웨어, 3D 모델까지 한 곳에서
             </span>
           </div>
           
