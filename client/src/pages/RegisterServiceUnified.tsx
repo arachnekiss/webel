@@ -416,8 +416,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         console.log(`서비스 등록 성공, ID: ${serviceId}, 타입: ${typeof serviceId}`);
         
         if (!isNaN(serviceId) && serviceId > 0) {
-          // 우선 서비스 타입 페이지로 이동 (상세 페이지에서 오류 방지를 위해)
-          navigate(`/services/type/${serviceType}`);
+          // 서비스 상세 페이지로 이동 (ID 경로 패턴 수정 이후 작동함)
+          navigate(`/services/${serviceId}`);
           return;
         }
       }

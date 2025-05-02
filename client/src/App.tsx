@@ -65,7 +65,7 @@ function Router() {
             
             {/* Services routes - 카테고리별 서비스 목록 */}
             <Route path="/services/type/:type" component={Services}/>
-            <Route path="/services/:id(\d+)" component={ServiceDetail}/>
+            <Route path="/services/:id" component={ServiceDetail}/>
             
             {/* Resource routes with resource type categories */}
             <Route path="/resources/type/:type">

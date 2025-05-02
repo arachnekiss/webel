@@ -197,18 +197,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   app.get('/api/services/:id', async (req: Request, res: Response) => {
-    const serviceId = parseInt(req.params.id);
-    if (isNaN(serviceId)) {
-      return res.status(400).json({ message: 'Invalid service ID' });
+    try {
+      const serviceId = parseInt(req.params.id);
+      if (isNaN(serviceId)) {
+        return res.status(400).json({ message: 'Invalid service ID' });
+      }
+      
+      const service = await storage.getServiceById(serviceId);
+      
+      if (!service) {
+        return res.status(404).json({ message: 'Service not found' });
+      }
+      
+      res.json(service);
+    } catch (error) {
+      console.error('서비스 상세 정보 조회 오류:', error);
+      res.status(500).json({ message: '서비스 정보를 불러오는데 실패했습니다' });
     }
-    
-    const service = await storage.getServiceById(serviceId);
-    
-    if (!service) {
-      return res.status(404).json({ message: 'Service not found' });
-    }
-    
-    res.json(service);
   });
 
   // Resources routes
