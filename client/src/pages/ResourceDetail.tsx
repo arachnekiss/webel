@@ -11,7 +11,9 @@ import {
   Box,
   Info,
   BookOpen,
-  Wrench
+  Wrench,
+  Layers,
+  Activity
 } from 'lucide-react';
 import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
