@@ -85,7 +85,7 @@ const Sidebar: React.FC = () => {
           return (
             <Link key={item.id} href={item.href}>
               <div
-                className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
+                className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                   isActive 
                     ? 'bg-primary/5 text-primary font-medium' 
                     : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
@@ -110,7 +110,7 @@ const Sidebar: React.FC = () => {
               <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
             </div>
             <Link href="/admin/dashboard">
-              <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
+              <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                 location === '/admin/dashboard' 
                   ? 'bg-primary/5 text-primary font-medium' 
                   : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
