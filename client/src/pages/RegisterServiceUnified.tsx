@@ -155,6 +155,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
   const [otherMaterialInput, setOtherMaterialInput] = useState<string>('');
+  const [otherSpecializationInput, setOtherSpecializationInput] = useState<string>('');
+  const [otherProductInput, setOtherProductInput] = useState<string>('');
   
   const [sampleImages, setSampleImages] = useState<{ file: File; preview: string }[]>([]);
   
