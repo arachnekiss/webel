@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { 
   ArrowLeft, 
   Download, 
   Calendar, 
-  Tag, 
   FileText, 
   AlertCircle,
   CheckCircle,
   Box,
-  List,
   Info,
   BookOpen,
   Wrench
@@ -166,10 +164,15 @@ const ResourceDetail: React.FC = () => {
 
   const resourceType = resource.resourceType || resource.category;
   const createdAt = resource.uploadDate || resource.createdAt;
-  const timeAgo = createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: ko }) : '';
+  const timeAgo = createdAt 
+    ? formatDistanceToNow(new Date(typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : new Date()), { 
+        addSuffix: true, 
+        locale: ko 
+      }) 
+    : '';
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
       {/* 뒤로 가기 버튼 */}
       <div className="mb-6">
         <Link href="/resources" className="inline-flex items-center text-gray-600 hover:text-primary">
@@ -183,7 +186,7 @@ const ResourceDetail: React.FC = () => {
         <div className="lg:col-span-3 space-y-8">
           {/* 리소스 헤더 영역 */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden p-6">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
               <Badge className={`${getTypeColorClass(resourceType)} px-3 py-1`}>
                 {getTypeName(resourceType)}
               </Badge>
@@ -217,12 +220,12 @@ const ResourceDetail: React.FC = () => {
             </div>
             
             {/* 리소스 정보 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 text-gray-500 mr-2" />
                 <div>
                   <span className="text-gray-500 block">등록일</span>
-                  <span>{formatDate(createdAt)}</span>
+                  <span>{formatDate(createdAt ? (typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : undefined) : undefined)}</span>
                 </div>
               </div>
               <div className="flex items-center">
@@ -436,8 +439,6 @@ const ResourceDetail: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-
-
 
           {/* 유사 리소스 */}
           <Card className="mb-6">
