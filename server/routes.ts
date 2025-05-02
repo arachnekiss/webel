@@ -97,6 +97,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 인증 관련 라우트 설정
   setupAuth(app);
   
+  // 본인 인증 관련 라우트
+  app.post('/api/verification/request', isAuthenticated, requestVerification);
+  app.post('/api/verification/phone', isAuthenticated, verifyPhone);
+  app.post('/api/verification/bank-account', isAuthenticated, registerBankAccount);
+  app.get('/api/verification/status', isAuthenticated, getVerificationStatus);
+  
   // 특정 사용자 삭제 엔드포인트 (개발 환경에서만 사용 가능)
   app.delete('/api/dev/users/:username', deleteUserByUsername);
   // User routes
@@ -119,11 +125,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(services);
   });
   
-  app.post('/api/services', async (req: Request, res: Response) => {
+  app.post('/api/services', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      // 인증된 사용자만 서비스 등록 가능
-      if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: '로그인이 필요합니다.' });
+      // 유료 서비스인 경우 본인 인증이 필요한지 확인
+      if (req.body.isFreeService === false || req.body.basePrice > 0) {
+        // 인증 상태 확인
+        const verificationStatus = await storage.getVerificationStatus(req.user.id);
+        
+        if (!verificationStatus) {
+          return res.status(500).json({ message: '인증 상태 확인 중 오류가 발생했습니다.' });
+        }
+        
+        // 필요한 인증이 누락된 경우
+        if (!verificationStatus.isPhoneVerified || !verificationStatus.isAccountVerified) {
+          const missingVerifications = [];
+          if (!verificationStatus.isPhoneVerified) missingVerifications.push('휴대폰 인증');
+          if (!verificationStatus.isAccountVerified) missingVerifications.push('계좌 인증');
+          
+          return res.status(400).json({ 
+            message: `유료 서비스를 등록하기 위해서는 ${missingVerifications.join(' 및 ')}이 필요합니다.`,
+            verificationType: 'required',
+            verificationStatus: {
+              isPhoneVerified: verificationStatus.isPhoneVerified,
+              isAccountVerified: verificationStatus.isAccountVerified
+            }
+          });
+        }
       }
       
       // 데이터 정제

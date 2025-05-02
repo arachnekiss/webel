@@ -28,6 +28,43 @@ const cancelPaymentRequestSchema = z.object({
   reason: z.string().optional()
 });
 
+// 서비스 제공자 인증 상태 확인 함수
+async function checkProviderVerification(providerId: number): Promise<{
+  isVerified: boolean;
+  message?: string;
+}> {
+  try {
+    // 서비스 제공자 정보 조회
+    const provider = await storage.getUser(providerId);
+    if (!provider) {
+      return {
+        isVerified: false,
+        message: '서비스 제공자 정보를 찾을 수 없습니다.'
+      };
+    }
+
+    // 인증 상태 확인
+    if (!provider.isPhoneVerified || !provider.isAccountVerified) {
+      const missingVerifications = [];
+      if (!provider.isPhoneVerified) missingVerifications.push('휴대폰 인증');
+      if (!provider.isAccountVerified) missingVerifications.push('계좌 인증');
+      
+      return {
+        isVerified: false,
+        message: `서비스 제공자가 아직 ${missingVerifications.join(' 및 ')}을 완료하지 않았습니다.`
+      };
+    }
+
+    return { isVerified: true };
+  } catch (error) {
+    console.error('서비스 제공자 인증 확인 오류:', error);
+    return {
+      isVerified: false,
+      message: '서비스 제공자 인증 상태 확인 중 오류가 발생했습니다.'
+    };
+  }
+}
+
 /**
  * 결제 프로세스 초기화
  * 주문 생성 및 결제 진행을 위한 준비 과정
@@ -51,6 +88,18 @@ export async function initializePayment(req: Request, res: Response) {
         success: false,
         message: '사용자 정보를 찾을 수 없습니다.'
       });
+    }
+    
+    // 먼저, 서비스가 유료인지 확인하고, 제공자 인증 상태 체크
+    if (paymentData.totalAmount > 0) {
+      const providerVerification = await checkProviderVerification(paymentData.providerId);
+      
+      if (!providerVerification.isVerified) {
+        return res.status(400).json({
+          success: false,
+          message: providerVerification.message || '서비스 제공자 인증이 필요합니다.'
+        });
+      }
     }
 
     // 서비스 정보 확인
