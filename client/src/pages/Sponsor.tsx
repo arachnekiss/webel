@@ -292,10 +292,13 @@ const Sponsor: React.FC = () => {
       
       {/* Buy Me a Coffee 후원 */}
       <section className="mb-8">
-        <Card className="border-2 border-amber-200 bg-gradient-to-r from-[#ffdd00]/10 to-[#ffdd00]/30">
+        <Card 
+          className="border-2 border-amber-200 bg-gradient-to-r from-[#ffdd00]/10 to-[#ffdd00]/30 hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+        >
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 cursor-pointer" onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}>
                 <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" className="h-12" />
               </div>
               <div className="flex-grow">
@@ -309,8 +312,11 @@ const Sponsor: React.FC = () => {
                   Buy Me a Coffee
                 </Button>
               </div>
-              <div className="flex-shrink-0 hidden md:block">
-                <div className="h-24 w-24 bg-[#ffdd00] rounded-full flex items-center justify-center">
+              <div 
+                className="flex-shrink-0 hidden md:block cursor-pointer" 
+                onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+              >
+                <div className="h-24 w-24 bg-[#ffdd00] rounded-full flex items-center justify-center hover:shadow-lg transition-shadow">
                   <Coffee className="h-12 w-12 text-amber-900" />
                 </div>
               </div>
