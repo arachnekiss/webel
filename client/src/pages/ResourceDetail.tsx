@@ -384,8 +384,8 @@ const ResourceDetail: React.FC = () => {
                         이미지를 업로드하거나 질문하시면 단계별 안내를 받을 수 있습니다.
                       </p>
                       <Link href="/ai-assembly">
-                        <Button className="bg-blue-600 hover:bg-blue-700">
-                          AI 조립 비서 이용하기
+                        <Button className="bg-blue-600 hover:bg-blue-700 py-2">
+                          <span className="truncate">AI 조립 비서 이용하기</span>
                         </Button>
                       </Link>
                     </div>
@@ -423,12 +423,12 @@ const ResourceDetail: React.FC = () => {
                 </p>
                 
                 <Button 
-                  className="w-full flex items-center justify-center gap-2"
+                  className="w-full flex items-center justify-center gap-2 py-2"
                   onClick={handleDownload}
                   disabled={!resource.downloadUrl}
                 >
-                  <Download className="h-5 w-5" />
-                  파일 다운로드
+                  <Download className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">파일 다운로드</span>
                 </Button>
                 
                 {!resource.downloadUrl && (
@@ -468,8 +468,8 @@ const ResourceDetail: React.FC = () => {
                   직접 조립하기 어렵다면 근처 엔지니어에게 조립을 의뢰해보세요.
                 </p>
                 <Link href="/engineers">
-                  <Button variant="outline" className="w-full bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50">
-                    엔지니어 찾기
+                  <Button variant="outline" className="w-full bg-white border-indigo-200 text-indigo-700 hover:bg-indigo-50 py-2">
+                    <span className="truncate">엔지니어 찾기</span>
                   </Button>
                 </Link>
               </CardContent>
@@ -485,8 +485,8 @@ const ResourceDetail: React.FC = () => {
                   3D 프린터가 없으신가요? 근처에서 3D 프린팅 서비스를 찾아보세요.
                 </p>
                 <Link href="/services/type/3d_printing">
-                  <Button variant="outline" className="w-full bg-white border-green-200 text-green-700 hover:bg-green-50">
-                    3D 프린터 찾기
+                  <Button variant="outline" className="w-full bg-white border-green-200 text-green-700 hover:bg-green-50 py-2">
+                    <span className="truncate">3D 프린터 찾기</span>
                   </Button>
                 </Link>
               </CardContent>
