@@ -46,82 +46,97 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // 타입이 없거나 undefined인 경우 기본값으로 모든 리소스 API 경로 사용
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
-  // 무한 쿼리 설정 - 더 강화된 오류 처리
-  const infiniteQueryResult = useInfiniteQuery({
-    queryKey: [queryKey || '/api/resources'],
-    enabled: isBrowser, // 브라우저 환경에서만 쿼리 활성화
-    queryFn: async ({ pageParam = 1 }) => {
-      try {
-        // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
-        const endpoint = queryKey || '/api/resources'; 
-        
-        // 중복 체크지만 안전을 위해 유지
-        if (!isBrowser) {
-          console.log('[Resources] 브라우저 환경이 아닙니다. 빈 결과 반환');
-          return { items: [] };
-        }
-        
-        console.log(`[Resources] 리소스 로딩 시작: ${endpoint}, 페이지: ${pageParam}`);
-        
-        const url = new URL(`${window.location.origin}${endpoint}`);
-        url.searchParams.append('page', String(pageParam));
-        url.searchParams.append('limit', String(ITEMS_PER_PAGE));
-        
-        const response = await fetch(url.toString());
-        if (!response.ok) {
-          console.error('[Resources] API 응답 에러:', response.status);
-          return { items: [] };
-        }
-        
-        const result = await response.json();
-        console.log(`[Resources] API 응답 데이터:`, result);
-        
-        // API가 배열을 직접 반환하는 경우, items 형식으로 변환
-        if (Array.isArray(result)) {
-          return { items: result, meta: null };
-        }
-        
-        // 객체이지만 items 속성이 없는 경우
-        if (typeof result === 'object' && !Array.isArray(result.items)) {
-          return { items: [], meta: null };
-        }
-        
-        return result;
-      } catch (error) {
-        console.error('[Resources] 리소스 로딩 중 오류:', error);
+  // 무한 쿼리 설정 - React Query v5 호환성 수정
+  const queryFn = async ({ pageParam = 1 }) => {
+    try {
+      // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
+      const endpoint = queryKey || '/api/resources'; 
+      
+      // 중복 체크지만 안전을 위해 유지
+      if (!isBrowser) {
+        console.log('[Resources] 브라우저 환경이 아닙니다. 빈 결과 반환');
+        return { pages: [{ items: [] }], pageParams: [1] };
+      }
+      
+      console.log(`[Resources] 리소스 로딩 시작: ${endpoint}, 페이지: ${pageParam}`);
+      
+      const url = new URL(`${window.location.origin}${endpoint}`);
+      url.searchParams.append('page', String(pageParam));
+      url.searchParams.append('limit', String(ITEMS_PER_PAGE));
+      
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        console.error('[Resources] API 응답 에러:', response.status);
         return { items: [] };
       }
-    },
-    getNextPageParam: (lastPage, allPages) => {
-      try {
-        // 가장 기본적인 안전장치
-        if (!lastPage) return undefined;
-        
-        // 페이지네이션 메타데이터가 있는 경우
-        if (lastPage?.meta) {
-          const { currentPage, totalPages } = lastPage.meta;
-          return currentPage < totalPages ? currentPage + 1 : undefined;
-        }
-        
-        // 배열인 경우 (API가 배열을 직접 반환)
-        if (Array.isArray(lastPage) && lastPage.length > 0) {
-          return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
-        }
-        
-        // items 배열이 있는 경우 (가장 일반적인 패턴)
-        if (lastPage?.items && Array.isArray(lastPage.items)) {
-          // 현재 페이지 번호 계산 - 배열 길이 + 1 (1부터 시작하므로)
-          const nextPage = allPages.length + 1;
-          return lastPage.items.length === ITEMS_PER_PAGE ? nextPage : undefined;
-        }
-        
-        return undefined;
-      } catch (error) {
-        console.error('[Resources] getNextPageParam 오류:', error);
-        return undefined;
+      
+      const result = await response.json();
+      console.log(`[Resources] API 응답 데이터:`, result);
+      
+      // API가 배열을 직접 반환하는 경우, items 형식으로 변환
+      if (Array.isArray(result)) {
+        return { items: result, meta: null };
       }
-    },
+      
+      // 객체이지만 items 속성이 없는 경우
+      if (typeof result === 'object' && !Array.isArray(result.items)) {
+        return { items: [], meta: null };
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('[Resources] 리소스 로딩 중 오류:', error);
+      return { items: [] };
+    }
+  };
+  
+  const getNextPageParam = (lastPage: any, allPages: any[]) => {
+    try {
+      // 가장 기본적인 안전장치
+      if (!lastPage) return undefined;
+      
+      // 페이지네이션 메타데이터가 있는 경우
+      if (lastPage?.meta) {
+        const { currentPage, totalPages } = lastPage.meta;
+        return currentPage < totalPages ? currentPage + 1 : undefined;
+      }
+      
+      // 배열인 경우 (API가 배열을 직접 반환)
+      if (Array.isArray(lastPage) && lastPage.length > 0) {
+        return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
+      }
+      
+      // items 배열이 있는 경우 (가장 일반적인 패턴)
+      if (lastPage?.items && Array.isArray(lastPage.items)) {
+        // 현재 페이지 번호 계산 - 배열 길이 + 1 (1부터 시작하므로)
+        const nextPage = allPages.length + 1;
+        return lastPage.items.length === ITEMS_PER_PAGE ? nextPage : undefined;
+      }
+      
+      return undefined;
+    } catch (error) {
+      console.error('[Resources] getNextPageParam 오류:', error);
+      return undefined;
+    }
+  };
+  
+  // 기본 값을 포함한 객체 생성
+  const defaultData = {
+    pages: [],
+    pageParams: []
+  };
+  
+  // 무한 쿼리 설정
+  const infiniteQueryResult = useInfiniteQuery({
+    queryKey: [queryKey || '/api/resources'],
+    queryFn,
+    getNextPageParam,
     initialPageParam: 1,
+    enabled: isBrowser,
+    staleTime: 60 * 1000, // 1분 캐싱
+    refetchOnWindowFocus: false,
+    // 중요: 중첩 구조 문제 방지
+    structuralSharing: false
   });
   
   // 기본값을 제공하여 안전하게 구조 분해
