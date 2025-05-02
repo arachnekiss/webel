@@ -95,18 +95,6 @@ const resourceCategories: CategoryProps[] = [
     label: '3D 모델링 파일',
     icon: <Box className="h-5 w-5" />,
     href: '/resources/type/3d_model'
-  },
-  {
-    id: 'free_content',
-    label: '프리 콘텐츠',
-    icon: <FileText className="h-5 w-5" />,
-    href: '/resources/type/free_content'
-  },
-  {
-    id: 'flash_game',
-    label: '플래시 게임',
-    icon: <Gamepad2 className="h-5 w-5" />,
-    href: '/resources/type/flash_game'
   }
 ];
 

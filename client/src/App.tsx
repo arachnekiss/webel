@@ -76,10 +76,7 @@ function Router() {
             </Route>
             <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
             
-            {/* Flash Games page */}
-            <Route path="/flash-games">
-              {() => <Resources type="flash_game" />}
-            </Route>
+            {/* Flash Games page - 제거됨 */}
             
             {/* Auctions routes */}
             <Route path="/auctions" component={Auctions}/>

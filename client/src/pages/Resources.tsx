@@ -54,7 +54,10 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     retry: 1,
   });
   
-  // 리소스 배열이 유효한지 확인
+  // 지원하는 리소스 타입 정의
+  const supportedResourceTypes = ['hardware_design', 'software', 'ai_model', '3d_model'];
+  
+  // 리소스 배열이 유효한지 확인하고 지원하는 타입으로 필터링
   const resources = useMemo(() => {
     try {
       if (!rawResources) {
@@ -97,8 +100,21 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // 무한 스크롤 기능 제거
   
-  // 리소스 데이터가 유효한지 확인
-  const validResources = resources || [];
+  // 리소스 데이터가 유효한지 확인하고 지원하는 리소스 타입으로 필터링
+  const validResources = useMemo(() => {
+    const resourceList = resources || [];
+    
+    // 특정 타입으로 필터링하는 경우, 해당 타입만 처리
+    if (type) {
+      return resourceList;
+    }
+    
+    // 전체 리소스 페이지에서는 지원하는 타입만 표시
+    return resourceList.filter((resource: any) => 
+      resource && resource.resourceType && supportedResourceTypes.includes(resource.resourceType)
+    );
+  }, [resources, type, supportedResourceTypes]);
+  
   console.log('[Resources] validResources의 타입:', typeof validResources, '길이:', Array.isArray(validResources) ? validResources.length : '배열 아님');
 
   // Filter resources by search query - try/catch로 안전하게 처리
