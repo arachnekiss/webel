@@ -88,10 +88,28 @@ const Services: React.FC = () => {
       ? `/api/services/nearby?lat=${selectedLocation.lat}&long=${selectedLocation.long}&maxDistance=${distance}`
       : '/api/services';
   
-  const { data: services, isLoading: servicesLoading } = useQuery<Service[]>({
+  // 서비스 데이터 가져오기 - 위치 기반 API의 다른 응답 구조 처리
+  const { data: rawData, isLoading: servicesLoading } = useQuery({
     queryKey: [queryKey],
     enabled: (!locationLoading || !!type || !!manualLocation.city)
   });
+
+  // 응답 형식에 맞게 서비스 데이터 추출
+  const services = useMemo(() => {
+    if (!rawData) return [];
+    
+    // 위치 기반 API는 { count, services } 형식으로 응답
+    if (typeof rawData === 'object' && 'services' in rawData && Array.isArray(rawData.services)) {
+      return rawData.services as Service[];
+    }
+    
+    // 다른 API는 배열로 직접 응답
+    if (Array.isArray(rawData)) {
+      return rawData as Service[];
+    }
+    
+    return []; // 알 수 없는 형식은 빈 배열 반환
+  }, [rawData]);
   
   // 정렬 및 검색 적용된 서비스 목록
   const filteredServices = useMemo(() => {
@@ -111,7 +129,7 @@ const Services: React.FC = () => {
           return (
             service.title.toLowerCase().includes(term) ||
             service.description.toLowerCase().includes(term) ||
-            (service.tags && service.tags.some(tag => tag.toLowerCase().includes(term))) ||
+            (service.tags && Array.isArray(service.tags) && service.tags.some((tag: string) => tag.toLowerCase().includes(term))) ||
             (service.printerModel && service.printerModel.toLowerCase().includes(term)) ||
             (service.contactPhone && service.contactPhone.toLowerCase().includes(term)) ||
             (service.contactEmail && service.contactEmail.toLowerCase().includes(term)) ||

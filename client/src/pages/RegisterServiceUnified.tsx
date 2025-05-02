@@ -338,7 +338,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           description: data.description || '',
           serviceType: data.serviceType || '',
           isIndividual: data.isIndividual,
-          tags: typeof data.tags === 'string' ? data.tags.split(',').map(tag => tag.trim()) : 
+          tags: typeof data.tags === 'string' && data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : 
                 Array.isArray(data.tags) ? data.tags : [],
           contactPhone: data.contactPhone || '',
           contactEmail: data.contactEmail || '',
