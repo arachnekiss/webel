@@ -102,7 +102,10 @@ function Router() {
               {() => <RegisterServiceUnified defaultType="3d_printing" />}
             </Route>
             <Route path="/services/register/:type">
-              {(params) => <RegisterServiceUnified defaultType={params.type} />}
+              {(params) => {
+                const type = params.type as any;
+                return <RegisterServiceUnified defaultType={type} />;
+              }}
             </Route>
             <Route path="/services/register-old" component={RegisterService}/>
             <Route path="/services/register-old/:type" component={RegisterService}/>
