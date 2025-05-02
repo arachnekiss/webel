@@ -31,12 +31,24 @@ export const services = pgTable("services", {
   printerModel: text("printer_model"), // 3D 프린터 모델명
   contactPhone: text("contact_phone"), // 연락처 전화번호
   contactEmail: text("contact_email"), // 연락처 이메일
-  pricing: text("pricing"), // 이용 비용 (무료 가능)
+  
+  // 가격 및 결제 관련 필드
+  pricing: text("pricing"), // 이용 비용 텍스트 설명 (무료 가능)
+  price: integer("price"), // 고정 가격 (원 단위)
+  pricePerHour: integer("price_per_hour"), // 시간당 가격 (원 단위)
+  pricePerUnit: integer("price_per_unit"), // 단위당 가격 (원 단위)
+  pricingUnit: text("pricing_unit"), // 단위 (예: 그램, 개수 등)
+  pricingNotes: text("pricing_notes"), // 가격 관련 추가 정보
+  isNegotiable: boolean("is_negotiable").default(false), // 가격 협상 가능 여부
+  isRemote: boolean("is_remote").default(false), // 원격 작업 가능 여부
+  availability: text("availability"), // 가용성 (immediate, within_week, within_month, not_specified)
+  paymentOptions: text("payment_options").array(), // 지원하는 결제 옵션 (예: paypal, kakao_pay, toss)
+  
   isIndividual: boolean("is_individual").default(false), // true면 개인, false면 사업자
   // 엔지니어 서비스 관련 정보
   specialty: text("specialty"), // 전문 분야 (전자, 기계, 소프트웨어 등)
   experience: integer("experience"), // 경력 연수
-  hourlyRate: integer("hourly_rate"), // 시간당 요금
+  hourlyRate: integer("hourly_rate"), // 시간당 요금 (이전 필드, price_per_hour와 통합 예정)
   availableItems: text("available_items").array(), // 조립/수리 가능한 아이템 목록
   portfolioUrl: text("portfolio_url"), // 포트폴리오 URL
   isVerified: boolean("is_verified").default(false), // 관리자 검증 여부
@@ -102,12 +114,48 @@ export const bids = pgTable("bids", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// 주문(서비스 요청) 테이블
+export const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  serviceId: integer("service_id").references(() => services.id),
+  userId: integer("user_id").references(() => users.id), // 구매자
+  providerId: integer("provider_id").references(() => users.id), // 서비스 제공자
+  status: text("status").default("pending"), // pending, paid, in_progress, completed, cancelled
+  totalAmount: integer("total_amount").notNull(), // 총 결제 금액 (원 단위)
+  webFee: integer("web_fee").notNull(), // Webel 수수료 (원 단위, 총액의 10%)
+  providerAmount: integer("provider_amount").notNull(), // 제공자 정산 금액 (원 단위, 총액의 90%)
+  quantity: integer("quantity").default(1), // 서비스 수량/시간
+  details: jsonb("details"), // 주문 상세 정보 (추가 요청사항 등)
+  paymentMethod: text("payment_method"), // 결제 수단 (paypal, kakao_pay, toss 등)
+  createdAt: timestamp("created_at").defaultNow(),
+  completedAt: timestamp("completed_at"), // 완료 시간
+});
+
+// 결제 트랜잭션 테이블
+export const transactions = pgTable("transactions", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id),
+  userId: integer("user_id").references(() => users.id), // 결제자
+  amount: integer("amount").notNull(), // 결제 금액
+  currency: text("currency").default("KRW"), // 통화 (KRW, USD, JPY 등)
+  paymentMethod: text("payment_method").notNull(), // 결제 수단
+  paymentGateway: text("payment_gateway").notNull(), // 결제 게이트웨이 (paypal, kakao_pay, toss 등)
+  transactionId: text("transaction_id"), // 외부 결제 시스템 트랜잭션 ID
+  status: text("status").notNull(), // pending, success, failed, refunded
+  errorMessage: text("error_message"), // 실패 시 오류 메시지
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
+  metadata: jsonb("metadata"), // 추가 정보 (영수증 URL 등)
+});
+
 // Insert schemas using zod
 export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
 export const insertServiceSchema = createInsertSchema(services).omit({ id: true, createdAt: true, rating: true, ratingCount: true });
 export const insertResourceSchema = createInsertSchema(resources).omit({ id: true, createdAt: true, downloadCount: true });
 export const insertAuctionSchema = createInsertSchema(auctions).omit({ id: true, createdAt: true, currentLowestBid: true, bidCount: true, status: true });
 export const insertBidSchema = createInsertSchema(bids).omit({ id: true, createdAt: true });
+export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true, completedAt: true });
+export const insertTransactionSchema = createInsertSchema(transactions).omit({ id: true, createdAt: true, updatedAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -139,6 +187,15 @@ export type InsertAuction = z.infer<typeof insertAuctionSchema>;
 
 export type Bid = typeof bids.$inferSelect;
 export type InsertBid = z.infer<typeof insertBidSchema>;
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = z.infer<typeof insertOrderSchema>;
+
+export type Transaction = typeof transactions.$inferSelect;
+export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
+
+// 결제 방법 타입 정의
+export type PaymentMethod = 'paypal' | 'kakao_pay' | 'toss' | 'credit_card' | 'bank_transfer';
 
 // Location type used across schemas
 export type Location = {
