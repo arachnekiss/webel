@@ -196,13 +196,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <Link href="/">
-              <div className={`px-4 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+              <div className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
                 홈
               </div>
             </Link>
             
             <Link href="/resources">
-              <div className={`px-4 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+              <div className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
                 <div className="flex items-center">
                   <Layers className="h-4 w-4 mr-1" />
                   모든 리소스
@@ -213,7 +213,7 @@ const Header: React.FC = () => {
             {/* 직접 리소스 카테고리 링크 (데스크탑) */}
             {resourceCategories.map(category => (
               <Link key={category.id} href={category.href}>
-                <div className={`flex items-center px-4 py-2 text-sm font-medium rounded-md cursor-pointer transition-colors ${
+                <div className={`flex items-center px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${
                   location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
                 }`}>
                   <span className="mr-1">{category.icon}</span>
