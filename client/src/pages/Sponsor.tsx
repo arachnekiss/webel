@@ -196,15 +196,16 @@ const Sponsor: React.FC = () => {
             </p>
             <div className="flex items-center gap-3">
               <Heart className="h-6 w-6 text-white" />
-              <span className="text-white font-medium">현재까지 256명이 후원에 참여했습니다</span>
+              <span className="text-white font-medium">여러분의 후원으로 더 나은 서비스를 만들어갑니다</span>
             </div>
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
-            <img 
-              src="https://images.unsplash.com/photo-1579389083046-e3df9c2b3325?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-              alt="Webel 후원" 
-              className="rounded-lg shadow-md max-h-80 object-cover" 
-            />
+            <div className="rounded-lg shadow-md max-h-80 bg-gradient-to-r from-amber-300 to-amber-500 flex items-center justify-center text-white p-8">
+              <div className="flex flex-col items-center">
+                <Coffee className="h-16 w-16 mb-4" />
+                <span className="text-xl font-bold">Webel과 함께 성장하세요</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -298,8 +299,9 @@ const Sponsor: React.FC = () => {
         >
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-shrink-0 cursor-pointer" onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}>
-                <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" className="h-12" />
+              <div className="flex-shrink-0 cursor-pointer bg-[#ffdd00] rounded-md px-3 py-2 flex items-center" onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}>
+                <Coffee className="h-5 w-5 mr-2 text-black" />
+                <span className="font-bold text-black">Buy Me a Coffee</span>
               </div>
               <div className="flex-grow">
                 <h3 className="text-xl font-bold text-gray-800 mb-1">Buy Me a Coffee로 후원하기</h3>
