@@ -108,10 +108,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: '로그인이 필요합니다.' });
       }
       
+      // 데이터 정제 - tags 배열 처리
       const serviceData = {
         ...req.body,
         userId: req.user.id
       };
+      
+      // tags가 있고 배열이 아니라면 배열로 변환
+      if (serviceData.tags && !Array.isArray(serviceData.tags)) {
+        if (typeof serviceData.tags === 'string') {
+          serviceData.tags = serviceData.tags.split(',').map(tag => tag.trim());
+        } else {
+          // 다른 형태의 데이터라면 빈 배열로 설정
+          serviceData.tags = [];
+        }
+      }
+      
+      console.log('서비스 데이터 처리:', {
+        ...serviceData,
+        userId: '사용자 ID', // 로그에는 민감 정보 제외
+      });
       
       const service = await storage.createService(serviceData);
       res.status(201).json(service);

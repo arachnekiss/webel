@@ -115,7 +115,11 @@ const serviceFormSchema = z.object({
   pricing: z.string().optional().or(z.literal("")),
   availableHours: z.string().optional().or(z.literal("")),
   isIndividual: z.boolean().default(true),
-  tags: z.string().transform((val) => val.split(',').map((tag) => tag.trim())).optional().or(z.literal("")),
+  tags: z.union([
+    z.string().transform(val => val ? val.split(',').map(tag => tag.trim()) : []),
+    z.array(z.string()),
+    z.undefined()
+  ]).optional(),
   address: z.string().optional().or(z.literal("")),
   latitude: z.number().optional().or(z.literal(0)),
   longitude: z.number().optional().or(z.literal(0)),
@@ -189,9 +193,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       pricing: '10g당 1,000원',
       availableHours: '평일 10:00-18:00',
       isIndividual: true,
-      tags: serviceType === '3d_printing' ? 'PLA,ABS,시제품' : 
-            serviceType === 'engineer' ? '설계,PCB,전자기기' : 
-            '제조,가공,시제품',
+      tags: serviceType === '3d_printing' ? ['PLA', 'ABS', '시제품'] : 
+            serviceType === 'engineer' ? ['설계', 'PCB', '전자기기'] : 
+            ['제조', '가공', '시제품'],
       address: '',
       latitude: 0,
       longitude: 0,
