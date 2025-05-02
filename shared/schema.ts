@@ -182,6 +182,15 @@ export type Resource = ResourceBase & {
   galleryImages?: string[] | null; // 갤러리 이미지들 (배열)
   uploadDate?: Date; // createdAt의 별칭
   uploadDateFormatted?: string; // 포맷된 업로드 일자 (YYYY년 MM월 DD일 형식)
+  
+  // 추가 리소스 정보 필드 (UI용)
+  fileType?: string; // 파일 형식 (예: ZIP, PDF, STL 등)
+  fileSize?: string; // 파일 크기 (예: 10MB, 2.5GB 등)
+  version?: string; // 버전 정보 (예: 1.0.0, 2022년 버전 등)
+  license?: string; // 라이센스 정보 (예: MIT, CC-BY 등)
+  requirements?: string; // 요구사항 (예: Windows 10 이상, Arduino IDE 등)
+  compatibility?: string; // 호환성 정보 (예: Arduino, Raspberry Pi, Windows/Mac/Linux 등)
+  difficulty?: string; // 난이도 정보 (예: 초급, 중급, 고급 등)
 };
 
 export type InsertResource = z.infer<typeof insertResourceSchema> & {

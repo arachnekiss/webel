@@ -228,13 +228,27 @@ const ResourceDetail: React.FC = () => {
                   <span>{formatDate(createdAt ? (typeof createdAt === 'string' ? createdAt : createdAt instanceof Date ? createdAt : undefined) : undefined)}</span>
                 </div>
               </div>
-              <div className="flex items-center">
-                <Download className="h-4 w-4 text-gray-500 mr-2" />
-                <div>
-                  <span className="text-gray-500 block">다운로드</span>
-                  <span>{(resource.downloadCount || 0).toLocaleString()}회</span>
+              
+              {resource.compatibility && (
+                <div className="flex items-center">
+                  <Layers className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <span className="text-gray-500 block">호환성</span>
+                    <span>{resource.compatibility}</span>
+                  </div>
                 </div>
-              </div>
+              )}
+              
+              {resource.difficulty && (
+                <div className="flex items-center">
+                  <Activity className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <span className="text-gray-500 block">난이도</span>
+                    <span>{resource.difficulty}</span>
+                  </div>
+                </div>
+              )}
+              
               {resource.sourceSite && (
                 <div className="flex items-center">
                   <FileText className="h-4 w-4 text-gray-500 mr-2" />
@@ -417,11 +431,6 @@ const ResourceDetail: React.FC = () => {
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-4">다운로드</h3>
               <div className="space-y-4">
-                <p className="text-sm text-gray-600 flex items-center">
-                  <Download className="h-4 w-4 mr-1" />
-                  {(resource.downloadCount || 0).toLocaleString()}명이 다운로드함
-                </p>
-                
                 <Button 
                   className="w-full flex items-center justify-center gap-2 py-2"
                   onClick={handleDownload}
@@ -435,6 +444,36 @@ const ResourceDetail: React.FC = () => {
                   <p className="text-sm text-amber-600">
                     다운로드 링크가 현재 제공되지 않습니다.
                   </p>
+                )}
+
+                {resource.fileType && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">파일 형식:</span> {resource.fileType}
+                  </div>
+                )}
+                
+                {resource.fileSize && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">파일 크기:</span> {resource.fileSize}
+                  </div>
+                )}
+                
+                {resource.version && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">버전:</span> {resource.version}
+                  </div>
+                )}
+                
+                {resource.license && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">라이센스:</span> {resource.license}
+                  </div>
+                )}
+                
+                {resource.requirements && (
+                  <div className="text-sm text-gray-600">
+                    <span className="font-medium">요구사항:</span> {resource.requirements}
+                  </div>
                 )}
               </div>
             </CardContent>
@@ -450,10 +489,8 @@ const ResourceDetail: React.FC = () => {
                 </p>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-200">
-                <Link href={`/resources/type/${resourceType}`}>
-                  <Button variant="link" className="p-0 h-auto text-primary hover:underline">
-                    {getTypeName(resourceType)} 더 보기
-                  </Button>
+                <Link href={`/resources/type/${resourceType}`} className="text-primary hover:underline text-sm">
+                  {getTypeName(resourceType)} 더 보기
                 </Link>
               </div>
             </CardContent>
