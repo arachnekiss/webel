@@ -23,6 +23,16 @@ import {
   checkStripeStatus
 } from './stripe';
 
+// 다중 결제 시스템 라우트 핸들러
+import {
+  initializePayment,
+  approvePayment,
+  cancelPayment,
+  completeService,
+  getUserOrders,
+  getProviderOrders
+} from './payment';
+
 // 파일 업로드 설정
 const storage_config = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -742,6 +752,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Stripe 결제 상태 확인
   app.get('/api/sponsor/status', checkStripeStatus);
+  
+  // ==================== 다중 결제 시스템 라우트 ====================
+  // 주문 및 결제 관련 라우트 (PayPal, KakaoPay, Toss 등 지원)
+  
+  // 결제 초기화 (주문 생성 및 결제 정보 반환)
+  app.post('/api/payments/initialize', isAuthenticated, initializePayment);
+  
+  // 결제 승인 완료
+  app.post('/api/payments/approve', isAuthenticated, approvePayment);
+  
+  // 결제/주문 취소
+  app.post('/api/payments/cancel', isAuthenticated, cancelPayment);
+  
+  // 서비스 제공자가 작업 완료 처리
+  app.post('/api/orders/:orderId/complete', isAuthenticated, completeService);
+  
+  // 사용자별 주문 내역 조회
+  app.get('/api/user/orders', isAuthenticated, getUserOrders);
+  
+  // 서비스 제공자별 주문 내역 조회
+  app.get('/api/provider/orders', isAuthenticated, getProviderOrders);
 
   const httpServer = createServer(app);
   return httpServer;

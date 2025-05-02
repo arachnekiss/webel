@@ -432,8 +432,8 @@ export async function getUserOrders(req: Request, res: Response) {
 
     // 서비스 및 제공자 정보 추가
     const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-      const service = await storage.getServiceById(order.serviceId);
-      const provider = await storage.getUser(order.providerId);
+      const service = order.serviceId ? await storage.getServiceById(order.serviceId) : null;
+      const provider = order.providerId ? await storage.getUser(order.providerId) : null;
       
       return {
         ...order,
@@ -495,8 +495,8 @@ export async function getProviderOrders(req: Request, res: Response) {
 
     // 서비스 및 사용자 정보 추가
     const ordersWithDetails = await Promise.all(orders.map(async (order) => {
-      const service = await storage.getServiceById(order.serviceId);
-      const user = await storage.getUser(order.userId);
+      const service = order.serviceId ? await storage.getServiceById(order.serviceId) : null;
+      const user = order.userId ? await storage.getUser(order.userId) : null;
       
       return {
         ...order,
