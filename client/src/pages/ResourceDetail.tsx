@@ -265,12 +265,12 @@ const ResourceDetail: React.FC = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
             <div className="flex flex-col space-y-4">
               {/* 태그 섹션 */}
-              {Array.isArray(resource.tags) && resource.tags.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Tag className="h-5 w-5 text-gray-600" />
-                    <h3 className="font-semibold text-lg">태그</h3>
-                  </div>
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Tag className="h-5 w-5 text-gray-600" />
+                  <h3 className="font-semibold text-lg">태그</h3>
+                </div>
+                {Array.isArray(resource.tags) && resource.tags?.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {resource.tags.map((tag, index) => (
                       <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-800 px-3 py-1">
@@ -278,16 +278,18 @@ const ResourceDetail: React.FC = () => {
                       </Badge>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-gray-500 text-sm">태그 정보가 없습니다.</p>
+                )}
+              </div>
               
               {/* 다운로드 URL 섹션 */}
-              {resource.downloadUrl && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <Link2 className="h-5 w-5 text-gray-600" />
-                    <h3 className="font-semibold text-lg">다운로드 URL</h3>
-                  </div>
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <Link2 className="h-5 w-5 text-gray-600" />
+                  <h3 className="font-semibold text-lg">다운로드 URL</h3>
+                </div>
+                {resource.downloadUrl ? (
                   <div className="bg-gray-50 p-3 rounded-md">
                     <a 
                       href={resource.downloadUrl} 
@@ -296,6 +298,28 @@ const ResourceDetail: React.FC = () => {
                       className="text-primary hover:underline break-all"
                     >
                       {resource.downloadUrl}
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm">다운로드 URL이 제공되지 않았습니다.</p>
+                )}
+              </div>
+              
+              {/* 소스 사이트 (출처 URL) 섹션 - 다운로드 URL과 다른 경우에만 표시 */}
+              {resource.sourceSite && resource.sourceSite !== resource.downloadUrl && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="h-5 w-5 text-gray-600" />
+                    <h3 className="font-semibold text-lg">출처 사이트</h3>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-md">
+                    <a 
+                      href={resource.sourceSite} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline break-all"
+                    >
+                      {resource.sourceSite}
                     </a>
                   </div>
                 </div>
