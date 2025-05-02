@@ -57,9 +57,9 @@ export default function AdminDashboard() {
           icon={<Users className="h-6 w-6" />} 
         />
         <StatCard 
-          title="엔지니어" 
+          title="서비스" 
           value={data?.servicesCount || 0} 
-          description="제공 중인 총 엔지니어 수" 
+          description="등록된 총 서비스 수" 
           icon={<Wrench className="h-6 w-6" />} 
         />
         <StatCard 
@@ -69,9 +69,9 @@ export default function AdminDashboard() {
           icon={<FileText className="h-6 w-6" />} 
         />
         <StatCard 
-          title="서비스" 
+          title="경매" 
           value={data?.auctionsCount || 0} 
-          description="등록된 총 서비스 수" 
+          description="등록된 총 경매 수" 
           icon={<Gavel className="h-6 w-6" />} 
         />
       </div>
@@ -157,10 +157,10 @@ export default function AdminDashboard() {
             onClick={() => setLocation('/admin/resources')}
           />
           <ActionCard 
-            title="엔지니어 관리" 
-            description="엔지니어 등록 및 관리" 
+            title="서비스 관리" 
+            description="서비스 등록 및 관리" 
             icon={<Wrench className="h-5 w-5" />}
-            onClick={() => setLocation('/admin/engineers')}
+            onClick={() => setLocation('/admin/services')}
           />
         </div>
       </div>

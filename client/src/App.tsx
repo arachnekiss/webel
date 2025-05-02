@@ -38,7 +38,7 @@ import AuthPage from '@/pages/auth-page';
 import AdminDashboard from '@/pages/AdminDashboard';
 import AdminUserManagement from '@/pages/AdminUserManagement';
 import AdminResourceManagement from '@/pages/AdminResourceManagement';
-import AdminEngineerManagement from '@/pages/AdminEngineerManagement';
+import AdminServiceManagement from '@/pages/AdminServiceManagement';
 import RegisterPrinter from '@/pages/RegisterPrinter';
 
 function Router() {
@@ -134,7 +134,9 @@ function Router() {
             <AdminRoute path="/admin/dashboard" component={AdminDashboard} />
             <AdminRoute path="/admin/users" component={AdminUserManagement} />
             <AdminRoute path="/admin/resources" component={AdminResourceManagement} />
-            <AdminRoute path="/admin/engineers" component={AdminEngineerManagement} />
+            <AdminRoute path="/admin/services" component={AdminServiceManagement} />
+            {/* 이전 경로 호환성 유지 */}
+            <AdminRoute path="/admin/engineers" component={AdminServiceManagement} />
             
             {/* Fallback to 404 */}
             <Route component={NotFound} />
