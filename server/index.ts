@@ -4,22 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import * as path from 'path';
 
 const app = express();
-import compression from 'compression';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-
-// 보안 및 성능 미들웨어
-app.use(helmet());
-app.use(compression());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: false, limit: '10mb' }));
-
-// API 요청 제한
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15분
-  max: 100 // IP당 최대 요청 수
-});
-app.use('/api/', limiter);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // uploads 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
@@ -65,18 +51,12 @@ app.use((req, res, next) => {
     console.error('Error:', err);
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = 5000;
   server.listen({
     port,
