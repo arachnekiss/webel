@@ -991,95 +991,107 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                   />
 
                   <div className="border rounded-lg p-4 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">위치 정보</h3>
-                        <p className="text-sm text-muted-foreground">
-                          현재 위치를 사용하거나 주소를 직접 입력해주세요
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="use-location"
-                          checked={useCurrentLocation}
-                          onCheckedChange={handleLocationToggle}
-                        />
-                        <label
-                          htmlFor="use-location"
-                          className="text-sm font-medium leading-none"
-                        >
-                          현재 위치 사용
-                        </label>
-                      </div>
+                    <div>
+                      <h3 className="font-medium">위치 정보</h3>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        서비스 제공 위치를 입력해주세요
+                      </p>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="address-input">주소 입력</Label>
-                      <Input
-                        id="address-input"
-                        placeholder="정확한 주소를 입력해주세요"
-                        value={addressInput}
-                        onChange={handleAddressChange}
-                        disabled={useCurrentLocation}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={useCurrentLocation}
-                        onClick={() => {
-                          if (!addressInput.trim()) {
-                            toast({
-                              title: "주소를 입력해주세요",
-                              description: "추가할 주소를 입력해주세요.",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-                          
-                          // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
-                          const lat = 37.5665 + (Math.random() * 0.02 - 0.01); // 약간의 변동 추가
-                          const long = 126.978 + (Math.random() * 0.02 - 0.01);
-                          
-                          // 첫 번째 주소라면 폼 값 설정
-                          if (locationList.length === 0) {
-                            form.setValue('latitude', lat);
-                            form.setValue('longitude', long);
-                            form.setValue('address', addressInput);
-                          }
-                          
-                          // 주소 목록에 추가
-                          setLocationList([...locationList, {
-                            lat: lat,
-                            long: long,
-                            address: addressInput
-                          }]);
-                          
-                          // 주소가 추가되었음을 표시
-                          toast({
-                            title: "주소가 추가되었습니다",
-                            description: addressInput,
-                          });
-                          
-                          // 입력 필드 초기화
-                          setAddressInput('');
-                        }}
-                        className="w-full"
-                      >
-                        주소 추가
-                      </Button>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <div className="col-span-2">
+                          <Input
+                            id="address-input"
+                            placeholder="정확한 주소를 입력해주세요"
+                            value={addressInput}
+                            onChange={handleAddressChange}
+                          />
+                        </div>
+                        <div className="flex space-x-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                              // 현재 위치 가져오기
+                              await getLocation();
+                              if (currentLocation) {
+                                setAddressInput(currentLocation.address);
+                              } else {
+                                toast({
+                                  title: "위치 정보를 가져올 수 없습니다",
+                                  description: "수동으로 주소를 입력해주세요",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                            className="flex-1"
+                          >
+                            <MapPin className="h-4 w-4 mr-1" />
+                            위치 찾기
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="default"
+                            size="sm"
+                            onClick={() => {
+                              if (!addressInput.trim()) {
+                                toast({
+                                  title: "주소를 입력해주세요",
+                                  description: "추가할 주소를 입력해주세요.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              
+                              // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
+                              const lat = 37.5665 + (Math.random() * 0.02 - 0.01);
+                              const long = 126.978 + (Math.random() * 0.02 - 0.01);
+                              
+                              // 첫 번째 주소라면 폼 값 설정
+                              if (locationList.length === 0) {
+                                form.setValue('latitude', lat);
+                                form.setValue('longitude', long);
+                                form.setValue('address', addressInput);
+                              }
+                              
+                              // 주소 목록에 추가
+                              setLocationList([...locationList, {
+                                lat,
+                                long,
+                                address: addressInput
+                              }]);
+                              
+                              // 입력 필드 초기화
+                              setAddressInput('');
+                            }}
+                            className="flex-1"
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            추가
+                          </Button>
+                        </div>
+                      </div>
+                      
                       <FormMessage>
                         {form.formState.errors.latitude?.message ||
                           form.formState.errors.longitude?.message}
                       </FormMessage>
                     </div>
                     
-                    {locationList.length > 0 && (
-                      <div className="bg-muted p-3 rounded-md text-sm mt-2">
-                        <div className="font-medium mb-2">추가된 주소 목록:</div>
-                        <div className="space-y-2">
+                    {locationList.length > 0 ? (
+                      <div className="bg-muted rounded-md overflow-hidden mt-2">
+                        <div className="px-3 py-2 bg-muted-foreground/10 border-b font-medium text-sm">
+                          서비스 제공 장소 ({locationList.length}개)
+                        </div>
+                        <div className="p-3 space-y-2">
                           {locationList.map((loc, index) => (
-                            <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
-                              <div>{loc.address}</div>
+                            <div key={index} className="flex items-center justify-between bg-background rounded-md p-2 text-sm">
+                              <div className="flex items-center">
+                                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                                <span>{loc.address}</span>
+                              </div>
                               <Button
                                 type="button"
                                 variant="ghost"
@@ -1110,12 +1122,10 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           ))}
                         </div>
                       </div>
-                    )}
-
-                    {currentLocation && useCurrentLocation && (
-                      <div className="bg-muted p-3 rounded-md text-sm">
-                        <div className="font-medium">현재 위치:</div>
-                        <div>{currentLocation.address}</div>
+                    ) : (
+                      <div className="text-center py-3 text-muted-foreground text-sm bg-muted/50 rounded-md border border-dashed">
+                        <MapPin className="h-4 w-4 mx-auto mb-1" />
+                        서비스 제공 장소를 하나 이상 추가해주세요
                       </div>
                     )}
                   </div>
