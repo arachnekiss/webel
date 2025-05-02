@@ -440,7 +440,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   });
 
   // 폼 제출 처리
-  const onSubmit = (data: ServiceFormValues) => {
+  const onSubmit = async (data: ServiceFormValues) => {
     if (!user) {
       toast({
         title: '로그인이 필요합니다',
@@ -449,6 +449,48 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       });
       navigate('/auth');
       return;
+    }
+
+    // 유료 서비스인 경우 사용자 인증 상태 확인
+    if (!data.isFreeService) {
+      try {
+        // 사용자 인증 정보 가져오기
+        const userResponse = await fetch('/api/user/verification', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!userResponse.ok) {
+          throw new Error('사용자 인증 정보를 가져오는데 실패했습니다.');
+        }
+        
+        const userData = await userResponse.json();
+        
+        // 휴대폰 인증과 계좌 등록 여부 확인
+        if (!userData.isPhoneVerified || !userData.isAccountVerified) {
+          toast({
+            title: "유료 서비스를 등록할 수 없습니다",
+            description: "유료 서비스를 등록하기 위해서는 휴대폰 인증 및 계좌 인증이 필요합니다.",
+            variant: "destructive",
+          });
+          
+          // 확인 후 인증 페이지로 이동
+          if (window.confirm("본인 인증 페이지로 이동하시겠습니까?")) {
+            navigate('/my/verification');
+          }
+          return;
+        }
+      } catch (error) {
+        console.error("인증 정보 확인 실패:", error);
+        toast({
+          title: "인증 정보 확인 실패",
+          description: "인증 정보를 확인하는 중 오류가 발생했습니다. 다시 시도해주세요.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     // 위치 정보가 없으면 기본값을 설정 (서울 중심부로 설정)
