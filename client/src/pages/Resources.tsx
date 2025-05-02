@@ -54,7 +54,10 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     retry: 1,
   });
   
-  // 리소스 배열이 유효한지 확인
+  // 선택된 카테고리 리스트 (하드웨어 설계도, 소프트웨어 오픈소스, AI 모델, 3D 모델링 파일)
+  const ALLOWED_CATEGORIES = ['hardware_design', 'software', 'ai_model', '3d_model'];
+  
+  // 리소스 배열이 유효한지 확인하고 선택된 카테고리만 필터링
   const resources = useMemo(() => {
     try {
       if (!rawResources) {
@@ -67,13 +70,25 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         return [];
       }
       
-      console.log('[Resources] 리소스 데이터 로드됨, 개수:', rawResources.length);
-      return rawResources;
+      // 타입 파라미터가 있으면 해당 타입만 표시
+      if (type && type !== 'all') {
+        console.log('[Resources] 리소스 데이터 로드됨, 개수:', rawResources.length);
+        return rawResources;
+      }
+      
+      // 타입 파라미터가 없으면 선택된 카테고리만 필터링
+      const filteredResources = rawResources.filter(resource => 
+        ALLOWED_CATEGORIES.includes(resource.category) || 
+        (resource.resourceType && ALLOWED_CATEGORIES.includes(resource.resourceType))
+      );
+      
+      console.log('[Resources] 필터링된 리소스 데이터 로드됨, 개수:', filteredResources.length);
+      return filteredResources;
     } catch (error) {
       console.error('[Resources] 리소스 처리 중 오류:', error);
       return [];
     }
-  }, [rawResources]);
+  }, [rawResources, type]);
   
   // Get resource type name for display
   const getResourceTypeName = () => {
@@ -91,7 +106,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
       case 'flash_game':
         return '플래시 게임';
       default:
-        return '모든 리소스';
+        return '전문가용 리소스';
     }
   };
   
@@ -152,7 +167,8 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">{getResourceTypeName()}</h1>
             <p className="text-gray-600">
-              무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요.
+              {type ? "무료로 제공되는 다양한 설계도, 소프트웨어, 콘텐츠를 찾아보세요." :
+                "하드웨어 설계도, 소프트웨어 오픈소스, AI 모델, 3D 모델링 파일 모음"}
             </p>
           </div>
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
@@ -160,39 +176,15 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         
         {/* Search and filter controls */}
         <div className="bg-white rounded-lg shadow p-4 mb-8">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Input 
-                type="text" 
-                placeholder="리소스 검색..." 
-                className="w-full pr-10" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-            
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setSearchQuery('');
-                  // URL에서 검색 파라미터 제거 (브라우저 환경에서만)
-                  if (isBrowser) {
-                    try {
-                      const url = new URL(window.location.href);
-                      url.searchParams.delete('search');
-                      window.history.replaceState({}, '', url.toString());
-                    } catch (error) {
-                      console.error('URL 파라미터 제거 중 오류:', error);
-                    }
-                  }
-                }}
-                disabled={!searchQuery}
-              >
-                필터 초기화
-              </Button>
-            </div>
+          <div className="relative w-full">
+            <Input 
+              type="text" 
+              placeholder="리소스 검색..." 
+              className="w-full pr-10" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <Search className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
           </div>
         </div>
         

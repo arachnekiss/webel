@@ -100,43 +100,7 @@ const Sidebar: React.FC = () => {
           );
         })}
         
-        {/* 리소스 섹션 */}
-        <div className="mt-6 mb-3 px-4">
-          <div className="h-px bg-slate-200"></div>
-          <h3 className="text-sm font-semibold text-slate-800 mt-3">리소스</h3>
-        </div>
-        
-        {/* 전문가용 리소스 갤러리 링크 */}
-        <Link href="/resources/gallery">
-          <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
-            location === '/resources/gallery' 
-              ? 'bg-primary/5 text-primary font-medium' 
-              : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
-          } cursor-pointer transition-all`}>
-            <div className={`mr-3 transition-transform duration-300 ${location === '/resources/gallery' ? 'text-primary scale-110' : 'text-slate-500'}`}>
-              <FileCode className="h-5 w-5" />
-            </div>
-            <span>전문가용 리소스</span>
-          </div>
-        </Link>
-        
-        {/* 모든 리소스 링크 */}
-        <Link href="/resources">
-          <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-sm ${
-            location === '/resources' && !location.startsWith('/resources/gallery')
-              ? 'bg-primary/5 text-primary font-medium' 
-              : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
-          } cursor-pointer transition-all`}>
-            <div className={`mr-3 transition-transform duration-300 ${
-              location === '/resources' && !location.startsWith('/resources/gallery') 
-                ? 'text-primary scale-110' 
-                : 'text-slate-500'
-            }`}>
-              <Database className="h-5 w-5" />
-            </div>
-            <span>모든 리소스</span>
-          </div>
-        </Link>
+
         
         {/* 관리자 메뉴 */}
         {isAdmin && (
