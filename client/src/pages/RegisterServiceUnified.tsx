@@ -411,12 +411,13 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       
       // 서비스 상세 페이지로 이동 (또는 카테고리 페이지)
       if (data && data.id) {
-        // 데이터의 ID 값이 유효한지 확인
-        const serviceId = Number(data.id);
+        // 데이터의 ID 값이 유효한지 확인 및 명시적 숫자 변환
+        const serviceId = parseInt(data.id.toString(), 10);
+        console.log(`서비스 등록 성공, ID: ${serviceId}, 타입: ${typeof serviceId}`);
+        
         if (!isNaN(serviceId) && serviceId > 0) {
-          // 서비스 상세 페이지로 이동할 때 앱 라우팅과 일치하는 경로 사용
-          console.log(`서비스 ID: ${serviceId} 등록 완료, 상세 페이지로 이동`);
-          navigate(`/services/${serviceId}`);
+          // 우선 서비스 타입 페이지로 이동 (상세 페이지에서 오류 방지를 위해)
+          navigate(`/services/type/${serviceType}`);
           return;
         }
       }

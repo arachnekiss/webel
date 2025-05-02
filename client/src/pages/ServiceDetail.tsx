@@ -22,7 +22,7 @@ const ServiceDetail: React.FC = () => {
   console.log('ServiceDetail 컴포넌트 로드됨, ID 파라미터:', id);
   const { data: service, isLoading, error } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
-    onError: (err) => console.error('서비스 상세 데이터 로드 에러:', err)
+    onError: (error: Error) => console.error('서비스 상세 데이터 로드 에러:', error)
   });
 
   // 오류 처리
