@@ -3,7 +3,12 @@ import { Buffer } from 'buffer';
 
 // OpenAI 클라이언트 초기화
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// OpenAI 클라이언트 싱글톤 인스턴스
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY,
+  maxRetries: 3,
+  timeout: 30000,
+});
 
 // 텍스트 기반 대화
 export async function getChatResponse(messages: any[]) {

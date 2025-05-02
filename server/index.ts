@@ -4,8 +4,22 @@ import { setupVite, serveStatic, log } from "./vite";
 import * as path from 'path';
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+import compression from 'compression';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
+// 보안 및 성능 미들웨어
+app.use(helmet());
+app.use(compression());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// API 요청 제한
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15분
+  max: 100 // IP당 최대 요청 수
+});
+app.use('/api/', limiter);
 
 // uploads 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

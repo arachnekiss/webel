@@ -1,4 +1,11 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { LoadingSpinner } from './components/ui/loading-spinner';
+
+// 라우트 지연 로딩
+const Home = lazy(() => import('./pages/Home'));
+const AIAssistant = lazy(() => import('./pages/AiAssembly'));
+const ResourceGallery = lazy(() => import('./pages/ResourceGallery'));
 import { Switch, Route } from 'wouter';
 import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
