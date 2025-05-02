@@ -12,8 +12,8 @@ import {
   Info,
   BookOpen,
   Wrench,
-  Layers,
-  Activity
+  Tag,
+  Link2
 } from 'lucide-react';
 import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -231,38 +231,28 @@ const ResourceDetail: React.FC = () => {
                 </div>
               </div>
               
-              {resource.compatibility && (
+              {resource.tags && resource.tags.length > 0 && (
                 <div className="flex items-center">
-                  <Layers className="h-4 w-4 text-gray-500 mr-2" />
+                  <Tag className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
-                    <span className="text-gray-500 block">호환성</span>
-                    <span>{resource.compatibility}</span>
+                    <span className="text-gray-500 block">태그</span>
+                    <span className="truncate max-w-[200px]">{resource.tags.join(', ')}</span>
                   </div>
                 </div>
               )}
               
-              {resource.difficulty && (
+              {resource.downloadUrl && (
                 <div className="flex items-center">
-                  <Activity className="h-4 w-4 text-gray-500 mr-2" />
+                  <Link2 className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
-                    <span className="text-gray-500 block">난이도</span>
-                    <span>{resource.difficulty}</span>
-                  </div>
-                </div>
-              )}
-              
-              {resource.sourceSite && (
-                <div className="flex items-center">
-                  <FileText className="h-4 w-4 text-gray-500 mr-2" />
-                  <div>
-                    <span className="text-gray-500 block">출처</span>
+                    <span className="text-gray-500 block">다운로드 URL</span>
                     <a 
-                      href={resource.sourceSite} 
+                      href={resource.downloadUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
+                      className="text-primary hover:underline truncate max-w-[200px] inline-block"
                     >
-                      웹사이트 방문
+                      다운로드 링크
                     </a>
                   </div>
                 </div>
