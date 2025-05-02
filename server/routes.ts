@@ -72,8 +72,14 @@ import {
   verifyService,
   deleteService
 } from './admin';
+import { setupApiAdapters } from './api-adapters';
+import { Router } from 'express';
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // API 어댑터 라우터 설정
+  const apiRouter = Router();
+  setupApiAdapters(apiRouter);
+  app.use(apiRouter);
   // 데이터베이스 초기화 엔드포인트 (개발 환경에서만 사용)
   app.post('/api/reset-database', async (_req: Request, res: Response) => {
     try {
