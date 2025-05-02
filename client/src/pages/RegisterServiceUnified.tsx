@@ -403,6 +403,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
     },
     onSuccess: (data) => {
       // 팝업 메시지 없이 조용히 처리
+      console.log('서비스 등록 성공 응답 데이터:', data);
       queryClient.invalidateQueries({ queryKey: ['/api/services'] });
       queryClient.invalidateQueries({
         queryKey: [`/api/services/type/${serviceType}`],
@@ -413,6 +414,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         // 데이터의 ID 값이 유효한지 확인
         const serviceId = Number(data.id);
         if (!isNaN(serviceId) && serviceId > 0) {
+          // 서비스 상세 페이지로 이동할 때 앱 라우팅과 일치하는 경로 사용
+          console.log(`서비스 ID: ${serviceId} 등록 완료, 상세 페이지로 이동`);
           navigate(`/services/${serviceId}`);
           return;
         }
