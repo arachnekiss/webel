@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from './db';
 import { users, services, resources, auctions, bids } from '@shared/schema';
-import { eq, desc, asc, sql } from 'drizzle-orm';
+import { eq, desc, asc, sql, inArray } from 'drizzle-orm';
 import { isAdmin } from './auth';
 
 // 대시보드 캐시 (5분마다 갱신)
@@ -260,6 +260,9 @@ export async function getAllResources(req: Request, res: Response) {
       return res.json(resourcesCache.data[cacheKey]);
     }
 
+    // 지원하는 리소스 타입 목록
+    const supportedTypes = ['hardware_design', 'software', 'ai_model', '3d_model'];
+    
     // 병렬로 리소스와 카운트 조회
     const [allResources, countResult] = await Promise.all([
       db.select({
@@ -273,14 +276,17 @@ export async function getAllResources(req: Request, res: Response) {
         createdAt: resources.createdAt
       })
       .from(resources)
+      .where(sql`${resources.category} IN (${supportedTypes.join(',')})`)
       .orderBy(desc(resources.createdAt))
       .limit(limit)
       .offset(offset),
       
-      // 전체 카운트
+      // 지원하는 타입만 카운트
       db.select({
         count: sql`COUNT(*)`
-      }).from(resources)
+      })
+      .from(resources)
+      .where(sql`${resources.category} IN (${supportedTypes.join(',')})`)
     ]);
 
     const totalItems = Number(countResult[0].count);
