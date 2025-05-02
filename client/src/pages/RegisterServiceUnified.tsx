@@ -106,7 +106,7 @@ const serviceFormSchema = z.object({
     message: '제목을 입력해주세요',
   }).optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
-  serviceType: z.enum(["3d_printing", "manufacturing", "engineer"]),
+  serviceType: z.enum(["3d_printing", "manufacturing", "engineer", "electronics", "woodworking", "metalworking"]),
   printerModel: z.string().optional().or(z.literal("")),
   contactPhone: z.string().optional().or(z.literal("")),
   contactEmail: z.string().email({
@@ -122,6 +122,7 @@ const serviceFormSchema = z.object({
   nickname: z.string().optional().or(z.literal("")),
   hourlyRate: z.string().optional().or(z.literal("")),
   portfolioUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
+  experience: z.number().optional().or(z.literal(0)),
 });
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
@@ -156,6 +157,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const [selectedFileFormats, setSelectedFileFormats] = useState<string[]>([]);
   const [selectedSpecializations, setSelectedSpecializations] = useState<string[]>([]);
   const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [otherMaterialInput, setOtherMaterialInput] = useState<string>('');
   const [otherSpecializationInput, setOtherSpecializationInput] = useState<string>('');
   const [otherProductInput, setOtherProductInput] = useState<string>('');
@@ -325,13 +327,23 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
         // 위치 정보 추가
         if (useCurrentLocation && currentLocation) {
+          // 현재 위치 사용
           serviceData.location = currentLocation;
+          // 위치 목록이 있다면 추가 (최대 5개까지만)
+          serviceData.locationList = [currentLocation];
+        } else if (locationList.length > 0) {
+          // 첫 번째 주소를 기본 위치로 설정
+          serviceData.location = locationList[0];
+          // 여러 주소 목록 추가 (최대 5개까지만)
+          serviceData.locationList = locationList.slice(0, 5);
         } else {
+          // 주소 입력이 없는 경우 기본값 설정
           serviceData.location = {
             lat: data.latitude || form.getValues('latitude'),
             long: data.longitude || form.getValues('longitude'),
             address: addressInput || data.address || ''
           };
+          serviceData.locationList = [];
         }
 
         // 서비스 유형별 특화 필드 추가
@@ -993,16 +1005,41 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           type="button"
                           variant="outline"
                           onClick={() => {
+                            if (!addressInput.trim()) {
+                              toast({
+                                title: "주소를 입력해주세요",
+                                description: "추가할 주소를 입력해주세요.",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            
                             // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
-                            form.setValue('latitude', 37.5665);
-                            form.setValue('longitude', 126.978);
-                            form.setValue('address', addressInput);
+                            const lat = 37.5665 + (Math.random() * 0.02 - 0.01); // 약간의 변동 추가
+                            const long = 126.978 + (Math.random() * 0.02 - 0.01);
+                            
+                            // 첫 번째 주소라면 폼 값 설정
+                            if (locationList.length === 0) {
+                              form.setValue('latitude', lat);
+                              form.setValue('longitude', long);
+                              form.setValue('address', addressInput);
+                            }
+                            
+                            // 주소 목록에 추가
+                            setLocationList([...locationList, {
+                              lat: lat,
+                              long: long,
+                              address: addressInput
+                            }]);
                             
                             // 주소가 추가되었음을 표시
                             toast({
                               title: "주소가 추가되었습니다",
                               description: addressInput,
                             });
+                            
+                            // 입력 필드 초기화
+                            setAddressInput('');
                           }}
                           className="w-full"
                         >
@@ -1015,10 +1052,42 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       </div>
                     )}
                     
-                    {!useCurrentLocation && addressInput && form.getValues('latitude') !== 0 && (
+                    {!useCurrentLocation && locationList.length > 0 && (
                       <div className="bg-muted p-3 rounded-md text-sm mt-2">
-                        <div className="font-medium">추가된 주소:</div>
-                        <div>{addressInput}</div>
+                        <div className="font-medium mb-2">추가된 주소 목록:</div>
+                        <div className="space-y-2">
+                          {locationList.map((loc, index) => (
+                            <div key={index} className="flex items-center justify-between border-b pb-2 last:border-0">
+                              <div>{loc.address}</div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => {
+                                  // 주소 목록에서 제거
+                                  const newLocations = [...locationList];
+                                  newLocations.splice(index, 1);
+                                  setLocationList(newLocations);
+                                  
+                                  // 첫 번째 주소였다면 다음 주소를 기본값으로 설정
+                                  if (index === 0 && newLocations.length > 0) {
+                                    form.setValue('latitude', newLocations[0].lat);
+                                    form.setValue('longitude', newLocations[0].long);
+                                    form.setValue('address', newLocations[0].address);
+                                  } else if (newLocations.length === 0) {
+                                    // 남은 주소가 없으면 초기화
+                                    form.setValue('latitude', 0);
+                                    form.setValue('longitude', 0);
+                                    form.setValue('address', '');
+                                  }
+                                }}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
 
