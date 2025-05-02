@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams, Link, useLocation as useWouterLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
-import { Service } from '@/types';
+import type { Service } from '@shared/schema';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
@@ -95,7 +95,8 @@ const Services: React.FC = () => {
   
   // 정렬 및 검색 적용된 서비스 목록
   const filteredServices = useMemo(() => {
-    if (!services) return [];
+    // services가 없거나 배열이 아닐 경우 빈 배열 반환
+    if (!services || !Array.isArray(services)) return [];
     
     let result = [...services];
     

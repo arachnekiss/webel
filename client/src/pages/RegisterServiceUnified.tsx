@@ -449,13 +449,17 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       return;
     }
 
+    // 위치 정보가 없으면 기본값을 설정 (서울 중심부로 설정)
     if (data.latitude === 0 || data.longitude === 0) {
-      toast({
-        title: '위치 정보가 필요합니다',
-        description: '현재 위치를 사용하거나 주소를 입력해주세요',
-        variant: 'destructive',
-      });
-      return;
+      // 위치를 추가하지 않고 계속 진행할 수 있도록 기본값 설정
+      form.setValue('latitude', 37.5665);
+      form.setValue('longitude', 126.9780);
+      form.setValue('address', '서울특별시');
+      
+      // 기본 위치 정보로 데이터 업데이트
+      data.latitude = 37.5665;
+      data.longitude = 126.9780;
+      data.address = '서울특별시';
     }
 
     registerServiceMutation.mutate(data);
@@ -999,8 +1003,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     </div>
 
                     <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <div className="col-span-2">
+                      <div>
+                        <div className="mb-2">
                           <Input
                             id="address-input"
                             placeholder="정확한 주소를 입력해주세요"
@@ -1008,7 +1012,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             onChange={handleAddressChange}
                           />
                         </div>
-                        <div className="flex space-x-2">
+                        <div className="flex space-x-2 mb-2">
                           <Button
                             type="button"
                             variant="outline"
@@ -1029,7 +1033,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             className="flex-1"
                           >
                             <MapPin className="h-4 w-4 mr-1" />
-                            위치 찾기
+                            현재 위치 사용
                           </Button>
                           <Button
                             type="button"
