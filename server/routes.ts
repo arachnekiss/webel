@@ -218,18 +218,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Resources routes
   app.get('/api/resources', async (_req: Request, res: Response) => {
-    // 지원하는 리소스 타입 목록
-    const supportedTypes = ['hardware_design', 'software', 'ai_model', '3d_model'];
-    
-    // 모든 리소스 가져오기
-    const allResources = await storage.getResources();
-    
-    // 지원되는 타입의 리소스만 필터링
-    const filteredResources = allResources.filter(resource => 
-      resource.resourceType && supportedTypes.includes(resource.resourceType)
-    );
-    
-    res.json(filteredResources);
+    const resources = await storage.getResources();
+    res.json(resources);
   });
   
   // 리소스 생성 - 인증 필요
@@ -505,14 +495,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/resources/category/:category', async (req: Request, res: Response) => {
     try {
       const category = req.params.category;
-      const supportedTypes = ['hardware_design', 'software', 'ai_model', '3d_model'];
-      
-      // 지원하지 않는 카테고리인 경우 빈 배열 반환
-      if (!supportedTypes.includes(category)) {
-        console.log(`지원하지 않는 리소스 카테고리 요청: ${category}`);
-        return res.json([]);
-      }
-      
       let resources = await storage.getResourcesByCategory(category);
       res.json(resources);
     } catch (error) {
@@ -525,18 +507,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/resources/type/:type', async (req: Request, res: Response) => {
     try {
       const type = req.params.type;
-      const supportedTypes = ['hardware_design', 'software', 'ai_model', '3d_model'];
-      
-      // 지원하지 않는 타입인 경우 빈 배열 반환
-      if (!supportedTypes.includes(type)) {
-        console.log(`지원하지 않는 리소스 타입 요청: ${type}`);
-        return res.json([]);
-      }
-      
       let resources = await storage.getResourcesByCategory(type);
-      
-      // 데이터베이스에서 찾은 리소스 사용
-      res.json(resources);
+    
+    // 데이터베이스에서 찾은 리소스 사용
+    res.json(resources);
     } catch (error) {
       console.error('리소스 타입별 조회 에러:', error);
       res.status(500).json({ message: '리소스 조회 중 오류가 발생했습니다.' });
