@@ -211,29 +211,24 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       if (currentLocation) {
         form.setValue('latitude', currentLocation.lat);
         form.setValue('longitude', currentLocation.long);
-        form.setValue('address', currentLocation.address);
-        setAddressInput(currentLocation.address);
         
-        // 현재 위치를 주소 목록에 추가하기 위해 주소 입력 필드에 설정
-        const currentLoc = {
-          lat: currentLocation.lat,
-          long: currentLocation.long,
-          address: currentLocation.address
-        };
+        // 현재 위치는 일단 표시하되, 바로 추가하지는 않음
+        // 사용자가 추가 정보를 입력할 수 있도록 함
+        const detailAddress = currentLocation.address;
+        form.setValue('address', detailAddress);
+        setAddressInput(detailAddress);
         
-        // 동일한 주소가 이미 목록에 있는지 확인
-        const addressExists = locationList.some(
-          loc => loc.address === currentLocation.address
-        );
-        
-        // 주소가 목록에 없으면 추가
-        if (!addressExists) {
-          setLocationList(prev => [...prev, currentLoc]);
-          toast({
-            title: "현재 위치가 추가되었습니다",
-            description: currentLocation.address,
-          });
-        }
+        toast({
+          title: "현재 위치가 감지되었습니다",
+          description: "정확한 주소 정보를 확인하고 필요시 상세 주소를 추가해주세요.",
+        });
+      } else {
+        toast({
+          title: "위치 정보를 가져올 수 없습니다",
+          description: "브라우저 설정에서 위치 접근 권한이 허용되어 있는지 확인해주세요.",
+          variant: "destructive",
+        });
+        setUseCurrentLocation(false);
       }
     }
   };
