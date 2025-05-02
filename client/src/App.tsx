@@ -77,7 +77,7 @@ function Router() {
             <Route path="/resources">
               {() => <Resources />}
             </Route>
-            <Route path="/resources/:id(\d+)" component={ResourceDetail}/>
+            <Route path="/resources/:id" component={ResourceDetail}/>
             
             {/* 전문가용 리소스 갤러리 경로 제거 */}
             

@@ -252,7 +252,7 @@ const ResourceDetail: React.FC = () => {
                         <Download className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
                         <div>
                           <p className="text-sm text-gray-500">다운로드 수</p>
-                          <p>{resource.downloadCount.toLocaleString()}회</p>
+                          <p>{(resource.downloadCount || 0).toLocaleString()}회</p>
                         </div>
                       </div>
                       {resource.sourceSite && (
@@ -428,7 +428,7 @@ const ResourceDetail: React.FC = () => {
               <div className="space-y-4">
                 <p className="text-sm text-gray-600 flex items-center">
                   <Download className="h-4 w-4 mr-1" />
-                  {resource.downloadCount.toLocaleString()}명이 다운로드함
+                  {(resource.downloadCount || 0).toLocaleString()}명이 다운로드함
                 </p>
                 
                 <Button 
