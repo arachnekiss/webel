@@ -33,6 +33,14 @@ import {
   getProviderOrders
 } from './payment';
 
+// 본인 인증 관련 함수
+import {
+  requestVerification,
+  verifyPhone,
+  registerBankAccount,
+  getVerificationStatus
+} from './verification';
+
 // 파일 업로드 설정
 const storage_config = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -773,6 +781,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // 서비스 제공자별 주문 내역 조회
   app.get('/api/provider/orders', isAuthenticated, getProviderOrders);
+
+  // 본인 인증 관련 API 라우트
+  // 인증 상태 조회
+  app.get('/api/user/verification', isAuthenticated, getVerificationStatus);
+  
+  // 인증번호 요청
+  app.post('/api/user/request-verification', isAuthenticated, requestVerification);
+  
+  // 휴대폰 인증 완료
+  app.post('/api/user/verify-phone', isAuthenticated, verifyPhone);
+  
+  // 계좌 등록
+  app.post('/api/user/register-bank-account', isAuthenticated, registerBankAccount);
 
   const httpServer = createServer(app);
   return httpServer;
