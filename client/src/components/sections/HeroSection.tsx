@@ -52,18 +52,7 @@ const HeroSection: React.FC = () => {
             </Link>
           </div>
           
-          <div className="mt-10 flex items-center">
-            <div className="flex -space-x-2">
-              {["https://i.pravatar.cc/100?img=1", "https://i.pravatar.cc/100?img=2", "https://i.pravatar.cc/100?img=3"].map((url, idx) => (
-                <div key={idx} className="w-8 h-8 rounded-full border-2 border-blue-600 overflow-hidden">
-                  <img src={url} alt="사용자" className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-            <div className="ml-3 text-sm text-blue-100">
-              <span className="font-medium">5,000+</span> 메이커들이 이미 참여 중
-            </div>
-          </div>
+          {/* 참여자 섹션 삭제됨 */}
         </div>
       </div>
       

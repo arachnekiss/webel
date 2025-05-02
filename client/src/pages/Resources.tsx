@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, useLocation, Link } from 'wouter';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
 
 import ResourceCard from '@/components/ui/ResourceCard';
@@ -38,166 +38,42 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     }
   }, [location]);
   
-  // 무한 스크롤을 위한 설정
+  // 페이지당 아이템 수
   const ITEMS_PER_PAGE = 12;
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Define query key based on type parameter
   // 타입이 없거나 undefined인 경우 기본값으로 모든 리소스 API 경로 사용
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
-  // 무한 쿼리 설정 - React Query v5 호환성 수정
-  const queryFn = async ({ pageParam = 1 }) => {
-    try {
-      // 클라이언트 측 URL 생성 - queryKey가 유효한지 확인
-      const endpoint = queryKey || '/api/resources'; 
-      
-      // 중복 체크지만 안전을 위해 유지
-      if (!isBrowser) {
-        console.log('[Resources] 브라우저 환경이 아닙니다. 빈 결과 반환');
-        return { pages: [{ items: [] }], pageParams: [1] };
-      }
-      
-      console.log(`[Resources] 리소스 로딩 시작: ${endpoint}, 페이지: ${pageParam}`);
-      
-      const url = new URL(`${window.location.origin}${endpoint}`);
-      url.searchParams.append('page', String(pageParam));
-      url.searchParams.append('limit', String(ITEMS_PER_PAGE));
-      
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        console.error('[Resources] API 응답 에러:', response.status);
-        return { items: [] };
-      }
-      
-      const result = await response.json();
-      console.log(`[Resources] API 응답 데이터:`, result);
-      
-      // API가 배열을 직접 반환하는 경우, items 형식으로 변환
-      if (Array.isArray(result)) {
-        return { items: result, meta: null };
-      }
-      
-      // 객체이지만 items 속성이 없는 경우
-      if (typeof result === 'object' && !Array.isArray(result.items)) {
-        return { items: [], meta: null };
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('[Resources] 리소스 로딩 중 오류:', error);
-      return { items: [] };
-    }
-  };
-  
-  const getNextPageParam = (lastPage: any, allPages: any[]) => {
-    try {
-      // 가장 기본적인 안전장치
-      if (!lastPage) return undefined;
-      
-      // 페이지네이션 메타데이터가 있는 경우
-      if (lastPage?.meta) {
-        const { currentPage, totalPages } = lastPage.meta;
-        return currentPage < totalPages ? currentPage + 1 : undefined;
-      }
-      
-      // 배열인 경우 (API가 배열을 직접 반환)
-      if (Array.isArray(lastPage) && lastPage.length > 0) {
-        return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
-      }
-      
-      // items 배열이 있는 경우 (가장 일반적인 패턴)
-      if (lastPage?.items && Array.isArray(lastPage.items)) {
-        // 현재 페이지 번호 계산 - 배열 길이 + 1 (1부터 시작하므로)
-        const nextPage = allPages.length + 1;
-        return lastPage.items.length === ITEMS_PER_PAGE ? nextPage : undefined;
-      }
-      
-      return undefined;
-    } catch (error) {
-      console.error('[Resources] getNextPageParam 오류:', error);
-      return undefined;
-    }
-  };
-  
-  // 기본 값을 포함한 객체 생성
-  const defaultData = {
-    pages: [],
-    pageParams: []
-  };
-  
-  // 무한 쿼리 설정
-  const infiniteQueryResult = useInfiniteQuery({
+  // 단순 쿼리로 변경 (무한 스크롤 제거)
+  const { data: rawResources = [], isLoading } = useQuery<Resource[]>({
     queryKey: [queryKey || '/api/resources'],
-    queryFn,
-    getNextPageParam,
-    initialPageParam: 1,
     enabled: isBrowser,
     staleTime: 60 * 1000, // 1분 캐싱
     refetchOnWindowFocus: false,
-    // 중요: 중첩 구조 문제 방지
-    structuralSharing: false
+    retry: 1,
   });
   
-  // 기본값을 제공하여 안전하게 구조 분해
-  const {
-    data = { pages: [] },
-    fetchNextPage = () => {},
-    hasNextPage = false,
-    isFetchingNextPage = false,
-    isLoading = false
-  } = infiniteQueryResult || {};
-  
-  // 모든 페이지의 리소스를 하나의 배열로 병합 (안전하게 처리)
+  // 리소스 배열이 유효한지 확인
   const resources = useMemo(() => {
     try {
-      // 데이터 검증
-      if (!data) {
-        console.log('[Resources] data가 없습니다.');
-        return [];
-      }
-      if (!data.pages) {
-        console.log('[Resources] data.pages가 없습니다:', data);
-        return [];
-      }
-      if (!Array.isArray(data.pages)) {
-        console.log('[Resources] data.pages가 배열이 아닙니다:', typeof data.pages);
+      if (!rawResources) {
+        console.log('[Resources] 데이터가 없습니다');
         return [];
       }
       
-      console.log('[Resources] data.pages 길이:', data.pages.length);
-      
-      const result = data.pages.flatMap(page => {
-        // null, undefined 체크
-        if (!page) {
-          console.log('[Resources] 페이지가 null/undefined입니다.');
-          return [];
-        }
-        
-        // API가 {items, meta} 형식으로 반환하는 경우
-        if (page.items && Array.isArray(page.items)) {
-          console.log('[Resources] items 형식의 응답:', page.items.length);
-          return page.items;
-        }
-        
-        // API가 리소스 배열을 직접 반환하는 경우
-        if (Array.isArray(page)) {
-          console.log('[Resources] 배열 형식의 응답:', page.length);
-          return page;
-        }
-        
-        console.log('[Resources] 알 수 없는 응답 형식:', page);
-        // 기타 경우 빈 배열 반환
+      if (!Array.isArray(rawResources)) {
+        console.log('[Resources] 응답이 배열이 아닙니다:', typeof rawResources);
         return [];
-      });
+      }
       
-      console.log('[Resources] 최종 리소스 배열 길이:', result.length);
-      return result;
+      console.log('[Resources] 리소스 데이터 로드됨, 개수:', rawResources.length);
+      return rawResources;
     } catch (error) {
-      console.error('[Resources] 리소스 데이터 처리 중 오류:', error);
+      console.error('[Resources] 리소스 처리 중 오류:', error);
       return [];
     }
-  }, [data]);
+  }, [rawResources]);
   
   // Get resource type name for display
   const getResourceTypeName = () => {
@@ -219,39 +95,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
     }
   };
   
-  // 인터섹션 옵저버 설정 (무한 스크롤)
-  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [entry] = entries;
-    if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
-
-  // 무한 스크롤을 위한 인터섹션 옵저버 설정
-  useEffect(() => {
-    // 브라우저 환경에서만 IntersectionObserver 사용
-    if (!isBrowser) return;
-    
-    try {
-      const observer = new IntersectionObserver(handleObserver, {
-        rootMargin: '0px 0px 300px 0px', // 하단에서 300px 떨어진 지점에서 트리거
-        threshold: 0.1
-      });
-      
-      if (loadMoreRef.current) {
-        observer.observe(loadMoreRef.current);
-      }
-      
-      return () => {
-        if (loadMoreRef.current) {
-          observer.unobserve(loadMoreRef.current);
-        }
-      };
-    } catch (error) {
-      console.error('인터섹션 옵저버 설정 중 오류:', error);
-      return () => {};
-    }
-  }, [handleObserver, loadMoreRef.current]);
+  // 무한 스크롤 기능 제거
   
   // 리소스 데이터가 유효한지 확인
   const validResources = resources || [];
@@ -368,25 +212,6 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                   resource={resource} 
                 />
               ))}
-            </div>
-            
-            {/* 무한 스크롤을 위한 로딩 인디케이터 */}
-            <div 
-              ref={loadMoreRef} 
-              className="mt-8 w-full flex justify-center py-4"
-            >
-              {isFetchingNextPage ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">더 불러오는 중...</span>
-                </div>
-              ) : hasNextPage ? (
-                <span className="text-sm text-muted-foreground">스크롤하여 더 보기</span>
-              ) : (Array.isArray(filteredResources) && filteredResources.length > ITEMS_PER_PAGE) ? (
-                <span className="text-sm text-muted-foreground">모든 리소스를 불러왔습니다</span>
-              ) : (
-                <span className="text-sm text-muted-foreground"></span>
-              )}
             </div>
           </>
         ) : (
