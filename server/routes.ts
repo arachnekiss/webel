@@ -108,13 +108,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: '로그인이 필요합니다.' });
       }
       
-      // 데이터 정제 - tags 배열 처리
+      // 데이터 정제
       const serviceData = {
         ...req.body,
         userId: req.user.id
       };
       
-      // tags가 있고 배열이 아니라면 배열로 변환
+      // tags 배열 처리
       if (serviceData.tags && !Array.isArray(serviceData.tags)) {
         if (typeof serviceData.tags === 'string') {
           serviceData.tags = serviceData.tags.split(',').map(tag => tag.trim());
@@ -123,6 +123,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
           serviceData.tags = [];
         }
       }
+      
+      // availableItems 배열 처리
+      if (serviceData.availableItems && !Array.isArray(serviceData.availableItems)) {
+        if (typeof serviceData.availableItems === 'string') {
+          serviceData.availableItems = serviceData.availableItems.split(',').map(item => item.trim());
+        } else {
+          serviceData.availableItems = [];
+        }
+      }
+      
+      // 필수 필드가 비어있는지 확인 및 기본값 설정
+      if (!serviceData.title) serviceData.title = '제목 없음';
+      if (!serviceData.description) serviceData.description = '설명 없음'; 
       
       console.log('서비스 데이터 처리:', {
         ...serviceData,

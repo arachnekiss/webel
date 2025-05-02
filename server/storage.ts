@@ -167,12 +167,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createService(insertService: InsertService): Promise<Service> {
-    const [service] = await db.insert(services).values({
-      ...insertService,
-      rating: 0,
-      ratingCount: 0
-    }).returning();
-    return service;
+    try {
+      // 배열 타입 필드 정확하게 처리
+      const processedData = {
+        ...insertService,
+        rating: 0,
+        ratingCount: 0
+      };
+      
+      // tags가 null이거나 undefined인 경우 빈 배열로 설정
+      if (!processedData.tags) {
+        processedData.tags = [];
+      }
+      
+      // availableItems가 null이거나 undefined인 경우 빈 배열로 설정
+      if (!processedData.availableItems) {
+        processedData.availableItems = [];
+      }
+      
+      // DB 삽입 전 로그 출력
+      console.log('서비스 생성 데이터(정제 후):', {
+        ...processedData,
+        userId: processedData.userId ? '사용자 ID' : null // 로그에는 민감 정보 제외
+      });
+      
+      const [service] = await db.insert(services).values(processedData).returning();
+      return service;
+    } catch (error) {
+      console.error('서비스 생성 DB 오류:', error);
+      throw error;
+    }
   }
 
   async updateService(id: number, serviceUpdate: Partial<Service>): Promise<Service | undefined> {
