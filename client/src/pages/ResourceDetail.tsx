@@ -261,6 +261,48 @@ const ResourceDetail: React.FC = () => {
             </div>
           </div>
 
+          {/* 태그 및 다운로드 URL 섹션 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+            <div className="flex flex-col space-y-4">
+              {/* 태그 섹션 */}
+              {Array.isArray(resource.tags) && resource.tags.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Tag className="h-5 w-5 text-gray-600" />
+                    <h3 className="font-semibold text-lg">태그</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {resource.tags.map((tag, index) => (
+                      <Badge key={index} variant="secondary" className="bg-gray-100 text-gray-800 px-3 py-1">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* 다운로드 URL 섹션 */}
+              {resource.downloadUrl && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Link2 className="h-5 w-5 text-gray-600" />
+                    <h3 className="font-semibold text-lg">다운로드 URL</h3>
+                  </div>
+                  <div className="bg-gray-50 p-3 rounded-md">
+                    <a 
+                      href={resource.downloadUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline break-all"
+                    >
+                      {resource.downloadUrl}
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
           {/* 리소스 설명 섹션 */}
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
             <div className="flex items-center gap-2 mb-4">
