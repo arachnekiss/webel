@@ -20,9 +20,13 @@ const ServiceDetail: React.FC = () => {
 
   // 서비스 데이터 가져오기
   console.log('ServiceDetail 컴포넌트 로드됨, ID 파라미터:', id);
-  const { data: service, isLoading, error } = useQuery<Service>({
+  const { 
+    data: service, 
+    isLoading, 
+    error 
+  } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
-    onError: (error: Error) => console.error('서비스 상세 데이터 로드 에러:', error)
+    enabled: !!id
   });
 
   // 오류 처리
@@ -348,10 +352,9 @@ const ServiceDetail: React.FC = () => {
           {/* 상세 정보 탭 */}
           <Tabs defaultValue="details" className="bg-white rounded-lg shadow">
             <div className="px-6 pt-6">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="details">상세 정보</TabsTrigger>
                 <TabsTrigger value="location">위치 정보</TabsTrigger>
-                <TabsTrigger value="reviews">리뷰</TabsTrigger>
               </TabsList>
             </div>
             <TabsContent value="details" className="p-6 pt-4">
@@ -401,12 +404,7 @@ const ServiceDetail: React.FC = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">위치 정보</h3>
                   <div className="rounded-md overflow-hidden border h-[300px]">
-                    <ServiceMap
-                      services={[service]}
-                      centerLat={service.location?.lat || 37.5665}
-                      centerLng={service.location?.long || 126.9780}
-                      zoom={15}
-                    />
+                    <ServiceMap services={[service]} />
                   </div>
                   <div className="flex items-center mt-2">
                     <MapPin className="h-5 w-5 text-primary mr-2" />
@@ -421,13 +419,7 @@ const ServiceDetail: React.FC = () => {
               )}
             </TabsContent>
             
-            <TabsContent value="reviews" className="p-6 pt-4">
-              <div className="text-center py-8 text-gray-500">
-                <Star className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-                <p>아직 리뷰가 없습니다.</p>
-                <p className="mt-2 text-sm">이 서비스를 이용해보셨나요? 첫 리뷰를 남겨주세요!</p>
-              </div>
-            </TabsContent>
+
           </Tabs>
         </div>
 
@@ -504,26 +496,11 @@ const ServiceDetail: React.FC = () => {
                 </div>
               </div>
               
-              <div className="flex items-center justify-between text-sm">
-                <div>
-                  <span className="text-gray-500">평점</span>
-                  <div className="flex items-center mt-1">
-                    <Star className="h-4 w-4 text-yellow-400 mr-1 fill-yellow-400" />
-                    <span className="font-medium">
-                      {service.rating ? service.rating.toFixed(1) : '0.0'}
-                    </span>
-                    <span className="text-gray-500 ml-1">
-                      ({service.ratingCount || 0}건)
-                    </span>
-                  </div>
-                </div>
-                
-                <div>
-                  <span className="text-gray-500">서비스 유형</span>
-                  <div className="mt-1 font-medium flex items-center">
-                    {getServiceTypeIcon()}
-                    <span className="ml-1">{getServiceTypeLabel()}</span>
-                  </div>
+              <div className="text-sm">
+                <span className="text-gray-500">서비스 유형</span>
+                <div className="mt-1 font-medium flex items-center">
+                  {getServiceTypeIcon()}
+                  <span className="ml-1">{getServiceTypeLabel()}</span>
                 </div>
               </div>
             </CardContent>
