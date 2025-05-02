@@ -14,7 +14,8 @@ import {
   Upload, 
   FileText, 
   Gamepad2, 
-  Download 
+  Download,
+  FileImage
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -165,7 +166,19 @@ const Home: React.FC = () => {
   });
   const modelingFiles = modelingFilesData?.items || [];
 
-  // 프리 콘텐츠 데이터 로딩 제거됨
+  // 프리 콘텐츠 데이터 가져오기
+  const { data: freeContentsData, isLoading: isFreeContentLoading } = useQuery<ResourceResponse>({
+    queryKey: ['/api/resources/type/free_content'],
+    enabled: true,
+  });
+  const freeContents = freeContentsData?.items || [];
+  
+  // 플래시 게임 데이터 가져오기
+  const { data: flashGamesData, isLoading: isFlashGamesLoading } = useQuery<ResourceResponse>({
+    queryKey: ['/api/resources/type/flash_game'],
+    enabled: true,
+  });
+  const flashGames = flashGamesData?.items || [];
 
   return (
     <div className="pb-16">
@@ -214,7 +227,26 @@ const Home: React.FC = () => {
           bg="bg-gradient-to-br from-slate-50 to-slate-100"
         />
         
-        {/* 프리 콘텐츠와 플래시 게임 섹션 제거됨 */}
+        {/* 프리 콘텐츠 섹션 */}
+        <ResourceCategorySection 
+          title="프리 콘텐츠" 
+          description="다양한 무료 콘텐츠 라이브러리" 
+          icon={<FileImage className="h-5 w-5 text-slate-600" />}
+          items={freeContents?.slice(0, 6)} 
+          category="free_content"
+          isLoading={isFreeContentLoading}
+        />
+        
+        {/* 플래시 게임 섹션 */}
+        <ResourceCategorySection 
+          title="플래시 게임" 
+          description="향수를 불러일으키는 플래시 게임 컬렉션" 
+          icon={<Gamepad2 className="h-5 w-5 text-slate-600" />}
+          items={flashGames?.slice(0, 6)} 
+          category="flash_game"
+          isLoading={isFlashGamesLoading}
+          bg="bg-gradient-to-br from-slate-50 to-slate-100"
+        />
       </div>
       
       <div className="space-y-12">
