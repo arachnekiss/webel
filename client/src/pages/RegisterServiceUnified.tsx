@@ -218,16 +218,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         form.setValue('address', detailAddress);
         setAddressInput(detailAddress);
         
-        toast({
-          title: "현재 위치가 감지되었습니다",
-          description: "정확한 주소 정보를 확인하고 필요시 상세 주소를 추가해주세요.",
-        });
+        // 위치 감지 완료 - 팝업 메시지 없이 진행
       } else {
-        toast({
-          title: "위치 정보를 가져올 수 없습니다",
-          description: "브라우저 설정에서 위치 접근 권한이 허용되어 있는지 확인해주세요.",
-          variant: "destructive",
-        });
+        // 위치 정보를 가져올 수 없음 - 팝업 없이 처리
         setUseCurrentLocation(false);
       }
     }
@@ -263,11 +256,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "파일 크기 초과",
-          description: "이미지 파일은 5MB 이하만 업로드 가능합니다.",
-          variant: "destructive",
-        });
+        // 파일 크기 초과 - 팝업 없이 조용히 무시
         return;
       }
 
@@ -288,11 +277,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       
       Array.from(files).forEach((file) => {
         if (file.size > 5 * 1024 * 1024) {
-          toast({
-            title: "파일 크기 초과",
-            description: `${file.name}의 크기가 5MB를 초과합니다.`,
-            variant: "destructive",
-          });
+          // 파일 크기 초과 - 팝업 없이 조용히 무시
           return;
         }
         
@@ -338,8 +323,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           description: data.description || '',
           serviceType: data.serviceType || '',
           isIndividual: data.isIndividual,
-          tags: typeof data.tags === 'string' && data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : 
-                Array.isArray(data.tags) ? data.tags : [],
+          tags: Array.isArray(data.tags) ? data.tags : [],
           contactPhone: data.contactPhone || '',
           contactEmail: data.contactEmail || '',
           pricing: data.pricing || '',
@@ -418,10 +402,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       }
     },
     onSuccess: (data) => {
-      toast({
-        title: '등록 완료',
-        description: '서비스가 성공적으로 등록되었습니다',
-      });
+      // 팝업 메시지 없이 조용히 처리
       queryClient.invalidateQueries({ queryKey: ['/api/services'] });
       queryClient.invalidateQueries({
         queryKey: [`/api/services/type/${serviceType}`],
@@ -429,17 +410,22 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       
       // 서비스 상세 페이지로 이동 (또는 카테고리 페이지)
       if (data && data.id) {
-        navigate(`/services/${data.id}`);
-      } else {
-        navigate(`/services/type/${serviceType}`);
+        // 데이터의 ID 값이 유효한지 확인
+        const serviceId = Number(data.id);
+        if (!isNaN(serviceId) && serviceId > 0) {
+          navigate(`/services/${serviceId}`);
+          return;
+        }
       }
+      
+      // ID가 유효하지 않으면 서비스 타입 목록 페이지로 이동
+      navigate(`/services/type/${serviceType}`);
     },
     onError: (error: Error) => {
-      toast({
-        title: '등록 실패',
-        description: error.message,
-        variant: 'destructive',
-      });
+      // 팝업 없이 조용히 처리
+      console.error('서비스 등록 실패:', error.message);
+      // 에러가 발생해도 서비스 목록 페이지로 이동
+      navigate(`/services/type/${serviceType}`);
     },
   });
 
