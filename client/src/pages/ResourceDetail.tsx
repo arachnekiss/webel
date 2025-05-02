@@ -7,19 +7,18 @@ import {
   Calendar, 
   Tag, 
   FileText, 
-  Share2, 
-  Bookmark, 
-  ThumbsUp,
   AlertCircle,
   CheckCircle,
   Box,
-  List
+  List,
+  Info,
+  BookOpen,
+  Wrench
 } from 'lucide-react';
 import { Resource } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { apiRequest } from '@/lib/queryClient';
@@ -84,7 +83,6 @@ const formatDate = (date: Date | string | undefined): string => {
 const ResourceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('details');
 
   // 리소스 데이터 가져오기
   const { data: resource, isLoading, error } = useQuery<Resource>({
@@ -171,7 +169,7 @@ const ResourceDetail: React.FC = () => {
   const timeAgo = createdAt ? formatDistanceToNow(new Date(createdAt), { addSuffix: true, locale: ko }) : '';
 
   return (
-    <div className="container mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* 뒤로 가기 버튼 */}
       <div className="mb-6">
         <Link href="/resources" className="inline-flex items-center text-gray-600 hover:text-primary">
@@ -180,202 +178,192 @@ const ResourceDetail: React.FC = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* 메인 콘텐츠 영역 */}
-        <div className="lg:col-span-2">
-          {/* 리소스 제목 및 기본 정보 */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
+        <div className="lg:col-span-3 space-y-8">
+          {/* 리소스 헤더 영역 */}
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden p-6">
+            <div className="flex items-center gap-2 mb-3">
               <Badge className={`${getTypeColorClass(resourceType)} px-3 py-1`}>
                 {getTypeName(resourceType)}
               </Badge>
               <span className="text-sm text-gray-500">{timeAgo}</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{resource.title}</h1>
-            <div className="flex flex-wrap gap-2">
-              {resource.tags && resource.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="bg-gray-100 text-gray-700">
-                  {tag}
-                </Badge>
-              ))}
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{resource.title}</h1>
+            
+            {resource.tags && resource.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {resource.tags.map((tag, index) => (
+                  <Badge key={index} variant="outline" className="bg-gray-50 text-gray-700">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            )}
+            
+            {/* 리소스 이미지 */}
+            <div className="bg-gray-50 rounded-md overflow-hidden mb-6">
+              {resource.imageUrl ? (
+                <img 
+                  src={resource.imageUrl} 
+                  alt={resource.title} 
+                  className="w-full h-auto object-contain max-h-[400px]"
+                />
+              ) : (
+                <div className="w-full h-64 flex items-center justify-center">
+                  <FileText className="h-12 w-12 text-gray-300" />
+                </div>
+              )}
+            </div>
+            
+            {/* 리소스 정보 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm mb-6">
+              <div className="flex items-center">
+                <Calendar className="h-4 w-4 text-gray-500 mr-2" />
+                <div>
+                  <span className="text-gray-500 block">등록일</span>
+                  <span>{formatDate(createdAt)}</span>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Download className="h-4 w-4 text-gray-500 mr-2" />
+                <div>
+                  <span className="text-gray-500 block">다운로드</span>
+                  <span>{(resource.downloadCount || 0).toLocaleString()}회</span>
+                </div>
+              </div>
+              {resource.sourceSite && (
+                <div className="flex items-center">
+                  <FileText className="h-4 w-4 text-gray-500 mr-2" />
+                  <div>
+                    <span className="text-gray-500 block">출처</span>
+                    <a 
+                      href={resource.sourceSite} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      웹사이트 방문
+                    </a>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* 리소스 이미지 */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-8">
-            {resource.imageUrl ? (
-              <img 
-                src={resource.imageUrl} 
-                alt={resource.title} 
-                className="w-full h-auto max-h-[500px] object-contain bg-gray-50 p-2"
-              />
-            ) : (
-              <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-                <FileText className="h-12 w-12 text-gray-400" />
-                <span className="text-gray-500 ml-2">이미지 없음</span>
+          {/* 리소스 설명 섹션 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="h-5 w-5 text-gray-600" />
+              <h2 className="text-xl font-semibold">리소스 설명</h2>
+            </div>
+            <div className="prose max-w-none">
+              <p className="whitespace-pre-line text-gray-700">{resource.description || '설명이 제공되지 않았습니다.'}</p>
+            </div>
+          </div>
+
+          {/* 사용 방법 섹션 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <BookOpen className="h-5 w-5 text-gray-600" />
+              <h2 className="text-xl font-semibold">사용 방법</h2>
+            </div>
+            {resource.howToUse ? (
+              <div className="prose max-w-none">
+                <p className="whitespace-pre-line text-gray-700">{resource.howToUse}</p>
               </div>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>사용 방법 정보 없음</AlertTitle>
+                <AlertDescription>
+                  이 리소스에 대한 사용 방법 정보가 아직 제공되지 않았습니다.
+                </AlertDescription>
+              </Alert>
             )}
           </div>
 
-          {/* 탭 내비게이션 */}
-          <Tabs defaultValue="details" className="mb-6" onValueChange={setActiveTab}>
-            <TabsList className="w-full border-b mb-6">
-              <TabsTrigger value="details" className="data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:border-b-2">
-                상세 정보
-              </TabsTrigger>
-              <TabsTrigger value="howToUse" className="data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:border-b-2">
-                사용 방법
-              </TabsTrigger>
-              <TabsTrigger value="assembly" className="data-[state=active]:text-primary data-[state=active]:border-primary data-[state=active]:border-b-2">
-                조립 방법
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="details" className="mt-0">
-              <div className="prose max-w-none">
-                <div className="bg-white rounded-lg border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold mb-4">리소스 설명</h2>
-                  <p className="whitespace-pre-line">{resource.description}</p>
-                  
-                  {/* 추가 정보 */}
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h3 className="text-lg font-medium mb-3">추가 정보</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-start">
-                        <Calendar className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                        <div>
-                          <p className="text-sm text-gray-500">업로드 날짜</p>
-                          <p>{formatDate(createdAt)}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <Download className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                        <div>
-                          <p className="text-sm text-gray-500">다운로드 수</p>
-                          <p>{(resource.downloadCount || 0).toLocaleString()}회</p>
-                        </div>
-                      </div>
-                      {resource.sourceSite && (
-                        <div className="flex items-start">
-                          <FileText className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
-                          <div>
-                            <p className="text-sm text-gray-500">출처</p>
-                            <a 
-                              href={resource.sourceSite} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-primary hover:underline"
-                            >
-                              {resource.sourceSite}
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="howToUse" className="mt-0">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold mb-4">사용 방법</h2>
-                {resource.howToUse ? (
-                  <div className="prose max-w-none">
-                    <p className="whitespace-pre-line">{resource.howToUse}</p>
-                  </div>
+          {/* 조립 방법 섹션 */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Wrench className="h-5 w-5 text-gray-600" />
+              <h2 className="text-xl font-semibold">조립 방법</h2>
+            </div>
+            {resource.assemblyInstructions ? (
+              <div className="space-y-4">
+                {typeof resource.assemblyInstructions === 'string' ? (
+                  <p className="whitespace-pre-line text-gray-700">{resource.assemblyInstructions}</p>
                 ) : (
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>사용 방법 정보 없음</AlertTitle>
-                    <AlertDescription>
-                      이 리소스에 대한 사용 방법 정보가 아직 제공되지 않았습니다.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="assembly" className="mt-0">
-              <div className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold mb-4">조립 방법</h2>
-                {resource.assemblyInstructions ? (
-                  <div className="space-y-4">
-                    {typeof resource.assemblyInstructions === 'string' ? (
-                      <p className="whitespace-pre-line">{resource.assemblyInstructions}</p>
-                    ) : (
-                      <div className="space-y-6">
-                        {/* 구조화된 조립 지침 렌더링 */}
-                        {resource.assemblyInstructions.steps && Array.isArray(resource.assemblyInstructions.steps) && (
-                          <div>
-                            <h3 className="text-lg font-medium mb-3">조립 단계</h3>
-                            <ol className="list-decimal pl-5 space-y-3">
-                              {resource.assemblyInstructions.steps.map((step: any, index: number) => (
-                                <li key={index} className="pl-2">
-                                  <div className="font-medium">단계 {index + 1}: {step.title}</div>
-                                  <p className="text-gray-600 mt-1">{step.description}</p>
-                                  {step.imageUrl && (
-                                    <img 
-                                      src={step.imageUrl} 
-                                      alt={`단계 ${index + 1}`} 
-                                      className="mt-2 max-h-40 object-contain"
-                                    />
-                                  )}
-                                </li>
-                              ))}
-                            </ol>
-                          </div>
-                        )}
-
-                        {/* 필요한 도구 및 재료 */}
-                        {resource.assemblyInstructions.materials && Array.isArray(resource.assemblyInstructions.materials) && (
-                          <div className="mt-6">
-                            <h3 className="text-lg font-medium mb-3">필요한 재료</h3>
-                            <ul className="list-disc pl-5 space-y-1">
-                              {resource.assemblyInstructions.materials.map((material: string, index: number) => (
-                                <li key={index}>{material}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 필요한 도구 */}
-                        {resource.assemblyInstructions.tools && Array.isArray(resource.assemblyInstructions.tools) && (
-                          <div className="mt-6">
-                            <h3 className="text-lg font-medium mb-3">필요한 도구</h3>
-                            <ul className="list-disc pl-5 space-y-1">
-                              {resource.assemblyInstructions.tools.map((tool: string, index: number) => (
-                                <li key={index}>{tool}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {/* 주의사항 */}
-                        {resource.assemblyInstructions.notes && (
-                          <Alert className="mt-6">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>주의사항</AlertTitle>
-                            <AlertDescription>
-                              {resource.assemblyInstructions.notes}
-                            </AlertDescription>
-                          </Alert>
-                        )}
+                  <div className="space-y-6">
+                    {/* 구조화된 조립 지침 렌더링 */}
+                    {resource.assemblyInstructions.steps && Array.isArray(resource.assemblyInstructions.steps) && (
+                      <div>
+                        <h3 className="text-lg font-medium mb-3">조립 단계</h3>
+                        <ol className="list-decimal pl-5 space-y-3">
+                          {resource.assemblyInstructions.steps.map((step: any, index: number) => (
+                            <li key={index} className="pl-2">
+                              <div className="font-medium">단계 {index + 1}: {step.title}</div>
+                              <p className="text-gray-600 mt-1">{step.description}</p>
+                              {step.imageUrl && (
+                                <img 
+                                  src={step.imageUrl} 
+                                  alt={`단계 ${index + 1}`} 
+                                  className="mt-2 max-h-40 object-contain"
+                                />
+                              )}
+                            </li>
+                          ))}
+                        </ol>
                       </div>
                     )}
+
+                    {/* 필요한 도구 및 재료 */}
+                    {resource.assemblyInstructions.materials && Array.isArray(resource.assemblyInstructions.materials) && (
+                      <div className="mt-6">
+                        <h3 className="text-lg font-medium mb-3">필요한 재료</h3>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {resource.assemblyInstructions.materials.map((material: string, index: number) => (
+                            <li key={index}>{material}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 필요한 도구 */}
+                    {resource.assemblyInstructions.tools && Array.isArray(resource.assemblyInstructions.tools) && (
+                      <div className="mt-6">
+                        <h3 className="text-lg font-medium mb-3">필요한 도구</h3>
+                        <ul className="list-disc pl-5 space-y-1">
+                          {resource.assemblyInstructions.tools.map((tool: string, index: number) => (
+                            <li key={index}>{tool}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* 주의사항 */}
+                    {resource.assemblyInstructions.notes && (
+                      <Alert className="mt-6">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>주의사항</AlertTitle>
+                        <AlertDescription>
+                          {resource.assemblyInstructions.notes}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   </div>
-                ) : (
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>조립 방법 정보 없음</AlertTitle>
-                    <AlertDescription>
-                      이 리소스에 대한 조립 방법 정보가 아직 제공되지 않았습니다.
-                    </AlertDescription>
-                  </Alert>
                 )}
               </div>
-            </TabsContent>
-          </Tabs>
+            ) : (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>조립 방법 정보 없음</AlertTitle>
+                <AlertDescription>
+                  이 리소스에 대한 조립 방법 정보가 아직 제공되지 않았습니다.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
 
           {/* AI 조립 비서 가이드 */}
           {(resourceType === 'hardware_design' || resourceType === '3d_model') && (
@@ -449,26 +437,7 @@ const ResourceDetail: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* 작업 카드 */}
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">작업</h3>
-              <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Share2 className="h-4 w-4 mr-2" />
-                  공유하기
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Bookmark className="h-4 w-4 mr-2" />
-                  북마크 추가
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <ThumbsUp className="h-4 w-4 mr-2" />
-                  추천하기
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+
 
           {/* 유사 리소스 */}
           <Card className="mb-6">
