@@ -75,17 +75,19 @@ interface Service {
   hourlyRate?: number;
 }
 
-// 서비스 타입 라벨
+// 서비스 타입 라벨 - 모든 지원되는 서비스 타입에 대한 한글 레이블
 const serviceTypeLabels: Record<string, string> = {
+  // 하드웨어 관련 서비스
   '3d_printing': '3D 프린팅',
   'electronics': '전자기기',
   'woodworking': '목공',
   'metalworking': '금속가공',
   'manufacturing': '제조',
+  // 인적 자원 서비스
   'engineer': '엔지니어'
 };
 
-export default function AdminEngineerManagement() {
+export default function AdminServiceManagement() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -93,7 +95,7 @@ export default function AdminEngineerManagement() {
   const [activeTab, setActiveTab] = useState("all");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
 
-  // 엔지니어/서비스 목록 가져오기
+  // 모든 서비스 목록 가져오기
   const { data: servicesData, isLoading, error } = useQuery<{ items: Service[], meta: any }>({
     queryKey: ['/api/admin/services'],
     queryFn: getQueryFn({ on401: 'throw' }),
