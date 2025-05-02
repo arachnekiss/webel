@@ -231,7 +231,7 @@ const ResourceDetail: React.FC = () => {
                 </div>
               </div>
               
-              {resource.tags && resource.tags.length > 0 && (
+              {Array.isArray(resource.tags) && resource.tags.length > 0 && (
                 <div className="flex items-center">
                   <Tag className="h-4 w-4 text-gray-500 mr-2" />
                   <div>
@@ -305,7 +305,9 @@ const ResourceDetail: React.FC = () => {
                 ) : (
                   <div className="space-y-6">
                     {/* 구조화된 조립 지침 렌더링 */}
-                    {resource.assemblyInstructions.steps && Array.isArray(resource.assemblyInstructions.steps) && (
+                    {typeof resource.assemblyInstructions === 'object' && 
+                     resource.assemblyInstructions?.steps && 
+                     Array.isArray(resource.assemblyInstructions.steps) && (
                       <div>
                         <h3 className="text-lg font-medium mb-3">조립 단계</h3>
                         <ol className="list-decimal pl-5 space-y-3">
@@ -324,10 +326,12 @@ const ResourceDetail: React.FC = () => {
                           ))}
                         </ol>
                       </div>
-                    )}
+                     )}
 
                     {/* 필요한 도구 및 재료 */}
-                    {resource.assemblyInstructions.materials && Array.isArray(resource.assemblyInstructions.materials) && (
+                    {typeof resource.assemblyInstructions === 'object' && 
+                     resource.assemblyInstructions?.materials && 
+                     Array.isArray(resource.assemblyInstructions.materials) && (
                       <div className="mt-6">
                         <h3 className="text-lg font-medium mb-3">필요한 재료</h3>
                         <ul className="list-disc pl-5 space-y-1">
@@ -339,7 +343,9 @@ const ResourceDetail: React.FC = () => {
                     )}
 
                     {/* 필요한 도구 */}
-                    {resource.assemblyInstructions.tools && Array.isArray(resource.assemblyInstructions.tools) && (
+                    {typeof resource.assemblyInstructions === 'object' && 
+                     resource.assemblyInstructions?.tools && 
+                     Array.isArray(resource.assemblyInstructions.tools) && (
                       <div className="mt-6">
                         <h3 className="text-lg font-medium mb-3">필요한 도구</h3>
                         <ul className="list-disc pl-5 space-y-1">
@@ -351,7 +357,8 @@ const ResourceDetail: React.FC = () => {
                     )}
 
                     {/* 주의사항 */}
-                    {resource.assemblyInstructions.notes && (
+                    {typeof resource.assemblyInstructions === 'object' && 
+                     resource.assemblyInstructions?.notes && (
                       <Alert className="mt-6">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>주의사항</AlertTitle>
