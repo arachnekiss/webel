@@ -15,6 +15,7 @@ interface RelatedResourcesProps {
 const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType, currentResourceId }) => {
   const { data: resources, isLoading, error } = useQuery<Resource[]>({
     queryKey: ['/api/resources'],
+    staleTime: 60 * 1000, // 1분 동안 데이터 유지
   });
 
   if (isLoading) {
@@ -26,7 +27,7 @@ const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType,
   }
 
   // 현재 리소스를 제외하고, 같은 태그를 가진 리소스 필터링
-  const relatedResources = resources?.filter(resource => {
+  const relatedResources = resources?.filter((resource: Resource) => {
     // 현재 리소스는 제외
     if (resource.id === currentResourceId) return false;
     
@@ -34,7 +35,7 @@ const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType,
     if (!Array.isArray(resource.tags) || resource.tags.length === 0) return false;
     
     // 최소 1개 이상의 태그가 일치하는지 확인
-    return tags.some(tag => resource.tags?.includes(tag));
+    return tags.some((tag: string) => resource.tags?.includes(tag));
   }).slice(0, 3); // 최대 3개만 표시
 
   if (!relatedResources || relatedResources.length === 0) {
@@ -43,7 +44,7 @@ const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType,
 
   return (
     <div className="space-y-4">
-      {relatedResources.map(resource => (
+      {relatedResources.map((resource: Resource) => (
         <Link key={resource.id} href={`/resources/${resource.id}`}>
           <div className="flex items-start p-3 rounded-md hover:bg-gray-50 transition-colors">
             <div className="w-16 h-16 mr-3 bg-gray-200 rounded overflow-hidden flex-shrink-0">
@@ -66,7 +67,7 @@ const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType,
               <p className="text-xs text-gray-500 line-clamp-2">{resource.description}</p>
               {Array.isArray(resource.tags) && resource.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {resource.tags.filter(tag => tags.includes(tag)).map((tag, index) => (
+                  {resource.tags.filter((tag: string) => tags.includes(tag)).map((tag: string, index: number) => (
                     <Badge key={index} variant="outline" className="text-xs px-1 py-0 bg-blue-50 text-blue-700">
                       {tag}
                     </Badge>
