@@ -94,7 +94,8 @@ export default function AdminServiceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [activeTab, setActiveTab] = useState("all");
+  // 모든 서비스를 표시하는 단일 탭만 사용
+  const [activeTab] = useState("all");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
 
   // 모든 서비스 목록 가져오기
@@ -161,11 +162,8 @@ export default function AdminServiceManagement() {
       (service.tags && service.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
       (service.location?.address && service.location.address.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // 탭 필터링
-    const matchesTab = 
-      activeTab === "all" || 
-      (activeTab === "paid" && (service.isPaid || (service.price && service.price > 0))) ||
-      (activeTab === "free" && (!service.isPaid && (!service.price || service.price === 0)));
+    // 탭 필터링 - 유료/무료 구분 제거, 항상 true 반환
+    const matchesTab = true;
 
     // 타입 필터링
     const matchesType = 
@@ -208,7 +206,7 @@ export default function AdminServiceManagement() {
 
       {/* 탭 및 필터링 */}
       <div className="mb-6">
-        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="all" value={activeTab}>
           <div className="flex justify-between items-center mb-4">
             <TabsList>
               <TabsTrigger value="all">모든 서비스</TabsTrigger>
@@ -355,11 +353,7 @@ function ServiceTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  {service.isPaid || (service.price && service.price > 0) ? (
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">유료</Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-muted-foreground">무료</Badge>
-                  )}
+                  <Badge variant="outline" className="text-muted-foreground">무료</Badge>
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
