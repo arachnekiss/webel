@@ -13,12 +13,8 @@ interface RelatedResourcesProps {
 }
 
 const RelatedResources: React.FC<RelatedResourcesProps> = ({ tags, resourceType, currentResourceId }) => {
-  const { data: resources, isLoading, error } = useQuery({
+  const { data: resources, isLoading, error } = useQuery<Resource[]>({
     queryKey: ['/api/resources'],
-    queryFn: async () => {
-      const response = await apiRequest('GET', '/api/resources', undefined);
-      return response as Resource[];
-    },
   });
 
   if (isLoading) {
