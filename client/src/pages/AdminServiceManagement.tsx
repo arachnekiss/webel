@@ -162,7 +162,7 @@ export default function AdminServiceManagement() {
       (service.tags && service.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
       (service.location?.address && service.location.address.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    // 탭 필터링 - 유료/무료 구분 제거, 항상 true 반환
+    // 탭 필터링 - 모든 서비스 표시(유료/무료 구분 탭 제거)
     const matchesTab = true;
 
     // 타입 필터링
@@ -353,7 +353,11 @@ function ServiceTable({
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="text-muted-foreground">무료</Badge>
+                  {service.isPaid || (service.price && service.price > 0) ? (
+                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">유료</Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-muted-foreground">무료</Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
