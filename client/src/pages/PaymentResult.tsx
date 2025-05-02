@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import { Check, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,7 @@ interface PaymentResultProps {
 }
 
 const PaymentResult = ({ status }: PaymentResultProps) => {
-  const [location, navigate] = useLocation();
+  const [_, navigate] = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [orderId, setOrderId] = useState<string | null>(null);

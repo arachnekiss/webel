@@ -139,7 +139,9 @@ function Router() {
             </Route>
             
             {/* Payment pages */}
-            <Route path="/payment/service/:id" component={PaymentPage} />
+            <Route path="/payment/service/:id">
+              {(params) => <PaymentPage id={params.id} />}
+            </Route>
             <Route path="/payment/success">
               <PaymentResult status="success" />
             </Route>
