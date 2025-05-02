@@ -287,6 +287,11 @@ export default function ResourceUploadPage() {
           formData.append(key, String(value));
         }
       });
+      
+      // sourceSite 필드에 downloadUrl 값을 복사 (출처 사이트를 다운로드 URL로 통합)
+      if (values.downloadUrl) {
+        formData.append("sourceSite", String(values.downloadUrl));
+      }
 
       // 파일 추가
       if (thumbnailFile) {
