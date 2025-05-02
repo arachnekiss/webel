@@ -22,7 +22,6 @@ import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 
 // Pages
-import Home from '@/pages/Home';
 import NotFound from '@/pages/not-found';
 import Services from '@/pages/Services';
 import ServiceDetail from '@/pages/ServiceDetail';
