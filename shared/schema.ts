@@ -9,10 +9,16 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
   fullName: text("full_name"),
-  location: jsonb("location"), // { lat: number, long: number, address: string }
+  location: jsonb("location"), // { lat: number, long, address: string }
   isServiceProvider: boolean("is_service_provider").default(false),
   isAdmin: boolean("is_admin").default(false),
   createdAt: timestamp("created_at").defaultNow(),
+  // 본인 인증 관련 필드
+  isPhoneVerified: boolean("is_phone_verified").default(false),
+  phoneNumber: text("phone_number"),
+  // 결제 정보 관련 필드
+  bankAccountInfo: jsonb("bank_account_info"), // { bank: string, accountNumber: string, accountHolder: string }
+  isAccountVerified: boolean("is_account_verified").default(false),
 });
 
 // Services schema
@@ -33,6 +39,7 @@ export const services = pgTable("services", {
   contactEmail: text("contact_email"), // 연락처 이메일
   
   // 가격 및 결제 관련 필드
+  isFreeService: boolean("is_free_service").default(false), // 무료 서비스 여부
   pricing: text("pricing"), // 이용 비용 텍스트 설명 (무료 가능)
   price: integer("price"), // 고정 가격 (원 단위)
   pricePerHour: integer("price_per_hour"), // 시간당 가격 (원 단위)

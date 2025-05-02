@@ -115,6 +115,7 @@ const serviceFormSchema = z.object({
   pricing: z.string().optional().or(z.literal("")),
   availableHours: z.string().optional().or(z.literal("")),
   isIndividual: z.boolean().default(true),
+  isFreeService: z.boolean().default(false),
   tags: z.union([
     z.string().transform(val => val ? val.split(',').map(tag => tag.trim()) : []),
     z.array(z.string()),
