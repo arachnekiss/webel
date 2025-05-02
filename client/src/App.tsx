@@ -33,6 +33,7 @@ import AuctionDetail from '@/pages/AuctionDetail';
 import AiAssembly from '@/pages/AiAssembly';
 import RemoteSupport from '@/pages/RemoteSupport';
 import Sponsor from '@/pages/Sponsor';
+import About from '@/pages/About';
 import FlashGames from '@/pages/FlashGames';
 import Engineers from '@/pages/Engineers';
 import AuthPage from '@/pages/auth-page';
@@ -126,6 +127,7 @@ function Router() {
             <Route path="/remote-support" component={RemoteSupport}/>
             <Route path="/services/type/engineer" component={Engineers}/>
             <Route path="/sponsor" component={Sponsor}/>
+            <Route path="/about" component={About}/>
             
             {/* Auth pages */}
             <Route path="/auth">
