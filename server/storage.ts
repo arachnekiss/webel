@@ -31,6 +31,16 @@ export interface IStorage {
   setAdminStatus(id: number, isAdmin: boolean): Promise<User | undefined>;
   deleteUser(id: number): Promise<boolean>;
   
+  // 사용자 인증 관련 메서드
+  verifyPhone(id: number, phoneNumber: string): Promise<User | undefined>;
+  registerBankAccount(id: number, bankInfo: any): Promise<User | undefined>;
+  getVerificationStatus(id: number): Promise<{
+    isPhoneVerified: boolean;
+    isAccountVerified: boolean;
+    phoneNumber?: string;
+    bankAccountInfo?: any;
+  } | undefined>;
+  
   // Service operations
   getServices(): Promise<Service[]>;
   getServiceById(id: number): Promise<Service | undefined>;

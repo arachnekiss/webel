@@ -138,6 +138,17 @@ function Router() {
               {() => <AuthPage initialTab="register" />}
             </Route>
             
+            {/* User verification pages */}
+            <ProtectedRoute path="/my/verification" component={() => {
+              // 동적 임포트를 사용하여 필요할 때만 컴포넌트를 로드
+              const UserVerification = React.lazy(() => import('@/pages/UserVerification'));
+              return (
+                <React.Suspense fallback={<div className="flex justify-center items-center min-h-[60vh]">로딩 중...</div>}>
+                  <UserVerification />
+                </React.Suspense>
+              );
+            }} />
+            
             {/* Payment pages */}
             <Route path="/payment/service/:id">
               {(params) => <PaymentPage id={params.id} />}
