@@ -28,6 +28,8 @@ import {
   Hexagon,
   Info,
   Check,
+  Gift,
+  CreditCard,
   AlertCircle as InfoIcon,
   AlertCircle
 } from "lucide-react";
@@ -912,75 +914,107 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     control={form.control}
                     name="isFreeService"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mb-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">무료/유료 서비스</FormLabel>
-                          <FormDescription>
-                            무료 서비스는 인증 요구사항이 없으나, 유료 서비스는 본인 인증 및 계좌 등록이 필요합니다.
-                          </FormDescription>
-                        </div>
+                      <FormItem>
+                        <FormLabel className="text-base mb-2">서비스 유형</FormLabel>
+                        <FormDescription className="mb-3">
+                          무료 서비스는 인증 요구사항이 없으나, 유료 서비스는 본인 인증 및 계좌 등록이 필요합니다.
+                        </FormDescription>
                         <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              // 무료 서비스로 설정하면 가격 정책을 "무료"로 자동 설정
-                              if (checked) {
+                          <div className="grid grid-cols-2 gap-4 mt-2">
+                            <div 
+                              className={`cursor-pointer border rounded-lg p-4 ${field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
+                              onClick={() => {
+                                field.onChange(true);
                                 form.setValue("pricing", "무료");
-                              } else {
-                                // 유료로 다시 변경하면 기본 가격 템플릿으로 설정
-                                form.setValue("pricing", "10g당 1,000원, 기본 출력비 5,000원 + 재료비");
-                              }
-                            }}
-                          />
+                              }}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center">
+                                  <Gift className="mr-2 h-5 w-5 text-primary" />
+                                  <h3 className="font-medium">무료 서비스</h3>
+                                </div>
+                                {field.value && <Check className="h-5 w-5 text-primary" />}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                무료로 제공하는 서비스입니다
+                              </p>
+                            </div>
+                            
+                            <div 
+                              className={`cursor-pointer border rounded-lg p-4 ${!field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
+                              onClick={() => {
+                                field.onChange(false);
+                                // 서비스 유형에 따라 적절한 기본 가격 템플릿 설정
+                                if (serviceType === "3d_printing") {
+                                  form.setValue("pricing", "10g당 1,000원, 기본 출력비 5,000원 + 재료비");
+                                } else if (serviceType === "engineer") {
+                                  form.setValue("pricing", "시간당 50,000원, 최소 작업 시간 1시간");
+                                } else {
+                                  form.setValue("pricing", "기본 서비스 20,000원부터, 작업량에 따라 추가 비용");
+                                }
+                              }}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <div className="flex items-center">
+                                  <CreditCard className="mr-2 h-5 w-5 text-primary" />
+                                  <h3 className="font-medium">유료 서비스</h3>
+                                </div>
+                                {!field.value && <Check className="h-5 w-5 text-primary" />}
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                유료로 제공하는 서비스입니다
+                              </p>
+                            </div>
+                          </div>
                         </FormControl>
                       </FormItem>
                     )}
                   />
 
                   {!form.watch("isFreeService") && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
-                      <h3 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
-                        <InfoIcon className="h-4 w-4 mr-1" /> 유료 서비스 인증 요구사항
-                      </h3>
-                      <p className="text-sm text-amber-700 mb-2">
-                        유료 서비스를 제공하기 위해서는 마이페이지에서 다음 절차를 완료해야 합니다:
-                      </p>
-                      <ul className="text-xs text-amber-700 list-disc pl-5 space-y-1">
-                        <li>휴대폰 본인 인증</li>
-                        <li>계좌 정보 등록 및 인증</li>
-                      </ul>
-                      <Button 
-                        variant="outline"
-                        size="sm"
-                        className="mt-2 text-amber-800 border-amber-300 hover:bg-amber-100"
-                        onClick={() => navigate('/my/verification')}
-                      >
-                        본인 인증 페이지로 이동
-                      </Button>
-                    </div>
-                  )}
+                    <>
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                        <h3 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
+                          <InfoIcon className="h-4 w-4 mr-1" /> 유료 서비스 인증 요구사항
+                        </h3>
+                        <p className="text-sm text-amber-700 mb-2">
+                          유료 서비스를 제공하기 위해서는 마이페이지에서 다음 절차를 완료해야 합니다:
+                        </p>
+                        <ul className="text-xs text-amber-700 list-disc pl-5 space-y-1">
+                          <li>휴대폰 본인 인증</li>
+                          <li>계좌 정보 등록 및 인증</li>
+                        </ul>
+                        <Button 
+                          variant="outline"
+                          size="sm"
+                          className="mt-2 text-amber-800 border-amber-300 hover:bg-amber-100"
+                          onClick={() => navigate('/my/verification')}
+                        >
+                          본인 인증 페이지로 이동
+                        </Button>
+                      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="pricing"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>가격 정책</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
-                            {...field}
-                            disabled={form.watch("isFreeService")}
-                          />
-                        </FormControl>
-                        <FormDescription>
-                          가격 책정 방식을 명확하게 작성해주세요
-                        </FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="pricing"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>가격 정책</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormDescription>
+                              가격 책정 방식을 명확하게 작성해주세요
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
 
                   <FormField
                     control={form.control}
