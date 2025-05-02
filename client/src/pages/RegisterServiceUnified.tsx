@@ -417,7 +417,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: '등록 완료',
         description: '서비스가 성공적으로 등록되었습니다',
@@ -426,7 +426,13 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       queryClient.invalidateQueries({
         queryKey: [`/api/services/type/${serviceType}`],
       });
-      navigate('/services');
+      
+      // 서비스 상세 페이지로 이동 (또는 카테고리 페이지)
+      if (data && data.id) {
+        navigate(`/services/${data.id}`);
+      } else {
+        navigate(`/services/type/${serviceType}`);
+      }
     },
     onError: (error: Error) => {
       toast({

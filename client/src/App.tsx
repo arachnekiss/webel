@@ -63,8 +63,7 @@ function Router() {
           <Switch>
             <Route path="/" component={Home}/>
             
-            {/* Services routes */}
-            <Route path="/services" component={Services}/>
+            {/* Services routes - 카테고리별 서비스 목록 */}
             <Route path="/services/type/:type" component={Services}/>
             <Route path="/services/:id(\d+)" component={ServiceDetail}/>
             
