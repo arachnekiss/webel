@@ -103,53 +103,50 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   console.log('Resource card ID:', resource.id, typeof resource.id);
 
   return (
-    <Card className="h-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group">
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
-        {resource.imageUrl ? (
-          <img 
-            src={resource.imageUrl} 
-            alt={title} 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-300 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-            <span className="text-gray-500">이미지 없음</span>
+    <Card className="h-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group relative">
+      <Link href={`/resources/${resource.id}`}>
+        <div className="relative h-48 bg-gray-200 overflow-hidden">
+          {resource.imageUrl ? (
+            <img 
+              src={resource.imageUrl} 
+              alt={title} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-300 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+              <span className="text-gray-500">이미지 없음</span>
+            </div>
+          )}
+          <div className={`absolute top-0 left-0 ${getTypeColor(resourceType)} text-white px-3 py-1 text-xs font-medium`}>
+            {getTypeName(resourceType)}
           </div>
-        )}
-        <div className={`absolute top-0 left-0 ${getTypeColor(resourceType)} text-white px-3 py-1 text-xs font-medium`}>
-          {getTypeName(resourceType)}
         </div>
+      
+        <CardContent className="p-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-primary">{title}</h3>
+          <p className="text-gray-600 text-sm mb-3">{description}</p>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {tags.map((tag, index) => (
+                <Badge key={index} variant="outline" className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Link>
+      
+      {/* 다운로드 버튼 - 카드 내에서 독립적으로 클릭 가능 */}
+      <div className="absolute bottom-4 right-4 z-10">
+        <Button 
+          className="px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
+          onClick={handleDownload}
+          disabled={!resource.downloadUrl}
+        >
+          다운로드
+        </Button>
       </div>
-      <CardContent className="p-4">
-        <Link href={`/resources/${resource.id}`}>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2 hover:text-primary">{title}</h3>
-        </Link>
-        <p className="text-gray-600 text-sm mb-3">{description}</p>
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <Download className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-500 ml-1">
-              {downloadCount.toLocaleString()}
-            </span>
-          </div>
-          <Button 
-            className="px-3 py-1 text-sm bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors"
-            onClick={handleDownload}
-            disabled={!resource.downloadUrl}
-          >
-            다운로드
-          </Button>
-        </div>
-      </CardContent>
     </Card>
   );
 };
