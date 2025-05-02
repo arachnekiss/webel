@@ -347,19 +347,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     { name: 'downloadFile', maxCount: 1 }
   ]), async (req: Request, res: Response) => {
     try {
-      if (!req.body.title || !req.body.description) {
+      console.log('리소스 업로드 요청 데이터:', {
+        body: req.body,
+        files: req.files,
+        user: req.user ? { id: req.user.id } : null
+      });
+      
+      // 필수 필드 검증 완화 - 빈 문자열도 허용
+      if (req.body.title === undefined || req.body.description === undefined) {
         return res.status(400).json({ 
           message: '필수 필드가 누락되었습니다. 제목, 설명은 필수입니다.' 
         });
       }
+      
+      // 기본값 설정
+      const title = req.body.title || '제목 없음';
+      const description = req.body.description || '설명 없음';
       
       // 업로드된 파일들
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       
       // 리소스 데이터 준비
       const resourceData: any = {
-        title: req.body.title,
-        description: req.body.description,
+        title: title,
+        description: description,
         userId: req.user?.id,
         createdAt: new Date()
       };
