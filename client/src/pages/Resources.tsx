@@ -46,7 +46,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // 타입이 없거나 undefined인 경우 기본값으로 모든 리소스 API 경로 사용
   const queryKey = type ? `/api/resources/type/${type}` : '/api/resources';
   
-  // 무한 쿼리 설정 - 훨씬 더 안전하게 처리
+  // 무한 쿼리 설정 - 더 강화된 오류 처리
   const infiniteQueryResult = useInfiniteQuery({
     queryKey: [queryKey || '/api/resources'],
     enabled: isBrowser, // 브라우저 환경에서만 쿼리 활성화
@@ -57,8 +57,11 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         
         // 중복 체크지만 안전을 위해 유지
         if (!isBrowser) {
+          console.log('[Resources] 브라우저 환경이 아닙니다. 빈 결과 반환');
           return { items: [] };
         }
+        
+        console.log(`[Resources] 리소스 로딩 시작: ${endpoint}, 페이지: ${pageParam}`);
         
         const url = new URL(`${window.location.origin}${endpoint}`);
         url.searchParams.append('page', String(pageParam));
@@ -66,39 +69,57 @@ const Resources: React.FC<ResourcesProps> = (props) => {
         
         const response = await fetch(url.toString());
         if (!response.ok) {
-          console.error('API 응답 에러:', response.status);
+          console.error('[Resources] API 응답 에러:', response.status);
           return { items: [] };
         }
         
-        return await response.json();
+        const result = await response.json();
+        console.log(`[Resources] API 응답 데이터:`, result);
+        
+        // API가 배열을 직접 반환하는 경우, items 형식으로 변환
+        if (Array.isArray(result)) {
+          return { items: result, meta: null };
+        }
+        
+        // 객체이지만 items 속성이 없는 경우
+        if (typeof result === 'object' && !Array.isArray(result.items)) {
+          return { items: [], meta: null };
+        }
+        
+        return result;
       } catch (error) {
-        console.error('리소스 로딩 중 오류:', error);
+        console.error('[Resources] 리소스 로딩 중 오류:', error);
         return { items: [] };
       }
     },
     getNextPageParam: (lastPage, allPages) => {
-      // 가장 기본적인 안전장치
-      if (!lastPage) return undefined;
-      
-      // 페이지네이션 메타데이터가 있는 경우
-      if (lastPage?.meta) {
-        const { currentPage, totalPages } = lastPage.meta;
-        return currentPage < totalPages ? currentPage + 1 : undefined;
+      try {
+        // 가장 기본적인 안전장치
+        if (!lastPage) return undefined;
+        
+        // 페이지네이션 메타데이터가 있는 경우
+        if (lastPage?.meta) {
+          const { currentPage, totalPages } = lastPage.meta;
+          return currentPage < totalPages ? currentPage + 1 : undefined;
+        }
+        
+        // 배열인 경우 (API가 배열을 직접 반환)
+        if (Array.isArray(lastPage) && lastPage.length > 0) {
+          return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
+        }
+        
+        // items 배열이 있는 경우 (가장 일반적인 패턴)
+        if (lastPage?.items && Array.isArray(lastPage.items)) {
+          // 현재 페이지 번호 계산 - 배열 길이 + 1 (1부터 시작하므로)
+          const nextPage = allPages.length + 1;
+          return lastPage.items.length === ITEMS_PER_PAGE ? nextPage : undefined;
+        }
+        
+        return undefined;
+      } catch (error) {
+        console.error('[Resources] getNextPageParam 오류:', error);
+        return undefined;
       }
-      
-      // 배열인 경우 (API가 배열을 직접 반환)
-      if (Array.isArray(lastPage) && lastPage.length > 0) {
-        return lastPage.length === ITEMS_PER_PAGE ? 2 : undefined;
-      }
-      
-      // items 배열이 있는 경우 (가장 일반적인 패턴)
-      if (lastPage?.items && Array.isArray(lastPage.items)) {
-        // 현재 페이지 번호 계산 - 배열 길이 + 1 (1부터 시작하므로)
-        const nextPage = allPages.length + 1;
-        return lastPage.items.length === ITEMS_PER_PAGE ? nextPage : undefined;
-      }
-      
-      return undefined;
     },
     initialPageParam: 1,
   });
@@ -114,28 +135,33 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // 모든 페이지의 리소스를 하나의 배열로 병합 (안전하게 처리)
   const resources = useMemo(() => {
-    if (!data?.pages || !Array.isArray(data.pages)) {
+    try {
+      if (!data) return [];
+      if (!data.pages) return [];
+      if (!Array.isArray(data.pages)) return [];
+      
+      return data.pages.flatMap(page => {
+        // null, undefined 체크
+        if (!page) return [];
+        
+        // API가 {items, meta} 형식으로 반환하는 경우
+        if (page.items && Array.isArray(page.items)) {
+          return page.items;
+        }
+        
+        // API가 리소스 배열을 직접 반환하는 경우
+        if (Array.isArray(page)) {
+          return page;
+        }
+        
+        // 기타 경우 빈 배열 반환
+        return [];
+      });
+    } catch (error) {
+      console.error('[Resources] 리소스 데이터 처리 중 오류:', error);
       return [];
     }
-    
-    return data.pages.flatMap(page => {
-      // null, undefined 체크
-      if (!page) return [];
-      
-      // API가 {items, meta} 형식으로 반환하는 경우
-      if (page.items && Array.isArray(page.items)) {
-        return page.items;
-      }
-      
-      // API가 리소스 배열을 직접 반환하는 경우
-      if (Array.isArray(page)) {
-        return page;
-      }
-      
-      // 기타 경우 빈 배열 반환
-      return [];
-    });
-  }, [data?.pages]);
+  }, [data]);
   
   // Get resource type name for display
   const getResourceTypeName = () => {
