@@ -106,26 +106,7 @@ export default function AdminServiceManagement() {
   // 실제 서비스 배열 (items 필드에서 추출)
   const services = servicesData?.items || [];
 
-  // 서비스 유료/무료 상태 변경 뮤테이션
-  const toggleServicePaidStatusMutation = useMutation({
-    mutationFn: async ({ serviceId, isPaid }: { serviceId: number; isPaid: boolean }) => {
-      const res = await apiRequest("PUT", `/api/admin/services/${serviceId}/paid-status`, { 
-        isPaid 
-      });
-      return await res.json();
-    },
-    onSuccess: () => {
-      toast({ title: "서비스 유료/무료 상태가 변경되었습니다." });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/services'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "서비스 상태 변경 실패",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  // 유료/무료 상태 변경 기능 제거
 
   // 서비스 삭제 뮤테이션
   const deleteServiceMutation = useMutation({
@@ -160,14 +141,7 @@ export default function AdminServiceManagement() {
     }
   };
 
-  // 서비스 유료/무료 상태 변경 핸들러
-  const handleTogglePaidStatus = (service: Service) => {
-    const isPaid = !(service.isPaid || (service.price && service.price > 0));
-    toggleServicePaidStatusMutation.mutate({
-      serviceId: service.id,
-      isPaid: isPaid
-    });
-  };
+  // 유료/무료 변경 기능 제거
 
   // 타입 필터 토글 핸들러
   const toggleTypeFilter = (type: string) => {
@@ -238,8 +212,6 @@ export default function AdminServiceManagement() {
           <div className="flex justify-between items-center mb-4">
             <TabsList>
               <TabsTrigger value="all">모든 서비스</TabsTrigger>
-              <TabsTrigger value="paid">유료 서비스</TabsTrigger>
-              <TabsTrigger value="free">무료 서비스</TabsTrigger>
             </TabsList>
             
             <div className="flex items-center gap-2">
@@ -279,23 +251,6 @@ export default function AdminServiceManagement() {
             <ServiceTable 
               services={filteredServices || []} 
               onDelete={openDeleteDialog}
-              onToggleVerified={handleTogglePaidStatus}
-            />
-          </TabsContent>
-          
-          <TabsContent value="paid">
-            <ServiceTable 
-              services={filteredServices || []} 
-              onDelete={openDeleteDialog}
-              onToggleVerified={handleTogglePaidStatus}
-            />
-          </TabsContent>
-          
-          <TabsContent value="free">
-            <ServiceTable 
-              services={filteredServices || []} 
-              onDelete={openDeleteDialog}
-              onToggleVerified={handleTogglePaidStatus}
             />
           </TabsContent>
         </Tabs>
@@ -333,12 +288,10 @@ export default function AdminServiceManagement() {
 // 서비스 테이블 컴포넌트
 function ServiceTable({ 
   services, 
-  onDelete,
-  onToggleVerified
+  onDelete
 }: { 
   services: Service[]; 
   onDelete: (service: Service) => void;
-  onToggleVerified: (service: Service) => void;
 }) {
   // 평점 포맷팅 함수
   const formatRating = (rating: number | null, count: number | null) => {
@@ -425,20 +378,6 @@ function ServiceTable({
                       </DropdownMenuItem>
                       
                       <DropdownMenuSeparator />
-                      
-                      <DropdownMenuItem onClick={() => onToggleVerified(service)}>
-                        {service.isPaid || (service.price && service.price > 0) ? (
-                          <>
-                            <XCircle className="h-4 w-4 mr-2" />
-                            무료로 변경
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            유료로 변경
-                          </>
-                        )}
-                      </DropdownMenuItem>
                       
                       <DropdownMenuItem asChild>
                         <Link href={`/admin/services/edit/${service.id}`}>
