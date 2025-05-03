@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
-import { serviceItems } from './Sidebar';
+import { getServiceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
 import { useTranslation } from 'react-i18next';
@@ -25,41 +25,41 @@ import {
   Gamepad2
 } from 'lucide-react';
 
-// 리소스 카테고리 아이템
-const resourceCategories = [
+// 리소스 카테고리 아이템 (동적으로 생성)
+const getResourceCategories = (t: (key: string) => string) => [
   {
     id: 'hardware_design',
-    label: '하드웨어 설계도',
+    label: t('resources.categories.hardwareDesign'),
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: '소프트웨어 오픈소스',
+    label: t('resources.categories.software'),
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: 'AI 모델',
+    label: t('resources.categories.aiModel'),
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    label: '3D 모델링 파일',
+    label: t('resources.categories.3dModel'),
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: '프리 콘텐츠',
+    label: t('resources.categories.freeContent'),
     icon: <FileText className="h-4 w-4" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: '플래시 게임',
+    label: t('resources.categories.flashGame'),
     icon: <Gamepad2 className="h-4 w-4" />,
     href: '/flash-game'
   }
@@ -73,6 +73,9 @@ const Header: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
   const { t } = useTranslation();
+  
+  // 동적으로 리소스 카테고리 생성
+  const resourceCategories = useMemo(() => getResourceCategories(t), [t]);
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -124,7 +127,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
+                    placeholder={t('search.placeholder')} 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full bg-background/80 focus:bg-background" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -207,13 +210,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              홈
+              {t('nav.home')}
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                모든 리소스
+                {t('nav.allResources')}
               </div>
             </TopLink>
             
@@ -241,7 +244,7 @@ const Header: React.FC = () => {
             {/* 모바일 메뉴 닫기 버튼 */}
             <div className="flex justify-between items-center p-3 border-b border-border">
               <div className="text-foreground font-bold text-lg pl-2">
-                메뉴
+                {t('nav.menu')}
               </div>
               <Button 
                 variant="ghost" 
@@ -257,7 +260,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder="검색어를 입력하세요" 
+                    placeholder={t('search.mobileSearchPlaceholder')} 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -276,14 +279,14 @@ const Header: React.FC = () => {
               {/* 메뉴 아이템 */}
               <nav className="space-y-3">
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  메인 메뉴
+                  {t('nav.mainMenu')}
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/')}
                   className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
-                  홈
+                  {t('nav.home')}
                 </div>
                 
                 <div 
@@ -295,11 +298,11 @@ const Header: React.FC = () => {
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>모든 리소스</span>
+                  <span>{t('nav.allResources')}</span>
                 </div>
                 
                 <div className="mt-2 px-4 py-2 text-foreground font-semibold">
-                  리소스 카테고리
+                  {t('nav.resourceCategories')}
                 </div>
                 
                 {/* 모바일용 리소스 카테고리 메뉴 */}
@@ -321,7 +324,7 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  서비스
+                  {t('nav.services')}
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
@@ -357,7 +360,7 @@ const Header: React.FC = () => {
                 {user ? (
                   <>
                     <div className="px-4 py-2 text-primary font-medium mb-1">
-                      <span className="ml-2">{user.fullName || user.username}님</span>
+                      <span className="ml-2">{user.fullName || user.username}{t('common.honorific')}</span>
                     </div>
                     <div 
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
@@ -366,14 +369,14 @@ const Header: React.FC = () => {
                         if (isMobile) setIsMobileMenuOpen(false);
                       }}
                     >
-                      로그아웃
+                      {t('auth.logout')}
                     </div>
                     {isAdmin && (
                       <div 
                         onClick={() => handleNavigate('/admin/dashboard')}
                         className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
                       >
-                        관리자 대시보드
+                        {t('admin.dashboard')}
                       </div>
                     )}
                   </>
@@ -383,13 +386,13 @@ const Header: React.FC = () => {
                       onClick={() => handleNavigate('/login')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      로그인
+                      {t('auth.login')}
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      회원가입
+                      {t('auth.register')}
                     </div>
                   </>
                 )}
@@ -398,7 +401,7 @@ const Header: React.FC = () => {
                   onClick={() => handleNavigate('/sponsor')}
                   className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
                 >
-                  Webel 후원하기
+                  {t('sponsor.button')}
                 </div>
               </nav>
             </div>
