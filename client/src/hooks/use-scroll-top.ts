@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation as useRouterLocation } from 'wouter';
 
 // 스크롤을 최상단으로 이동시키는 함수
-function scrollToTop(behavior: ScrollBehavior = 'instant') {
+function scrollToTop(behavior: ScrollBehavior = 'auto') {
   window.scrollTo({
     top: 0,
     left: 0,
@@ -15,15 +15,15 @@ function scrollToTop(behavior: ScrollBehavior = 'instant') {
  * wouter의 useLocation과 함께 사용됩니다.
  */
 export function useScrollTop() {
-  const [location] = useLocation();
+  const [location] = useRouterLocation();
   const prevLocationRef = useRef(location);
 
   // 경로 변경 감지 및 링크 클릭 이벤트 처리를 위한 단일 useEffect
   useEffect(() => {
     // 경로 변경 시 스크롤 이동
     if (prevLocationRef.current !== location) {
-      // DOM 업데이트 후 스크롤 이동을 위해 setTimeout 사용
-      setTimeout(() => scrollToTop(), 0);
+      // DOM 업데이트 후 스크롤 이동을 위해 setTimeout 사용 - 시간을 약간 늘림
+      setTimeout(() => scrollToTop(), 100);
       prevLocationRef.current = location;
     }
     
@@ -34,8 +34,8 @@ export function useScrollTop() {
       
       // a 태그이고 내부 링크인 경우
       if (link && link.getAttribute('href')?.startsWith('/')) {
-        // DOM 업데이트 후 스크롤 이동
-        setTimeout(() => scrollToTop(), 0);
+        // DOM 업데이트 후 스크롤 이동 - 시간을 약간 늘림
+        setTimeout(() => scrollToTop(), 100);
       }
     };
     

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Link } from 'wouter';
 
 /**
@@ -18,9 +18,21 @@ const ScrollToTopLink: React.FC<ScrollToTopLinkProps> = ({
   onClick,
   ...props 
 }) => {
+  // 스크롤을 최상단으로 올리는 함수
+  const scrollToTop = useCallback(() => {
+    // setTimeout을 충분히 길게 주어 DOM 업데이트 후 스크롤이 이동하도록 함
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'auto'
+      });
+    }, 100);
+  }, []);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    // 클릭 시 window 스크롤 위치를 상단으로 이동
-    window.scrollTo(0, 0);
+    // 클릭 후 스크롤 이동
+    scrollToTop();
     
     // 기존에 onClick prop이 있으면 실행
     if (onClick) {

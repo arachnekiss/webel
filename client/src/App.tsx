@@ -46,12 +46,34 @@ import PaymentPage from '@/pages/PaymentPage';
 import PaymentResult from '@/pages/PaymentResult';
 
 import { useScrollTop } from '@/hooks/use-scroll-top';
+import { useEffect } from 'react';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
   
   // 페이지 전환 시 스크롤을 맨 위로 이동시키는 훅 적용
   useScrollTop();
+  
+  // 강화된 페이지 전환 스크롤 처리 - 추가 안전장치
+  useEffect(() => {
+    // 이전 라우트와 현재 라우트를 기록하는 함수
+    function handleRouteChange() {
+      // 페이지 전환 시 스크롤을 최상단으로 이동
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'auto'
+      });
+    }
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('popstate', handleRouteChange);
+    
+    // 클린업 함수
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
