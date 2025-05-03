@@ -34,10 +34,17 @@ const ServiceDetail: React.FC = () => {
 
   // 오류 처리
   if (error) {
+    const errorMessage = error instanceof Error ? 
+      error.message : 
+      '알 수 없는 오류가 발생했습니다';
+      
+    console.error('ServiceDetail 오류:', errorMessage);
+    
     return (
       <div className="container mx-auto py-10 px-4 text-center">
         <div className="mb-6 text-red-500">
           <span className="text-xl">서비스를 불러오는데 실패했습니다</span>
+          <p className="mt-2 text-sm text-gray-600">{errorMessage}</p>
         </div>
         <Button onClick={() => navigate('/services/type/3d_printing')}>
           서비스 목록으로 돌아가기

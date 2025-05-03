@@ -90,16 +90,38 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include",
+        // 요청 시간 초과 설정
+        signal: AbortSignal.timeout(10000), // 10초 후 타임아웃
+      });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      
+      // JSON 파싱 오류를 방지하기 위한 추가 처리
+      try {
+        return await res.json();
+      } catch (jsonError) {
+        console.error("JSON 파싱 오류:", jsonError);
+        throw new Error("응답을 처리하는 중 오류가 발생했습니다.");
+      }
+    } catch (error) {
+      console.error("API 요청 오류:", error);
+      
+      // 타임아웃 또는 네트워크 오류인 경우 더 명확한 오류 메시지 표시
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw new Error("요청 시간이 초과되었습니다. 네트워크 연결을 확인해주세요.");
+      } else if (error instanceof TypeError && error.message.includes("fetch")) {
+        throw new Error("네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.");
+      }
+      
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({
@@ -108,8 +130,9 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: Infinity,
-      retry: false,
+      staleTime: 1000 * 60 * 5, // 5분 후 데이터를 stale로 표시
+      gcTime: 1000 * 60 * 10, // 10분 동안 캐시 유지 (v5에서는 cacheTime 대신 gcTime 사용)
+      retry: 1, // 실패 시 한 번만 재시도
     },
     mutations: {
       retry: false,
