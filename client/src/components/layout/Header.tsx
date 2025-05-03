@@ -142,12 +142,12 @@ const Header: React.FC = () => {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <div className="text-slate-600 font-medium">
+                  <div className="text-foreground font-medium">
                     {user.fullName || user.username}님
                   </div>
                   <Button 
                     variant="outline" 
-                    className="border-slate-200 text-slate-600"
+                    className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
                     로그아웃
@@ -160,10 +160,10 @@ const Header: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <TopLink href="/login" className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">
+                  <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
                     로그인
                   </TopLink>
-                  <TopLink href="/register" className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">
+                  <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
                     회원가입
                   </TopLink>
                 </>
@@ -200,11 +200,11 @@ const Header: React.FC = () => {
       <div className="hidden md:block bg-background border-b border-border shadow-sm">
         <div className="container">
           <nav className="flex items-center justify-center py-2">
-            <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+            <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               홈
             </TopLink>
             
-            <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
+            <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
                 모든 리소스
@@ -217,7 +217,7 @@ const Header: React.FC = () => {
                 key={category.id} 
                 href={category.href}
                 className={`flex items-center px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${
-                  location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
+                  location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-foreground hover:text-primary'
                 }`}
               >
                 <span className="mr-1">{category.icon}</span>
@@ -282,7 +282,7 @@ const Header: React.FC = () => {
                   className={`flex items-center px-4 py-2 ${
                     location === category.href || (category.href !== '/' && location.includes(category.href)) 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-slate-600 hover:bg-slate-50'
+                    : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2">{category.icon}</span>
@@ -290,9 +290,9 @@ const Header: React.FC = () => {
                 </div>
               ))}
               
-              <div className="h-px bg-slate-100 my-2"></div>
+              <div className="h-px bg-border my-2"></div>
               
-              <div className="px-4 py-2 text-slate-800 font-semibold">
+              <div className="px-4 py-2 text-foreground font-semibold">
                 서비스
               </div>
               
@@ -304,21 +304,21 @@ const Header: React.FC = () => {
                   className={`flex items-center px-4 py-2 ${
                     location === item.href || (item.href !== '/' && location.includes(item.href)) 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-slate-600 hover:bg-slate-50'
+                    : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2">{item.icon}</span>
                   <span>{item.label}</span>
                 </div>
               ))}
-              <div className="h-px bg-slate-100 my-2"></div>
+              <div className="h-px bg-border my-2"></div>
               {user ? (
                 <>
-                  <div className="px-4 py-2 text-slate-600 font-medium">
+                  <div className="px-4 py-2 text-foreground font-medium">
                     {user.fullName || user.username}님
                   </div>
                   <div 
-                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
                     onClick={() => {
                       logoutMutation.mutate();
                       if (isMobile) setIsMobileMenuOpen(false);
@@ -329,7 +329,7 @@ const Header: React.FC = () => {
                   {isAdmin && (
                     <div 
                       onClick={() => handleNavigate('/admin/dashboard')}
-                      className="block px-4 py-2 bg-slate-200 text-slate-800 rounded cursor-pointer"
+                      className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
                     >
                       관리자 대시보드
                     </div>
@@ -339,13 +339,13 @@ const Header: React.FC = () => {
                 <>
                   <div 
                     onClick={() => handleNavigate('/login')}
-                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
                   >
                     로그인
                   </div>
                   <div 
                     onClick={() => handleNavigate('/register')}
-                    className="block px-4 py-2 text-slate-600 hover:bg-slate-50 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
                   >
                     회원가입
                   </div>
