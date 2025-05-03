@@ -111,8 +111,16 @@ const ServiceDetail: React.FC = () => {
     }
   };
 
-  // 위치 맵 표시 여부
-  const hasLocation = service.location && service.location.lat && service.location.long;
+  // 안전하게 데이터 객체에 접근 (타입 오류 방지)
+  const location = service.location || {};
+  const materials = service.materials || [];
+  const fileFormats = service.fileFormats || [];
+  const availableHours = service.availableHours || '';
+  const otherSpecialty = service.otherSpecialty || '';
+  const otherItems = service.otherItems || '';
+  
+  // 위치 맵 표시 여부 (안전하게 접근)
+  const hasLocation = location && typeof location === 'object' && location.lat && location.long;
 
   // 서비스 유형별 추가 정보
   const renderServiceTypeSpecificInfo = () => {
@@ -335,8 +343,8 @@ const ServiceDetail: React.FC = () => {
               <div className="flex items-center text-gray-500 mb-4">
                 <MapPin className="h-4 w-4 mr-1" />
                 <span>
-                  {service.location && service.location.address ? 
-                    service.location.address : 
+                  {location && location.address ? 
+                    location.address : 
                     '위치 정보 없음'}
                 </span>
               </div>
@@ -388,12 +396,12 @@ const ServiceDetail: React.FC = () => {
                       </div>
                     )}
                     
-                    {service.availableHours && (
+                    {availableHours && (
                       <div className="flex items-start">
                         <Clock className="h-5 w-5 text-primary mr-2 mt-1" />
                         <div>
                           <span className="font-medium">운영 시간</span>
-                          <p className="text-gray-700">{service.availableHours}</p>
+                          <p className="text-gray-700">{availableHours}</p>
                         </div>
                       </div>
                     )}
@@ -411,7 +419,7 @@ const ServiceDetail: React.FC = () => {
                   </div>
                   <div className="flex items-center mt-2">
                     <MapPin className="h-5 w-5 text-primary mr-2" />
-                    <span>{service.location?.address || '주소 정보 없음'}</span>
+                    <span>{location && location.address ? location.address : '주소 정보 없음'}</span>
                   </div>
                 </div>
               ) : (
@@ -447,12 +455,12 @@ const ServiceDetail: React.FC = () => {
                   </div>
                 )}
                 
-                {service.availableHours && (
+                {availableHours && (
                   <div className="flex items-start">
                     <Calendar className="h-5 w-5 text-primary mr-3 mt-1" />
                     <div>
                       <span className="font-medium">운영 시간</span>
-                      <p className="text-sm text-gray-600 mt-1">{service.availableHours}</p>
+                      <p className="text-sm text-gray-600 mt-1">{availableHours}</p>
                     </div>
                   </div>
                 )}
