@@ -5,17 +5,15 @@ import { Redirect, Route, useLocation } from "wouter";
 import React from "react";
 
 // 인증이 필요한 라우트를 위한 컴포넌트
-interface ProtectedRouteProps {
-  path?: string;
-  component?: React.FC;
-  children?: React.ReactNode;
-}
-
 export function ProtectedRoute({
   path,
   component: Component,
   children,
-}: ProtectedRouteProps) {
+}: {
+  path?: string;
+  component?: () => React.JSX.Element;
+  children?: React.ReactNode;
+}) {
   const { user, isLoading } = useAuth();
 
   // 로딩 중일 때는 로딩 인디케이터 표시
@@ -57,17 +55,15 @@ export function ProtectedRoute({
 }
 
 // 관리자 권한이 필요한 라우트를 위한 컴포넌트
-interface AdminRouteProps {
-  path?: string;
-  component?: React.FC;
-  children?: React.ReactNode;
-}
-
 export function AdminRoute({
   path,
   component: Component,
   children,
-}: AdminRouteProps) {
+}: {
+  path?: string;
+  component?: () => React.JSX.Element;
+  children?: React.ReactNode;
+}) {
   const { user, isAdmin, isLoading } = useAuth();
   const { toast } = useToast();
 

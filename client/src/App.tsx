@@ -1,17 +1,14 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-import { Switch, Route, useLocation } from 'wouter';
+import { Switch, Route } from 'wouter';
 import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
 import { AuthProvider } from '@/hooks/use-auth';
-import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 import { Loader2 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { supportedLanguages } from './lib/i18n';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -21,14 +18,11 @@ import Sidebar from '@/components/layout/Sidebar';
 // 로딩 스피너 인라인 구현
 const LoadingSpinner = ({ 
   size = 'md', 
-  message
+  message = '로딩 중...'
 }: { 
   size?: 'sm' | 'md' | 'lg'; 
   message?: string;
 }) => {
-  const { t } = useTranslation();
-  const defaultMessage = t('common.loading');
-  
   const sizeClass = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
@@ -38,7 +32,7 @@ const LoadingSpinner = ({
   return (
     <div className="flex flex-col items-center justify-center w-full py-12">
       <Loader2 className={`${sizeClass} animate-spin text-primary mb-4`} />
-      <p className="text-muted-foreground text-center">{message || defaultMessage}</p>
+      {message && <p className="text-muted-foreground text-center">{message}</p>}
     </div>
   );
 };
@@ -74,31 +68,8 @@ const UserVerification = lazy(() => import('@/pages/UserVerification'));
 
 import { usePageScroll } from '@/hooks/use-page-scroll';
 
-// LanguageRoute 컴포넌트 생성 - 언어 경로 접두사를 처리하는 래퍼
-interface LanguageRouteProps {
-  path: string;
-  children: (params: Record<string, string>) => React.ReactNode;
-}
-
-const LanguageRoute: React.FC<LanguageRouteProps> = ({ path, children }) => {
-  // 기본 경로와 언어 경로 버전 모두 지원
-  return (
-    <>
-      <Route path={path}>
-        {(params) => children(params as Record<string, string>)}
-      </Route>
-      {supportedLanguages.map(lang => (
-        <Route key={lang.code} path={`/${lang.code}${path}`}>
-          {(params) => children(params as Record<string, string>)}
-        </Route>
-      ))}
-    </>
-  );
-};
-
 function Router() {
   const { isMobile } = useDeviceDetect();
-  const { t } = useTranslation();
   
   // 성능 모니터링 적용
   useEffect(() => {
@@ -251,183 +222,172 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
               <Switch>
-                {/* 기본 루트 라우트 (언어는 Home 내부에서 처리됨) */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
-
-                {/* 언어 경로만 있는 경우 (예: /en, /ko, /ja) */}
-                <Route path="/:lang">
-                  {(params) => {
-                    const { lang } = params;
-                    // 지원되는 언어인지 확인
-                    const isLanguage = supportedLanguages.some(l => l.code === lang);
-                    return isLanguage ? <Home /> : <NotFound />;
-                  }}
-                </Route>
                 
                 {/* Services routes - 카테고리별 서비스 목록 */}
-                <LanguageRoute path="/services/type/:type">
+                <Route path="/services/type/:type">
                   {(params) => <Services type={params.type} />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/:id">
+                </Route>
+                <Route path="/services/:id">
                   {(params) => <ServiceDetail id={params.id} />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Resource routes with resource type categories */}
-                <LanguageRoute path="/resources/type/:type">
+                <Route path="/resources/type/:type">
                   {(params) => <Resources params={params} />}
-                </LanguageRoute>
-                <LanguageRoute path="/resources">
-                  {(params) => <Resources />}
-                </LanguageRoute>
-                <LanguageRoute path="/resources/:id">
+                </Route>
+                <Route path="/resources">
+                  {() => <Resources />}
+                </Route>
+                <Route path="/resources/:id">
                   {(params) => <ResourceDetail id={params.id} />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* 플래시 게임 페이지 (띄어쓰기 수정) */}
-                <LanguageRoute path="/flash-game">
+                <Route path="/flash-game">
                   {() => <Resources type="flash_game" />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Auctions routes */}
-                <LanguageRoute path="/auctions">
+                <Route path="/auctions">
                   {() => <Auctions />}
-                </LanguageRoute>
-                <LanguageRoute path="/auctions/:id">
+                </Route>
+                <Route path="/auctions/:id">
                   {(params) => <AuctionDetail id={params.id} />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Register pages - 3D 프린터 등록을 포함한 서비스 등록 페이지 통합 */}
-                <LanguageRoute path="/register-printer">
+                <Route path="/register-printer">
                   {() => <RegisterServiceUnified defaultType="3d_printing" />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/register">
+                </Route>
+                <Route path="/services/register">
                   {() => <RegisterServiceUnified />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/register/3d_printing">
+                </Route>
+                <Route path="/services/register/3d_printing">
                   {() => <RegisterServiceUnified defaultType="3d_printing" />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/register/:type">
+                </Route>
+                <Route path="/services/register/:type">
                   {(params) => <RegisterServiceUnified defaultType={params.type} />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/register-old">
+                </Route>
+                <Route path="/services/register-old">
                   {() => <RegisterService />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/register-old/:type">
+                </Route>
+                <Route path="/services/register-old/:type">
                   {(params) => <RegisterService type={params.type} />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Resource management pages */}
-                <LanguageRoute path="/resources/create">
+                <Route path="/resources/create">
                   {() => <ResourceManagementPage />}
-                </LanguageRoute>
-                <LanguageRoute path="/resources/manage/:id">
+                </Route>
+                <Route path="/resources/manage/:id">
                   {(params) => <ResourceManagementPage id={params.id} />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Resource upload pages */}
-                <LanguageRoute path="/resources/upload">
+                <Route path="/resources/upload">
                   {() => <ResourceUploadPage />}
-                </LanguageRoute>
+                </Route>
                 <AdminRoute path="/admin/resources/upload">
                   {() => <ResourceUploadPage />}
                 </AdminRoute>
                 
                 {/* Legacy Resource upload pages */}
-                <LanguageRoute path="/resources/upload-v2">
+                <Route path="/resources/upload-v2">
                   {() => <ResourceUploadPageV2 />}
-                </LanguageRoute>
-                <LanguageRoute path="/resources/upload-v1">
+                </Route>
+                <Route path="/resources/upload-v1">
                   {() => <UploadResource />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Other pages */}
-                <LanguageRoute path="/ai-assembly">
+                <Route path="/ai-assembly">
                   {() => <AiAssembly />}
-                </LanguageRoute>
-                <LanguageRoute path="/remote-support">
+                </Route>
+                <Route path="/remote-support">
                   {() => <RemoteSupport />}
-                </LanguageRoute>
-                <LanguageRoute path="/services/type/engineer">
+                </Route>
+                <Route path="/services/type/engineer">
                   {() => <Engineers />}
-                </LanguageRoute>
-                <LanguageRoute path="/sponsor">
+                </Route>
+                <Route path="/sponsor">
                   {() => <Sponsor />}
-                </LanguageRoute>
-                <LanguageRoute path="/about">
+                </Route>
+                <Route path="/about">
                   {() => <About />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Auth pages */}
-                <LanguageRoute path="/auth">
+                <Route path="/auth">
                   {() => <AuthPage />}
-                </LanguageRoute>
-                <LanguageRoute path="/login">
+                </Route>
+                <Route path="/login">
                   {() => <AuthPage initialTab="login" />}
-                </LanguageRoute>
-                <LanguageRoute path="/register">
+                </Route>
+                <Route path="/register">
                   {() => <AuthPage initialTab="register" />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* User verification pages */}
-                <LanguageRoute path="/my/verification">
+                <Route path="/my/verification">
                   {() => <ProtectedRoute>
                     {() => <UserVerification />}
                   </ProtectedRoute>}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Payment pages */}
-                <LanguageRoute path="/payment/service/:id">
+                <Route path="/payment/service/:id">
                   {(params) => <PaymentPage id={params.id} />}
-                </LanguageRoute>
-                <LanguageRoute path="/payment/success">
+                </Route>
+                <Route path="/payment/success">
                   {() => <PaymentResult status="success" />}
-                </LanguageRoute>
-                <LanguageRoute path="/payment/fail">
+                </Route>
+                <Route path="/payment/fail">
                   {() => <PaymentResult status="fail" />}
-                </LanguageRoute>
+                </Route>
                 
                 {/* Admin pages */}
-                <LanguageRoute path="/admin/dashboard">
+                <Route path="/admin/dashboard">
                   {() => (
                     <AdminRoute>
                       <AdminDashboard />
                     </AdminRoute>
                   )}
-                </LanguageRoute>
-                <LanguageRoute path="/admin/users">
+                </Route>
+                <Route path="/admin/users">
                   {() => (
                     <AdminRoute>
                       <AdminUserManagement />
                     </AdminRoute>
                   )}
-                </LanguageRoute>
-                <LanguageRoute path="/admin/resources">
+                </Route>
+                <Route path="/admin/resources">
                   {() => (
                     <AdminRoute>
                       <AdminResourceManagement />
                     </AdminRoute>
                   )}
-                </LanguageRoute>
-                <LanguageRoute path="/admin/services">
+                </Route>
+                <Route path="/admin/services">
                   {() => (
                     <AdminRoute>
                       <AdminServiceManagement />
                     </AdminRoute>
                   )}
-                </LanguageRoute>
+                </Route>
                 
                 {/* 이전 경로 호환성 유지 */}
-                <LanguageRoute path="/admin/engineers">
+                <Route path="/admin/engineers">
                   {() => (
                     <AdminRoute>
                       <AdminServiceManagement />
                     </AdminRoute>
                   )}
-                </LanguageRoute>
+                </Route>
                 
-                {/* Fallback to 404 - Support both default and language-based paths */}
+                {/* Fallback to 404 */}
                 <Route>
                   {() => <NotFound />}
                 </Route>
@@ -503,12 +463,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LocationProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <Toaster />
-              <Router />
-            </AuthProvider>
-          </LanguageProvider>
+          <AuthProvider>
+            <Toaster />
+            <Router />
+          </AuthProvider>
         </LocationProvider>
       </TooltipProvider>
     </QueryClientProvider>
