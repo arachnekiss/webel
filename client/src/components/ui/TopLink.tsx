@@ -54,14 +54,11 @@ const TopLink: React.FC<TopLinkProps> = ({
         document.body.classList.add('page-transitioning');
       }
       
-      // 약간의 딜레이 후 페이지 이동 - 로딩 UI가 표시될 시간을 주기 위함
-      setTimeout(() => {
-        // 페이지 이동 시 스크롤을 맨 위로 이동
-        window.scrollTo(0, 0);
-        
-        // 페이지 이동 실행
-        window.location.href = href;
-      }, 50);
+      // 페이지 이동 시 스크롤을 맨 위로 이동 (딜레이 없이 즉시 실행)
+      window.scrollTo(0, 0);
+      
+      // 페이지 이동 즉시 실행 (딜레이 제거)
+      window.location.href = href;
       
       return false;
     }
@@ -74,10 +71,10 @@ const TopLink: React.FC<TopLinkProps> = ({
       // 페이지 이동 시 스크롤을 맨 위로 이동
       window.scrollTo(0, 0);
       
-      // 일정 시간 후에 페이지 이동이 완료되지 않았다면 로딩 클래스 제거
+      // 페이지 이동이 너무 오래 걸리는 경우를 위한 안전 장치 (훨씬 짧은 타임아웃)
       setTimeout(() => {
         document.body.classList.remove('page-transitioning');
-      }, 5000); // 5초 타임아웃
+      }, 1500); // 1.5초로 대폭 감소
     }
   };
   
