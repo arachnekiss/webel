@@ -9,7 +9,7 @@ import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 import { Loader2 } from 'lucide-react';
-import { ThemeProvider } from 'next-themes';
+import { ThemeProvider, useTheme } from 'next-themes';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -189,7 +189,7 @@ function Router() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* 헤더 영역 */}
       <Header />
       

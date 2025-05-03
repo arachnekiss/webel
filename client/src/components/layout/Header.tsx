@@ -101,7 +101,7 @@ const Header: React.FC = () => {
   return (
     <header className="relative z-50 w-full">
       {/* 상단 헤더 - 로고, 검색, 로그인 */}
-      <div className="bg-white border-b border-slate-100 py-3 md:py-3">
+      <div className="bg-background border-b border-border py-3 md:py-3">
         <div className="container">
           <div className="flex flex-wrap items-center justify-between gap-4">
             {/* 로고 영역 */}
@@ -197,7 +197,7 @@ const Header: React.FC = () => {
       </div>
       
       {/* 하단 헤더 - 네비게이션 메뉴 */}
-      <div className="hidden md:block bg-white border-b border-slate-200 shadow-sm">
+      <div className="hidden md:block bg-background border-b border-border shadow-sm">
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
@@ -230,7 +230,7 @@ const Header: React.FC = () => {
       
       {/* 모바일 메뉴 */}
       {isMobile && isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white shadow-lg z-50 border-b border-slate-200">
+        <div className="absolute top-full left-0 right-0 bg-background shadow-lg z-50 border-b border-border">
           <div className="p-4 space-y-4">
             {/* 검색창 */}
             <form onSubmit={handleSearch} className="flex items-center w-full">
@@ -257,7 +257,7 @@ const Header: React.FC = () => {
             <nav className="space-y-3">
               <div 
                 onClick={() => handleNavigate('/')}
-                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-50'} rounded cursor-pointer`}
+                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'} rounded cursor-pointer`}
               >
                 홈
               </div>
@@ -267,7 +267,7 @@ const Header: React.FC = () => {
                 className={`flex items-center px-4 py-2 ${
                   location === '/resources'
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-slate-600 hover:bg-slate-50'
+                  : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
                 } rounded cursor-pointer`}
               >
                 <span className="mr-2"><Layers className="h-4 w-4" /></span>
