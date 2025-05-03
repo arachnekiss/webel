@@ -257,7 +257,7 @@ const Header: React.FC = () => {
             <nav className="space-y-3">
               <div 
                 onClick={() => handleNavigate('/')}
-                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'} rounded cursor-pointer`}
+                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
               >
                 홈
               </div>
@@ -267,7 +267,7 @@ const Header: React.FC = () => {
                 className={`flex items-center px-4 py-2 ${
                   location === '/resources'
                   ? 'bg-primary/10 text-primary' 
-                  : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
+                  : 'text-foreground hover:bg-slate-50'
                 } rounded cursor-pointer`}
               >
                 <span className="mr-2"><Layers className="h-4 w-4" /></span>
@@ -282,7 +282,7 @@ const Header: React.FC = () => {
                   className={`flex items-center px-4 py-2 ${
                     location === category.href || (category.href !== '/' && location.includes(category.href)) 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
+                    : 'text-foreground hover:bg-slate-50'
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2">{category.icon}</span>
@@ -304,7 +304,7 @@ const Header: React.FC = () => {
                   className={`flex items-center px-4 py-2 ${
                     location === item.href || (item.href !== '/' && location.includes(item.href)) 
                     ? 'bg-primary/10 text-primary' 
-                    : 'text-foreground hover:bg-slate-50 dark:hover:bg-slate-800'
+                    : 'text-foreground hover:bg-slate-50'
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2">{item.icon}</span>
