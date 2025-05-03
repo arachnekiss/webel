@@ -195,11 +195,11 @@ export class DatabaseStorage implements IStorage {
     return servicesWithDistance;
   }
 
-  async createService(insertService: InsertService): Promise<Service> {
+  async createService(service: InsertService): Promise<Service> {
     try {
       // 배열 타입 필드 정확하게 처리
       const processedData = {
-        ...insertService,
+        ...service,
         rating: 0,
         ratingCount: 0
       };
@@ -220,8 +220,8 @@ export class DatabaseStorage implements IStorage {
         userId: processedData.userId ? '사용자 ID' : null // 로그에는 민감 정보 제외
       });
       
-      const [service] = await db.insert(services).values(processedData).returning();
-      return service;
+      const [createdService] = await db.insert(services).values(processedData).returning();
+      return createdService;
     } catch (error) {
       console.error('서비스 생성 DB 오류:', error);
       throw error;
@@ -300,30 +300,30 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async createResource(insertResource: InsertResource): Promise<Resource> {
+  async createResource(resource: InsertResource): Promise<Resource> {
     try {
       // Check if resourceType is provided but category is not
-      if (insertResource.resourceType && !insertResource.category) {
+      if (resource.resourceType && !resource.category) {
         // Set category to match resourceType for consistency
-        insertResource.category = insertResource.resourceType;
+        resource.category = resource.resourceType;
       }
       
       // Remove resourceType if it's included to avoid DB errors
-      const sanitizedResource = { ...insertResource };
+      const sanitizedResource = { ...resource };
       delete (sanitizedResource as any).resourceType;
       
-      const [resource] = await db.insert(resources).values({
+      const [createdResource] = await db.insert(resources).values({
         ...sanitizedResource,
         downloadCount: 0
       }).returning();
       
       // For TypeScript compatibility, add resourceType back to the returned object
       // since the schema expects it (even though DB doesn't have it)
-      if (resource && resource.category) {
-        (resource as any).resourceType = resource.category;
+      if (createdResource && createdResource.category) {
+        (createdResource as any).resourceType = createdResource.category;
       }
       
-      return resource;
+      return createdResource;
     } catch (error) {
       console.error('Error creating resource:', error);
       throw error;
@@ -410,13 +410,13 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  async createAuction(insertAuction: InsertAuction): Promise<Auction> {
-    const [auction] = await db.insert(auctions).values({
-      ...insertAuction,
+  async createAuction(auction: InsertAuction): Promise<Auction> {
+    const [createdAuction] = await db.insert(auctions).values({
+      ...auction,
       bidCount: 0,
       status: 'active'
     }).returning();
-    return auction;
+    return createdAuction;
   }
 
   async updateAuction(id: number, auctionUpdate: Partial<Auction>): Promise<Auction | undefined> {
@@ -437,13 +437,13 @@ export class DatabaseStorage implements IStorage {
       .orderBy(asc(bids.amount));
   }
 
-  async createBid(insertBid: InsertBid): Promise<Bid> {
-    const [bid] = await db.insert(bids).values(insertBid).returning();
+  async createBid(bid: InsertBid): Promise<Bid> {
+    const [createdBid] = await db.insert(bids).values(bid).returning();
     
     // Update auction with new bid info
     // 타입 안전성을 위해 auctionId가 number인지 확인
-    if (typeof insertBid.auctionId === 'number') {
-      const auction = await this.getAuctionById(insertBid.auctionId);
+    if (typeof bid.auctionId === 'number') {
+      const auction = await this.getAuctionById(bid.auctionId);
       if (auction) {
         const bidCount = auction.bidCount || 0;
         const currentLowestBid = auction.currentLowestBid;
@@ -452,15 +452,15 @@ export class DatabaseStorage implements IStorage {
         if (auction.id !== undefined) {
           await this.updateAuction(auction.id, {
             bidCount: bidCount + 1,
-            currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
-              ? insertBid.amount
+            currentLowestBid: currentLowestBid === null || bid.amount < currentLowestBid
+              ? bid.amount
               : currentLowestBid
           });
         }
       }
     }
     
-    return bid;
+    return createdBid;
   }
 
   // Order operations
@@ -485,19 +485,19 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(orders).where(eq(orders.serviceId, serviceId)).orderBy(desc(orders.createdAt));
   }
 
-  async createOrder(insertOrder: InsertOrder): Promise<Order> {
+  async createOrder(order: InsertOrder): Promise<Order> {
     // 수수료 계산 로직 (10%)
-    if (!insertOrder.webFee) {
-      insertOrder.webFee = Math.round(insertOrder.totalAmount * 0.1);
+    if (!order.webFee) {
+      order.webFee = Math.round(order.totalAmount * 0.1);
     }
     
     // 제공자 정산액 계산 (90%)
-    if (!insertOrder.providerAmount) {
-      insertOrder.providerAmount = insertOrder.totalAmount - insertOrder.webFee;
+    if (!order.providerAmount) {
+      order.providerAmount = order.totalAmount - order.webFee;
     }
     
-    const [order] = await db.insert(orders).values(insertOrder).returning();
-    return order;
+    const [createdOrder] = await db.insert(orders).values(order).returning();
+    return createdOrder;
   }
 
   async updateOrder(id: number, orderUpdate: Partial<Order>): Promise<Order | undefined> {
@@ -527,15 +527,15 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(transactions).where(eq(transactions.orderId, orderId)).orderBy(desc(transactions.createdAt));
   }
 
-  async createTransaction(insertTransaction: InsertTransaction): Promise<Transaction> {
+  async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
     // 현재 시간 업데이트
     const now = new Date();
     
-    const [transaction] = await db.insert(transactions).values({
-      ...insertTransaction,
+    const [createdTransaction] = await db.insert(transactions).values({
+      ...transaction,
       updatedAt: now
     }).returning();
-    return transaction;
+    return createdTransaction;
   }
 
   async updateTransaction(id: number, transactionUpdate: Partial<Transaction>): Promise<Transaction | undefined> {
@@ -613,7 +613,7 @@ export class DatabaseStorage implements IStorage {
       return {
         isPhoneVerified: user.isPhoneVerified || false,
         isAccountVerified: user.isAccountVerified || false,
-        phoneNumber: user.phoneNumber,
+        phoneNumber: user.phoneNumber || undefined,
         bankAccountInfo: user.bankAccountInfo
       };
     } catch (error) {
