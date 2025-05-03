@@ -71,20 +71,17 @@ const About: React.FC = () => {
             </div>
             <div className="flex-1 relative">
               <div className="aspect-video rounded-2xl overflow-hidden shadow-xl transform rotate-1 bg-gradient-to-br from-blue-600 to-indigo-600 p-1">
-                <div className="w-full h-full bg-white rounded-xl p-4 flex items-center justify-center">
-                  <div className="text-center">
-                    <Code className="h-16 w-16 text-blue-500 mx-auto mb-6 opacity-75" />
-                    <p className="text-lg font-medium text-slate-800">하드웨어에서 소프트웨어까지</p>
-                    <p className="text-sm text-slate-500">모든 디지털 리소스를 한 곳에서</p>
+                <div className="w-full h-full bg-white rounded-xl flex items-center justify-center">
+                  <div className="relative z-10">
+                    <Code className="h-20 w-20 text-blue-500 opacity-80" />
                   </div>
+                  <div className="absolute w-32 h-32 bg-blue-100/50 rounded-full -bottom-10 -right-10 blur-xl"></div>
+                  <div className="absolute w-24 h-24 bg-indigo-100/50 rounded-full -top-8 -left-8 blur-xl"></div>
                 </div>
               </div>
               <div className="absolute -bottom-6 -left-6 w-40 h-40 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg transform -rotate-6 flex items-center justify-center">
-                <div className="bg-white w-full h-full m-1 rounded-md flex items-center justify-center p-3">
-                  <div>
-                    <Lightbulb className="h-8 w-8 text-amber-500 mx-auto mb-2" />
-                    <p className="text-xs font-medium text-center">창의적인 아이디어</p>
-                  </div>
+                <div className="bg-white w-full h-full m-1 rounded-md flex items-center justify-center">
+                  <Lightbulb className="h-12 w-12 text-amber-500" />
                 </div>
               </div>
             </div>
