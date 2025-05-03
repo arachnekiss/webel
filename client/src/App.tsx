@@ -229,6 +229,118 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" />}>
               <Switch>
+                {/* Language-specific routes */}
+                <Route path="/:lang">
+                  {(params) => {
+                    const { lang } = params;
+                    // Check if this is a valid language code
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Home />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/services/type/:type">
+                  {(params) => {
+                    const { lang, type } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Services type={type} />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/services/:id">
+                  {(params) => {
+                    const { lang, id } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <ServiceDetail id={id} />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/resources">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Resources />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/resources/type/:type">
+                  {(params) => {
+                    const { lang, type } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Resources params={{ type }} />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/resources/:id">
+                  {(params) => {
+                    const { lang, id } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <ResourceDetail id={id} />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/auctions">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Auctions />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/auctions/:id">
+                  {(params) => {
+                    const { lang, id } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <AuctionDetail id={id} />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/sponsor">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <Sponsor />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/about">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <About />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/login">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <AuthPage initialTab="login" />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                <Route path="/:lang/register">
+                  {(params) => {
+                    const { lang } = params;
+                    if (['en', 'ko', 'ja'].includes(lang)) {
+                      return <AuthPage initialTab="register" />;
+                    }
+                    return <NotFound />;
+                  }}
+                </Route>
+                
+                {/* Default routes for the default language */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
