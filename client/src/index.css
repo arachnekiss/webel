@@ -24,14 +24,23 @@
   to { opacity: 1; }
 }
 
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* 페이지 전환 중 로딩 인디케이터 */
+/* 페이지 로딩 전환 효과 */
 .page-transitioning {
+  opacity: 0.6;
+  pointer-events: none;
   cursor: wait;
+  transition: opacity 0.3s ease-in-out;
+  position: relative;
 }
 
 .page-transitioning::after {
@@ -44,9 +53,6 @@
   background-color: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(2px);
   z-index: 9999;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   animation: fadeIn 0.2s ease-in-out;
 }
 
@@ -71,52 +77,52 @@
 }
 
 :root {
-      --background: 0 0% 100%;
---foreground: 20 14.3% 4.1%;
---muted: 60 4.8% 95.9%;
---muted-foreground: 25 5.3% 44.7%;
---popover: 0 0% 100%;
---popover-foreground: 20 14.3% 4.1%;
---card: 0 0% 100%;
---card-foreground: 20 14.3% 4.1%;
---border: 20 5.9% 90%;
---input: 20 5.9% 90%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 60 4.8% 95.9%;
---secondary-foreground: 24 9.8% 10%;
---accent: 60 4.8% 95.9%;
---accent-foreground: 24 9.8% 10%;
---destructive: 0 84.2% 60.2%;
---destructive-foreground: 60 9.1% 97.8%;
---ring: 20 14.3% 4.1%;
---radius: 0.5rem;
---discord: 235 86% 65%;
---discord-dark: 235 86% 55%;
-  }
+    --background: 0 0% 100%;
+    --foreground: 20 14.3% 4.1%;
+    --muted: 60 4.8% 95.9%;
+    --muted-foreground: 25 5.3% 44.7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14.3% 4.1%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14.3% 4.1%;
+    --border: 20 5.9% 90%;
+    --input: 20 5.9% 90%;
+    --primary: 207 90% 54%;
+    --primary-foreground: 211 100% 99%;
+    --secondary: 60 4.8% 95.9%;
+    --secondary-foreground: 24 9.8% 10%;
+    --accent: 60 4.8% 95.9%;
+    --accent-foreground: 24 9.8% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 60 9.1% 97.8%;
+    --ring: 20 14.3% 4.1%;
+    --radius: 0.5rem;
+    --discord: 235 86% 65%;
+    --discord-dark: 235 86% 55%;
+}
 
-  .dark {
-      --background: 240 10% 3.9%;
---foreground: 0 0% 98%;
---muted: 240 3.7% 15.9%;
---muted-foreground: 240 5% 64.9%;
---popover: 240 10% 3.9%;
---popover-foreground: 0 0% 98%;
---card: 240 10% 3.9%;
---card-foreground: 0 0% 98%;
---border: 240 3.7% 15.9%;
---input: 240 3.7% 15.9%;
---primary: 207 90% 54%;
---primary-foreground: 211 100% 99%;
---secondary: 240 3.7% 15.9%;
---secondary-foreground: 0 0% 98%;
---accent: 240 3.7% 15.9%;
---accent-foreground: 0 0% 98%;
---destructive: 0 62.8% 30.6%;
---destructive-foreground: 0 0% 98%;
---ring: 240 4.9% 83.9%;
---radius: 0.5rem;
-  }
+.dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --primary: 207 90% 54%;
+    --primary-foreground: 211 100% 99%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
+}
 
 @layer base {
   * {
@@ -240,67 +246,67 @@
   }
 
   /* YouTube 임베드 스타일 */
-.youtube-embed {
-  position: relative;
-  width: 100%;
-  margin: 1rem 0;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  background-color: #f1f5f9;
-}
+  .youtube-embed {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background-color: #f1f5f9;
+  }
 
-.youtube-embed iframe {
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
+  .youtube-embed iframe {
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
 
-/* URL 카드 스타일 */
-.url-card {
-  margin: 1rem 0;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  transition: all 0.2s;
-}
+  /* URL 카드 스타일 */
+  .url-card {
+    margin: 1rem 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
 
-.url-card:hover {
-  border-color: #94a3b8;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-}
+  .url-card:hover {
+    border-color: #94a3b8;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  }
 
-.url-preview {
-  display: flex;
-  padding: 1rem;
-  gap: 1rem;
-  align-items: center;
-}
+  .url-preview {
+    display: flex;
+    padding: 1rem;
+    gap: 1rem;
+    align-items: center;
+  }
 
-.url-icon {
-  font-size: 1.5rem;
-  color: #64748b;
-}
+  .url-icon {
+    font-size: 1.5rem;
+    color: #64748b;
+  }
 
-.url-content {
-  flex: 1;
-  min-width: 0;
-}
+  .url-content {
+    flex: 1;
+    min-width: 0;
+  }
 
-.url-title {
-  font-weight: 500;
-  color: #1e293b;
-  margin-bottom: 0.25rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .url-title {
+    font-weight: 500;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-.url-link {
-  font-size: 0.875rem;
-  color: #64748b;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  .url-link {
+    font-size: 0.875rem;
+    color: #64748b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-/* 기존 스타일 끝 */
+  /* 기존 스타일 끝 */
 }

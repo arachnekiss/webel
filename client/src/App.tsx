@@ -205,78 +205,165 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
               <Switch>
-                <Route path="/" component={() => <Home />} />
+                <Route path="/">
+                  {() => <Home />}
+                </Route>
                 
                 {/* Services routes - 카테고리별 서비스 목록 */}
-                <Route path="/services/type/:type" component={(params: any) => <Services type={params.type} />} />
-                <Route path="/services/:id" component={(params: any) => <ServiceDetail id={params.id} />} />
+                <Route path="/services/type/:type">
+                  {(params) => <Services type={params.type} />}
+                </Route>
+                <Route path="/services/:id">
+                  {(params) => <ServiceDetail id={params.id} />}
+                </Route>
                 
                 {/* Resource routes with resource type categories */}
-                <Route path="/resources/type/:type" component={(params: any) => <Resources params={params} />} />
-                <Route path="/resources" component={() => <Resources />} />
-                <Route path="/resources/:id" component={(params: any) => <ResourceDetail id={params.id} />} />
+                <Route path="/resources/type/:type">
+                  {(params) => <Resources params={params} />}
+                </Route>
+                <Route path="/resources">
+                  {() => <Resources />}
+                </Route>
+                <Route path="/resources/:id">
+                  {(params) => <ResourceDetail id={params.id} />}
+                </Route>
                 
                 {/* 플래시 게임 페이지 (띄어쓰기 수정) */}
-                <Route path="/flash-game" component={() => <Resources type="flash_game" />} />
+                <Route path="/flash-game">
+                  {() => <Resources type="flash_game" />}
+                </Route>
                 
                 {/* Auctions routes */}
-                <Route path="/auctions" component={() => <Auctions />} />
-                <Route path="/auctions/:id" component={(params: any) => <AuctionDetail id={params.id} />} />
+                <Route path="/auctions">
+                  {() => <Auctions />}
+                </Route>
+                <Route path="/auctions/:id">
+                  {(params) => <AuctionDetail id={params.id} />}
+                </Route>
                 
                 {/* Register pages - 3D 프린터 등록을 포함한 서비스 등록 페이지 통합 */}
-                <Route path="/register-printer" component={() => <RegisterServiceUnified defaultType="3d_printing" />} />
-                <Route path="/services/register" component={() => <RegisterServiceUnified />} />
-                <Route path="/services/register/3d_printing" component={() => <RegisterServiceUnified defaultType="3d_printing" />} />
-                <Route 
-                  path="/services/register/:type" 
-                  component={(params: any) => <RegisterServiceUnified defaultType={params.type} />} 
-                />
-                <Route path="/services/register-old" component={() => <RegisterService />} />
-                <Route path="/services/register-old/:type" component={(params: any) => <RegisterService type={params.type} />} />
+                <Route path="/register-printer">
+                  {() => <RegisterServiceUnified defaultType="3d_printing" />}
+                </Route>
+                <Route path="/services/register">
+                  {() => <RegisterServiceUnified />}
+                </Route>
+                <Route path="/services/register/3d_printing">
+                  {() => <RegisterServiceUnified defaultType="3d_printing" />}
+                </Route>
+                <Route path="/services/register/:type">
+                  {(params) => <RegisterServiceUnified defaultType={params.type} />}
+                </Route>
+                <Route path="/services/register-old">
+                  {() => <RegisterService />}
+                </Route>
+                <Route path="/services/register-old/:type">
+                  {(params) => <RegisterService type={params.type} />}
+                </Route>
                 
                 {/* Resource management pages */}
-                <Route path="/resources/create" component={() => <ResourceManagementPage />} />
-                <Route path="/resources/manage/:id" component={(params: any) => <ResourceManagementPage id={params.id} />} />
+                <Route path="/resources/create">
+                  {() => <ResourceManagementPage />}
+                </Route>
+                <Route path="/resources/manage/:id">
+                  {(params) => <ResourceManagementPage id={params.id} />}
+                </Route>
                 
                 {/* Resource upload pages */}
-                <Route path="/resources/upload" component={() => <ResourceUploadPage />} />
-                <AdminRoute path="/admin/resources/upload" component={() => <ResourceUploadPage />} />
+                <Route path="/resources/upload">
+                  {() => <ResourceUploadPage />}
+                </Route>
+                <AdminRoute path="/admin/resources/upload">
+                  {() => <ResourceUploadPage />}
+                </AdminRoute>
                 
                 {/* Legacy Resource upload pages */}
-                <Route path="/resources/upload-v2" component={() => <ResourceUploadPageV2 />} />
-                <Route path="/resources/upload-v1" component={() => <UploadResource />} />
+                <Route path="/resources/upload-v2">
+                  {() => <ResourceUploadPageV2 />}
+                </Route>
+                <Route path="/resources/upload-v1">
+                  {() => <UploadResource />}
+                </Route>
                 
                 {/* Other pages */}
-                <Route path="/ai-assembly" component={() => <AiAssembly />} />
-                <Route path="/remote-support" component={() => <RemoteSupport />} />
-                <Route path="/services/type/engineer" component={() => <Engineers />} />
-                <Route path="/sponsor" component={() => <Sponsor />} />
-                <Route path="/about" component={() => <About />} />
+                <Route path="/ai-assembly">
+                  {() => <AiAssembly />}
+                </Route>
+                <Route path="/remote-support">
+                  {() => <RemoteSupport />}
+                </Route>
+                <Route path="/services/type/engineer">
+                  {() => <Engineers />}
+                </Route>
+                <Route path="/sponsor">
+                  {() => <Sponsor />}
+                </Route>
+                <Route path="/about">
+                  {() => <About />}
+                </Route>
                 
                 {/* Auth pages */}
-                <Route path="/auth" component={() => <AuthPage />} />
-                <Route path="/login" component={() => <AuthPage initialTab="login" />} />
-                <Route path="/register" component={() => <AuthPage initialTab="register" />} />
+                <Route path="/auth">
+                  {() => <AuthPage />}
+                </Route>
+                <Route path="/login">
+                  {() => <AuthPage initialTab="login" />}
+                </Route>
+                <Route path="/register">
+                  {() => <AuthPage initialTab="register" />}
+                </Route>
                 
                 {/* User verification pages */}
-                <ProtectedRoute path="/my/verification" component={() => <UserVerification />} />
+                <Route path="/my/verification">
+                  {() => <ProtectedRoute>
+                    {() => <UserVerification />}
+                  </ProtectedRoute>}
+                </Route>
                 
                 {/* Payment pages */}
-                <Route path="/payment/service/:id" component={(params: any) => <PaymentPage id={params.id} />} />
-                <Route path="/payment/success" component={() => <PaymentResult status="success" />} />
-                <Route path="/payment/fail" component={() => <PaymentResult status="fail" />} />
+                <Route path="/payment/service/:id">
+                  {(params) => <PaymentPage id={params.id} />}
+                </Route>
+                <Route path="/payment/success">
+                  {() => <PaymentResult status="success" />}
+                </Route>
+                <Route path="/payment/fail">
+                  {() => <PaymentResult status="fail" />}
+                </Route>
                 
                 {/* Admin pages */}
-                <AdminRoute path="/admin/dashboard" component={() => <AdminDashboard />} />
-                <AdminRoute path="/admin/users" component={() => <AdminUserManagement />} />
-                <AdminRoute path="/admin/resources" component={() => <AdminResourceManagement />} />
-                <AdminRoute path="/admin/services" component={() => <AdminServiceManagement />} />
+                <Route path="/admin/dashboard">
+                  {() => <AdminRoute>
+                    {() => <AdminDashboard />}
+                  </AdminRoute>}
+                </Route>
+                <Route path="/admin/users">
+                  {() => <AdminRoute>
+                    {() => <AdminUserManagement />}
+                  </AdminRoute>}
+                </Route>
+                <Route path="/admin/resources">
+                  {() => <AdminRoute>
+                    {() => <AdminResourceManagement />}
+                  </AdminRoute>}
+                </Route>
+                <Route path="/admin/services">
+                  {() => <AdminRoute>
+                    {() => <AdminServiceManagement />}
+                  </AdminRoute>}
+                </Route>
                 
                 {/* 이전 경로 호환성 유지 */}
-                <AdminRoute path="/admin/engineers" component={() => <AdminServiceManagement />} />
+                <Route path="/admin/engineers">
+                  {() => <AdminRoute>
+                    {() => <AdminServiceManagement />}
+                  </AdminRoute>}
+                </Route>
                 
                 {/* Fallback to 404 */}
-                <Route component={() => <NotFound />} />
+                <Route>
+                  {() => <NotFound />}
+                </Route>
               </Switch>
             </Suspense>
           </div>
