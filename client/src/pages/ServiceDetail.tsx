@@ -488,7 +488,7 @@ const ServiceDetail: React.FC = () => {
                 <div className="flex justify-between items-baseline">
                   <span className="text-muted-foreground">기본 요금</span>
                   <span className="font-semibold text-xl">
-                    {service.basePrice ? `${service.basePrice.toLocaleString()}원` : '문의 필요'}
+                    {service.isFreeService ? '무료' : '문의 필요'}
                   </span>
                 </div>
                 
@@ -504,7 +504,7 @@ const ServiceDetail: React.FC = () => {
                 <div className="flex justify-between items-baseline text-sm">
                   <span className="text-muted-foreground">Webel 수수료(10%)</span>
                   <span className="text-muted-foreground">
-                    {service.basePrice ? `${Math.round(service.basePrice * 0.1).toLocaleString()}원` : '-'}
+                    {service.isFreeService ? '0원' : '-'}
                   </span>
                 </div>
                 
@@ -514,7 +514,7 @@ const ServiceDetail: React.FC = () => {
                 <div className="flex justify-between items-baseline">
                   <span className="font-medium">총 결제 금액</span>
                   <span className="font-bold text-primary text-2xl">
-                    {service.basePrice ? `${service.basePrice.toLocaleString()}원` : '문의 필요'}
+                    {service.isFreeService ? '무료' : '문의 필요'}
                   </span>
                 </div>
               </div>
@@ -528,7 +528,7 @@ const ServiceDetail: React.FC = () => {
                   onClick={() => navigate(`/payment/service/${service.id}`)}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  {service.basePrice ? '결제하기' : '문의하기'}
+                  {service.isFreeService ? '무료 이용하기' : '문의하기'}
                 </Button>
               ) : user && service.userId === user.id ? (
                 <div className="text-center w-full p-2 bg-amber-50 text-amber-700 rounded-md text-sm">
@@ -541,7 +541,7 @@ const ServiceDetail: React.FC = () => {
                   onClick={() => navigate('/login')}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
-                  로그인 후 결제하기
+                  로그인 후 {service.isFreeService ? '이용하기' : '문의하기'}
                 </Button>
               )}
               
