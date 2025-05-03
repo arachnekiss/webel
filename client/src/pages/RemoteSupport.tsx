@@ -33,9 +33,9 @@ const RemoteSupport: React.FC = () => {
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
             <img 
-              src="https://images.unsplash.com/photo-1581092921461-fd0e5756a5fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-              alt="원격 조립 지원" 
-              className="rounded-lg shadow-md max-h-80 object-cover" 
+              src="/images/remote-support-hero.png" 
+              alt="엔지니어와 함께하는 원격 조립 지원" 
+              className="rounded-lg shadow-lg max-h-96 object-cover" 
             />
           </div>
         </div>
