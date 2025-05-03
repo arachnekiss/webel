@@ -7,8 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// uploads 디렉토리를 정적 파일로 제공
+// uploads 및 public 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/images', express.static(path.join(process.cwd(), 'public/images')));
 
 app.use((req, res, next) => {
   const start = Date.now();

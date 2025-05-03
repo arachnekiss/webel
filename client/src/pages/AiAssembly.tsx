@@ -697,9 +697,9 @@ const AiAssembly = () => {
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
             <img 
-              src="https://images.unsplash.com/photo-1563770557918-8c5061cf6bdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-              alt="AI 조립 비서" 
-              className="rounded-lg shadow-md max-h-80 object-cover" 
+              src="/images/ai-assembly-hero.png" 
+              alt="AI 조립 비서와 함께 3D 프린터 부품 조립하기" 
+              className="rounded-lg shadow-lg max-h-96 object-cover" 
             />
           </div>
         </div>
