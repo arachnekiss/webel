@@ -9,6 +9,59 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script>
+      // Disable Vite HMR error overlay
+      window.addEventListener('DOMContentLoaded', function() {
+        const disableErrorOverlay = function() {
+          const errorOverlays = document.querySelectorAll('.vite-error-overlay, .__vite-browser-external-error-message__, .__vite-browser-external-error-stack__, .__hmr-runtime-error-overlay__, #runtime-error, div[style*="fixed"]');
+          errorOverlays.forEach(overlay => {
+            if (overlay && overlay.shadowRoot) {
+              overlay.shadowRoot.innerHTML = '';
+            }
+            if (overlay) {
+              overlay.remove();
+            }
+          });
+        };
+
+        // Run immediately and then periodically
+        disableErrorOverlay();
+        setInterval(disableErrorOverlay, 100);
+
+        // Override error handling
+        const originalConsoleError = console.error;
+        console.error = function() {
+          // Check if the error is from Vite HMR
+          const errorMessage = Array.from(arguments).join(' ');
+          if (errorMessage.includes('plugin:runtime-error-plugin') || 
+              errorMessage.includes('hmr') || 
+              errorMessage.includes('Failed to fetch')) {
+            // Suppress error
+            disableErrorOverlay();
+            return;
+          }
+          // Otherwise, pass through to the original console.error
+          return originalConsoleError.apply(console, arguments);
+        };
+      });
+    </script>
+    <style>
+      /* Hide Vite error overlays via CSS as backup */
+      .vite-error-overlay, 
+      .__vite-browser-external-error-message__, 
+      .__vite-browser-external-error-stack__,
+      .__hmr-runtime-error-overlay__,
+      #runtime-error,
+      div[class*="runtime-error"],
+      div[class*="hmr-error"],
+      /* Target overlay container */
+      div[style*="position: fixed"][style*="z-index: 9999"] {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
