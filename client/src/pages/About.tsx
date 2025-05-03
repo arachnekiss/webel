@@ -40,49 +40,54 @@ const About: React.FC = () => {
       <div className="container max-w-6xl mx-auto py-16 px-4 sm:px-6 relative z-10">
         {/* 히어로 섹션 */}
         <section className="mb-24">
-          <div className="flex flex-col md:flex-row items-center gap-10 mb-16">
-            <div className="flex-1">
-              <Badge className="mb-6 px-3 py-1.5 text-sm bg-blue-100 text-blue-800 hover:bg-blue-100">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 p-12 md:p-16 mb-16">
+            <div className="absolute top-0 right-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=1470')] opacity-5 mix-blend-overlay bg-center bg-cover"></div>
+            
+            {/* 배경 장식 요소 */}
+            <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+            <div className="absolute top-20 -left-20 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute top-1/3 right-1/3 w-12 h-12 bg-cyan-400/30 rounded-full blur-lg animate-pulse"></div>
+            <div className="absolute bottom-1/3 left-1/3 w-20 h-20 bg-purple-500/20 rounded-full blur-xl"></div>
+            
+            <div className="relative z-10 max-w-3xl mx-auto text-center">
+              <Badge className="mb-6 px-3 py-1.5 text-sm bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm">
                 혁신적인 오픈 제작 플랫폼
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text">
+              
+              <div className="inline-flex items-center gap-3 mb-6">
+                <div className="bg-white/20 backdrop-blur-lg p-3 rounded-xl">
+                  <Code className="h-8 w-8 text-white" />
+                </div>
+                <div className="bg-white/20 backdrop-blur-lg p-3 rounded-xl">
+                  <Lightbulb className="h-8 w-8 text-amber-300" />
+                </div>
+                <div className="bg-white/20 backdrop-blur-lg p-3 rounded-xl">
+                  <Zap className="h-8 w-8 text-cyan-300" />
+                </div>
+              </div>
+              
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
                 Webel – 누구나 만들 수 있도록
               </h1>
-              <p className="text-xl text-slate-600 mb-8 leading-relaxed">
+              
+              <p className="text-xl text-blue-100 mb-8 leading-relaxed mx-auto">
                 아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 제작 플랫폼으로, 
-                <span className="inline-flex items-center text-blue-600 font-medium mx-1">
-                  상상에서 현실로 <Zap className="h-4 w-4 ml-1" />
-                </span>
+                <span className="font-medium text-white mx-1">상상에서 현실로</span>
                 아이디어를 실현시켜 드립니다.
               </p>
-              <div className="flex flex-wrap gap-4">
+              
+              <div className="flex flex-wrap gap-4 justify-center">
                 <Link href="/resources">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors inline-flex items-center">
+                  <button className="bg-white hover:bg-blue-50 text-blue-700 font-medium py-3 px-8 rounded-lg transition-colors inline-flex items-center">
                     리소스 둘러보기
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </button>
                 </Link>
                 <Link href="/services/type/engineer">
-                  <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-medium py-3 px-6 rounded-lg transition-colors">
+                  <button className="bg-blue-700/30 border border-blue-400/30 text-white hover:bg-blue-700/40 font-medium py-3 px-8 rounded-lg transition-colors">
                     엔지니어 찾기
                   </button>
                 </Link>
-              </div>
-            </div>
-            <div className="flex-1 relative">
-              <div className="aspect-video rounded-2xl overflow-hidden shadow-xl transform rotate-1 bg-gradient-to-br from-blue-600 to-indigo-600 p-1">
-                <div className="w-full h-full bg-white rounded-xl flex items-center justify-center">
-                  <div className="relative z-10">
-                    <Code className="h-20 w-20 text-blue-500 opacity-80" />
-                  </div>
-                  <div className="absolute w-32 h-32 bg-blue-100/50 rounded-full -bottom-10 -right-10 blur-xl"></div>
-                  <div className="absolute w-24 h-24 bg-indigo-100/50 rounded-full -top-8 -left-8 blur-xl"></div>
-                </div>
-              </div>
-              <div className="absolute -bottom-6 -left-6 w-40 h-40 rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg transform -rotate-6 flex items-center justify-center">
-                <div className="bg-white w-full h-full m-1 rounded-md flex items-center justify-center">
-                  <Lightbulb className="h-12 w-12 text-amber-500" />
-                </div>
               </div>
             </div>
           </div>
