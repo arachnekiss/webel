@@ -38,44 +38,47 @@ const TopLink: React.FC<TopLinkProps> = ({
   
   // 클릭 핸들러
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // 외부 링크인 경우 기본 동작 허용
+    const isExternalLink = href.startsWith('http://') || href.startsWith('https://');
+    
     // 사용자 정의 onClick 핸들러가 있으면 실행
     if (onClick) {
       onClick(event);
+      if (event.defaultPrevented) {
+        return;
+      }
     }
     
-    // 새로운 페이지를 로드하도록 설정된 경우
-    if (forceReload && !event.defaultPrevented) {
-      // 기본 이벤트를 방지하고 window.location을 통해 페이지 전체 로드
+    // 로딩 인디케이터 표시가 켜져 있으면 로딩 UI 표시
+    if (showLoadingIndicator) {
+      document.body.classList.add('page-transitioning');
+    }
+    
+    // 페이지 이동 시 스크롤 맨 위로 이동
+    window.scrollTo(0, 0);
+    
+    // 외부 링크거나 강제 리로드가 아닌 경우 기본 동작 허용
+    if (isExternalLink || !forceReload) {
+      return;
+    }
+    
+    // 내부 링크에서 강제 리로드가 설정된 경우
+    if (forceReload) {
+      // 기본 이벤트를 방지하고 window.location으로 페이지 이동
       event.preventDefault();
       
-      // 로딩 인디케이터 표시 옵션이 켜져있으면 로딩 UI 표시
-      if (showLoadingIndicator) {
-        // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
-        document.body.classList.add('page-transitioning');
-      }
-      
-      // 페이지 이동 시 스크롤을 맨 위로 이동 (딜레이 없이 즉시 실행)
-      window.scrollTo(0, 0);
-      
-      // 페이지 이동 즉시 실행 (딜레이 제거)
-      window.location.href = href;
+      // 짧은 딜레이 후 페이지 이동 (로딩 인디케이터가 표시될 수 있도록)
+      setTimeout(() => {
+        window.location.href = href;
+      }, 10);
       
       return false;
     }
     
-    // forceReload가 false이거나 이미 event.preventDefault()가 호출된 경우
-    if (showLoadingIndicator && !event.defaultPrevented) {
-      // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
-      document.body.classList.add('page-transitioning');
-      
-      // 페이지 이동 시 스크롤을 맨 위로 이동
-      window.scrollTo(0, 0);
-      
-      // 페이지 이동이 너무 오래 걸리는 경우를 위한 안전 장치 (훨씬 짧은 타임아웃)
-      setTimeout(() => {
-        document.body.classList.remove('page-transitioning');
-      }, 1500); // 1.5초로 대폭 감소
-    }
+    // 브라우저 캐시로 인한 이슈 해결을 위한 안전 장치
+    setTimeout(() => {
+      document.body.classList.remove('page-transitioning');
+    }, 1000);
   };
   
   return (
