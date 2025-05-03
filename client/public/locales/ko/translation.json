@@ -1,0 +1,174 @@
+{
+  "app": {
+    "name": "Webel",
+    "slogan": "엔지니어, 소비자 및 제조업체를 연결하는 지능형 서비스 발견 플랫폼"
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "seeAll": "전체보기",
+    "backToHome": "홈으로 돌아가기",
+    "search": "검색",
+    "notFound": "찾을 수 없음",
+    "error": "오류가 발생했습니다",
+    "tryAgain": "다시 시도하기",
+    "details": "상세 정보",
+    "delete": "삭제",
+    "edit": "수정",
+    "save": "저장",
+    "cancel": "취소",
+    "upload": "업로드",
+    "download": "다운로드",
+    "share": "공유",
+    "more": "더 보기",
+    "contactUs": "문의하기",
+    "privacyPolicy": "개인정보 처리방침",
+    "termsOfService": "이용약관",
+    "copyright": "© 2025 Webel. 모든 권리 보유."
+  },
+  "nav": {
+    "home": "홈",
+    "services": "서비스",
+    "resources": "리소스",
+    "auctions": "경매",
+    "about": "소개",
+    "login": "로그인",
+    "register": "회원가입",
+    "myAccount": "내 계정",
+    "logout": "로그아웃",
+    "admin": "관리자",
+    "engineer": "엔지니어",
+    "sponsor": "스폰서"
+  },
+  "languageSwitcher": {
+    "language": "언어",
+    "ko": "한국어",
+    "en": "영어",
+    "ja": "일본어"
+  },
+  "home": {
+    "heroTitle": "전자 하드웨어 커뮤니티를 위한 지능형 서비스 플랫폼",
+    "heroSubtitle": "엔지니어, 소비자 및 제조업체를 연결하여 혁신을 가속화합니다",
+    "featuredServices": "추천 서비스",
+    "featuredResources": "추천 리소스",
+    "recentAuctions": "최근 경매",
+    "findServices": "서비스 찾기",
+    "browseResources": "리소스 둘러보기",
+    "participateAuctions": "경매 참여하기"
+  },
+  "services": {
+    "title": "서비스",
+    "subtitle": "필요한 하드웨어 서비스를 찾아보세요",
+    "searchPlaceholder": "서비스 검색...",
+    "filters": "필터",
+    "categories": "카테고리",
+    "location": "위치",
+    "price": "가격",
+    "rating": "평점",
+    "register": "서비스 등록",
+    "allServices": "모든 서비스",
+    "noServices": "서비스를 찾을 수 없습니다"
+  },
+  "serviceTypes": {
+    "3d_printing": "3D 프린팅",
+    "electronics": "전자기기",
+    "woodworking": "목공",
+    "metalworking": "금속가공",
+    "manufacturing": "제조",
+    "engineer": "엔지니어"
+  },
+  "resources": {
+    "title": "리소스",
+    "subtitle": "다양한 하드웨어 리소스를 탐색하세요",
+    "searchPlaceholder": "리소스 검색...",
+    "filters": "필터",
+    "categories": "카테고리",
+    "upload": "리소스 업로드",
+    "allResources": "모든 리소스",
+    "noResources": "리소스를 찾을 수 없습니다",
+    "downloaded": "다운로드됨",
+    "views": "조회수"
+  },
+  "resourceTypes": {
+    "hardware_design": "하드웨어 설계도",
+    "software": "소프트웨어",
+    "3d_model": "3D 모델",
+    "free_content": "무료 콘텐츠",
+    "ai_model": "AI 모델",
+    "flash_game": "플래시 게임"
+  },
+  "auctions": {
+    "title": "경매",
+    "subtitle": "필요한 서비스에 대한 경매 참여",
+    "searchPlaceholder": "경매 검색...",
+    "filters": "필터",
+    "categories": "카테고리",
+    "create": "경매 생성",
+    "allAuctions": "모든 경매",
+    "activeAuctions": "진행 중인 경매",
+    "completedAuctions": "완료된 경매",
+    "noAuctions": "경매를 찾을 수 없습니다",
+    "deadline": "마감일",
+    "currentBid": "현재 입찰가",
+    "bidCount": "입찰 수"
+  },
+  "auth": {
+    "login": "로그인",
+    "register": "회원가입",
+    "forgotPassword": "비밀번호 찾기",
+    "username": "사용자 이름",
+    "email": "이메일",
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "fullName": "이름",
+    "alreadyHaveAccount": "이미 계정이 있으신가요?",
+    "dontHaveAccount": "계정이 없으신가요?",
+    "createAccount": "계정 만들기",
+    "loginSuccess": "로그인 성공",
+    "registerSuccess": "회원가입 성공",
+    "logoutSuccess": "로그아웃 성공"
+  },
+  "verification": {
+    "title": "본인 인증",
+    "phone": "전화번호 인증",
+    "bank": "계좌 인증",
+    "verified": "인증됨",
+    "notVerified": "인증되지 않음",
+    "verifyNow": "지금 인증하기",
+    "verificationSuccessful": "인증 성공",
+    "verificationFailed": "인증 실패"
+  },
+  "payment": {
+    "title": "결제",
+    "serviceDetails": "서비스 상세",
+    "orderSummary": "주문 요약",
+    "total": "총 금액",
+    "paymentMethods": "결제 방법",
+    "payNow": "결제하기",
+    "paymentSuccessful": "결제 성공",
+    "paymentFailed": "결제 실패",
+    "returnToServices": "서비스로 돌아가기"
+  },
+  "paymentMethods": {
+    "creditCard": "신용카드",
+    "bankTransfer": "계좌이체",
+    "kakao_pay": "카카오페이",
+    "toss": "토스",
+    "paypal": "페이팔"
+  },
+  "countries": {
+    "kr": "대한민국",
+    "us": "미국",
+    "jp": "일본"
+  },
+  "admin": {
+    "dashboard": "대시보드",
+    "users": "사용자 관리",
+    "services": "서비스 관리",
+    "resources": "리소스 관리",
+    "auctions": "경매 관리",
+    "orders": "주문 관리",
+    "transactions": "거래 관리",
+    "statistics": "통계",
+    "settings": "설정"
+  }
+}

@@ -1,0 +1,174 @@
+{
+  "app": {
+    "name": "Webel",
+    "slogan": "Intelligent service discovery platform connecting engineers, consumers, and manufacturers"
+  },
+  "common": {
+    "loading": "Loading...",
+    "seeAll": "See All",
+    "backToHome": "Back to Home",
+    "search": "Search",
+    "notFound": "Not Found",
+    "error": "An error has occurred",
+    "tryAgain": "Try Again",
+    "details": "Details",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "download": "Download",
+    "share": "Share",
+    "more": "More",
+    "contactUs": "Contact Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "copyright": "© 2025 Webel. All rights reserved."
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "resources": "Resources",
+    "auctions": "Auctions",
+    "about": "About",
+    "login": "Login",
+    "register": "Register",
+    "myAccount": "My Account",
+    "logout": "Logout",
+    "admin": "Admin",
+    "engineer": "Engineer",
+    "sponsor": "Sponsor"
+  },
+  "languageSwitcher": {
+    "language": "Language",
+    "ko": "Korean",
+    "en": "English",
+    "ja": "Japanese"
+  },
+  "home": {
+    "heroTitle": "Intelligent Service Platform for Electronic Hardware Communities",
+    "heroSubtitle": "Connecting engineers, consumers, and manufacturers to accelerate innovation",
+    "featuredServices": "Featured Services",
+    "featuredResources": "Featured Resources",
+    "recentAuctions": "Recent Auctions",
+    "findServices": "Find Services",
+    "browseResources": "Browse Resources",
+    "participateAuctions": "Participate in Auctions"
+  },
+  "services": {
+    "title": "Services",
+    "subtitle": "Find the hardware services you need",
+    "searchPlaceholder": "Search services...",
+    "filters": "Filters",
+    "categories": "Categories",
+    "location": "Location",
+    "price": "Price",
+    "rating": "Rating",
+    "register": "Register Service",
+    "allServices": "All Services",
+    "noServices": "No services found"
+  },
+  "serviceTypes": {
+    "3d_printing": "3D Printing",
+    "electronics": "Electronics",
+    "woodworking": "Woodworking",
+    "metalworking": "Metalworking",
+    "manufacturing": "Manufacturing",
+    "engineer": "Engineer"
+  },
+  "resources": {
+    "title": "Resources",
+    "subtitle": "Explore various hardware resources",
+    "searchPlaceholder": "Search resources...",
+    "filters": "Filters",
+    "categories": "Categories",
+    "upload": "Upload Resource",
+    "allResources": "All Resources",
+    "noResources": "No resources found",
+    "downloaded": "Downloaded",
+    "views": "Views"
+  },
+  "resourceTypes": {
+    "hardware_design": "Hardware Design",
+    "software": "Software",
+    "3d_model": "3D Model",
+    "free_content": "Free Content",
+    "ai_model": "AI Model",
+    "flash_game": "Flash Game"
+  },
+  "auctions": {
+    "title": "Auctions",
+    "subtitle": "Participate in auctions for services you need",
+    "searchPlaceholder": "Search auctions...",
+    "filters": "Filters",
+    "categories": "Categories",
+    "create": "Create Auction",
+    "allAuctions": "All Auctions",
+    "activeAuctions": "Active Auctions",
+    "completedAuctions": "Completed Auctions",
+    "noAuctions": "No auctions found",
+    "deadline": "Deadline",
+    "currentBid": "Current Bid",
+    "bidCount": "Bid Count"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "forgotPassword": "Forgot Password",
+    "username": "Username",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "fullName": "Full Name",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "createAccount": "Create Account",
+    "loginSuccess": "Login Successful",
+    "registerSuccess": "Registration Successful",
+    "logoutSuccess": "Logout Successful"
+  },
+  "verification": {
+    "title": "Verification",
+    "phone": "Phone Verification",
+    "bank": "Bank Account Verification",
+    "verified": "Verified",
+    "notVerified": "Not Verified",
+    "verifyNow": "Verify Now",
+    "verificationSuccessful": "Verification Successful",
+    "verificationFailed": "Verification Failed"
+  },
+  "payment": {
+    "title": "Payment",
+    "serviceDetails": "Service Details",
+    "orderSummary": "Order Summary",
+    "total": "Total",
+    "paymentMethods": "Payment Methods",
+    "payNow": "Pay Now",
+    "paymentSuccessful": "Payment Successful",
+    "paymentFailed": "Payment Failed",
+    "returnToServices": "Return to Services"
+  },
+  "paymentMethods": {
+    "creditCard": "Credit Card",
+    "bankTransfer": "Bank Transfer",
+    "kakao_pay": "Kakao Pay",
+    "toss": "Toss",
+    "paypal": "PayPal"
+  },
+  "countries": {
+    "kr": "South Korea",
+    "us": "United States",
+    "jp": "Japan"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "users": "User Management",
+    "services": "Service Management",
+    "resources": "Resource Management",
+    "auctions": "Auction Management",
+    "orders": "Order Management",
+    "transactions": "Transaction Management",
+    "statistics": "Statistics",
+    "settings": "Settings"
+  }
+}
