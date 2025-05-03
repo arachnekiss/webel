@@ -72,6 +72,15 @@
     box-sizing: border-box;
   }
 
+  /* Hide Vite HMR error overlay */
+  .vite-error-overlay, 
+  .__vite-browser-external-error-message__, 
+  .__vite-browser-external-error-stack__,
+  .__hmr-runtime-error-overlay__,
+  #runtime-error {
+    display: none !important;
+  }
+
   html, body {
     max-width: 100%;
     overflow-x: hidden;
