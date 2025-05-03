@@ -40,45 +40,61 @@ const About: React.FC = () => {
       <div className="container max-w-6xl mx-auto py-16 px-4 sm:px-6 relative z-10">
         {/* 히어로 섹션 */}
         <section className="mb-24">
-          <div className="flex flex-col md:flex-row items-start gap-10 mb-16">
-            <div className="flex-1">
-              <Badge className="mb-6 px-3 py-1.5 text-sm bg-blue-100 text-blue-800 hover:bg-blue-100">
-                혁신적인 오픈 제작 플랫폼
-              </Badge>
-              
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text">
+          <div className="mb-16 max-w-3xl mx-auto">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 text-slate-800">
                 Webel – 누구나 만들 수 있도록
               </h1>
               
-              <p className="text-xl text-slate-600 mb-6 leading-relaxed max-w-2xl">
-                아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 제작 플랫폼입니다. 
-                <span className="inline-flex items-center text-blue-600 font-medium mx-1">
-                  상상에서 현실로 <Zap className="h-4 w-4 ml-1" />
-                </span>
-                아이디어를 실현해 드립니다.
+              <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+                아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 제작 플랫폼입니다.
               </p>
-              
-              <div className="flex flex-wrap gap-3 mb-8">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm">
-                  <Code className="h-4 w-4" /> 하드웨어 설계도
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                  <LayoutGrid className="h-5 w-5" />
+                  <h3 className="font-medium">다양한 리소스</h3>
                 </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 text-sm">
-                  <Layers className="h-4 w-4" /> 소프트웨어
-                </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-50 text-cyan-700 text-sm">
-                  <CircleUser className="h-4 w-4" /> 전문 엔지니어
-                </div>
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-50 text-amber-700 text-sm">
-                  <Factory className="h-4 w-4" /> 생산업체 연결
-                </div>
+                <p className="text-slate-600 text-sm">
+                  하드웨어 설계도, 소프트웨어, 3D 모델링, AI 모델 등 다양한 디지털 자료를 제공하며, 회원가입 없이도 즉시 다운로드할 수 있습니다.
+                </p>
               </div>
               
-              <p className="text-slate-500 mb-8 max-w-2xl">
-                설계부터 조립, 대량생산까지 복잡했던 제작 과정을 Webel을 통해 쉽고 빠르며 경제적으로 해결할 수 있습니다.
-                전문가와 협업하며 아이디어를 실현하고, 당신만의 제품을 만들어보세요.
-              </p>
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
+                  <CircleUser className="h-5 w-5" />
+                  <h3 className="font-medium">전문 엔지니어</h3>
+                </div>
+                <p className="text-slate-600 text-sm">
+                  맞춤형 제작이 필요할 경우, 전문 엔지니어에게 제작을 요청하고 안내받을 수 있습니다.
+                </p>
+              </div>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
+                  <Factory className="h-5 w-5" />
+                  <h3 className="font-medium">제조업체 연결</h3>
+                </div>
+                <p className="text-slate-600 text-sm">
+                  프로토타입 완성 후 대량생산을 원할 때, 조건에 맞는 제조업체를 찾고 연결받을 수 있습니다.
+                </p>
+              </div>
+              
+              <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
+                  <ShieldCheck className="h-5 w-5" />
+                  <h3 className="font-medium">신뢰할 수 있는 거래</h3>
+                </div>
+                <p className="text-slate-600 text-sm">
+                  본인 인증 시스템을 통해 안전한 거래 환경을 제공하고, 사용자 간 신뢰를 구축합니다.
+                </p>
+              </div>
+            </div>
+            
+            <div className="text-center mt-10 mb-8">
+              <div className="flex justify-center gap-4">
                 <Link href="/resources">
                   <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors inline-flex items-center">
                     리소스 둘러보기
@@ -91,34 +107,6 @@ const About: React.FC = () => {
                   </button>
                 </Link>
               </div>
-            </div>
-            
-            <div className="flex-1 mt-6 md:mt-0">
-              <div className="prose prose-lg max-w-none bg-slate-50 rounded-2xl p-8 border border-slate-100 shadow-sm">
-                <h3 className="text-slate-800 flex items-center gap-2 mb-4">
-                  <Lightbulb className="h-5 w-5 text-amber-500" />
-                  Webel에서 할 수 있는 일
-                </h3>
-                <ul className="space-y-3">
-                  <li className="text-slate-600">다양한 디지털 리소스를 분야별로 검색하고 즉시 다운로드할 수 있습니다.</li>
-                  <li className="text-slate-600">전문 엔지니어에게 맞춤형 제작을 요청하고 협업할 수 있습니다.</li>
-                  <li className="text-slate-600">조립 및 제작 과정에서 필요한 기술적 지원을 받을 수 있습니다.</li>
-                  <li className="text-slate-600">프로토타입 개발 후, 대량 생산을 위한 제조업체를 찾을 수 있습니다.</li>
-                </ul>
-                <p className="text-sm text-slate-500 mt-5">
-                  * Webel은 신뢰성 높은 거래를 위해 휴대폰 본인 인증과 계좌 등록 과정을 제공합니다.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
-            <div className="prose prose-lg max-w-none text-slate-700">
-              <p className="lead text-center md:text-left font-medium text-lg">
-                <strong className="text-blue-600">Webel</strong>은 아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 제작 플랫폼입니다. 
-                사용자는 다양한 리소스를 자유롭게 활용할 수 있으며, 필요할 경우 AI 에이전트, 전문 엔지니어, 생산업체의 도움을 받을 수 있습니다. 
-                설계부터 조립, 대량생산까지 복잡했던 제작 과정을 Webel을 통해 쉽고 빠르며 경제적으로 해결할 수 있습니다.
-              </p>
             </div>
           </div>
         </section>
