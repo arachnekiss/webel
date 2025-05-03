@@ -47,7 +47,7 @@ const About: React.FC = () => {
               </h1>
               
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 제작 플랫폼입니다.
+                아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 메이커 플랫폼입니다.
               </p>
             </div>
             
@@ -288,7 +288,7 @@ const About: React.FC = () => {
               </div>
               
               <p className="text-indigo-100 text-lg max-w-3xl mb-10">
-                Webel은 높은 보안 수준과 안전한 거래 보장을 위해 강력한 인증 시스템을 구축했습니다. 이러한 인증 절차는 플랫폼의 신뢰성을 높이고 사용자 간의 원활한 거래를 가능하게 합니다.
+                Webel은 높은 보안 수준과 안전한 거래 보장을 위해 강력한 인증 시스템을 구축했습니다. 이러한 인증 절차는 오픈 메이커 플랫폼의 신뢰성을 높이고 사용자 간의 원활한 거래를 가능하게 합니다.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
