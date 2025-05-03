@@ -74,8 +74,9 @@ const Header: React.FC = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   
-  // 동적으로 리소스 카테고리 생성
+  // 동적으로 카테고리 생성
   const resourceCategories = useMemo(() => getResourceCategories(t), [t]);
+  const serviceItems = useMemo(() => getServiceItems(t), [t]);
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -328,7 +329,7 @@ const Header: React.FC = () => {
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
-                {serviceItems.map(item => (
+                {serviceItems.map((item: { id: string; label: string; icon: React.ReactNode; href: string }) => (
                   <div 
                     key={item.id} 
                     onClick={() => handleNavigate(item.href)}

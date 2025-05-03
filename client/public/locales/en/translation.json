@@ -169,6 +169,60 @@
     "orders": "Order Management",
     "transactions": "Transaction Management",
     "statistics": "Statistics",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menuTitle": "Admin Menu"
+  },
+  "search": {
+    "placeholder": "Search for services, resources, engineers...",
+    "mobileSearchPlaceholder": "Search..."
+  },
+  "sidebar": {
+    "services": "Services",
+    "servicesDescription": "Hardware and assembly related services",
+    "promo": {
+      "3dPrinting": {
+        "title": "Get Started with 3D Printing",
+        "description": "Use nearby 3D printers to bring your designs to life.",
+        "cta": "Find Printers"
+      },
+      "registerPrinter": {
+        "title": "Register Your Printer",
+        "description": "Provide services with your 3D printer and generate income.",
+        "cta": "Register Printer"
+      }
+    }
+  },
+  "sponsor": {
+    "button": "Sponsor"
+  },
+  "nav": {
+    "home": "Home",
+    "allResources": "All Resources",
+    "menu": "Menu",
+    "resourceCategories": "Resource Categories",
+    "mainMenu": "Main Menu"
+  },
+  "common": {
+    "honorific": "",
+    "loading": "Loading...",
+    "seeAll": "See All",
+    "backToHome": "Back to Home",
+    "search": "Search",
+    "notFound": "Not Found",
+    "error": "An error has occurred",
+    "tryAgain": "Try Again",
+    "details": "Details",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "upload": "Upload",
+    "download": "Download",
+    "share": "Share",
+    "more": "More",
+    "contactUs": "Contact Us",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "copyright": "© 2025 Webel. All rights reserved."
   }
 }

@@ -169,6 +169,60 @@
     "orders": "주문 관리",
     "transactions": "거래 관리",
     "statistics": "통계",
-    "settings": "설정"
+    "settings": "설정",
+    "menuTitle": "관리자 메뉴"
+  },
+  "search": {
+    "placeholder": "서비스, 리소스, 엔지니어 검색...",
+    "mobileSearchPlaceholder": "검색..."
+  },
+  "sidebar": {
+    "services": "서비스",
+    "servicesDescription": "하드웨어 및 조립 관련 서비스",
+    "promo": {
+      "3dPrinting": {
+        "title": "3D 프린팅 시작하기",
+        "description": "가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.",
+        "cta": "프린터 찾기"
+      },
+      "registerPrinter": {
+        "title": "내 프린터 등록하기",
+        "description": "보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.",
+        "cta": "프린터 등록하기"
+      }
+    }
+  },
+  "sponsor": {
+    "button": "스폰서"
+  },
+  "nav": {
+    "home": "홈",
+    "allResources": "모든 리소스",
+    "menu": "메뉴",
+    "resourceCategories": "리소스 카테고리",
+    "mainMenu": "메인 메뉴"
+  },
+  "common": {
+    "honorific": "님",
+    "loading": "로딩 중...",
+    "seeAll": "전체보기",
+    "backToHome": "홈으로 돌아가기",
+    "search": "검색",
+    "notFound": "찾을 수 없음",
+    "error": "오류가 발생했습니다",
+    "tryAgain": "다시 시도하기",
+    "details": "상세 정보",
+    "delete": "삭제",
+    "edit": "수정",
+    "save": "저장",
+    "cancel": "취소",
+    "upload": "업로드",
+    "download": "다운로드",
+    "share": "공유",
+    "more": "더 보기",
+    "contactUs": "문의하기",
+    "privacyPolicy": "개인정보 처리방침",
+    "termsOfService": "이용약관",
+    "copyright": "© 2025 Webel. 모든 권리 보유."
   }
 }
