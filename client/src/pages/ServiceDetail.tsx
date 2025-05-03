@@ -21,19 +21,25 @@ const ServiceDetail: React.FC = () => {
   const [activeTab, setActiveTab] = useState('details');
   const [isPaymentEnabled, setIsPaymentEnabled] = useState(false);
 
-  // 서비스 데이터 가져오기
+  // 서비스 데이터 가져오기 - 오류 처리 및 타임아웃 강화
   console.log('ServiceDetail 컴포넌트 로드됨, ID 파라미터:', id);
   const { 
     data: service, 
     isLoading, 
-    error 
+    error,
+    isError,
+    refetch
   } = useQuery<Service>({
     queryKey: [`/api/services/${id}`],
-    enabled: !!id
+    enabled: !!id,
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5분
+    gcTime: 1000 * 60 * 10, // 10분
+    refetchOnWindowFocus: false,
   });
 
-  // 오류 처리
-  if (error) {
+  // 향상된 오류 처리
+  if (error || isError) {
     const errorMessage = error instanceof Error ? 
       error.message : 
       '알 수 없는 오류가 발생했습니다';
@@ -43,22 +49,67 @@ const ServiceDetail: React.FC = () => {
     return (
       <div className="container mx-auto py-10 px-4 text-center">
         <div className="mb-6 text-red-500">
-          <span className="text-xl">서비스를 불러오는데 실패했습니다</span>
+          <span className="text-xl font-bold">서비스를 불러오는데 실패했습니다</span>
           <p className="mt-2 text-sm text-gray-600">{errorMessage}</p>
         </div>
-        <Button onClick={() => navigate('/services/type/3d_printing')}>
-          서비스 목록으로 돌아가기
-        </Button>
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md max-w-md mx-auto text-left">
+          <p className="text-red-800 text-sm font-medium mb-2">문제 해결 방법:</p>
+          <ul className="text-red-700 text-sm list-disc list-inside space-y-1">
+            <li>인터넷 연결을 확인해주세요</li>
+            <li>페이지를 새로고침 해보세요</li>
+            <li>브라우저 캐시를 비우고 다시 시도해주세요</li>
+            <li>문제가 지속되면 관리자에게 문의해주세요</li>
+          </ul>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button onClick={() => window.location.reload()} className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            페이지 새로고침
+          </Button>
+          <Button variant="outline" onClick={() => refetch()}>
+            다시 시도
+          </Button>
+          <Button variant="secondary" onClick={() => navigate('/services/type/3d_printing')}>
+            서비스 목록으로 돌아가기
+          </Button>
+        </div>
       </div>
     );
   }
 
-  // 로딩 화면
+  // 향상된 로딩 화면 - 더 자세한 상태 표시
   if (isLoading || !service) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">서비스 정보를 불러오는 중...</span>
+      <div className="flex flex-col justify-center items-center min-h-screen py-10 px-4">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 mb-4">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="rounded-full bg-primary/20 p-3">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">서비스 정보를 불러오는 중...</h3>
+              <p className="text-sm text-gray-500">잠시만 기다려 주세요</p>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-5/6"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-4/6"></div>
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <p className="text-xs text-gray-500 text-center">
+              네트워크 상태에 따라 최대 30초까지 소요될 수 있습니다.
+            </p>
+          </div>
+        </div>
+        
+        <Button variant="outline" size="sm" onClick={() => navigate('/')}>
+          취소하고 홈으로 돌아가기
+        </Button>
       </div>
     );
   }
