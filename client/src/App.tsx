@@ -75,24 +75,21 @@ const UserVerification = lazy(() => import('@/pages/UserVerification'));
 import { usePageScroll } from '@/hooks/use-page-scroll';
 
 // LanguageRoute 컴포넌트 생성 - 언어 경로 접두사를 처리하는 래퍼
-const LanguageRoute = ({
-  path,
-  children
-}: {
+interface LanguageRouteProps {
   path: string;
-  children: (params: any) => React.ReactNode;
-}) => {
-  const { t } = useTranslation();
-  
+  children: (params: Record<string, string>) => React.ReactNode;
+}
+
+const LanguageRoute: React.FC<LanguageRouteProps> = ({ path, children }) => {
   // 기본 경로와 언어 경로 버전 모두 지원
   return (
     <>
       <Route path={path}>
-        {children}
+        {(params) => children(params as Record<string, string>)}
       </Route>
       {supportedLanguages.map(lang => (
         <Route key={lang.code} path={`/${lang.code}${path}`}>
-          {(params) => children(params)}
+          {(params) => children(params as Record<string, string>)}
         </Route>
       ))}
     </>
