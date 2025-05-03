@@ -10,56 +10,94 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script>
-      // Disable Vite HMR error overlay
+      // Handle runtime error overlay but preserve element selector functionality
       window.addEventListener('DOMContentLoaded', function() {
+        // Function to check if an element is the Vite error overlay
+        const isErrorOverlay = (element) => {
+          if (!element) return false;
+          
+          // Check if it's the runtime error modal
+          if (element.id === 'runtime-error' || 
+              element.classList.contains('vite-error-overlay') ||
+              element.classList.contains('__vite-browser-external-error-message__') ||
+              element.classList.contains('__vite-browser-external-error-stack__') ||
+              element.classList.contains('__hmr-runtime-error-overlay__')) {
+            return true;
+          }
+          
+          // Check for error message content
+          if (element.textContent && (
+              element.textContent.includes('plugin:runtime-error-plugin') ||
+              element.textContent.includes('Failed to fetch') ||
+              element.textContent.includes('Fix the code to dismiss')
+          )) {
+            return true;
+          }
+          
+          return false;
+        };
+
         const disableErrorOverlay = function() {
-          const errorOverlays = document.querySelectorAll('.vite-error-overlay, .__vite-browser-external-error-message__, .__vite-browser-external-error-stack__, .__hmr-runtime-error-overlay__, #runtime-error, div[style*="fixed"]');
-          errorOverlays.forEach(overlay => {
-            if (overlay && overlay.shadowRoot) {
-              overlay.shadowRoot.innerHTML = '';
-            }
-            if (overlay) {
-              overlay.remove();
+          // Only target specific error overlay elements, not all fixed elements
+          document.querySelectorAll('div').forEach(el => {
+            if (isErrorOverlay(el)) {
+              if (el.shadowRoot) {
+                el.shadowRoot.innerHTML = '';
+              }
+              el.style.display = 'none';
+              el.style.visibility = 'hidden';
+              el.style.opacity = '0';
+              el.style.pointerEvents = 'none';
             }
           });
         };
-
-        // Run immediately and then periodically
-        disableErrorOverlay();
-        setInterval(disableErrorOverlay, 100);
-
-        // Override error handling
+        
+        // Run periodically to check for new error overlays
+        setInterval(disableErrorOverlay, 500);
+        
+        // Override console.error to catch and handle error messages
         const originalConsoleError = console.error;
         console.error = function() {
-          // Check if the error is from Vite HMR
-          const errorMessage = Array.from(arguments).join(' ');
+          const errorArgs = Array.from(arguments);
+          const errorMessage = errorArgs.join(' ');
+          
+          // Only suppress specific errors from the Vite runtime
           if (errorMessage.includes('plugin:runtime-error-plugin') || 
-              errorMessage.includes('hmr') || 
-              errorMessage.includes('Failed to fetch')) {
-            // Suppress error
-            disableErrorOverlay();
+              errorMessage.includes('Failed to fetch') ||
+              errorMessage.includes('hmr update')) {
+            // Still log it but with a modified prefix
+            originalConsoleError.apply(console, ['[Suppressed Vite Error]', ...errorArgs]);
+            // Try to hide the overlay
+            setTimeout(disableErrorOverlay, 10);
             return;
           }
-          // Otherwise, pass through to the original console.error
+          
+          // Pass through all other errors normally
           return originalConsoleError.apply(console, arguments);
         };
       });
     </script>
     <style>
-      /* Hide Vite error overlays via CSS as backup */
-      .vite-error-overlay, 
-      .__vite-browser-external-error-message__, 
+      /* Only target specific error overlays while preserving element selector functionality */
+      .vite-error-overlay,
+      .__vite-browser-external-error-message__,
       .__vite-browser-external-error-stack__,
       .__hmr-runtime-error-overlay__,
-      #runtime-error,
-      div[class*="runtime-error"],
-      div[class*="hmr-error"],
-      /* Target overlay container */
-      div[style*="position: fixed"][style*="z-index: 9999"] {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
+      #runtime-error {
+        opacity: 0.1 !important;
         pointer-events: none !important;
+      }
+      
+      /* Make close button accessible if overlay appears */
+      .vite-error-overlay button,
+      .__hmr-runtime-error-overlay__ button,
+      #runtime-error button {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 100000;
       }
     </style>
   </head>
