@@ -9,7 +9,10 @@ interface TopLinkProps {
   href: string;
   children: React.ReactNode;
   className?: string;
+  activeClassName?: string;
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
+  prefetch?: boolean;
+  showLoadingIndicator?: boolean;
 }
 
 /**
@@ -19,23 +22,43 @@ interface TopLinkProps {
 const TopLink: React.FC<TopLinkProps> = ({ 
   href, 
   children, 
-  className,
+  className = '',
+  activeClassName = 'active-link',
   onClick,
+  prefetch = true,
+  showLoadingIndicator = false,
   ...props 
 }) => {
   const [location] = useLocation();
   
   // 현재 위치와 링크 경로가 같은지 확인 (활성화 상태 표시용)
-  const isActive = location === href || (href !== '/' && location.includes(href));
+  const isActive = location === href || (href !== '/' && location.startsWith(href));
   
-  // rel="prefetch" 속성을 사용하여 링크 미리 로드
-  // target="_self"를 사용하여 현재 창에서 이동 (SPA 동작을 유지하면서 새로운 로딩 경험 제공)
+  // 클릭 핸들러
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    // 사용자 정의 onClick 핸들러가 있으면 실행
+    if (onClick) {
+      onClick(event);
+    }
+    
+    // 로딩 인디케이터 표시 옵션이 켜져있으면 로딩 UI 표시
+    if (showLoadingIndicator && !event.defaultPrevented) {
+      // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
+      document.body.classList.add('page-transitioning');
+      
+      // 일정 시간 후에 페이지 이동이 완료되지 않았다면 로딩 클래스 제거
+      setTimeout(() => {
+        document.body.classList.remove('page-transitioning');
+      }, 5000); // 5초 타임아웃
+    }
+  };
+  
   return (
     <a
       href={href}
-      className={`${className || ''} ${isActive ? 'active-link' : ''}`}
-      onClick={onClick}
-      rel="prefetch"
+      className={`${className} ${isActive ? activeClassName : ''}`}
+      onClick={handleClick}
+      rel={prefetch ? "prefetch" : undefined}
       {...props}
     >
       {children}
