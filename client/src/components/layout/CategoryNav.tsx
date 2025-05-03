@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import TopLink from '@/components/ui/TopLink';
 import { 
   Printer, 
   Lightbulb, 
@@ -130,7 +131,15 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
             const isActive = location === category.href;
             
             return (
-              <Link key={category.id} href={category.href}>
+              <TopLink
+                key={category.id}
+                href={category.href}
+                showLoadingIndicator={true}
+                onClick={(e) => {
+                  // 클릭 시 페이지 전환 효과
+                  document.body.classList.add('page-transitioning');
+                }}
+              >
                 <div
                   className={`flex ${type === 'service' ? 'flex-row' : 'flex-col'} items-center px-4 py-2 text-sm font-medium rounded-lg 
                     ${isActive 
@@ -145,7 +154,7 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
                     {category.label}
                   </span>
                 </div>
-              </Link>
+              </TopLink>
             );
           })}
         </div>

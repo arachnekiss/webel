@@ -11,10 +11,9 @@ import {
   FileCode,
   Database
 } from 'lucide-react';
-import { Link } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
-import ScrollToTopLink from '@/components/ui/ScrollToTopLink';
+import TopLink from '@/components/ui/TopLink';
 
 // 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
 export interface SidebarItemProps {
@@ -84,7 +83,7 @@ const Sidebar: React.FC = () => {
           const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
           
           return (
-            <ScrollToTopLink key={item.id} href={item.href}>
+            <TopLink key={item.id} href={item.href} showLoadingIndicator={true}>
               <div
                 className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                   isActive 
@@ -97,11 +96,9 @@ const Sidebar: React.FC = () => {
                 </div>
                 <span>{item.label}</span>
               </div>
-            </ScrollToTopLink>
+            </TopLink>
           );
         })}
-        
-
         
         {/* 관리자 메뉴 */}
         {isAdmin && (
@@ -110,7 +107,7 @@ const Sidebar: React.FC = () => {
               <div className="h-px bg-slate-200"></div>
               <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
             </div>
-            <ScrollToTopLink href="/admin/dashboard">
+            <TopLink href="/admin/dashboard" showLoadingIndicator={true}>
               <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                 location === '/admin/dashboard' 
                   ? 'bg-primary/5 text-primary font-medium' 
@@ -121,7 +118,7 @@ const Sidebar: React.FC = () => {
                 </div>
                 <span>관리자 대시보드</span>
               </div>
-            </ScrollToTopLink>
+            </TopLink>
           </>
         )}
       </nav>
@@ -130,17 +127,17 @@ const Sidebar: React.FC = () => {
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
           <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
           <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
-          <ScrollToTopLink href="/services/type/3d_printing">
+          <TopLink href="/services/type/3d_printing" showLoadingIndicator={true}>
             <div className="text-primary text-sm font-medium hover:underline">프린터 찾기 →</div>
-          </ScrollToTopLink>
+          </TopLink>
         </div>
         
         <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
           <h3 className="font-medium text-slate-800 mb-2">내 프린터 등록하기</h3>
           <p className="text-sm text-slate-600 mb-3">보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.</p>
-          <ScrollToTopLink href="/register-printer">
+          <TopLink href="/register-printer" showLoadingIndicator={true}>
             <div className="text-primary text-sm font-medium hover:underline">프린터 등록하기 →</div>
-          </ScrollToTopLink>
+          </TopLink>
         </div>
       </div>
     </aside>
