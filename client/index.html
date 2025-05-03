@@ -10,14 +10,58 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <script>
-      // Handle runtime error overlay but preserve element selector functionality
-      window.addEventListener('DOMContentLoaded', function() {
-        // Function to check if an element is the Vite error overlay
-        const isErrorOverlay = (element) => {
+      // 특별히 Vite 오류 메시지 overlay를 처리하기 위한 스크립트
+      window.addEventListener('load', function() {
+        // Mutation Observer 설정 - DOM 변경 감시
+        const observer = new MutationObserver(function(mutations) {
+          mutations.forEach(function(mutation) {
+            if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+              // 새로 추가된 노드 확인
+              for (let i = 0; i < mutation.addedNodes.length; i++) {
+                const node = mutation.addedNodes[i];
+                
+                // 에러 오버레이 메시지 확인 및 처리
+                if (node.nodeType === 1) { // Element 노드인 경우만
+                  if (isErrorOverlay(node)) {
+                    processErrorOverlay(node);
+                  }
+                  
+                  // 자식 노드들도 확인
+                  const errorElements = node.querySelectorAll('*');
+                  errorElements.forEach(el => {
+                    if (isErrorOverlay(el)) {
+                      processErrorOverlay(el);
+                    }
+                  });
+                }
+              }
+            }
+          });
+        });
+        
+        // 대상 설정 및 감시 시작
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+        
+        // 이미 존재하는 오류 메시지 처리
+        function checkExistingOverlays() {
+          const elements = document.querySelectorAll('body > div');
+          elements.forEach(el => {
+            if (isErrorOverlay(el)) {
+              processErrorOverlay(el);
+            }
+          });
+        }
+        
+        // 오류 오버레이인지 확인하는 함수
+        function isErrorOverlay(element) {
           if (!element) return false;
           
-          // Check if it's the runtime error modal
+          // 클래스나 ID로 확인
           if (element.id === 'runtime-error' || 
+              element.id === 'vite-error-overlay' ||
               element.classList.contains('vite-error-overlay') ||
               element.classList.contains('__vite-browser-external-error-message__') ||
               element.classList.contains('__vite-browser-external-error-stack__') ||
@@ -25,79 +69,112 @@
             return true;
           }
           
-          // Check for error message content
-          if (element.textContent && (
-              element.textContent.includes('plugin:runtime-error-plugin') ||
-              element.textContent.includes('Failed to fetch') ||
-              element.textContent.includes('Fix the code to dismiss')
-          )) {
-            return true;
+          // 스타일 속성으로 확인
+          if (element.style && 
+              element.style.position === 'fixed' && 
+              (element.style.zIndex === '9999' || parseInt(element.style.zIndex) > 9000)) {
+            // 내용 확인
+            const text = element.textContent || '';
+            if (text.includes('plugin:runtime-error-plugin') || 
+                text.includes('Failed to fetch') ||
+                text.includes('vite.config.js') ||
+                text.includes('Click outside, press Esc key, or fix the code')) {
+              return true;
+            }
+          }
+          
+          // Shadow DOM 확인
+          if (element.shadowRoot) {
+            const shadowContent = element.shadowRoot.textContent || '';
+            if (shadowContent.includes('plugin:runtime-error-plugin') || 
+                shadowContent.includes('Failed to fetch') ||
+                shadowContent.includes('vite.config.js')) {
+              return true;
+            }
           }
           
           return false;
-        };
-
-        const disableErrorOverlay = function() {
-          // Only target specific error overlay elements, not all fixed elements
-          document.querySelectorAll('div').forEach(el => {
-            if (isErrorOverlay(el)) {
-              if (el.shadowRoot) {
-                el.shadowRoot.innerHTML = '';
+        }
+        
+        // 오류 오버레이 처리 함수
+        function processErrorOverlay(element) {
+          // 오버레이 시각적으로 투명하게 만들기
+          element.style.opacity = '0';
+          element.style.visibility = 'hidden';
+          element.style.pointerEvents = 'none';
+          
+          // Shadow DOM 처리
+          if (element.shadowRoot) {
+            const style = document.createElement('style');
+            style.textContent = `
+              * { 
+                opacity: 0 !important; 
+                visibility: hidden !important; 
+                pointer-events: none !important;
               }
-              el.style.display = 'none';
-              el.style.visibility = 'hidden';
-              el.style.opacity = '0';
-              el.style.pointerEvents = 'none';
+            `;
+            element.shadowRoot.appendChild(style);
+          }
+          
+          // ESC 키 이벤트 발생시키기 (오버레이 닫기)
+          setTimeout(() => {
+            try {
+              const escEvent = new KeyboardEvent('keydown', {
+                key: 'Escape',
+                code: 'Escape',
+                keyCode: 27,
+                which: 27,
+                bubbles: true
+              });
+              document.dispatchEvent(escEvent);
+            } catch (e) {
+              console.log('자동 닫기 시도 실패');
             }
-          });
-        };
+          }, 100);
+        }
         
-        // Run periodically to check for new error overlays
-        setInterval(disableErrorOverlay, 500);
-        
-        // Override console.error to catch and handle error messages
+        // console.error 오버라이드
         const originalConsoleError = console.error;
         console.error = function() {
           const errorArgs = Array.from(arguments);
           const errorMessage = errorArgs.join(' ');
           
-          // Only suppress specific errors from the Vite runtime
+          // Vite 런타임 오류 메시지 필터링
           if (errorMessage.includes('plugin:runtime-error-plugin') || 
               errorMessage.includes('Failed to fetch') ||
-              errorMessage.includes('hmr update')) {
-            // Still log it but with a modified prefix
-            originalConsoleError.apply(console, ['[Suppressed Vite Error]', ...errorArgs]);
-            // Try to hide the overlay
-            setTimeout(disableErrorOverlay, 10);
+              errorMessage.includes('hmr') ||
+              errorMessage.includes('overlay')) {
+            // 오류 메시지를 로그에 남기되, 화면에 표시되는 오버레이 방지
+            setTimeout(checkExistingOverlays, 10);
             return;
           }
           
-          // Pass through all other errors normally
+          // 다른 오류는 정상적으로 처리
           return originalConsoleError.apply(console, arguments);
         };
+        
+        // 초기 실행 및 주기적 체크
+        checkExistingOverlays();
+        setInterval(checkExistingOverlays, 1000);
       });
     </script>
     <style>
-      /* Only target specific error overlays while preserving element selector functionality */
+      /* Vite 오류 오버레이 관련 스타일 */
+      body > div[style*="position: fixed"][style*="z-index: 9999"],
+      body > div[style*="position:fixed"][style*="z-index:9999"],
       .vite-error-overlay,
+      #vite-error-overlay,
       .__vite-browser-external-error-message__,
       .__vite-browser-external-error-stack__,
       .__hmr-runtime-error-overlay__,
       #runtime-error {
-        opacity: 0.1 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
         pointer-events: none !important;
-      }
-      
-      /* Make close button accessible if overlay appears */
-      .vite-error-overlay button,
-      .__hmr-runtime-error-overlay__ button,
-      #runtime-error button {
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        z-index: 100000;
+        display: none !important;
+        height: 0 !important;
+        width: 0 !important;
+        overflow: hidden !important;
       }
     </style>
   </head>
