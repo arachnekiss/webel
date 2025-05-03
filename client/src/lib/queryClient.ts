@@ -231,13 +231,24 @@ export const getQueryFn: <T>(options: {
       
       // 컨트롤러와 타임아웃 설정
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs as number);
       
       try {
+        // HeadersInit 타입과 호환되는 헤더 객체 생성
+        const requestHeaders: Record<string, string> | undefined = 
+          meta?.headers && Object.keys(meta.headers).length > 0 
+            ? Object.entries(meta.headers).reduce((acc, [key, value]) => {
+                if (typeof value === 'string') {
+                  acc[key] = value;
+                }
+                return acc;
+              }, {} as Record<string, string>)
+            : undefined;
+        
         const res = await fetch(queryKeyStr, {
           credentials: "include",
           signal: controller.signal,
-          headers: meta?.headers || undefined,
+          headers: requestHeaders,
         });
         
         clearTimeout(timeoutId);
@@ -300,19 +311,21 @@ export async function prefetchCategories() {
     // 모든 카테고리를 병렬로 프리페치하되 네트워크 부하를 분산하기 위해 약간의 지연 추가
     return Promise.all(
       categoriesToPrefetch.map((category, index) => 
-        new Promise(resolve => {
-          // 요청을 100ms 간격으로 분산
+        new Promise<void>((resolve) => {
+          // 요청을 100ms 간격으로 분산 (명시적 숫자 타입 지정)
           setTimeout(() => {
             queryClient.prefetchQuery({
               queryKey: [category],
               staleTime: determineStaleTime(category), // 동적으로 캐시 수명 결정
-            }).then(resolve);
+            }).then(() => resolve());
           }, index * 100);
         })
       )
     );
   } catch (error) {
     logError('PREFETCH', 'categories', error);
+    // 오류 발생 시 빈 프로미스 반환
+    return Promise.resolve();
   }
 }
 
@@ -336,13 +349,15 @@ export async function prefetchInitialData() {
     );
   } catch (error) {
     logError('PREFETCH', 'initialData', error);
+    // 에러가 발생해도 Promise.all 형태의 결과를 반환
+    return Promise.resolve([]);
   }
 }
 
 // 무거운 데이터 로딩을 위한 프리로더
 // 이 함수는 사용자 상호작용 중에 백그라운드에서 실행되어 lazy loading 효과를 구현
 export async function preloadHeavyData() {
-  return new Promise(resolve => {
+  return new Promise<boolean>(resolve => {
     // 앱이 안정화된 후 무거운 데이터 로딩 시작
     setTimeout(async () => {
       try {
@@ -354,13 +369,13 @@ export async function preloadHeavyData() {
         
         await Promise.all(
           heavyDataEndpoints.map((endpoint, index) => 
-            new Promise(r => {
+            new Promise<void>((r) => {
               // 요청을 250ms 간격으로 더 많이 분산
               setTimeout(() => {
                 queryClient.prefetchQuery({
                   queryKey: [endpoint],
                   staleTime: determineStaleTime(endpoint),
-                }).then(r);
+                }).then(() => r());
               }, index * 250);
             })
           )

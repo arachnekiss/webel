@@ -441,19 +441,22 @@ export class DatabaseStorage implements IStorage {
     const [bid] = await db.insert(bids).values(insertBid).returning();
     
     // Update auction with new bid info
-    const auction = await this.getAuctionById(insertBid.auctionId);
-    if (auction) {
-      const bidCount = auction.bidCount || 0;
-      const currentLowestBid = auction.currentLowestBid;
-      
-      // 타입 안전성을 위해 auction.id가 있는지 확인
-      if (auction.id !== undefined) {
-        await this.updateAuction(auction.id, {
-          bidCount: bidCount + 1,
-          currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
-            ? insertBid.amount
-            : currentLowestBid
-        });
+    // 타입 안전성을 위해 auctionId가 number인지 확인
+    if (typeof insertBid.auctionId === 'number') {
+      const auction = await this.getAuctionById(insertBid.auctionId);
+      if (auction) {
+        const bidCount = auction.bidCount || 0;
+        const currentLowestBid = auction.currentLowestBid;
+        
+        // 타입 안전성을 위해 auction.id가 있는지 확인
+        if (auction.id !== undefined) {
+          await this.updateAuction(auction.id, {
+            bidCount: bidCount + 1,
+            currentLowestBid: currentLowestBid === null || insertBid.amount < currentLowestBid
+              ? insertBid.amount
+              : currentLowestBid
+          });
+        }
       }
     }
     

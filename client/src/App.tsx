@@ -386,6 +386,38 @@ function Router() {
 }
 
 function App() {
+  // 앱 초기화 시 중요 데이터 프리페치
+  useEffect(() => {
+    // 비동기 프리페치 함수 호출
+    const initializeDataAndCaches = async () => {
+      try {
+        // 앱 구동에 필요한 핵심 데이터 먼저 로드
+        const { prefetchInitialData, prefetchCategories, preloadHeavyData } = await import('./lib/queryClient');
+        
+        // 1. 필수 초기 데이터 먼저 프리페치 (사용자 데이터 등)
+        await prefetchInitialData();
+        
+        // 2. 메인 카테고리 데이터 프리페치 (홈 화면에 필요)
+        prefetchCategories().catch(err => {
+          console.warn('카테고리 데이터 프리페치 중 오류:', err);
+        });
+        
+        // 3. 백그라운드에서 무거운 데이터 로드 (낮은 우선순위)
+        // React 18의 useTransition과 유사한 역할로 사용자 인터페이스 방해 없이 데이터 로드
+        setTimeout(() => {
+          preloadHeavyData().catch(err => {
+            console.warn('백그라운드 데이터 로드 중 오류:', err);
+          });
+        }, 3000); // 앱 초기화 후 3초 뒤 시작
+      } catch (error) {
+        console.error('데이터 초기화 중 오류:', error);
+      }
+    };
+
+    // 데이터 초기화 실행
+    initializeDataAndCaches();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
