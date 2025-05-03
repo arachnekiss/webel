@@ -90,8 +90,8 @@ const AIAssistant: React.FC = () => {
         
         {!isMobile && (
           <div className="hidden md:block md:w-1/2 relative bg-violet-100">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1563770557918-8c5061cf6bdc?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80')] bg-center bg-cover opacity-90"></div>
-            <div className="absolute inset-0 bg-gradient-to-l from-violet-900/40 to-violet-900/10"></div>
+            <div className="absolute inset-0 bg-[url('/images/ai-assistant.png')] bg-center bg-cover opacity-100"></div>
+            <div className="absolute inset-0 bg-gradient-to-l from-violet-900/30 to-violet-900/5"></div>
             
             <div className="absolute bottom-0 left-0 right-0 p-8">
               <div className="bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-violet-100">
