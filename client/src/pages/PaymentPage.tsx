@@ -112,15 +112,16 @@ const PaymentPage: React.FC<PaymentPageProps> = ({ id }) => {
   }
   
   // 서비스 가격 옵션 (기본 가격이 설정되지 않은 경우 샘플 옵션)
+  const defaultPrice = service.isFreeService ? 0 : 50000;
   const priceOptions = service.priceOptions || [
     { 
       name: '기본 서비스', 
-      price: service.basePrice || 50000, 
+      price: defaultPrice, 
       description: '기본 서비스 패키지' 
     },
     { 
       name: '프리미엄 서비스', 
-      price: (service.basePrice || 50000) * 2, 
+      price: defaultPrice * 2, 
       description: '고급 서비스 패키지' 
     }
   ];
