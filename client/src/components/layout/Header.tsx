@@ -77,6 +77,10 @@ const Header: React.FC = () => {
   const handleNavigate = (path: string) => {
     // 페이지 이동 후 메뉴 닫기
     if (isMobile) setIsMobileMenuOpen(false);
+    
+    // 스크롤을 맨 위로 이동
+    window.scrollTo(0, 0);
+    
     navigate(path); // wouter의 navigate 함수 사용
   };
   
@@ -102,14 +106,14 @@ const Header: React.FC = () => {
             {/* 로고 영역 */}
             <div className="flex items-center">
               {/* Logo */}
-              <Link href="/">
+              <ScrollToTopLink href="/">
                 <div className="flex items-center space-x-2 cursor-pointer">
                   <svg className="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M9.504 1.132a1 1 0 01.992 0l1.75 1a1 1 0 11-.992 1.736L10 3.152l-1.254.716a1 1 0 11-.992-1.736l1.75-1zM5.618 4.504a1 1 0 01-.372 1.364L5.016 6l.23.132a1 1 0 11-.992 1.736L4 7.723V8a1 1 0 01-2 0V6a.996.996 0 01.52-.878l1.734-.99a1 1 0 011.364.372zm8.764 0a1 1 0 011.364-.372l1.733.99A1.002 1.002 0 0118 6v2a1 1 0 11-2 0v-.277l-.254.145a1 1 0 11-.992-1.736l.23-.132-.23-.132a1 1 0 01-.372-1.364zm-7 4a1 1 0 011.364-.372L10 8.848l1.254-.716a1 1 0 11.992 1.736L11 10.58V12a1 1 0 11-2 0v-1.42l-1.246-.712a1 1 0 01-.372-1.364zM3 11a1 1 0 011 1v1.42l1.246.712a1 1 0 11-.992 1.736l-1.75-1A1 1 0 012 14v-2a1 1 0 011-1zm14 0a1 1 0 011 1v2a1 1 0 01-.504.868l-1.75 1a1 1 0 11-.992-1.736L16 13.42V12a1 1 0 011-1zm-9.618 5.504a1 1 0 011.364-.372l.254.145V16a1 1 0 112 0v.277l.254-.145a1 1 0 11.992 1.736l-1.735.992a.995.995 0 01-1.022 0l-1.735-.992a1 1 0 01-.372-1.364z" clipRule="evenodd"></path>
                   </svg>
                   <span className="text-2xl font-bold text-primary">Webel</span>
                 </div>
-              </Link>
+              </ScrollToTopLink>
             </div>
               
             {/* Search Bar - Desktop */}
@@ -150,26 +154,26 @@ const Header: React.FC = () => {
                     로그아웃
                   </Button>
                   {isAdmin && (
-                    <Link href="/admin/dashboard">
+                    <ScrollToTopLink href="/admin/dashboard">
                       <Button variant="secondary">관리자 대시보드</Button>
-                    </Link>
+                    </ScrollToTopLink>
                   )}
                 </div>
               ) : (
                 <>
-                  <Link href="/login">
+                  <ScrollToTopLink href="/login">
                     <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">로그인</div>
-                  </Link>
-                  <Link href="/register">
+                  </ScrollToTopLink>
+                  <ScrollToTopLink href="/register">
                     <div className="text-slate-600 hover:text-primary transition-colors cursor-pointer text-sm">회원가입</div>
-                  </Link>
+                  </ScrollToTopLink>
                 </>
               )}
-              <Link href="/sponsor">
+              <ScrollToTopLink href="/sponsor">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
                   Webel 후원하기
                 </Button>
-              </Link>
+              </ScrollToTopLink>
             </div>
             
             {/* Mobile 메뉴 버튼 */}
@@ -196,31 +200,31 @@ const Header: React.FC = () => {
       <div className="hidden md:block bg-white border-b border-slate-200 shadow-sm">
         <div className="container">
           <nav className="flex items-center justify-center py-2">
-            <Link href="/">
+            <ScrollToTopLink href="/">
               <div className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
                 홈
               </div>
-            </Link>
+            </ScrollToTopLink>
             
-            <Link href="/resources">
+            <ScrollToTopLink href="/resources">
               <div className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-slate-600 hover:text-primary'}`}>
                 <div className="flex items-center">
                   <Layers className="h-4 w-4 mr-1" />
                   모든 리소스
                 </div>
               </div>
-            </Link>
+            </ScrollToTopLink>
             
             {/* 직접 리소스 카테고리 링크 (데스크탑) */}
             {resourceCategories.map(category => (
-              <Link key={category.id} href={category.href}>
+              <ScrollToTopLink key={category.id} href={category.href}>
                 <div className={`flex items-center px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${
                   location === category.href || (category.href !== '/' && location.includes(category.href)) ? 'text-primary' : 'text-slate-600 hover:text-primary'
                 }`}>
                   <span className="mr-1">{category.icon}</span>
                   <span>{category.label}</span>
                 </div>
-              </Link>
+              </ScrollToTopLink>
             ))}
           </nav>
         </div>
