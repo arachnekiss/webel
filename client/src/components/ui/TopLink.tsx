@@ -13,6 +13,7 @@ interface TopLinkProps {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
   prefetch?: boolean;
   showLoadingIndicator?: boolean;
+  forceReload?: boolean;
 }
 
 /**
@@ -27,6 +28,7 @@ const TopLink: React.FC<TopLinkProps> = ({
   onClick,
   prefetch = true,
   showLoadingIndicator = false,
+  forceReload = true, // 기본값으로 페이지 새로고침 활성화
   ...props 
 }) => {
   const [location] = useLocation();
@@ -41,7 +43,26 @@ const TopLink: React.FC<TopLinkProps> = ({
       onClick(event);
     }
     
-    // 로딩 인디케이터 표시 옵션이 켜져있으면 로딩 UI 표시
+    // 새로운 페이지를 로드하도록 설정된 경우
+    if (forceReload && !event.defaultPrevented) {
+      // 기본 이벤트를 방지하고 window.location을 통해 페이지 전체 로드
+      event.preventDefault();
+      
+      // 로딩 인디케이터 표시 옵션이 켜져있으면 로딩 UI 표시
+      if (showLoadingIndicator) {
+        // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
+        document.body.classList.add('page-transitioning');
+      }
+      
+      // 약간의 딜레이 후 페이지 이동 - 로딩 UI가 표시될 시간을 주기 위함
+      setTimeout(() => {
+        window.location.href = href;
+      }, 50);
+      
+      return false;
+    }
+    
+    // forceReload가 false이거나 이미 event.preventDefault()가 호출된 경우
     if (showLoadingIndicator && !event.defaultPrevented) {
       // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
       document.body.classList.add('page-transitioning');

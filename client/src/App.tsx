@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-import { Switch, Route, useRoute } from 'wouter';
+import { Switch, Route } from 'wouter';
 import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,12 +8,34 @@ import { LocationProvider } from '@/contexts/LocationContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
+import { Loader2 } from 'lucide-react';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
+// 로딩 스피너 인라인 구현
+const LoadingSpinner = ({ 
+  size = 'md', 
+  message = '로딩 중...'
+}: { 
+  size?: 'sm' | 'md' | 'lg'; 
+  message?: string;
+}) => {
+  const sizeClass = {
+    sm: 'h-4 w-4',
+    md: 'h-8 w-8',
+    lg: 'h-12 w-12',
+  }[size];
+
+  return (
+    <div className="flex flex-col items-center justify-center w-full py-12">
+      <Loader2 className={`${sizeClass} animate-spin text-primary mb-4`} />
+      {message && <p className="text-muted-foreground text-center">{message}</p>}
+    </div>
+  );
+};
 
 // Lazy 로딩으로 페이지 컴포넌트 불러오기
 const Home = lazy(() => import('@/pages/Home'));
@@ -183,155 +205,78 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
               <Switch>
-                <Route path="/">
-                  {() => <Home />}
-                </Route>
+                <Route path="/" component={() => <Home />} />
                 
                 {/* Services routes - 카테고리별 서비스 목록 */}
-                <Route path="/services/type/:type">
-                  {(params) => <Services type={params.type} />}
-                </Route>
-                <Route path="/services/:id">
-                  {(params) => <ServiceDetail id={params.id} />}
-                </Route>
+                <Route path="/services/type/:type" component={(params: any) => <Services type={params.type} />} />
+                <Route path="/services/:id" component={(params: any) => <ServiceDetail id={params.id} />} />
                 
                 {/* Resource routes with resource type categories */}
-                <Route path="/resources/type/:type">
-                  {(params) => <Resources params={params} />}
-                </Route>
-                <Route path="/resources">
-                  {() => <Resources />}
-                </Route>
-                <Route path="/resources/:id">
-                  {(params) => <ResourceDetail id={params.id} />}
-                </Route>
+                <Route path="/resources/type/:type" component={(params: any) => <Resources params={params} />} />
+                <Route path="/resources" component={() => <Resources />} />
+                <Route path="/resources/:id" component={(params: any) => <ResourceDetail id={params.id} />} />
                 
                 {/* 플래시 게임 페이지 (띄어쓰기 수정) */}
-                <Route path="/flash-game">
-                  {() => <Resources type="flash_game" />}
-                </Route>
+                <Route path="/flash-game" component={() => <Resources type="flash_game" />} />
                 
                 {/* Auctions routes */}
-                <Route path="/auctions">
-                  {() => <Auctions />}
-                </Route>
-                <Route path="/auctions/:id">
-                  {(params) => <AuctionDetail id={params.id} />}
-                </Route>
+                <Route path="/auctions" component={() => <Auctions />} />
+                <Route path="/auctions/:id" component={(params: any) => <AuctionDetail id={params.id} />} />
                 
                 {/* Register pages - 3D 프린터 등록을 포함한 서비스 등록 페이지 통합 */}
-                <Route path="/register-printer">
-                  {() => <RegisterServiceUnified defaultType="3d_printing" />}
-                </Route>
-                <Route path="/services/register">
-                  {() => <RegisterServiceUnified />}
-                </Route>
-                <Route path="/services/register/3d_printing">
-                  {() => <RegisterServiceUnified defaultType="3d_printing" />}
-                </Route>
-                <Route path="/services/register/:type">
-                  {(params) => {
-                    const type = params.type as any;
-                    return <RegisterServiceUnified defaultType={type} />;
-                  }}
-                </Route>
-                <Route path="/services/register-old">
-                  {() => <RegisterService />}
-                </Route>
-                <Route path="/services/register-old/:type">
-                  {(params) => <RegisterService type={params.type} />}
-                </Route>
+                <Route path="/register-printer" component={() => <RegisterServiceUnified defaultType="3d_printing" />} />
+                <Route path="/services/register" component={() => <RegisterServiceUnified />} />
+                <Route path="/services/register/3d_printing" component={() => <RegisterServiceUnified defaultType="3d_printing" />} />
+                <Route 
+                  path="/services/register/:type" 
+                  component={(params: any) => <RegisterServiceUnified defaultType={params.type} />} 
+                />
+                <Route path="/services/register-old" component={() => <RegisterService />} />
+                <Route path="/services/register-old/:type" component={(params: any) => <RegisterService type={params.type} />} />
                 
                 {/* Resource management pages */}
-                <Route path="/resources/create">
-                  {() => <ResourceManagementPage />}
-                </Route>
-                <Route path="/resources/manage/:id">
-                  {(params) => <ResourceManagementPage id={params.id} />}
-                </Route>
+                <Route path="/resources/create" component={() => <ResourceManagementPage />} />
+                <Route path="/resources/manage/:id" component={(params: any) => <ResourceManagementPage id={params.id} />} />
                 
                 {/* Resource upload pages */}
-                <Route path="/resources/upload">
-                  {() => <ResourceUploadPage />}
-                </Route>
-                <AdminRoute path="/admin/resources/upload">
-                  {() => <ResourceUploadPage />}
-                </AdminRoute>
+                <Route path="/resources/upload" component={() => <ResourceUploadPage />} />
+                <AdminRoute path="/admin/resources/upload" component={() => <ResourceUploadPage />} />
                 
                 {/* Legacy Resource upload pages */}
-                <Route path="/resources/upload-v2">
-                  {() => <ResourceUploadPageV2 />}
-                </Route>
-                <Route path="/resources/upload-v1">
-                  {() => <UploadResource />}
-                </Route>
+                <Route path="/resources/upload-v2" component={() => <ResourceUploadPageV2 />} />
+                <Route path="/resources/upload-v1" component={() => <UploadResource />} />
                 
                 {/* Other pages */}
-                <Route path="/ai-assembly">
-                  {() => <AiAssembly />}
-                </Route>
-                <Route path="/remote-support">
-                  {() => <RemoteSupport />}
-                </Route>
-                <Route path="/services/type/engineer">
-                  {() => <Engineers />}
-                </Route>
-                <Route path="/sponsor">
-                  {() => <Sponsor />}
-                </Route>
-                <Route path="/about">
-                  {() => <About />}
-                </Route>
+                <Route path="/ai-assembly" component={() => <AiAssembly />} />
+                <Route path="/remote-support" component={() => <RemoteSupport />} />
+                <Route path="/services/type/engineer" component={() => <Engineers />} />
+                <Route path="/sponsor" component={() => <Sponsor />} />
+                <Route path="/about" component={() => <About />} />
                 
                 {/* Auth pages */}
-                <Route path="/auth">
-                  {() => <AuthPage />}
-                </Route>
-                <Route path="/login">
-                  {() => <AuthPage initialTab="login" />}
-                </Route>
-                <Route path="/register">
-                  {() => <AuthPage initialTab="register" />}
-                </Route>
+                <Route path="/auth" component={() => <AuthPage />} />
+                <Route path="/login" component={() => <AuthPage initialTab="login" />} />
+                <Route path="/register" component={() => <AuthPage initialTab="register" />} />
                 
                 {/* User verification pages */}
-                <ProtectedRoute path="/my/verification">
-                  {() => <UserVerification />}
-                </ProtectedRoute>
+                <ProtectedRoute path="/my/verification" component={() => <UserVerification />} />
                 
                 {/* Payment pages */}
-                <Route path="/payment/service/:id">
-                  {(params) => <PaymentPage id={params.id} />}
-                </Route>
-                <Route path="/payment/success">
-                  {() => <PaymentResult status="success" />}
-                </Route>
-                <Route path="/payment/fail">
-                  {() => <PaymentResult status="fail" />}
-                </Route>
+                <Route path="/payment/service/:id" component={(params: any) => <PaymentPage id={params.id} />} />
+                <Route path="/payment/success" component={() => <PaymentResult status="success" />} />
+                <Route path="/payment/fail" component={() => <PaymentResult status="fail" />} />
                 
                 {/* Admin pages */}
-                <AdminRoute path="/admin/dashboard">
-                  {() => <AdminDashboard />}
-                </AdminRoute>
-                <AdminRoute path="/admin/users">
-                  {() => <AdminUserManagement />}
-                </AdminRoute>
-                <AdminRoute path="/admin/resources">
-                  {() => <AdminResourceManagement />}
-                </AdminRoute>
-                <AdminRoute path="/admin/services">
-                  {() => <AdminServiceManagement />}
-                </AdminRoute>
+                <AdminRoute path="/admin/dashboard" component={() => <AdminDashboard />} />
+                <AdminRoute path="/admin/users" component={() => <AdminUserManagement />} />
+                <AdminRoute path="/admin/resources" component={() => <AdminResourceManagement />} />
+                <AdminRoute path="/admin/services" component={() => <AdminServiceManagement />} />
+                
                 {/* 이전 경로 호환성 유지 */}
-                <AdminRoute path="/admin/engineers">
-                  {() => <AdminServiceManagement />}
-                </AdminRoute>
+                <AdminRoute path="/admin/engineers" component={() => <AdminServiceManagement />} />
                 
                 {/* Fallback to 404 */}
-                <Route>
-                  {() => <NotFound />}
-                </Route>
+                <Route component={() => <NotFound />} />
               </Switch>
             </Suspense>
           </div>
