@@ -56,6 +56,10 @@ const TopLink: React.FC<TopLinkProps> = ({
       
       // 약간의 딜레이 후 페이지 이동 - 로딩 UI가 표시될 시간을 주기 위함
       setTimeout(() => {
+        // 페이지 이동 시 스크롤을 맨 위로 이동
+        window.scrollTo(0, 0);
+        
+        // 페이지 이동 실행
         window.location.href = href;
       }, 50);
       
@@ -66,6 +70,9 @@ const TopLink: React.FC<TopLinkProps> = ({
     if (showLoadingIndicator && !event.defaultPrevented) {
       // 페이지 이동 전 로딩 인디케이터 표시를 위한 클래스 추가
       document.body.classList.add('page-transitioning');
+      
+      // 페이지 이동 시 스크롤을 맨 위로 이동
+      window.scrollTo(0, 0);
       
       // 일정 시간 후에 페이지 이동이 완료되지 않았다면 로딩 클래스 제거
       setTimeout(() => {
