@@ -91,10 +91,19 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
-      const res = await fetch(queryKey[0] as string, {
+      // 특정 API에 대해 더 긴 타임아웃 설정
+      // 쿼리 키가 문자열인지 확인하고 안전하게 처리
+      const queryKeyStr = typeof queryKey[0] === 'string' ? queryKey[0] : String(queryKey[0]);
+      const timeoutMs = queryKeyStr.includes('/services/') || 
+                      queryKeyStr.includes('/resources/') ? 
+                      30000 : 15000; // 30초 또는 15초
+                      
+      console.log(`API 요청: ${queryKeyStr} (타임아웃: ${timeoutMs}ms)`);
+      
+      const res = await fetch(queryKeyStr, {
         credentials: "include",
         // 요청 시간 초과 설정
-        signal: AbortSignal.timeout(10000), // 10초 후 타임아웃
+        signal: AbortSignal.timeout(timeoutMs),
       });
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {

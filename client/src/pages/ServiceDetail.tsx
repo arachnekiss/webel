@@ -104,30 +104,63 @@ const ServiceDetail: React.FC = () => {
   };
 
   // 연락하기 버튼 클릭 이벤트
-  const handleContactClick = () => {
-    if (service.contactEmail) {
-      window.location.href = `mailto:${service.contactEmail}?subject=문의: ${service.title}`;
-    } else if (service.contactPhone) {
-      window.location.href = `tel:${service.contactPhone}`;
-    } else {
+  const handleContactClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // 기본 동작 방지
+    
+    try {
+      if (service.contactEmail) {
+        window.location.href = `mailto:${service.contactEmail}?subject=문의: ${service.title}`;
+      } else if (service.contactPhone) {
+        window.location.href = `tel:${service.contactPhone}`;
+      } else {
+        toast({
+          title: '연락처 정보가 없습니다',
+          description: '이 서비스는 연락처 정보를 제공하지 않습니다.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('연락처 클릭 핸들러 오류:', error);
       toast({
-        title: '연락처 정보가 없습니다',
-        description: '이 서비스는 연락처 정보를 제공하지 않습니다.',
+        title: '오류가 발생했습니다',
+        description: '연락처 정보를 처리하는 중 문제가 발생했습니다.',
         variant: 'destructive',
       });
     }
   };
 
-  // 안전하게 데이터 객체에 접근 (타입 오류 방지)
-  const location = service.location || {};
-  const materials = service.materials || [];
-  const fileFormats = service.fileFormats || [];
-  const availableHours = service.availableHours || '';
-  const otherSpecialty = service.otherSpecialty || '';
-  const otherItems = service.otherItems || '';
+  // 타입 단언을 사용하여 안전하게 데이터 객체에 접근 (타입 오류 방지)
+  interface ServiceLocation {
+    lat?: number;
+    long?: number;
+    address?: string;
+  }
+  
+  // TypeScript 타입 확장으로 서비스 데이터에 안전하게 접근
+  interface ExtendedService {
+    materials?: string[];
+    fileFormats?: string[];
+    availableHours?: string;
+    otherSpecialty?: string;
+    otherItems?: string;
+    location?: ServiceLocation;
+  }
+  
+  // 기존 service 객체를 확장된 타입으로 캐스팅
+  const extendedService = service as unknown as ExtendedService;
+  
+  // 안전하게 데이터 객체에 접근
+  const location: ServiceLocation = extendedService.location || {};
+  const materials = extendedService.materials || [];
+  const fileFormats = extendedService.fileFormats || [];
+  const availableHours = extendedService.availableHours || '';
+  const otherSpecialty = extendedService.otherSpecialty || '';
+  const otherItems = extendedService.otherItems || '';
   
   // 위치 맵 표시 여부 (안전하게 접근)
-  const hasLocation = location && typeof location === 'object' && location.lat && location.long;
+  const hasLocation = location && typeof location === 'object' && 
+                      'lat' in location && 'long' in location &&
+                      !!location.lat && !!location.long;
 
   // 서비스 유형별 추가 정보
   const renderServiceTypeSpecificInfo = () => {
@@ -297,7 +330,14 @@ const ServiceDetail: React.FC = () => {
         <Button 
           variant="link" 
           className="p-0 text-gray-500 hover:text-primary" 
-          onClick={() => navigate('/')}
+          onClick={(e) => {
+            e.preventDefault();
+            try {
+              navigate('/');
+            } catch (error) {
+              console.error('홈 이동 오류:', error);
+            }
+          }}
         >
           홈
         </Button>
@@ -305,7 +345,14 @@ const ServiceDetail: React.FC = () => {
         <Button 
           variant="link" 
           className="p-0 text-gray-500 hover:text-primary" 
-          onClick={() => navigate(`/services/type/${service.serviceType}`)}
+          onClick={(e) => {
+            e.preventDefault();
+            try {
+              navigate(`/services/type/${service.serviceType}`);
+            } catch (error) {
+              console.error('서비스 목록 이동 오류:', error);
+            }
+          }}
         >
           {getServiceTypeLabel()}
         </Button>
@@ -423,8 +470,16 @@ const ServiceDetail: React.FC = () => {
                   <h3 className="text-lg font-medium">위치 정보</h3>
                   <div className="rounded-md overflow-hidden border h-[300px]">
                     {/* 위치 정보가 정확히 있는 경우만 맵 표시 */}
-                    {location && location.lat && location.long ? 
-                      <ServiceMap services={[{...service, location: {lat: location.lat, long: location.long}}]} /> :
+                    {hasLocation ? 
+                      <ServiceMap 
+                        services={[{
+                          ...service, 
+                          location: { 
+                            lat: location.lat as number, 
+                            long: location.long as number 
+                          }
+                        }]} 
+                      /> :
                       <div className="flex h-full items-center justify-center bg-gray-100">
                         <p className="text-gray-500">위치 정보를 불러올 수 없습니다</p>
                       </div>
@@ -546,7 +601,19 @@ const ServiceDetail: React.FC = () => {
                 <Button 
                   className="w-full" 
                   size="lg"
-                  onClick={() => navigate(`/payment/service/${service.id}`)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    try {
+                      navigate(`/payment/service/${service.id}`);
+                    } catch (error) {
+                      console.error('결제 페이지 이동 오류:', error);
+                      toast({
+                        title: '페이지 이동 중 오류가 발생했습니다',
+                        description: '잠시 후 다시 시도해주세요.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   {service.isFreeService ? '무료 이용하기' : '문의하기'}
@@ -559,7 +626,19 @@ const ServiceDetail: React.FC = () => {
                 <Button 
                   className="w-full" 
                   size="lg"
-                  onClick={() => navigate('/login')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    try {
+                      navigate('/login');
+                    } catch (error) {
+                      console.error('로그인 페이지 이동 오류:', error);
+                      toast({
+                        title: '페이지 이동 중 오류가 발생했습니다',
+                        description: '잠시 후 다시 시도해주세요.',
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   로그인 후 {service.isFreeService ? '이용하기' : '문의하기'}
