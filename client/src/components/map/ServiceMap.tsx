@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { LatLngExpression } from 'leaflet';
 import { useLocation as useGeoLocation } from '@/contexts/LocationContext';
-import { Service } from '@/types';
+import type { Service } from '@shared/schema';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
@@ -72,7 +72,14 @@ const ServiceMap: React.FC<ServiceMapProps> = ({ services }) => {
         
         {/* 서비스 마커들 */}
         {services.map(service => {
-          if (!service.location) return null;
+          // 위치 정보가 없거나 lat 또는 long 속성이 없는 경우 마커를 렌더링하지 않음
+          if (!service.location || 
+              !service.location.lat || 
+              !service.location.long ||
+              typeof service.location.lat !== 'number' ||
+              typeof service.location.long !== 'number') {
+            return null;
+          }
           
           const position: LatLngExpression = [
             service.location.lat, 

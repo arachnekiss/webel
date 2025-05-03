@@ -415,7 +415,13 @@ const ServiceDetail: React.FC = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">위치 정보</h3>
                   <div className="rounded-md overflow-hidden border h-[300px]">
-                    <ServiceMap services={[service]} />
+                    {/* 위치 정보가 정확히 있는 경우만 맵 표시 */}
+                    {location && location.lat && location.long ? 
+                      <ServiceMap services={[{...service, location: {lat: location.lat, long: location.long}}]} /> :
+                      <div className="flex h-full items-center justify-center bg-gray-100">
+                        <p className="text-gray-500">위치 정보를 불러올 수 없습니다</p>
+                      </div>
+                    }
                   </div>
                   <div className="flex items-center mt-2">
                     <MapPin className="h-5 w-5 text-primary mr-2" />
