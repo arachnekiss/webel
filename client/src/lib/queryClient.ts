@@ -133,15 +133,45 @@ export const getQueryFn: <T>(options: {
     }
   };
 
+// 카테고리별 스트링을 미리 캐싱하기 위한 프리페치 함수
+export async function prefetchCategories() {
+  try {
+    const categoriesToPrefetch = [
+      '/api/resources/type/hardware_design',
+      '/api/resources/type/software',
+      '/api/resources/type/ai_model',
+      '/api/resources/type/3d_model',
+      '/api/resources/type/free_content',
+      '/api/resources/type/flash_game',
+      '/api/services/type/3d_printing',
+      '/api/services/type/engineer',
+      '/api/services/type/manufacturing'
+    ];
+    
+    // 모든 카테고리를 병렬로 프리페치
+    return Promise.all(
+      categoriesToPrefetch.map(category => 
+        queryClient.prefetchQuery({
+          queryKey: [category],
+          staleTime: 1000 * 60 * 30, // 30분 유지
+        })
+      )
+    );
+  } catch (error) {
+    console.error('프리페치 오류:', error);
+  }
+}
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5분 후 데이터를 stale로 표시
-      gcTime: 1000 * 60 * 10, // 10분 동안 캐시 유지 (v5에서는 cacheTime 대신 gcTime 사용)
+      staleTime: 1000 * 60 * 15, // 15분으로 증가 (더 오래 캐시 유지)
+      gcTime: 1000 * 60 * 30, // 30분으로 증가 (캐시 오래 유지)
       retry: 1, // 실패 시 한 번만 재시도
+      networkMode: 'always',
     },
     mutations: {
       retry: false,

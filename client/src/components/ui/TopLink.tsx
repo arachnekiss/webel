@@ -32,22 +32,20 @@ const TopLink: React.FC<TopLinkProps> = ({
     }, 100);
   }, []);
 
-  // 클릭 처리 함수
+  // 클릭 처리 함수 - 속도 최적화
   const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault(); // 기본 동작 방지
     
-    // 스크롤 초기화
+    // 위치 변경을 먼저 실행하여 빠르게 UI 전환
+    setLocation(href);
+    
+    // 위치 변경 후 스크롤 초기화
     scrollToTop();
     
     // 사용자가 제공한 onClick 처리
     if (onClick) {
       onClick(e);
     }
-    
-    // 직접 라우팅 처리 - setTimeout을 통한 지연
-    setTimeout(() => {
-      setLocation(href);
-    }, 0);
   }, [href, onClick, scrollToTop, setLocation]);
 
   // 직접 <a> 태그를 사용하여 더 많은 제어권 확보
