@@ -290,9 +290,9 @@ const Header: React.FC = () => {
                 </div>
               ))}
               
-              <div className="h-px bg-border my-2"></div>
+              <div className="h-px bg-border my-3"></div>
               
-              <div className="px-4 py-2 text-foreground font-semibold">
+              <div className="px-4 py-2 text-foreground font-semibold text-lg">
                 서비스
               </div>
               
@@ -311,14 +311,14 @@ const Header: React.FC = () => {
                   <span>{item.label}</span>
                 </div>
               ))}
-              <div className="h-px bg-border my-2"></div>
+              <div className="h-px bg-border my-3"></div>
               {user ? (
                 <>
-                  <div className="px-4 py-2 text-foreground font-medium">
+                  <div className="px-4 py-2 text-foreground font-semibold text-lg mb-2">
                     {user.fullName || user.username}님
                   </div>
                   <div 
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     onClick={() => {
                       logoutMutation.mutate();
                       if (isMobile) setIsMobileMenuOpen(false);
@@ -339,13 +339,13 @@ const Header: React.FC = () => {
                 <>
                   <div 
                     onClick={() => handleNavigate('/login')}
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                   >
                     로그인
                   </div>
                   <div 
                     onClick={() => handleNavigate('/register')}
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 dark:hover:bg-slate-800 rounded cursor-pointer"
+                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                   >
                     회원가입
                   </div>
@@ -354,7 +354,7 @@ const Header: React.FC = () => {
 
               <div 
                 onClick={() => handleNavigate('/sponsor')}
-                className="block px-4 py-2 bg-primary text-white rounded cursor-pointer"
+                className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
               >
                 Webel 후원하기
               </div>
