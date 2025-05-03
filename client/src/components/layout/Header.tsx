@@ -8,6 +8,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 import { 
   Search, 
@@ -70,6 +72,7 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { t } = useTranslation();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -140,38 +143,41 @@ const Header: React.FC = () => {
             
             {/* 로그인/회원가입 또는 사용자 메뉴 */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* 언어 선택기 */}
+              <LanguageSwitcher />
+              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-foreground font-medium">
-                    {user.fullName || user.username}님
+                    {user.fullName || user.username}{t('common.honorific')}
                   </div>
                   <Button 
                     variant="outline" 
                     className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
-                    로그아웃
+                    {t('auth.logout')}
                   </Button>
                   {isAdmin && (
                     <TopLink href="/admin/dashboard" className="inline-block">
-                      <Button variant="secondary">관리자 대시보드</Button>
+                      <Button variant="secondary">{t('admin.dashboard')}</Button>
                     </TopLink>
                   )}
                 </div>
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    로그인
+                    {t('auth.login')}
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    회원가입
+                    {t('auth.register')}
                   </TopLink>
                 </>
               )}
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  Webel 후원하기
+                  {t('sponsor.button')}
                 </Button>
               </TopLink>
             </div>
@@ -334,8 +340,19 @@ const Header: React.FC = () => {
                   </div>
                 ))}
                 <div className="h-px bg-border my-3"></div>
+                
+                {/* 언어 설정 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  계정
+                  {t('language.title')}
+                </div>
+                <div className="px-4 py-2">
+                  <LanguageSwitcher isMobile={true} />
+                </div>
+                
+                <div className="h-px bg-border my-3"></div>
+                
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  {t('account.title')}
                 </div>
                 {user ? (
                   <>
