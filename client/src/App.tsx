@@ -9,7 +9,6 @@ import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 import { Loader2 } from 'lucide-react';
-import { ThemeProvider, useTheme } from 'next-themes';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -389,16 +388,14 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-        <TooltipProvider>
-          <LocationProvider>
-            <AuthProvider>
-              <Toaster />
-              <Router />
-            </AuthProvider>
-          </LocationProvider>
-        </TooltipProvider>
-      </ThemeProvider>
+      <TooltipProvider>
+        <LocationProvider>
+          <AuthProvider>
+            <Toaster />
+            <Router />
+          </AuthProvider>
+        </LocationProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

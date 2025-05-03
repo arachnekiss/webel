@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
-import { ThemeToggle, MobileThemeToggle } from '@/components/ui/theme-toggle';
+
 import { 
   Search, 
   MenuIcon, 
@@ -168,7 +168,7 @@ const Header: React.FC = () => {
                   </TopLink>
                 </>
               )}
-              <ThemeToggle className="mr-2" />
+
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
                   Webel 후원하기
@@ -351,7 +351,7 @@ const Header: React.FC = () => {
                   </div>
                 </>
               )}
-              <MobileThemeToggle />
+
               <div 
                 onClick={() => handleNavigate('/sponsor')}
                 className="block px-4 py-2 bg-primary text-white rounded cursor-pointer"
