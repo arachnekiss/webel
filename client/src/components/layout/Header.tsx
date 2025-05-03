@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import { 
   Search, 
@@ -20,7 +23,8 @@ import {
   Box, 
   FileText,
   Cpu,
-  Gamepad2
+  Gamepad2,
+  Globe
 } from 'lucide-react';
 
 // 리소스 카테고리 아이템
@@ -70,6 +74,8 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const { currentLanguage } = useLanguage();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -161,17 +167,19 @@ const Header: React.FC = () => {
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    로그인
+                    {t('header.login')}
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    회원가입
+                    {t('header.register')}
                   </TopLink>
                 </>
               )}
 
+              <LanguageSwitcher />
+              
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  Webel 후원하기
+                  {t('navigation.sponsor')}
                 </Button>
               </TopLink>
             </div>
@@ -201,13 +209,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              홈
+              {t('navigation.home')}
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                모든 리소스
+                {t('resources.all_resources')}
               </div>
             </TopLink>
             
@@ -277,7 +285,7 @@ const Header: React.FC = () => {
                   onClick={() => handleNavigate('/')}
                   className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
-                  홈
+                  {t('navigation.home')}
                 </div>
                 
                 <div 
@@ -289,7 +297,7 @@ const Header: React.FC = () => {
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>모든 리소스</span>
+                  <span>{t('resources.all_resources')}</span>
                 </div>
                 
                 <div className="mt-2 px-4 py-2 text-foreground font-semibold">
@@ -366,13 +374,13 @@ const Header: React.FC = () => {
                       onClick={() => handleNavigate('/login')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      로그인
+                      {t('header.login')}
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      회원가입
+                      {t('header.register')}
                     </div>
                   </>
                 )}

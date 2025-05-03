@@ -1,7 +1,11 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import Backend from 'i18next-http-backend';
+
+// Import translation resources directly
+import enTranslation from '../locales/en-resources';
+import koTranslation from '../locales/ko-resources';
+import jaTranslation from '../locales/ja-resources';
 
 // 지원하는 언어 목록
 export const supportedLanguages = [
@@ -101,18 +105,25 @@ export const getCountryServices = (countryCode: string) => {
 };
 
 // i18next 초기화
+const resources = {
+  en: {
+    common: enTranslation
+  },
+  ko: {
+    common: koTranslation
+  },
+  ja: {
+    common: jaTranslation
+  }
+};
+
 i18n
-  .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    resources,
     fallbackLng: 'ko',
     debug: import.meta.env.DEV,
-    
-    // 백엔드 설정
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
     
     // 언어 감지 우선순위
     detection: {
