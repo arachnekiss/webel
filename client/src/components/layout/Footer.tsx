@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
+import ScrollToTopLink from '@/components/ui/ScrollToTopLink';
 
 const Footer: React.FC = () => {
   return (
@@ -48,34 +49,34 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">서비스</h3>
             <ul className="space-y-2">
-              <li><Link href="/services/type/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></Link></li>
-              <li><Link href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></Link></li>
-              <li><Link href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></Link></li>
-              <li><Link href="/services/type/engineer"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</div></Link></li>
-              <li><Link href="/services/type/manufacturing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></Link></li>
-              <li><Link href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></Link></li>
+              <li><ScrollToTopLink href="/services/type/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/services/type/engineer"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/services/type/manufacturing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></ScrollToTopLink></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">리소스</h3>
             <ul className="space-y-2">
-              <li><Link href="/resources/type/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></Link></li>
-              <li><Link href="/resources/type/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></Link></li>
-              <li><Link href="/resources/type/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></Link></li>
-              <li><Link href="/resources/type/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></Link></li>
-              <li><Link href="/resources/type/flash_game"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></Link></li>
+              <li><ScrollToTopLink href="/resources/type/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/resources/type/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/resources/type/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/resources/type/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/resources/type/flash_game"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></ScrollToTopLink></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">회사 정보</h3>
             <ul className="space-y-2">
-              <li><Link href="/about"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</div></Link></li>
-              <li><Link href="/blog"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</div></Link></li>
-              <li><Link href="/api-docs"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</div></Link></li>
-              <li><Link href="/privacy"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</div></Link></li>
-              <li><Link href="/terms"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</div></Link></li>
+              <li><ScrollToTopLink href="/about"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/blog"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/api-docs"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/privacy"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</div></ScrollToTopLink></li>
+              <li><ScrollToTopLink href="/terms"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</div></ScrollToTopLink></li>
             </ul>
           </div>
         </div>

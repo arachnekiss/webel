@@ -7,6 +7,7 @@ import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
+import ScrollToTopLink from '@/components/ui/ScrollToTopLink';
 import { 
   Search, 
   MenuIcon, 
