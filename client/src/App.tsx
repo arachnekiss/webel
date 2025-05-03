@@ -58,7 +58,37 @@ function Router() {
   useEffect(() => {
     // 강제로 스크롤을 최상단으로 이동시키는 함수
     function resetScroll() {
+      // auto 동작으로 변경하여 즉시 스크롤됨 (smooth는 중간에 중단될 수 있음)
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'auto'
+      });
+      
+      // 백업으로 기존 방식도 함께 사용
       window.scrollTo(0, 0);
+      
+      // document.body와 document.documentElement에도 직접 적용
+      if (document.body) {
+        document.body.scrollTop = 0;
+      }
+      
+      if (document.documentElement) {
+        document.documentElement.scrollTop = 0;
+      }
+      
+      // 스크롤 위치 강제 고정 (추가 안전장치)
+      const preventScroll = (e: Event) => {
+        window.scrollTo(0, 0);
+        e.preventDefault();
+        e.stopPropagation();
+      };
+      
+      // 스크롤 이벤트를 일시적으로 차단 (100ms 동안)
+      window.addEventListener('scroll', preventScroll, { passive: false });
+      setTimeout(() => {
+        window.removeEventListener('scroll', preventScroll);
+      }, 100);
     }
     
     // 모든 가능한 이벤트에 대한 스크롤 리셋 처리
@@ -66,10 +96,20 @@ function Router() {
       // 즉시 스크롤 초기화
       resetScroll();
       
-      // 여러 타이밍에 추가 실행 (3중 안전장치)
+      // 여러 타이밍에 추가 실행 (4중 안전장치)
       setTimeout(resetScroll, 0);
+      setTimeout(resetScroll, 50);
       setTimeout(resetScroll, 100);
       setTimeout(resetScroll, 300);
+      
+      // 추가 안전장치: 라우트 변경이 완료된 후 최종 확인
+      setTimeout(() => {
+        // 만약 스크롤이 여전히 0이 아니라면 강제로 다시 이동
+        if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0 || document.body.scrollTop !== 0) {
+          console.log('페이지 스크롤 강제 리셋', window.scrollY, document.documentElement.scrollTop, document.body.scrollTop);
+          resetScroll();
+        }
+      }, 500);
     }
     
     // 이벤트 리스너 등록 - 다양한 이벤트 캡처
@@ -80,11 +120,40 @@ function Router() {
     // 페이지 로드 시 강제 스크롤 초기화
     resetScroll();
     
+    // MutationObserver로 DOM 변경 모니터링
+    const observer = new MutationObserver((mutations) => {
+      let shouldCheckScroll = false;
+      
+      // DOM 변경이 발생했는지 확인
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          shouldCheckScroll = true;
+          break;
+        }
+      }
+      
+      // 페이지 콘텐츠 변경 시 스크롤 확인
+      if (shouldCheckScroll) {
+        setTimeout(() => {
+          if (window.scrollY !== 0) {
+            resetScroll();
+          }
+        }, 50);
+      }
+    });
+    
+    // 전체 문서 변경 모니터링
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true 
+    });
+    
     // 클린업 함수
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
       window.removeEventListener('pushstate', handleRouteChange);
       window.removeEventListener('hashchange', handleRouteChange);
+      observer.disconnect();
     };
   }, []);
 
