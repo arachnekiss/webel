@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { useLocation, Link as WouterLink } from 'wouter';
+import React from 'react';
+import { useLocation } from 'wouter';
 
 /**
- * 페이지 이동 시 스크롤을 강제로 상단으로 이동시키는 Link 컴포넌트
- * (기존 ScrollToTopLink를 대체합니다)
+ * 전통적인 웹사이트 방식의 페이지 전환을 위한 링크 컴포넌트
+ * 이 컴포넌트는 SPA 방식이 아닌 실제 페이지 이동처럼 동작합니다.
  */
 interface TopLinkProps {
   href: string;
@@ -12,6 +12,10 @@ interface TopLinkProps {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
+/**
+ * 전통적인 웹사이트 방식의 페이지 전환을 지원하는 링크
+ * SPA 라우팅 대신 실제 페이지 이동과 같은 경험을 제공합니다.
+ */
 const TopLink: React.FC<TopLinkProps> = ({ 
   href, 
   children, 
@@ -19,41 +23,19 @@ const TopLink: React.FC<TopLinkProps> = ({
   onClick,
   ...props 
 }) => {
-  const [, setLocation] = useLocation();
+  const [location] = useLocation();
   
-  // 스크롤을 처리하는 함수
-  const scrollToTop = useCallback(() => {
-    // 즉시 스크롤 초기화
-    window.scrollTo(0, 0);
-    
-    // 추가 안전장치 (지연된 스크롤 복원)
-    setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 100);
-  }, []);
-
-  // 클릭 처리 함수 - 속도 최적화
-  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault(); // 기본 동작 방지
-    
-    // 위치 변경을 먼저 실행하여 빠르게 UI 전환
-    setLocation(href);
-    
-    // 위치 변경 후 스크롤 초기화
-    scrollToTop();
-    
-    // 사용자가 제공한 onClick 처리
-    if (onClick) {
-      onClick(e);
-    }
-  }, [href, onClick, scrollToTop, setLocation]);
-
-  // 직접 <a> 태그를 사용하여 더 많은 제어권 확보
+  // 현재 위치와 링크 경로가 같은지 확인 (활성화 상태 표시용)
+  const isActive = location === href || (href !== '/' && location.includes(href));
+  
+  // rel="prefetch" 속성을 사용하여 링크 미리 로드
+  // target="_self"를 사용하여 현재 창에서 이동 (SPA 동작을 유지하면서 새로운 로딩 경험 제공)
   return (
     <a
       href={href}
-      className={className}
-      onClick={handleClick}
+      className={`${className || ''} ${isActive ? 'active-link' : ''}`}
+      onClick={onClick}
+      rel="prefetch"
       {...props}
     >
       {children}

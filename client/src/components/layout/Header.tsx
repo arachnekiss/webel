@@ -58,7 +58,7 @@ const resourceCategories = [
     id: 'flash_game',
     label: '플래시 게임',
     icon: <Gamepad2 className="h-4 w-4" />,
-    href: '/resources/type/flash_game'
+    href: '/flash-game'
   }
 ];
 
