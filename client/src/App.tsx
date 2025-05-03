@@ -333,31 +333,41 @@ function Router() {
                 
                 {/* Admin pages */}
                 <Route path="/admin/dashboard">
-                  {() => <AdminRoute>
-                    {() => <AdminDashboard />}
-                  </AdminRoute>}
+                  {() => (
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  )}
                 </Route>
                 <Route path="/admin/users">
-                  {() => <AdminRoute>
-                    {() => <AdminUserManagement />}
-                  </AdminRoute>}
+                  {() => (
+                    <AdminRoute>
+                      <AdminUserManagement />
+                    </AdminRoute>
+                  )}
                 </Route>
                 <Route path="/admin/resources">
-                  {() => <AdminRoute>
-                    {() => <AdminResourceManagement />}
-                  </AdminRoute>}
+                  {() => (
+                    <AdminRoute>
+                      <AdminResourceManagement />
+                    </AdminRoute>
+                  )}
                 </Route>
                 <Route path="/admin/services">
-                  {() => <AdminRoute>
-                    {() => <AdminServiceManagement />}
-                  </AdminRoute>}
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
                 </Route>
                 
                 {/* 이전 경로 호환성 유지 */}
                 <Route path="/admin/engineers">
-                  {() => <AdminRoute>
-                    {() => <AdminServiceManagement />}
-                  </AdminRoute>}
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
                 </Route>
                 
                 {/* Fallback to 404 */}
