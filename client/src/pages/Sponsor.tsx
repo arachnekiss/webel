@@ -200,12 +200,11 @@ const Sponsor: React.FC = () => {
             </div>
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
-            <div className="rounded-lg shadow-md max-h-80 bg-gradient-to-r from-amber-300 to-amber-500 flex items-center justify-center text-white p-8">
-              <div className="flex flex-col items-center">
-                <Coffee className="h-16 w-16 mb-4" />
-                <span className="text-xl font-bold">Webel과 함께 성장하세요</span>
-              </div>
-            </div>
+            <img 
+              src="/images/sponsor-donation.png" 
+              alt="후원과 기부" 
+              className="rounded-lg shadow-lg max-h-96 object-cover" 
+            />
           </div>
         </div>
       </section>
