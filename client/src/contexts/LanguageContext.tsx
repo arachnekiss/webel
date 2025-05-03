@@ -37,7 +37,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCurrentCountry(getCountryFromLanguage(lang));
   };
   
-  // URL 변경 시 언어 감지
+  // URL 변경 시 언어 감지 및 전체 앱에 적용
   useEffect(() => {
     const detectLanguageFromURL = () => {
       const detectedLang = getCurrentLanguage();
@@ -56,10 +56,27 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       detectLanguageFromURL();
     };
     
+    // 커스텀 languageChanged 이벤트 감지
+    const handleLanguageChanged = (e: CustomEvent) => {
+      const lang = e.detail?.language;
+      if (lang && lang !== currentLanguage) {
+        setCurrentLanguage(lang);
+        setCurrentCountry(getCountryFromLanguage(lang));
+      }
+    };
+    
+    // 각종 이벤트 등록
     window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('languageChanged', handleLanguageChanged as EventListener);
+    window.addEventListener('pushstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
     
     return () => {
+      // 이벤트 해제
       window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('languageChanged', handleLanguageChanged as EventListener);
+      window.removeEventListener('pushstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
     };
   }, [currentLanguage, i18n]);
   
