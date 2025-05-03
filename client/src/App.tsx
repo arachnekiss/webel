@@ -11,6 +11,7 @@ import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 import { Loader2 } from 'lucide-react';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
+import { SUPPORTED_LANGUAGES, LanguageCode } from '@/i18n';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -234,7 +235,7 @@ function Router() {
                   {(params) => {
                     const { lang } = params;
                     // Check if this is a valid language code
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
                       return <Home />;
                     }
                     return <NotFound />;
