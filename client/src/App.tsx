@@ -71,6 +71,23 @@ import { usePageScroll } from '@/hooks/use-page-scroll';
 function Router() {
   const { isMobile } = useDeviceDetect();
   
+  // 성능 모니터링 적용
+  useEffect(() => {
+    // 성능 측정 직접 구현
+    const initializePerformance = async () => {
+      const { measureRendering } = await import('./lib/performance');
+      return measureRendering('Router');
+    };
+    
+    // 성능 측정 초기화
+    let cleanup = () => {};
+    initializePerformance().then(cleanupFn => {
+      cleanup = cleanupFn;
+    });
+    
+    return () => cleanup();
+  }, []);
+  
   // 새로운 페이지 스크롤 관리 훅 적용
   usePageScroll();
   
@@ -386,11 +403,32 @@ function Router() {
 }
 
 function App() {
+  // 앱 성능 모니터링 적용 - 간소화된 방식으로 변경
+  useEffect(() => {
+    // 성능 측정 직접 구현 (훅 대신)
+    const initializePerformance = async () => {
+      const { measureRendering } = await import('./lib/performance');
+      return measureRendering('App');
+    };
+    
+    // 성능 측정 초기화 및 클린업 함수 반환
+    let cleanup = () => {};
+    initializePerformance().then(cleanupFn => {
+      cleanup = cleanupFn;
+    });
+    
+    return () => cleanup();
+  }, []);
+  
   // 앱 초기화 시 중요 데이터 프리페치
   useEffect(() => {
     // 비동기 프리페치 함수 호출
     const initializeDataAndCaches = async () => {
       try {
+        // 성능 측정 시작
+        const { startMeasure, endMeasure } = await import('./lib/performance');
+        const initEventId = startMeasure('rendering', 'App Initialization');
+        
         // 앱 구동에 필요한 핵심 데이터 먼저 로드
         const { prefetchInitialData, prefetchCategories, preloadHeavyData } = await import('./lib/queryClient');
         
@@ -409,6 +447,9 @@ function App() {
             console.warn('백그라운드 데이터 로드 중 오류:', err);
           });
         }, 3000); // 앱 초기화 후 3초 뒤 시작
+        
+        // 성능 측정 종료
+        endMeasure(initEventId);
       } catch (error) {
         console.error('데이터 초기화 중 오류:', error);
       }
