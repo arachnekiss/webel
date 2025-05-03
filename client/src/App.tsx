@@ -77,7 +77,9 @@ function Router() {
         document.documentElement.scrollTop = 0;
       }
       
-      // 스크롤 위치 강제 고정 (추가 안전장치)
+      // 스크롤 위치 강제 고정 (추가 안전장치는 일단 주석처리)
+      // 이 부분이 문제를 일으킬 수 있어 비활성화합니다
+      /*
       const preventScroll = (e: Event) => {
         window.scrollTo(0, 0);
         e.preventDefault();
@@ -89,6 +91,7 @@ function Router() {
       setTimeout(() => {
         window.removeEventListener('scroll', preventScroll);
       }, 100);
+      */
     }
     
     // 모든 가능한 이벤트에 대한 스크롤 리셋 처리
@@ -102,7 +105,8 @@ function Router() {
       setTimeout(resetScroll, 100);
       setTimeout(resetScroll, 300);
       
-      // 추가 안전장치: 라우트 변경이 완료된 후 최종 확인
+      // 추가 안전장치: 라우트 변경이 완료된 후 최종 확인 (주석 처리)
+      /*
       setTimeout(() => {
         // 만약 스크롤이 여전히 0이 아니라면 강제로 다시 이동
         if (window.scrollY !== 0 || document.documentElement.scrollTop !== 0 || document.body.scrollTop !== 0) {
@@ -110,6 +114,7 @@ function Router() {
           resetScroll();
         }
       }, 500);
+      */
     }
     
     // 이벤트 리스너 등록 - 다양한 이벤트 캡처
@@ -120,6 +125,8 @@ function Router() {
     // 페이지 로드 시 강제 스크롤 초기화
     resetScroll();
     
+    // MutationObserver 부분도 문제가 될 수 있어 주석 처리합니다
+    /*
     // MutationObserver로 DOM 변경 모니터링
     const observer = new MutationObserver((mutations) => {
       let shouldCheckScroll = false;
@@ -147,6 +154,9 @@ function Router() {
       childList: true, 
       subtree: true 
     });
+    */
+    // 더 단순한 방식으로 구현
+    const observer = { disconnect: () => {} };
     
     // 클린업 함수
     return () => {
