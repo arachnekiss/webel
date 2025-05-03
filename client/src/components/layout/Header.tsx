@@ -122,7 +122,7 @@ const Header: React.FC = () => {
                   <Input 
                     type="text" 
                     placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
-                    className="w-full py-2 pr-3 pl-4 border border-slate-200 rounded-l-full bg-slate-50 focus:bg-white" 
+                    className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full bg-background/80 focus:bg-background" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
@@ -180,7 +180,7 @@ const Header: React.FC = () => {
             {isMobile && (
               <div className="flex items-center">
                 <button 
-                  className="ml-auto text-slate-500 hover:text-primary focus:outline-none" 
+                  className="ml-auto text-foreground hover:text-primary focus:outline-none" 
                   onClick={toggleMobileMenu}
                   aria-label="Toggle mobile menu"
                 >
@@ -238,7 +238,7 @@ const Header: React.FC = () => {
                 <Input 
                   type="text" 
                   placeholder="검색어를 입력하세요" 
-                  className="w-full py-2 pr-3 pl-4 border border-slate-300 rounded-l-full" 
+                  className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
