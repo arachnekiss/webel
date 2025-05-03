@@ -45,8 +45,13 @@ import RegisterPrinter from '@/pages/RegisterPrinter';
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentResult from '@/pages/PaymentResult';
 
+import { useScrollTop } from '@/hooks/use-scroll-top';
+
 function Router() {
   const { isMobile } = useDeviceDetect();
+  
+  // 페이지 전환 시 스크롤을 맨 위로 이동시키는 훅 적용
+  useScrollTop();
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
