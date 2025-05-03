@@ -18,6 +18,11 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 
+// Helper function to check if a language code is supported
+const isValidLanguage = (lang: string): boolean => {
+  return SUPPORTED_LANGUAGES.includes(lang as LanguageCode);
+};
+
 // 로딩 스피너 인라인 구현
 const LoadingSpinner = ({ 
   size = 'md', 
@@ -244,7 +249,7 @@ function Router() {
                 <Route path="/:lang/services/type/:type">
                   {(params) => {
                     const { lang, type } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
                       return <Services type={type} />;
                     }
                     return <NotFound />;
@@ -253,7 +258,7 @@ function Router() {
                 <Route path="/:lang/services/:id">
                   {(params) => {
                     const { lang, id } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
                       return <ServiceDetail id={id} />;
                     }
                     return <NotFound />;
@@ -262,7 +267,7 @@ function Router() {
                 <Route path="/:lang/resources">
                   {(params) => {
                     const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
                       return <Resources />;
                     }
                     return <NotFound />;
@@ -271,7 +276,7 @@ function Router() {
                 <Route path="/:lang/resources/type/:type">
                   {(params) => {
                     const { lang, type } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <Resources params={{ type }} />;
                     }
                     return <NotFound />;
@@ -280,7 +285,7 @@ function Router() {
                 <Route path="/:lang/resources/:id">
                   {(params) => {
                     const { lang, id } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <ResourceDetail id={id} />;
                     }
                     return <NotFound />;
@@ -289,7 +294,7 @@ function Router() {
                 <Route path="/:lang/auctions">
                   {(params) => {
                     const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <Auctions />;
                     }
                     return <NotFound />;
@@ -298,7 +303,7 @@ function Router() {
                 <Route path="/:lang/auctions/:id">
                   {(params) => {
                     const { lang, id } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <AuctionDetail id={id} />;
                     }
                     return <NotFound />;
@@ -307,7 +312,7 @@ function Router() {
                 <Route path="/:lang/sponsor">
                   {(params) => {
                     const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <Sponsor />;
                     }
                     return <NotFound />;
@@ -316,7 +321,7 @@ function Router() {
                 <Route path="/:lang/about">
                   {(params) => {
                     const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
+                    if (isValidLanguage(lang)) {
                       return <About />;
                     }
                     return <NotFound />;
