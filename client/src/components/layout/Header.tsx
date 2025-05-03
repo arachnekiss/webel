@@ -230,135 +230,161 @@ const Header: React.FC = () => {
       
       {/* 모바일 메뉴 */}
       {isMobile && isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-background shadow-lg z-50 border-b border-border">
-          <div className="p-4 space-y-4">
-            {/* 검색창 */}
-            <form onSubmit={handleSearch} className="flex items-center w-full">
-              <div className="relative flex-grow">
-                <Input 
-                  type="text" 
-                  placeholder="검색어를 입력하세요" 
-                  className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                />
+        <div className="fixed inset-0 w-full h-full bg-background/80 backdrop-blur-sm z-50">
+          <div className="absolute right-0 top-0 h-full w-4/5 max-w-sm bg-background border-l border-border shadow-lg overflow-auto">
+            {/* 모바일 메뉴 닫기 버튼 */}
+            <div className="flex justify-between items-center p-3 border-b border-border">
+              <div className="text-foreground font-bold text-lg pl-2">
+                메뉴
               </div>
               <Button 
-                type="submit"
-                variant="default" 
-                className="h-10 w-12 rounded-r-full bg-primary hover:bg-primary/90 flex items-center justify-center"
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(false)}
               >
-                <Search className="h-5 w-5" />
+                <X className="h-5 w-5" />
               </Button>
-            </form>
-            
-            {/* 메뉴 아이템 */}
-            <nav className="space-y-3">
-              <div 
-                onClick={() => handleNavigate('/')}
-                className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
-              >
-                홈
-              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              {/* 검색창 */}
+              <form onSubmit={handleSearch} className="flex items-center w-full">
+                <div className="relative flex-grow">
+                  <Input 
+                    type="text" 
+                    placeholder="검색어를 입력하세요" 
+                    className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  />
+                </div>
+                <Button 
+                  type="submit"
+                  variant="default" 
+                  className="h-10 w-12 rounded-r-full bg-primary hover:bg-primary/90 flex items-center justify-center"
+                >
+                  <Search className="h-5 w-5" />
+                </Button>
+              </form>
               
-              <div 
-                onClick={() => handleNavigate('/resources')}
-                className={`flex items-center px-4 py-2 ${
-                  location === '/resources'
-                  ? 'bg-primary/10 text-primary' 
-                  : 'text-foreground hover:bg-slate-50'
-                } rounded cursor-pointer`}
-              >
-                <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                <span>모든 리소스</span>
-              </div>
-              
-              {/* 모바일용 리소스 카테고리 메뉴 */}
-              {resourceCategories.map(category => (
+              {/* 메뉴 아이템 */}
+              <nav className="space-y-3">
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  메인 메뉴
+                </div>
+                
                 <div 
-                  key={category.id}
-                  onClick={() => handleNavigate(category.href)}
+                  onClick={() => handleNavigate('/')}
+                  className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
+                >
+                  홈
+                </div>
+                
+                <div 
+                  onClick={() => handleNavigate('/resources')}
                   className={`flex items-center px-4 py-2 ${
-                    location === category.href || (category.href !== '/' && location.includes(category.href)) 
+                    location === '/resources'
                     ? 'bg-primary/10 text-primary' 
                     : 'text-foreground hover:bg-slate-50'
                   } rounded cursor-pointer`}
                 >
-                  <span className="mr-2">{category.icon}</span>
-                  <span>{category.label}</span>
+                  <span className="mr-2"><Layers className="h-4 w-4" /></span>
+                  <span>모든 리소스</span>
                 </div>
-              ))}
-              
-              <div className="h-px bg-border my-3"></div>
-              
-              <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                서비스
-              </div>
-              
-              {/* 모바일용 서비스 카테고리 메뉴 */}
-              {serviceItems.map(item => (
-                <div 
-                  key={item.id} 
-                  onClick={() => handleNavigate(item.href)}
-                  className={`flex items-center px-4 py-2 ${
-                    location === item.href || (item.href !== '/' && location.includes(item.href)) 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-foreground hover:bg-slate-50'
-                  } rounded cursor-pointer`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  <span>{item.label}</span>
+                
+                <div className="mt-2 px-4 py-2 text-foreground font-semibold">
+                  리소스 카테고리
                 </div>
-              ))}
-              <div className="h-px bg-border my-3"></div>
-              {user ? (
-                <>
-                  <div className="px-4 py-2 text-foreground font-semibold text-lg mb-2">
-                    {user.fullName || user.username}님
-                  </div>
+                
+                {/* 모바일용 리소스 카테고리 메뉴 */}
+                {resourceCategories.map(category => (
                   <div 
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
-                    onClick={() => {
-                      logoutMutation.mutate();
-                      if (isMobile) setIsMobileMenuOpen(false);
-                    }}
+                    key={category.id}
+                    onClick={() => handleNavigate(category.href)}
+                    className={`flex items-center px-4 py-2 ${
+                      location === category.href || (category.href !== '/' && location.includes(category.href)) 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-foreground hover:bg-slate-50'
+                    } rounded cursor-pointer`}
                   >
-                    로그아웃
+                    <span className="mr-2">{category.icon}</span>
+                    <span>{category.label}</span>
                   </div>
-                  {isAdmin && (
-                    <div 
-                      onClick={() => handleNavigate('/admin/dashboard')}
-                      className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
-                    >
-                      관리자 대시보드
+                ))}
+                
+                <div className="h-px bg-border my-3"></div>
+                
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  서비스
+                </div>
+                
+                {/* 모바일용 서비스 카테고리 메뉴 */}
+                {serviceItems.map(item => (
+                  <div 
+                    key={item.id} 
+                    onClick={() => handleNavigate(item.href)}
+                    className={`flex items-center px-4 py-2 ${
+                      location === item.href || (item.href !== '/' && location.includes(item.href)) 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-foreground hover:bg-slate-50'
+                    } rounded cursor-pointer`}
+                  >
+                    <span className="mr-2">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+                <div className="h-px bg-border my-3"></div>
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  계정
+                </div>
+                {user ? (
+                  <>
+                    <div className="px-4 py-2 text-primary font-medium mb-1">
+                      <span className="ml-2">{user.fullName || user.username}님</span>
                     </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div 
-                    onClick={() => handleNavigate('/login')}
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
-                  >
-                    로그인
-                  </div>
-                  <div 
-                    onClick={() => handleNavigate('/register')}
-                    className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
-                  >
-                    회원가입
-                  </div>
-                </>
-              )}
+                    <div 
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                      onClick={() => {
+                        logoutMutation.mutate();
+                        if (isMobile) setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      로그아웃
+                    </div>
+                    {isAdmin && (
+                      <div 
+                        onClick={() => handleNavigate('/admin/dashboard')}
+                        className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
+                      >
+                        관리자 대시보드
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div 
+                      onClick={() => handleNavigate('/login')}
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                    >
+                      로그인
+                    </div>
+                    <div 
+                      onClick={() => handleNavigate('/register')}
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                    >
+                      회원가입
+                    </div>
+                  </>
+                )}
 
-              <div 
-                onClick={() => handleNavigate('/sponsor')}
-                className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
-              >
-                Webel 후원하기
-              </div>
-            </nav>
+                <div 
+                  onClick={() => handleNavigate('/sponsor')}
+                  className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
+                >
+                  Webel 후원하기
+                </div>
+              </nav>
+            </div>
           </div>
         </div>
       )}
