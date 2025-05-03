@@ -1,8 +1,22 @@
 import React from 'react';
 import { Link } from 'wouter';
-import ScrollToTopLink from '@/components/ui/ScrollToTopLink';
+import TopLink from '@/components/ui/TopLink';
 
 const Footer: React.FC = () => {
+  // 클릭 시 최상단으로 스크롤하는 함수
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto'
+    });
+    
+    // 추가 안전장치
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 100);
+  };
+
   return (
     <footer className="bg-gray-800 text-white py-12">
       <div className="container mx-auto px-4">
@@ -49,34 +63,34 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">서비스</h3>
             <ul className="space-y-2">
-              <li><ScrollToTopLink href="/services/type/3d_printing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/ai-assembly"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/remote-support"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/services/type/engineer"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/services/type/manufacturing"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/sponsor"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</div></ScrollToTopLink></li>
+              <li><a href="/services/type/3d_printing" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</a></li>
+              <li><a href="/ai-assembly" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</a></li>
+              <li><a href="/remote-support" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</a></li>
+              <li><a href="/services/type/engineer" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</a></li>
+              <li><a href="/services/type/manufacturing" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</a></li>
+              <li><a href="/sponsor" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">리소스</h3>
             <ul className="space-y-2">
-              <li><ScrollToTopLink href="/resources/type/hardware_design"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/resources/type/software"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/resources/type/3d_model"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/resources/type/free_content"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/resources/type/flash_game"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</div></ScrollToTopLink></li>
+              <li><a href="/resources/type/hardware_design" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</a></li>
+              <li><a href="/resources/type/software" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</a></li>
+              <li><a href="/resources/type/3d_model" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</a></li>
+              <li><a href="/resources/type/free_content" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</a></li>
+              <li><a href="/resources/type/flash_game" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시게임</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">회사 정보</h3>
             <ul className="space-y-2">
-              <li><ScrollToTopLink href="/about"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/blog"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/api-docs"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/privacy"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</div></ScrollToTopLink></li>
-              <li><ScrollToTopLink href="/terms"><div className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</div></ScrollToTopLink></li>
+              <li><a href="/about" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</a></li>
+              <li><a href="/blog" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</a></li>
+              <li><a href="/api-docs" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</a></li>
+              <li><a href="/privacy" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</a></li>
+              <li><a href="/terms" onClick={scrollToTop} className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</a></li>
             </ul>
           </div>
         </div>

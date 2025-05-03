@@ -45,33 +45,46 @@ import RegisterPrinter from '@/pages/RegisterPrinter';
 import PaymentPage from '@/pages/PaymentPage';
 import PaymentResult from '@/pages/PaymentResult';
 
-import { useScrollTop } from '@/hooks/use-scroll-top';
+import { usePageScroll } from '@/hooks/use-page-scroll';
 import { useEffect } from 'react';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
   
-  // 페이지 전환 시 스크롤을 맨 위로 이동시키는 훅 적용
-  useScrollTop();
+  // 새로운 페이지 스크롤 관리 훅 적용
+  usePageScroll();
   
-  // 강화된 페이지 전환 스크롤 처리 - 추가 안전장치
+  // 추가적인 스크롤 관리를 위한 이벤트 리스너
   useEffect(() => {
-    // 이전 라우트와 현재 라우트를 기록하는 함수
-    function handleRouteChange() {
-      // 페이지 전환 시 스크롤을 최상단으로 이동
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'auto'
-      });
+    // 강제로 스크롤을 최상단으로 이동시키는 함수
+    function resetScroll() {
+      window.scrollTo(0, 0);
     }
     
-    // 이벤트 리스너 등록
+    // 모든 가능한 이벤트에 대한 스크롤 리셋 처리
+    function handleRouteChange() {
+      // 즉시 스크롤 초기화
+      resetScroll();
+      
+      // 여러 타이밍에 추가 실행 (3중 안전장치)
+      setTimeout(resetScroll, 0);
+      setTimeout(resetScroll, 100);
+      setTimeout(resetScroll, 300);
+    }
+    
+    // 이벤트 리스너 등록 - 다양한 이벤트 캡처
     window.addEventListener('popstate', handleRouteChange);
+    window.addEventListener('pushstate', handleRouteChange);
+    window.addEventListener('hashchange', handleRouteChange);
+    
+    // 페이지 로드 시 강제 스크롤 초기화
+    resetScroll();
     
     // 클린업 함수
     return () => {
       window.removeEventListener('popstate', handleRouteChange);
+      window.removeEventListener('pushstate', handleRouteChange);
+      window.removeEventListener('hashchange', handleRouteChange);
     };
   }, []);
 
