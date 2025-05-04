@@ -8,7 +8,7 @@ import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { usePageScroll } from '@/hooks/use-page-scroll';
-import { Switch, Route } from 'wouter';
+import { Switch, Route, useLocation } from 'wouter';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -16,8 +16,13 @@ import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 import { appRoutes } from './lib/routes-config';
 
+// 페이지 컴포넌트 직접 가져오기 (하드코딩된 라우트에서 사용)
+import Home from './pages/Home';
+import Resources from './pages/Resources';
+import Services from './pages/Services';
+
 // 404 페이지
-const NotFound = lazy(() => import('@/pages/not-found'));
+const NotFound = lazy(() => import('./pages/not-found'));
 
 /**
  * Main Router Component
@@ -26,6 +31,7 @@ const NotFound = lazy(() => import('@/pages/not-found'));
 function Router() {
   const { isMobile } = useDeviceDetect();
   const { language } = useLanguage();
+  const [location] = useLocation();
   
   // 로딩 상태 표시 메시지 - 다국어 지원
   const loadingMessage = language === 'ko' 
@@ -34,48 +40,19 @@ function Router() {
       ? 'ページを読み込んでいます...' 
       : 'Loading page...';
   
-  // Apply performance monitoring 
-  useEffect(() => {
-    const initializePerformance = async () => {
-      const { measureRendering } = await import('./lib/performance');
-      return measureRendering('Router');
-    };
-    
-    let cleanup = () => {};
-    initializePerformance().then(cleanupFn => {
-      cleanup = cleanupFn;
-    });
-    
-    return () => cleanup();
-  }, []);
-  
   // Apply scroll management hook
   usePageScroll();
   
-  // Additional scroll reset handling
+  // 스크롤 초기화
   useEffect(() => {
-    const resetScroll = () => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    };
-    
-    const handleRouteChange = () => {
-      resetScroll();
-      setTimeout(resetScroll, 100);
-    };
-    
-    window.addEventListener('popstate', handleRouteChange);
-    window.addEventListener('pushstate', handleRouteChange);
-    
-    resetScroll();
-    
-    return () => {
-      window.removeEventListener('popstate', handleRouteChange);
-      window.removeEventListener('pushstate', handleRouteChange);
-    };
-  }, []);
+    window.scrollTo(0, 0);
+  }, [location]);
   
   // 언어에 따른 경로 접두사 설정
   const prefix = language === 'ko' ? '' : `/${language}`;
+  
+  // 디버깅 정보
+  console.log(`[Router] Path: ${location}, Language: ${language}, Prefix: ${prefix}`);
   
   // 로딩 스피너 표시 컴포넌트
   const LoadingSpinner = () => (
@@ -103,21 +80,100 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner />}>
               <Switch>
-                {/* 각 라우트에 대해 언어별 경로 생성 */}
-                {appRoutes.map((route) => (
-                  <Route 
-                    key={`${prefix}${route.path}`}
-                    path={`${prefix}${route.path}`}
-                  >
-                    {(params) => (
-                      <route.component {...params} {...route.props} />
-                    )}
-                  </Route>
-                ))}
+                {/* 특수 라우트 먼저 정의 - 홈 페이지 */}
+                <Route path={`${prefix}/`} exact>
+                  <Home />
+                </Route>
+                
+                {/* 리소스 타입별 페이지 - 하드코딩 경로 */}
+                <Route path={`${prefix}/resources/type/hardware_design`}>
+                  <Resources type="hardware_design" />
+                </Route>
+                <Route path={`${prefix}/resources/type/software`}>
+                  <Resources type="software" />
+                </Route>
+                <Route path={`${prefix}/resources/type/3d_model`}>
+                  <Resources type="3d_model" />
+                </Route>
+                <Route path={`${prefix}/resources/type/ai_model`}>
+                  <Resources type="ai_model" />
+                </Route>
+                <Route path={`${prefix}/resources/type/free_content`}>
+                  <Resources type="free_content" />
+                </Route>
+                <Route path={`${prefix}/resources/type/flash_game`}>
+                  <Resources type="flash_game" />
+                </Route>
+                
+                {/* 서비스 타입별 페이지 - 하드코딩 경로 */}
+                <Route path={`${prefix}/services/type/3d_printing`}>
+                  <Services type="3d_printing" />
+                </Route>
+                <Route path={`${prefix}/services/type/manufacturing`}>
+                  <Services type="manufacturing" />
+                </Route>
+                <Route path={`${prefix}/services/type/engineer`}>
+                  <Services type="engineer" />
+                </Route>
+                
+                {/* 리소스 기본 페이지 */}
+                <Route path={`${prefix}/resources`} exact>
+                  <Resources />
+                </Route>
+                
+                {/* 서비스 기본 페이지 */}
+                <Route path={`${prefix}/services`} exact>
+                  <Services />
+                </Route>
+                
+                {/* 동적 ID 페이지 */}
+                <Route path={`${prefix}/resources/:id`}>
+                  {params => {
+                    const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
+                    return <ResourceDetail id={params.id} />;
+                  }}
+                </Route>
+                
+                <Route path={`${prefix}/services/:id`}>
+                  {params => {
+                    const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+                    return <ServiceDetail id={params.id} />;
+                  }}
+                </Route>
+                
+                {/* 다른 동적 타입 페이지 - 일반화된 패턴 */}
+                <Route path={`${prefix}/resources/type/:type`}>
+                  {params => <Resources type={params.type} />}
+                </Route>
+                
+                <Route path={`${prefix}/services/type/:type`}>
+                  {params => <Services type={params.type} />}
+                </Route>
+                
+                {/* 다른 일반 페이지는 appRoutes에서 가져온 정적 경로로 처리 */}
+                {appRoutes
+                  .filter(route => 
+                    !route.path.includes(':') && 
+                    !route.path.startsWith('/resources') && 
+                    !route.path.startsWith('/services') && 
+                    route.path !== '/'
+                  )
+                  .map(route => (
+                    <Route 
+                      key={`static-${prefix}${route.path}`}
+                      path={`${prefix}${route.path}`}
+                    >
+                      {() => <route.component {...route.props} />}
+                    </Route>
+                  ))
+                }
                 
                 {/* 404 페이지 처리 */}
                 <Route path="*">
-                  <NotFound />
+                  {() => {
+                    console.log(`[NotFound] No route matched for path: ${location}`);
+                    return <NotFound />;
+                  }}
                 </Route>
               </Switch>
             </Suspense>
