@@ -461,16 +461,6 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
   // 폼 제출 처리
   const onSubmit = async (data: ServiceFormValues) => {
-    if (!user) {
-      toast({
-        title: '로그인이 필요합니다',
-        description: '서비스를 등록하려면 로그인이 필요합니다',
-        variant: 'destructive',
-      });
-      navigate('/auth');
-      return;
-    }
-
     // 유료 서비스인 경우 서버 측에서 인증 상태 검증
     // 클라이언트에서는 사전 검증 없이 바로 서버로 요청
 
@@ -499,27 +489,30 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
     );
   }
 
-  // 로그인 확인
-  if (!user) {
-    return (
-      <div className="container mx-auto py-10 px-4">
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>로그인이 필요합니다</AlertTitle>
+  // 비로그인 사용자를 위한 정보 알림
+  const NotLoggedInAlert = () => {
+    if (!user) {
+      return (
+        <Alert className="mb-6">
+          <InfoIcon className="h-4 w-4" />
+          <AlertTitle>로그인 없이 서비스 등록</AlertTitle>
           <AlertDescription>
-            서비스를 등록하려면 로그인이 필요합니다.
+            비로그인 상태로 서비스를 등록하실 수 있습니다.
+            단, 유료 서비스를 등록하시려면 
             <Button
               variant="link"
-              className="p-0 ml-2"
+              className="p-0 mx-1"
               onClick={() => navigate('/auth')}
             >
-              로그인 페이지로 이동
+              로그인
             </Button>
+            이 필요합니다.
           </AlertDescription>
         </Alert>
-      </div>
-    );
-  }
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="container mx-auto py-10 px-4">
@@ -529,6 +522,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요
         </p>
       </div>
+
+      {/* 비로그인 사용자를 위한 알림 표시 */}
+      <NotLoggedInAlert />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
