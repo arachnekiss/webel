@@ -84,7 +84,7 @@ export const translations: Record<Language, any> = {
       '3d_printer': '3D 프린터',
       ai_assistant: 'AI 어시스턴트',
       remote_support: '원격 지원',
-      manufacturers: '제조사',
+      manufacturers: '생산업체',
       sponsor: 'Webel 후원하기'
     },
     
@@ -355,6 +355,32 @@ export const translations: Record<Language, any> = {
     },
     
     // Register Service form
+    // 서비스 제공자 타입
+    providerType: {
+      title: '서비스 제공자 유형',
+      description: '서비스 제공자 유형을 선택해주세요',
+      individual: '개인',
+      individualDesc: '개인 메이커로 서비스 제공',
+      company: '법인/사업자',
+      companyDesc: '회사 또는 사업자로 서비스 제공'
+    },
+    
+    // 위치 정보
+    locationInfo: {
+      title: '위치 정보',
+      description: '서비스를 제공할 위치를 등록해주세요',
+      addressPlaceholder: '주소를 입력하세요',
+      useCurrentLocation: '현재 위치 사용',
+      serviceLocations: '등록된 서비스 위치 {{count}}개',
+      addAtLeastOneLocation: '최소 1개 이상의 위치를 추가해주세요',
+      errors: {
+        locationFailed: '위치 정보 가져오기 실패',
+        enterManually: '수동으로 주소를 입력해주세요',
+        noAddress: '주소가 입력되지 않았습니다',
+        enterAddress: '주소를 입력한 후 다시 시도해주세요'
+      }
+    },
+    
     registerService: {
       title: '서비스 등록',
       subtitle: '여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요',
