@@ -353,20 +353,54 @@ function Router() {
                   {() => <UploadResource />}
                 </Route>
                 
-                {/* Other pages */}
+                {/* Other pages - with language specific routes */}
                 <Route path="/ai-assembly">
                   {() => <AiAssembly />}
                 </Route>
+                <Route path="/en/ai-assembly">
+                  {() => <AiAssembly />}
+                </Route>
+                <Route path="/jp/ai-assembly">
+                  {() => <AiAssembly />}
+                </Route>
+                
                 <Route path="/remote-support">
                   {() => <RemoteSupport />}
                 </Route>
+                <Route path="/en/remote-support">
+                  {() => <RemoteSupport />}
+                </Route>
+                <Route path="/jp/remote-support">
+                  {() => <RemoteSupport />}
+                </Route>
+                
                 <Route path="/services/type/engineer">
                   {() => <Engineers />}
                 </Route>
+                <Route path="/en/services/type/engineer">
+                  {() => <Engineers />}
+                </Route>
+                <Route path="/jp/services/type/engineer">
+                  {() => <Engineers />}
+                </Route>
+                
                 <Route path="/sponsor">
                   {() => <Sponsor />}
                 </Route>
+                <Route path="/en/sponsor">
+                  {() => <Sponsor />}
+                </Route>
+                <Route path="/jp/sponsor">
+                  {() => <Sponsor />}
+                </Route>
+                
                 <Route path="/about">
+                  {() => <About />}
+                </Route>
+                <Route path="/en/about">
+                  {() => <About />}
+                </Route>
+                <Route path="/jp/about">
                   {() => <About />}
                 </Route>
                 
@@ -374,10 +408,30 @@ function Router() {
                 <Route path="/auth">
                   {() => <AuthPage />}
                 </Route>
+                <Route path="/en/auth">
+                  {() => <AuthPage />}
+                </Route>
+                <Route path="/jp/auth">
+                  {() => <AuthPage />}
+                </Route>
+                
                 <Route path="/login">
                   {() => <AuthPage initialTab="login" />}
                 </Route>
+                <Route path="/en/login">
+                  {() => <AuthPage initialTab="login" />}
+                </Route>
+                <Route path="/jp/login">
+                  {() => <AuthPage initialTab="login" />}
+                </Route>
+                
                 <Route path="/register">
+                  {() => <AuthPage initialTab="register" />}
+                </Route>
+                <Route path="/en/register">
+                  {() => <AuthPage initialTab="register" />}
+                </Route>
+                <Route path="/jp/register">
                   {() => <AuthPage initialTab="register" />}
                 </Route>
                 
@@ -387,15 +441,45 @@ function Router() {
                     {() => <UserVerification />}
                   </ProtectedRoute>}
                 </Route>
+                <Route path="/en/my/verification">
+                  {() => <ProtectedRoute>
+                    {() => <UserVerification />}
+                  </ProtectedRoute>}
+                </Route>
+                <Route path="/jp/my/verification">
+                  {() => <ProtectedRoute>
+                    {() => <UserVerification />}
+                  </ProtectedRoute>}
+                </Route>
                 
                 {/* Payment pages */}
                 <Route path="/payment/service/:id">
                   {(params) => <PaymentPage id={params.id} />}
                 </Route>
+                <Route path="/en/payment/service/:id">
+                  {(params) => <PaymentPage id={params.id} />}
+                </Route>
+                <Route path="/jp/payment/service/:id">
+                  {(params) => <PaymentPage id={params.id} />}
+                </Route>
+                
                 <Route path="/payment/success">
                   {() => <PaymentResult status="success" />}
                 </Route>
+                <Route path="/en/payment/success">
+                  {() => <PaymentResult status="success" />}
+                </Route>
+                <Route path="/jp/payment/success">
+                  {() => <PaymentResult status="success" />}
+                </Route>
+                
                 <Route path="/payment/fail">
+                  {() => <PaymentResult status="fail" />}
+                </Route>
+                <Route path="/en/payment/fail">
+                  {() => <PaymentResult status="fail" />}
+                </Route>
+                <Route path="/jp/payment/fail">
                   {() => <PaymentResult status="fail" />}
                 </Route>
                 
@@ -407,6 +491,21 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
+                <Route path="/en/admin/dashboard">
+                  {() => (
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/jp/admin/dashboard">
+                  {() => (
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  )}
+                </Route>
+
                 <Route path="/admin/users">
                   {() => (
                     <AdminRoute>
@@ -414,6 +513,21 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
+                <Route path="/en/admin/users">
+                  {() => (
+                    <AdminRoute>
+                      <AdminUserManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/jp/admin/users">
+                  {() => (
+                    <AdminRoute>
+                      <AdminUserManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+
                 <Route path="/admin/resources">
                   {() => (
                     <AdminRoute>
@@ -421,7 +535,36 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
+                <Route path="/en/admin/resources">
+                  {() => (
+                    <AdminRoute>
+                      <AdminResourceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/jp/admin/resources">
+                  {() => (
+                    <AdminRoute>
+                      <AdminResourceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+
                 <Route path="/admin/services">
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/en/admin/services">
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/jp/admin/services">
                   {() => (
                     <AdminRoute>
                       <AdminServiceManagement />
@@ -431,6 +574,20 @@ function Router() {
                 
                 {/* 이전 경로 호환성 유지 */}
                 <Route path="/admin/engineers">
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/en/admin/engineers">
+                  {() => (
+                    <AdminRoute>
+                      <AdminServiceManagement />
+                    </AdminRoute>
+                  )}
+                </Route>
+                <Route path="/jp/admin/engineers">
                   {() => (
                     <AdminRoute>
                       <AdminServiceManagement />

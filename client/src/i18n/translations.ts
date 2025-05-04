@@ -338,6 +338,12 @@ export const translations: Record<Language, any> = {
     search: 'Search',
     send: 'Send',
     upload: 'Upload',
+    
+    // Error pages
+    errorPages: {
+      '404_title': '404 Page Not Found',
+      '404_message': 'The page you requested could not be found. Please check the URL.'
+    },
     download: 'Download',
     submit: 'Submit',
     goToHome: 'Go to Home',
@@ -646,6 +652,12 @@ export const translations: Record<Language, any> = {
     submit: '提出',
     goToHome: 'ホームへ戻る',
     processing: '処理中...',
+    
+    // Error pages
+    errorPages: {
+      '404_title': '404 ページが見つかりません',
+      '404_message': 'リクエストされたページが見つかりませんでした。URLを確認してください。'
+    },
     
     // Header and footer
     login: 'ログイン',
