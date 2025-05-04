@@ -811,7 +811,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         )}
                       />
 
-                      {/* 전문 분야 */}
+                      {/* 전문 분야 - Specialization fields */}
                       <div className="space-y-3">
                         <FormLabel>{t('registerService.engineer.specialization')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -835,7 +835,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         {selectedSpecializations.includes('기타') && (
                           <div className="mt-2">
                             <Input
-                              placeholder="기타 전문 분야를 입력해주세요"
+                              placeholder={t('registerService.engineer.otherSpecializationPlaceholder')}
                               value={otherSpecializationInput}
                               onChange={(e) => setOtherSpecializationInput(e.target.value)}
                             />
@@ -1129,7 +1129,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             variant="outline"
                             size="sm"
                             onClick={async () => {
-                              // 현재 위치 가져오기
+                              // 현재 위치 가져오기 (Get current location)
                               await getLocation();
                               if (currentLocation) {
                                 setAddressInput(currentLocation.address);
@@ -1160,25 +1160,25 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                                 return;
                               }
                               
-                              // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요)
+                              // 임의의 좌표값 설정 (실제로는 지오코딩 API 사용 필요) - Set random coordinates (geocoding API would be used in production)
                               const lat = 37.5665 + (Math.random() * 0.02 - 0.01);
                               const long = 126.978 + (Math.random() * 0.02 - 0.01);
                               
-                              // 첫 번째 주소라면 폼 값 설정
+                              // 첫 번째 주소라면 폼 값 설정 (Set form values if this is the first address)
                               if (locationList.length === 0) {
                                 form.setValue('latitude', lat);
                                 form.setValue('longitude', long);
                                 form.setValue('address', addressInput);
                               }
                               
-                              // 주소 목록에 추가
+                              // 주소 목록에 추가 (Add to address list)
                               setLocationList([...locationList, {
                                 lat,
                                 long,
                                 address: addressInput
                               }]);
                               
-                              // 입력 필드 초기화
+                              // 입력 필드 초기화 (Clear input field)
                               setAddressInput('');
                             }}
                             className="flex-1"
@@ -1213,18 +1213,18 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                                 size="icon"
                                 className="h-6 w-6"
                                 onClick={() => {
-                                  // 주소 목록에서 제거
+                                  // 주소 목록에서 제거 (Remove from address list)
                                   const newLocations = [...locationList];
                                   newLocations.splice(index, 1);
                                   setLocationList(newLocations);
                                   
-                                  // 첫 번째 주소였다면 다음 주소를 기본값으로 설정
+                                  // 첫 번째 주소였다면 다음 주소를 기본값으로 설정 (If it was the first address, set the next one as default)
                                   if (index === 0 && newLocations.length > 0) {
                                     form.setValue('latitude', newLocations[0].lat);
                                     form.setValue('longitude', newLocations[0].long);
                                     form.setValue('address', newLocations[0].address);
                                   } else if (newLocations.length === 0) {
-                                    // 남은 주소가 없으면 초기화
+                                    // 남은 주소가 없으면 초기화 (Reset if no addresses remain)
                                     form.setValue('latitude', 0);
                                     form.setValue('longitude', 0);
                                     form.setValue('address', '');
