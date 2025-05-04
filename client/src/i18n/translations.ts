@@ -272,7 +272,36 @@ export const translations: Record<Language, any> = {
         askAboutReplacements: '대체 부품에 대해 질문하기',
         uploadCircuitImage: '회로 이미지 업로드',
         analyzeImage: '이미지 분석',
-        analyzeCircuit: '회로 분석'
+        analyzeCircuit: '회로 분석',
+        // Additional keys for AIAssistant component
+        simplifyWithAI: '인공지능 기술로 제작 과정 간소화',
+        smartAssemblyTitle: 'AI가 도와주는 스마트한',
+        smartAssemblyProcess: '조립 과정',
+        description: '복잡한 조립 과정을 AI가 단계별로 안내해드립니다. 실시간으로 진행 상황을 분석하고 피드백을 제공하여 실수 없이 완성할 수 있습니다.',
+        realTimeAnalysis: '실시간 분석',
+        realTimeAnalysisDesc: '카메라를 통해 작업 상황을 실시간으로 파악하고 분석',
+        visualization3D: '3D 시각화',
+        visualization3DDesc: '직관적인 3D 가이드로 복잡한 부품도 쉽게 조립',
+        intelligentGuidance: '지능형 안내',
+        intelligentGuidanceDesc: '음성 안내와 함께 사용자의 숙련도에 맞춘 맞춤형 지원',
+        problemSolving: '문제 해결',
+        problemSolvingDesc: '문제 발생 시 즉각적인 진단과 실용적인 해결책 제안',
+        startAIAssistant: 'AI 비서 시작하기',
+        aiAssistant: 'AI 어시스턴트',
+        assemblyInstruction: '이 부품을 3mm 간격으로 배치하세요. 올바른 방향으로 조립되고 있습니다.',
+        aiTechPartners: 'AI 기술 파트너'
+      },
+      
+      locationServices: {
+        title: '내 근처 서비스',
+        description: '현재 위치 주변의 3D 프린터 및 기타 제작 서비스를 찾아보세요',
+        viewAllServices: '모든 서비스 보기',
+        loadingLocation: '위치 정보를 가져오는 중...',
+        detectingLocation: '현재 위치를 파악하여 근처의 서비스를 찾고 있습니다',
+        locationError: '위치 정보를 사용할 수 없습니다',
+        retryLocation: '위치 정보 다시 가져오기',
+        noServicesNearby: '근처에 이용 가능한 서비스가 없습니다',
+        tryDifferentLocation: '다른 지역의 서비스를 찾아보거나 새로운 위치에서 시도해보세요'
       },
       
       sponsor: {
@@ -582,7 +611,36 @@ export const translations: Record<Language, any> = {
         askAboutReplacements: 'Ask about replacement parts',
         uploadCircuitImage: 'Upload circuit image',
         analyzeImage: 'Analyze Image',
-        analyzeCircuit: 'Analyze Circuit'
+        analyzeCircuit: 'Analyze Circuit',
+        // Additional keys for AIAssistant component
+        simplifyWithAI: 'Simplify creation process with AI technology',
+        smartAssemblyTitle: 'Smart assembly with',
+        smartAssemblyProcess: 'AI assistance',
+        description: 'AI guides you through complex assembly processes step by step. It provides real-time analysis and feedback to complete your project without mistakes.',
+        realTimeAnalysis: 'Real-time Analysis',
+        realTimeAnalysisDesc: 'Monitor and analyze your work in real-time through the camera',
+        visualization3D: '3D Visualization',
+        visualization3DDesc: 'Easily assemble complex parts with intuitive 3D guides',
+        intelligentGuidance: 'Intelligent Guidance',
+        intelligentGuidanceDesc: 'Voice guidance and personalized support based on your skill level',
+        problemSolving: 'Problem Solving',
+        problemSolvingDesc: 'Immediate diagnosis and practical solutions when problems occur',
+        startAIAssistant: 'Start AI Assistant',
+        aiAssistant: 'AI Assistant',
+        assemblyInstruction: 'Place this part 3mm apart. You are assembling it correctly.',
+        aiTechPartners: 'AI Technology Partners'
+      },
+      
+      locationServices: {
+        title: 'Services Near Me',
+        description: 'Find 3D printers and other manufacturing services around your current location',
+        viewAllServices: 'View All Services',
+        loadingLocation: 'Getting location information...',
+        detectingLocation: 'Detecting your current location to find nearby services',
+        locationError: 'Location information unavailable',
+        retryLocation: 'Retry getting location',
+        noServicesNearby: 'No available services nearby',
+        tryDifferentLocation: 'Try looking for services in another area or from a different location'
       },
       
       sponsor: {
@@ -939,7 +997,36 @@ export const translations: Record<Language, any> = {
         askAboutReplacements: '代替部品について質問',
         uploadCircuitImage: '回路の画像をアップロード',
         analyzeImage: '画像を分析',
-        analyzeCircuit: '回路を分析'
+        analyzeCircuit: '回路を分析',
+        // Additional keys for AIAssistant component
+        simplifyWithAI: 'AIテクノロジーで製作プロセスを簡素化',
+        smartAssemblyTitle: 'スマートな組み立てを',
+        smartAssemblyProcess: 'AIがサポート',
+        description: 'AIが複雑な組み立てプロセスをステップごとに案内します。リアルタイムで状況を分析し、フィードバックを提供して、ミスなく完成させることができます。',
+        realTimeAnalysis: 'リアルタイム分析',
+        realTimeAnalysisDesc: 'カメラを通じて作業状況をリアルタイムで把握・分析',
+        visualization3D: '3D可視化',
+        visualization3DDesc: '直感的な3Dガイドで複雑な部品も簡単に組み立て',
+        intelligentGuidance: 'インテリジェントガイダンス',
+        intelligentGuidanceDesc: '音声ガイダンスとユーザーのスキルレベルに合わせたサポート',
+        problemSolving: '問題解決',
+        problemSolvingDesc: '問題発生時の即時診断と実用的な解決策の提案',
+        startAIAssistant: 'AIアシスタントを開始',
+        aiAssistant: 'AIアシスタント',
+        assemblyInstruction: 'この部品を3mm間隔で配置してください。正しい方向で組み立てられています。',
+        aiTechPartners: 'AIテクノロジーパートナー'
+      },
+      
+      locationServices: {
+        title: '近くのサービス',
+        description: '現在地周辺の3Dプリンターおよび製造サービスを探す',
+        viewAllServices: 'すべてのサービスを見る',
+        loadingLocation: '位置情報を取得中...',
+        detectingLocation: '現在位置を特定して近くのサービスを探しています',
+        locationError: '位置情報を利用できません',
+        retryLocation: '位置情報を再取得',
+        noServicesNearby: '近くに利用可能なサービスがありません',
+        tryDifferentLocation: '別のエリアでサービスを探すか、別の場所から試してみてください'
       },
       
       sponsor: {
