@@ -34,6 +34,12 @@ export const translations: Record<Language, any> = {
     goToHome: '홈으로 이동',
     processing: '처리 중...',
     
+    // Error pages
+    errorPages: {
+      '404_title': '404 페이지를 찾을 수 없음',
+      '404_message': '요청하신 페이지를 찾을 수 없습니다. URL을 확인해 주세요.'
+    },
+    
     // Header and footer
     login: '로그인',
     register: '회원가입',
