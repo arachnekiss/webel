@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 // 서비스 페이지 속성 정의
 interface ServicesProps {
   type?: string;
-  lang?: Language;
 }
 
 const Services: React.FC<ServicesProps> = (props) => {

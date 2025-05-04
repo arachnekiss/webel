@@ -107,34 +107,7 @@ export const LanguageRouter: React.FC<LanguageRouterProps> = ({ routes }) => {
           </Route>
         ))}
         
-        {/* 동적 경로 직접 처리 */}
-        <Route path="/:lang/services/type/:type">
-          {(params) => {
-            console.log(`[DynamicRoute] Rendering service type page with params:`, params);
-            // 동적 컴포넌트 로드
-            const Services = lazy(() => import('@/pages/Services'));
-            // 명시적으로 props 객체 생성
-            const componentProps = { 
-              type: params.type,
-              lang: params.lang
-            };
-            return <Services {...componentProps} />;
-          }}
-        </Route>
-        
-        <Route path="/:lang/resources/type/:type">
-          {(params) => {
-            console.log(`[DynamicRoute] Rendering resource type page with params:`, params);
-            // 동적 컴포넌트 로드
-            const Resources = lazy(() => import('@/pages/Resources'));
-            // 명시적으로 props 객체 생성
-            const componentProps = { 
-              type: params.type,
-              lang: params.lang
-            };
-            return <Resources {...componentProps} />;
-          }}
-        </Route>
+        {/* 동적 경로 직접 처리 - 더 이상 사용하지 않음. 다른 방식으로 해결 */}
         
         {/* 404 처리 */}
         <Route path="*">

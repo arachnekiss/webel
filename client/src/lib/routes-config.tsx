@@ -39,22 +39,47 @@ export const appRoutes: RouteConfig[] = [
   { path: '/services/type/:type', component: Services },
   { path: '/services/:id', component: ServiceDetail },
   
-  // 서비스 타입별 직접 경로
+  // 서비스 타입별 직접 경로 (추가)
+  // 기본 URL
   { path: '/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
   { path: '/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
   { path: '/services/type/engineer', component: Services, props: { type: 'engineer' } },
+  // 영어 URL
+  { path: '/en/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
+  { path: '/en/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
+  { path: '/en/services/type/engineer', component: Services, props: { type: 'engineer' } },
+  // 일본어 URL
+  { path: '/jp/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
+  { path: '/jp/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
+  { path: '/jp/services/type/engineer', component: Services, props: { type: 'engineer' } },
   
   // 리소스 관련 페이지
   { path: '/resources/type/:type', component: Resources },
   { path: '/resources', component: Resources },
   { path: '/resources/:id', component: ResourceDetail },
   
-  // 리소스 타입별 직접 경로
+  // 리소스 타입별 직접 경로 (추가)
+  // 기본 URL
   { path: '/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
   { path: '/resources/type/software', component: Resources, props: { type: 'software' } },
   { path: '/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
   { path: '/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
   { path: '/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
+  { path: '/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
+  // 영어 URL
+  { path: '/en/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
+  { path: '/en/resources/type/software', component: Resources, props: { type: 'software' } },
+  { path: '/en/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
+  { path: '/en/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
+  { path: '/en/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
+  { path: '/en/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
+  // 일본어 URL
+  { path: '/jp/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
+  { path: '/jp/resources/type/software', component: Resources, props: { type: 'software' } },
+  { path: '/jp/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
+  { path: '/jp/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
+  { path: '/jp/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
+  { path: '/jp/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
   
   // 플래시 게임 페이지
   { path: '/flash-game', component: Resources, props: { type: 'flash_game' } },
@@ -107,22 +132,5 @@ export const appRoutes: RouteConfig[] = [
   { path: '/admin/services', component: AdminServiceManagement },
   { path: '/admin/engineers', component: AdminServiceManagement },
   
-  // 언어별 리다이렉션 경로
-  { path: '/en/services/type/3d_printing', component: Redirector, props: { to: '/services/type/3d_printing' } },
-  { path: '/en/services/type/engineer', component: Redirector, props: { to: '/services/type/engineer' } },
-  { path: '/en/services/type/manufacturing', component: Redirector, props: { to: '/services/type/manufacturing' } },
-  { path: '/en/resources/type/hardware_design', component: Redirector, props: { to: '/resources/type/hardware_design' } },
-  { path: '/en/resources/type/software', component: Redirector, props: { to: '/resources/type/software' } },
-  { path: '/en/resources/type/3d_model', component: Redirector, props: { to: '/resources/type/3d_model' } },
-  { path: '/en/resources/type/ai_model', component: Redirector, props: { to: '/resources/type/ai_model' } },
-  { path: '/en/resources/type/free_content', component: Redirector, props: { to: '/resources/type/free_content' } },
-  
-  { path: '/jp/services/type/3d_printing', component: Redirector, props: { to: '/services/type/3d_printing' } },
-  { path: '/jp/services/type/engineer', component: Redirector, props: { to: '/services/type/engineer' } },
-  { path: '/jp/services/type/manufacturing', component: Redirector, props: { to: '/services/type/manufacturing' } },
-  { path: '/jp/resources/type/hardware_design', component: Redirector, props: { to: '/resources/type/hardware_design' } },
-  { path: '/jp/resources/type/software', component: Redirector, props: { to: '/resources/type/software' } },
-  { path: '/jp/resources/type/3d_model', component: Redirector, props: { to: '/resources/type/3d_model' } },
-  { path: '/jp/resources/type/ai_model', component: Redirector, props: { to: '/resources/type/ai_model' } },
-  { path: '/jp/resources/type/free_content', component: Redirector, props: { to: '/resources/type/free_content' } },
+  // Redirector 수정 - 현재는 직접 라우트 정의 방식 사용 중
 ];
