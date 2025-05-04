@@ -44,7 +44,7 @@ const TopLink: React.FC<TopLinkProps> = ({
   // 현재 위치와 링크 경로가 같은지 확인 (활성화 상태 표시용)
   const isActive = location === localizedHref || (localizedHref !== '/' && location.startsWith(localizedHref));
   
-  // 클릭 핸들러
+  // 클릭 핸들러 - 모바일 환경 처리 개선
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     // 외부 링크인 경우 기본 동작 허용
     const isExternalLink = href.startsWith('http://') || href.startsWith('https://');
@@ -65,31 +65,37 @@ const TopLink: React.FC<TopLinkProps> = ({
     // 페이지 이동 시 스크롤 맨 위로 이동
     window.scrollTo(0, 0);
     
-    // 외부 링크거나 강제 리로드가 아닌 경우 기본 동작 허용
-    if (isExternalLink || !forceReload) {
+    // 외부 링크인 경우 기본 동작 허용
+    if (isExternalLink) {
       return;
     }
     
-    // 내부 링크에서 강제 리로드가 설정된 경우
-    if (forceReload) {
-      // 기본 이벤트를 방지하고 window.location으로 페이지 이동
-      event.preventDefault();
-      
-      // 현재 language 상태에 맞게 URL 변환 후 이동
-      console.log(`[TopLink] Navigating to: ${localizedHref} (language: ${language})`);
-      
-      // 짧은 딜레이 후 페이지 이동 (로딩 인디케이터가 표시될 수 있도록)
-      setTimeout(() => {
+    // 내부 링크에 대한 강화된 처리
+    // 기본 이벤트를 방지하고 window.location으로 페이지 이동
+    event.preventDefault();
+    
+    // 현재 language 상태에 맞게 URL 변환 후 이동
+    console.log(`[TopLink] Navigating to: ${localizedHref} (language: ${language})`);
+    
+    // 짧은 딜레이 후 페이지 이동 (로딩 인디케이터가 표시될 수 있도록)
+    // 모바일 환경에서의 안정성을 위해 setTimeout 처리
+    setTimeout(() => {
+      try {
+        // 모든 환경(모바일 포함)에서 작동하도록 하드 페이지 전환 사용
         window.location.href = localizedHref;
-      }, 10);
-      
-      return false;
-    }
+      } catch (error) {
+        console.error('[TopLink] Navigation error:', error);
+        // 에러 발생 시 기본 href 사용 시도
+        window.location.href = href;
+      }
+    }, 10);
     
     // 브라우저 캐시로 인한 이슈 해결을 위한 안전 장치
     setTimeout(() => {
       document.body.classList.remove('page-transitioning');
     }, 1000);
+    
+    return false;
   };
   
   return (

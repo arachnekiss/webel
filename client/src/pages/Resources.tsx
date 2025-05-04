@@ -187,7 +187,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="relative w-full">
             <Input 
               type="text" 
-              placeholder="리소스 검색..." 
+              placeholder={language === 'ko' ? "리소스 검색..." : language === 'jp' ? "リソースを検索..." : "Search resources..."} 
               className="w-full pr-10" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -218,8 +218,16 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="bg-gray-50 p-8 rounded-lg text-center">
             <p className="text-gray-600 mb-4">
               {searchQuery 
-                ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
-                : '이용 가능한 리소스가 없습니다.'}
+                ? language === 'ko' 
+                  ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
+                  : language === 'jp' 
+                    ? `'${searchQuery}'の検索結果はありません。` 
+                    : `No search results for '${searchQuery}'.`
+                : language === 'ko' 
+                  ? '이용 가능한 리소스가 없습니다.' 
+                  : language === 'jp' 
+                    ? '利用可能なリソースはありません。' 
+                    : 'No resources available.'}
             </p>
             {searchQuery && (
               <Button 
@@ -238,7 +246,11 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                   }
                 }}
               >
-                모든 리소스 보기
+                {language === 'ko' 
+                  ? '모든 리소스 보기'
+                  : language === 'jp' 
+                    ? 'すべてのリソースを表示'
+                    : 'View all resources'}
               </Button>
             )}
           </div>

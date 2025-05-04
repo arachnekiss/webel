@@ -195,20 +195,44 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return result;
   }, []);
   
-  // 언어 변경 함수 - 완전 페이지 로드 방식으로 변경
+  // 언어 변경 함수 - 모바일 환경을 위한 강화된 방식
   const setLanguage = useCallback((lang: Language) => {
     console.log(`[LanguageContext] Changing language to: ${lang}, current path: ${location}`);
     
-    // 현재 언어를 로컬 스토리지에 저장 (페이지 새로고침 후에도 유지)
-    localStorage.setItem('webel_language', lang);
-    setLanguageState(lang);
-    
-    // 현재 경로를 새 언어로 변환
-    const newPath = getPathInLanguage(location, lang);
-    console.log(`[LanguageContext] Redirecting to: ${newPath} with full page reload`);
-    
-    // 새 경로로 전체 페이지 리로드 - 모든 컴포넌트가 새 언어로 완전히 렌더링됨
-    window.location.href = newPath;
+    try {
+      // 현재 언어를 로컬 스토리지에 저장 (페이지 새로고침 후에도 유지)
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('webel_language', lang);
+      }
+      
+      // 상태 업데이트
+      setLanguageState(lang);
+      
+      // 현재 경로를 새 언어로 변환
+      const newPath = getPathInLanguage(location, lang);
+      console.log(`[LanguageContext] Redirecting to: ${newPath} with full page reload`);
+      
+      // 모바일 환경을 위한 안전한 페이지 전환 - 짧은 딜레이로 UI 업데이트가 적용될 시간 제공
+      setTimeout(() => {
+        try {
+          // 새 경로로 전체 페이지 리로드 - 모든 컴포넌트가 새 언어로 완전히 렌더링됨
+          window.location.href = newPath;
+        } catch (error) {
+          console.error('[LanguageContext] Navigation error:', error);
+          
+          // 에러 발생 시 기본 페이지로 리다이렉션 (마지막 수단)
+          if (lang === 'ko') {
+            window.location.href = '/';
+          } else {
+            window.location.href = `/${lang}`;
+          }
+        }
+      }, 50);
+    } catch (error) {
+      console.error('[LanguageContext] Language change error:', error);
+      // 에러가 발생해도 최소한 상태 업데이트는 시도
+      setLanguageState(lang);
+    }
   }, [location, getPathInLanguage]);
   
   // URL을 현재 언어로 번역
