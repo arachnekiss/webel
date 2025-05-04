@@ -29,37 +29,37 @@ import {
 const getResourceCategories = () => [
   {
     id: 'hardware_design',
-    labelKey: 'nav.hardware_design',
+    label: '하드웨어 설계',
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    labelKey: 'nav.software',
+    label: '소프트웨어 오픈소스',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    labelKey: 'nav.ai_model',
+    label: 'AI 모델',
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    labelKey: 'nav.modeling_file',
+    label: '3D 모델링 파일',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    labelKey: 'nav.free_content',
+    label: '프리 콘텐츠',
     icon: <FileText className="h-4 w-4" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    labelKey: 'nav.flash_game',
+    label: '플래시 게임',
     icon: <Gamepad2 className="h-4 w-4" />,
     href: '/flash-game'
   }
@@ -69,17 +69,17 @@ const getResourceCategories = () => [
 const getServiceCategories = () => [
   {
     id: 'engineering',
-    labelKey: 'nav.engineering_services',
+    label: '엔지니어링 서비스',
     href: '/services/type/engineering'
   },
   {
     id: '3d_printing',
-    labelKey: 'nav.printing_services',
+    label: '3D 프린팅 서비스',
     href: '/services/type/3d_printing'
   },
   {
     id: 'manufacturing',
-    labelKey: 'nav.manufacturing_services',
+    label: '제조 서비스',
     href: '/services/type/manufacturing'
   }
 ];
@@ -250,7 +250,7 @@ const Header: React.FC = () => {
                 }`}
               >
                 <span className="mr-1">{category.icon}</span>
-                <span>{t(category.labelKey)}</span>
+                <span>{category.label}</span>
               </TopLink>
             ))}
           </nav>
@@ -336,7 +336,7 @@ const Header: React.FC = () => {
                     }`}
                   >
                     <span className="mr-2">{item.icon}</span>
-                    <span>{t(item.labelKey)}</span>
+                    <span>{item.label}</span>
                   </div>
                 ))}
                 
@@ -354,7 +354,7 @@ const Header: React.FC = () => {
                       : 'text-foreground hover:bg-background/80'
                     }`}
                   >
-                    <span>{t(item.labelKey)}</span>
+                    <span>{item.label}</span>
                   </div>
                 ))}
                 
