@@ -57,7 +57,7 @@ export const translations: Record<Language, any> = {
     nav: {
       home: '홈',
       all_resources: '모든 리소스',
-      hardware_design: '하드웨어 설계도',
+      hardware_design: '하드웨어 설계',
       software: '소프트웨어',
       ai_model: 'AI 모델',
       modeling_file: '3D 모델링 파일',
@@ -85,7 +85,7 @@ export const translations: Record<Language, any> = {
       ai_assistant: 'AI 어시스턴트',
       remote_support: '원격 지원',
       manufacturers: '제조사',
-      sponsor: 'Webel 후원하기'
+      sponsor: '후원하기'
     },
     
     // Authentication
@@ -161,7 +161,7 @@ export const translations: Record<Language, any> = {
     resourceType: {
       free_content: '무료 콘텐츠',
       flash_game: '플래시 게임',
-      hardware_design: '하드웨어 설계도',
+      hardware_design: '하드웨어 설계',
       software: '소프트웨어',
       ai_model: 'AI 모델',
       '3d_model': '3D 모델'
