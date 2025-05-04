@@ -27,11 +27,15 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(defaultLanguage);
+  // 항상 기본 언어를 한국어로 설정하고, URL이나 localStorage에서 변경된 경우에만 다른 언어로 변경
+  const [language, setLanguageState] = useState<Language>('ko');
   const [, navigate] = useLocation();
 
   // Check URL for language on first load
   useEffect(() => {
+    // Check for stored language preference
+    const storedLang = localStorage.getItem('preferredLanguage') as Language | null;
+    
     const pathname = window.location.pathname;
     
     // Extract language from URL if it exists
@@ -39,6 +43,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       setLanguageState('en');
     } else if (pathname.startsWith('/jp')) {
       setLanguageState('jp');
+    } else if (storedLang && ['en', 'jp', 'ko'].includes(storedLang)) {
+      // Use stored preference if URL doesn't specify language
+      setLanguageState(storedLang);
     }
     
     // Listen for popstate (browser back/forward) to update language

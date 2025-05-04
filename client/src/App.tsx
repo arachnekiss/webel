@@ -227,31 +227,77 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" message={t('common.pageLoading')} />}>
               <Switch>
+                {/* Root route - 모든 언어 버전에서 홈페이지 */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
+                <Route path="/en">
+                  {() => <Home />}
+                </Route>
+                <Route path="/jp">
+                  {() => <Home />}
+                </Route>
                 
-                {/* Services routes - 카테고리별 서비스 목록 */}
+                {/* Services routes - 카테고리별 서비스 목록 (각 언어별 경로) */}
                 <Route path="/services/type/:type">
                   {(params) => <Services type={params.type} />}
                 </Route>
+                <Route path="/en/services/type/:type">
+                  {(params) => <Services type={params.type} />}
+                </Route>
+                <Route path="/jp/services/type/:type">
+                  {(params) => <Services type={params.type} />}
+                </Route>
+                
                 <Route path="/services/:id">
                   {(params) => <ServiceDetail id={params.id} />}
                 </Route>
+                <Route path="/en/services/:id">
+                  {(params) => <ServiceDetail id={params.id} />}
+                </Route>
+                <Route path="/jp/services/:id">
+                  {(params) => <ServiceDetail id={params.id} />}
+                </Route>
                 
-                {/* Resource routes with resource type categories */}
+                {/* Resource routes with resource type categories (각 언어별 경로) */}
                 <Route path="/resources/type/:type">
                   {(params) => <Resources params={params} />}
                 </Route>
+                <Route path="/en/resources/type/:type">
+                  {(params) => <Resources params={params} />}
+                </Route>
+                <Route path="/jp/resources/type/:type">
+                  {(params) => <Resources params={params} />}
+                </Route>
+                
                 <Route path="/resources">
                   {() => <Resources />}
                 </Route>
+                <Route path="/en/resources">
+                  {() => <Resources />}
+                </Route>
+                <Route path="/jp/resources">
+                  {() => <Resources />}
+                </Route>
+                
                 <Route path="/resources/:id">
                   {(params) => <ResourceDetail id={params.id} />}
                 </Route>
+                <Route path="/en/resources/:id">
+                  {(params) => <ResourceDetail id={params.id} />}
+                </Route>
+                <Route path="/jp/resources/:id">
+                  {(params) => <ResourceDetail id={params.id} />}
+                </Route>
                 
-                {/* 플래시 게임 페이지 (띄어쓰기 수정) */}
+                {/* 플래시 게임 페이지 (각 언어별 경로) */}
                 <Route path="/flash-game">
+                  {() => <Resources type="flash_game" />}
+                </Route>
+                <Route path="/en/flash-game">
+                  {() => <Resources type="flash_game" />}
+                </Route>
+                <Route path="/jp/flash-game">
                   {() => <Resources type="flash_game" />}
                 </Route>
                 
