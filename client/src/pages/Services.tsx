@@ -269,22 +269,22 @@ const Services: React.FC = () => {
               {locationLoading ? (
                 <div className="flex items-center">
                   <span className="animate-spin mr-2 text-sm">⟳</span>
-                  <span className="font-medium">위치 확인 중...</span>
+                  <span className="font-medium">{getTranslation(language, 'services.location_loading')}</span>
                 </div>
               ) : currentLocation ? (
                 <div className="flex items-center gap-1">
-                  <span className="font-medium">현재 위치:</span>
-                  <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
+                  <span className="font-medium">{getTranslation(language, 'services.current_location')}:</span>
+                  <span className="text-gray-600">{currentLocation.address || getTranslation(language, 'services.location_unknown')}</span>
                 </div>
               ) : (
-                <span className="font-medium">위치 정보 사용 불가</span>
+                <span className="font-medium">{getTranslation(language, 'services.location_unavailable')}</span>
               )}
             </div>
             
             <div className="flex gap-2 items-center">
               <Select value={distance} onValueChange={setDistance}>
                 <SelectTrigger className="w-24 h-9 bg-white">
-                  <SelectValue placeholder="검색 반경" />
+                  <SelectValue placeholder={getTranslation(language, 'services.search_radius')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="5">5km</SelectItem>
@@ -316,7 +316,7 @@ const Services: React.FC = () => {
                 }
               }}>
                 <SelectTrigger className="w-28 h-9">
-                  <SelectValue placeholder="도시 선택" />
+                  <SelectValue placeholder={getTranslation(language, 'services.city_selection')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">전체</SelectItem>
@@ -349,7 +349,7 @@ const Services: React.FC = () => {
                   }
                 }}>
                   <SelectTrigger className="w-28 h-9">
-                    <SelectValue placeholder="지역구" />
+                    <SelectValue placeholder={getTranslation(language, 'services.district_selection')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">전체</SelectItem>
@@ -407,21 +407,21 @@ const Services: React.FC = () => {
             <div className="flex gap-2 items-center">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-36 h-9">
-                  <SelectValue placeholder="정렬 기준" />
+                  <SelectValue placeholder={getTranslation(language, 'services.sort_by')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest" className="flex items-center gap-2">
                     <RefreshCw className="h-4 w-4" />
-                    <span>최신순</span>
+                    <span>{getTranslation(language, 'services.newest')}</span>
                   </SelectItem>
                   <SelectItem value="rating" className="flex items-center gap-2">
                     <Star className="h-4 w-4" />
-                    <span>평점순</span>
+                    <span>{getTranslation(language, 'services.by_rating')}</span>
                   </SelectItem>
                   {type === '3d_printing' && (
                     <SelectItem value="lowPrice" className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      <span>낮은가격순</span>
+                      <span>{getTranslation(language, 'services.lowest_price')}</span>
                     </SelectItem>
                   )}
                 </SelectContent>
