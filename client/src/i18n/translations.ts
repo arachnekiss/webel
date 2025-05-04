@@ -1390,22 +1390,58 @@ export const translations = {
 
 // Helper function to handle nested paths in translations
 export function getTranslation(lang: Language, path: string): string {
-  const parts = path.split('.');
-  let current: any = translations;
-  
-  for (const part of parts) {
-    if (!current[part]) {
-      // If key doesn't exist, return the last path segment as fallback
-      // (better than showing undefined or error)
-      return parts[parts.length - 1];
+  // 가장 단순한 접근법으로 구현
+  try {
+    const parts = path.split('.');
+    
+    // 번역된 언어를 가져옴 
+    const langData = translations[lang];
+    
+    // 단일 레벨 키
+    if (parts.length === 1) {
+      return langData[parts[0]] || parts[0];
     }
-    current = current[part];
+    
+    // 두 단계 중첩 키 (예: nav.home)
+    if (parts.length === 2) {
+      const section = parts[0];
+      const key = parts[1];
+      
+      // 네비게이션 섹션이 있는지 확인
+      if (section === 'nav' && langData.nav && typeof langData.nav === 'object') {
+        return langData.nav[key] || key;
+      }
+      
+      // 다른 객체 처리 (resourceType 등)
+      if (langData[section] && typeof langData[section] === 'object') {
+        return langData[section][key] || key;
+      }
+      
+      // 특별 케이스: auth, sponsor 등은 별도 객체에 저장
+      if (section === 'auth' && auth && auth[lang]) {
+        return auth[lang][key] || key;
+      }
+      
+      if (section === 'verification' && verification && verification[lang]) {
+        return verification[lang][key] || key;
+      }
+      
+      if (section === 'aiAssembly' && aiAssembly && aiAssembly[lang]) {
+        return aiAssembly[lang][key] || key;
+      }
+      
+      if (section === 'sponsor' && sponsor && sponsor[lang]) {
+        return sponsor[lang][key] || key;
+      }
+    }
+    
+    // 마지막 세그먼트를 폴백으로 반환
+    return parts[parts.length - 1];
+    
+  } catch (error) {
+    console.error(`Translation error for path: ${path} in language: ${lang}`, error);
+    // 마지막 세그먼트를 폴백으로 반환
+    const parts = path.split('.');
+    return parts[parts.length - 1];
   }
-  
-  if (!current[lang]) {
-    // If the translation doesn't exist for this language, use Korean as fallback
-    return current['ko'] || parts[parts.length - 1];
-  }
-  
-  return current[lang];
 }
