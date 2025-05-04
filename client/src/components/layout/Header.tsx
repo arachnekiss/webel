@@ -25,70 +25,61 @@ import {
   Gamepad2
 } from 'lucide-react';
 
-// 리소스 카테고리 아이템을 생성하는 함수 (다국어 지원)
-const getResourceCategories = (language: string) => [
+// 리소스 카테고리 아이템을 생성하는 함수
+const getResourceCategories = () => [
   {
     id: 'hardware_design',
-    label: language === 'ko' ? '하드웨어 설계도' : 
-           language === 'en' ? 'Hardware Designs' : 'ハードウェア設計図',
+    labelKey: 'nav.hardware_design',
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: language === 'ko' ? '소프트웨어 오픈소스' : 
-           language === 'en' ? 'Open Source Software' : 'オープンソースソフトウェア',
+    labelKey: 'nav.software',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: language === 'ko' ? 'AI 모델' : 
-           language === 'en' ? 'AI Models' : 'AIモデル',
+    labelKey: 'nav.ai_model',
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    label: language === 'ko' ? '3D 모델링 파일' : 
-           language === 'en' ? '3D Modeling Files' : '3Dモデリングファイル',
+    labelKey: 'nav.modeling_file',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: language === 'ko' ? '무료 콘텐츠' : 
-           language === 'en' ? 'Free Content' : '無料コンテンツ',
+    labelKey: 'nav.free_content',
     icon: <FileText className="h-4 w-4" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: language === 'ko' ? '플래시 게임' : 
-           language === 'en' ? 'Flash Games' : 'フラッシュゲーム',
+    labelKey: 'nav.flash_game',
     icon: <Gamepad2 className="h-4 w-4" />,
     href: '/flash-game'
   }
 ];
 
-// 서비스 카테고리도 다국어 지원 추가
-const getServiceCategories = (language: string) => [
+// 서비스 카테고리
+const getServiceCategories = () => [
   {
     id: 'engineering',
-    label: language === 'ko' ? '엔지니어링 서비스' : 
-           language === 'en' ? 'Engineering Services' : 'エンジニアリングサービス',
+    labelKey: 'nav.engineering_services',
     href: '/services/type/engineering'
   },
   {
     id: '3d_printing',
-    label: language === 'ko' ? '3D 프린팅 서비스' : 
-           language === 'en' ? '3D Printing Services' : '3Dプリントサービス',
+    labelKey: 'nav.printing_services',
     href: '/services/type/3d_printing'
   },
   {
     id: 'manufacturing',
-    label: language === 'ko' ? '제조 서비스' : 
-           language === 'en' ? 'Manufacturing Services' : '製造サービス',
+    labelKey: 'nav.manufacturing_services',
     href: '/services/type/manufacturing'
   }
 ];
@@ -103,8 +94,8 @@ const Header: React.FC = () => {
   const { t, language } = useLanguage();
   
   // 리소스 및 서비스 카테고리 가져오기
-  const resourceCategories = getResourceCategories(language);
-  const serviceCategories = getServiceCategories(language);
+  const resourceCategories = getResourceCategories();
+  const serviceCategories = getServiceCategories();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -259,7 +250,7 @@ const Header: React.FC = () => {
                 }`}
               >
                 <span className="mr-1">{category.icon}</span>
-                <span>{category.label}</span>
+                <span>{t(category.labelKey)}</span>
               </TopLink>
             ))}
           </nav>
@@ -345,7 +336,7 @@ const Header: React.FC = () => {
                     }`}
                   >
                     <span className="mr-2">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </div>
                 ))}
                 
@@ -363,7 +354,7 @@ const Header: React.FC = () => {
                       : 'text-foreground hover:bg-background/80'
                     }`}
                   >
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                   </div>
                 ))}
                 
