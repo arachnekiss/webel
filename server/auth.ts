@@ -10,6 +10,7 @@ import { users, services, resources, auctions } from "@shared/schema";
 import { desc } from "drizzle-orm";
 import createMemoryStore from "memorystore";
 import { User as UserSchema } from '@shared/schema';
+import { getMessage } from './i18n/messages';
 
 // Express 타입 확장
 declare global {

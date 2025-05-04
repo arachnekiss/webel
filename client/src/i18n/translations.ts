@@ -215,6 +215,8 @@ const common = {
     upload: 'アップロード',
     download: 'ダウンロード',
     submit: '提出',
+    goToHome: 'ホームへ戻る',
+    processing: '処理中...',
     
     // Header and footer
     login: 'ログイン',

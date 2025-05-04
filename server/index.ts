@@ -2,10 +2,14 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import * as path from 'path';
+import { languageDetectionMiddleware } from './i18n/middleware';
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// 언어 감지 미들웨어 추가
+app.use(languageDetectionMiddleware);
 
 // uploads 및 public 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
