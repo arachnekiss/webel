@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { getTranslation, TranslationKey, useTranslations } from '@/translations';
 
 // 지원하는 언어 타입
 export type Language = 'ko' | 'en' | 'jp';
@@ -9,6 +10,8 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   translateUrl: (path: string) => string;
+  t: (key: TranslationKey) => string;
+  tFormat: (key: TranslationKey, ...args: any[]) => string;
 }
 
 // 기본 언어 컨텍스트 값
@@ -16,6 +19,8 @@ const defaultLanguageContext: LanguageContextType = {
   language: 'ko', // 기본 언어는 한국어
   setLanguage: () => {},
   translateUrl: (path: string) => path,
+  t: (key: TranslationKey) => key,
+  tFormat: (key: TranslationKey) => key,
 };
 
 // 언어 컨텍스트 생성
@@ -86,11 +91,16 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return cleanPath;
   };
   
+  // 번역 함수 제공
+  const { t, tFormat } = useTranslations(language);
+  
   // 컨텍스트 값
   const contextValue: LanguageContextType = {
     language,
     setLanguage,
     translateUrl,
+    t,
+    tFormat
   };
   
   return (

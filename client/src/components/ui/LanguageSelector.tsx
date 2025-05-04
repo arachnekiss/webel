@@ -10,7 +10,7 @@ import { Language, useLanguage } from '@/contexts/LanguageContext';
 import { Globe } from 'lucide-react';
 
 const LanguageSelector: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
 
   // 언어 이름 표시
   const languageNames: Record<Language, string> = {

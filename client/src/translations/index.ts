@@ -1,288 +1,496 @@
 import { Language } from '@/contexts/LanguageContext';
 
-// 번역 데이터 타입 정의
-export type TranslationKeys = {
-  common: {
-    viewMore: string;
-    searchPlaceholder: string;
-    login: string;
-    logout: string;
-    register: string;
-    menu: string;
-    search: string;
-    sponsor: string;
-    mainMenu: string;
-    accountMenu: string;
-  };
-  nav: {
-    home: string;
-    allResources: string;
-    resourceCategories: string;
-    services: string;
-    account: string;
-  };
-  home: {
-    heroTitle: string;
-    heroSubtitle: string;
-    featuredResources: string;
-    featuredServices: string;
-    nearbyServices: string;
-    hardwareDescription: string;
-    softwareDescription: string;
-    aiModelDescription: string;
-    modelingDescription: string;
-    freeContentDescription: string;
-    flashGamesSubtitle: string;
-    moreGames: string;
-    noGamesYet: string;
-    gamesComingSoon: string;
-  };
-  auth: {
-    loginTitle: string;
-    registerTitle: string;
-    username: string;
-    password: string;
-    confirmPassword: string;
-    email: string;
-    fullName: string;
-    loginButton: string;
-    registerButton: string;
-    switchToRegister: string;
-    switchToLogin: string;
-  };
-  footer: {
-    resources: string;
-    companyInfo: string;
-    allRightsReserved: string;
-  };
-  resourceType: {
-    hardware_design: string;
-    software: string;
-    ai_model: string;
-    '3d_model': string;
-    free_content: string;
-    flash_game: string;
-  };
-};
+// 번역 문자열 타입 정의
+export type TranslationKey = string;
+export type TranslationMap = Record<TranslationKey, string>;
+export type LanguageMap = Record<Language, TranslationMap>;
 
-// 한국어 번역 (원본)
-const ko: TranslationKeys = {
-  common: {
-    viewMore: '더 보기',
-    searchPlaceholder: '하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요',
-    login: '로그인',
-    logout: '로그아웃',
-    register: '회원가입',
-    menu: '메뉴',
-    search: '검색',
-    sponsor: 'Webel 후원하기',
-    mainMenu: '메인 메뉴',
-    accountMenu: '계정',
+// 헤더 및 네비게이션 관련 번역
+const headerTranslations: LanguageMap = {
+  ko: {
+    'nav.home': '홈',
+    'nav.services': '서비스',
+    'nav.resources': '리소스',
+    'nav.auctions': '경매',
+    'nav.community': '커뮤니티',
+    'nav.about': '소개',
+    'nav.login': '로그인',
+    'nav.register': '회원가입',
+    'nav.mypage': '마이페이지',
+    'nav.logout': '로그아웃',
+    'nav.admin': '관리자',
+    'header.search': '검색',
+    'header.notifications': '알림',
+    'header.language': '언어',
+    'header.location': '위치',
   },
-  nav: {
-    home: '홈',
-    allResources: '모든 리소스',
-    resourceCategories: '리소스 카테고리',
-    services: '서비스',
-    account: '계정',
+  en: {
+    'nav.home': 'Home',
+    'nav.services': 'Services',
+    'nav.resources': 'Resources',
+    'nav.auctions': 'Auctions',
+    'nav.community': 'Community',
+    'nav.about': 'About',
+    'nav.login': 'Login',
+    'nav.register': 'Register',
+    'nav.mypage': 'My Page',
+    'nav.logout': 'Logout',
+    'nav.admin': 'Admin',
+    'header.search': 'Search',
+    'header.notifications': 'Notifications',
+    'header.language': 'Language',
+    'header.location': 'Location',
   },
-  home: {
-    heroTitle: '전자하드웨어 개발자를 위한 지능형 리소스 공유 플랫폼',
-    heroSubtitle: '하드웨어 설계도, 소프트웨어, 3D 모델 등을 쉽게 찾고 공유하세요',
-    featuredResources: '주목할 만한 리소스',
-    featuredServices: '서비스 둘러보기',
-    nearbyServices: '내 주변 서비스',
-    hardwareDescription: '전자제품, 로봇, IoT 장치 등의 하드웨어 설계도 모음',
-    softwareDescription: '오픈소스 펌웨어, 소프트웨어, 라이브러리 등',
-    aiModelDescription: '하드웨어 개발에 활용 가능한 AI 모델 및 알고리즘',
-    modelingDescription: '3D 프린팅 가능한 모델링 파일, CAD 등',
-    freeContentDescription: '무료로 이용 가능한 다양한 유용한 자료들',
-    flashGamesSubtitle: '브라우저에서 즐길 수 있는 플래시 게임 모음',
-    moreGames: '더 많은 게임',
-    noGamesYet: '아직 등록된 게임이 없습니다',
-    gamesComingSoon: '곧 다양한 게임이 추가될 예정입니다',
-  },
-  auth: {
-    loginTitle: '로그인',
-    registerTitle: '회원가입',
-    username: '사용자 이름',
-    password: '비밀번호',
-    confirmPassword: '비밀번호 확인',
-    email: '이메일',
-    fullName: '이름',
-    loginButton: '로그인',
-    registerButton: '가입하기',
-    switchToRegister: '계정이 없으신가요? 회원가입',
-    switchToLogin: '이미 계정이 있으신가요? 로그인',
-  },
-  footer: {
-    resources: '리소스',
-    companyInfo: '회사 정보',
-    allRightsReserved: '판권 소유',
-  },
-  resourceType: {
-    hardware_design: '하드웨어 설계도',
-    software: '소프트웨어 오픈소스',
-    ai_model: 'AI 모델',
-    '3d_model': '3D 모델링 파일',
-    free_content: '프리 콘텐츠',
-    flash_game: '플래시 게임',
-  },
-};
-
-// 영어 번역
-const en: TranslationKeys = {
-  common: {
-    viewMore: 'View More',
-    searchPlaceholder: 'Search for hardware, software, 3D printers, etc.',
-    login: 'Login',
-    logout: 'Logout',
-    register: 'Register',
-    menu: 'Menu',
-    search: 'Search',
-    sponsor: 'Sponsor Webel',
-    mainMenu: 'Main Menu',
-    accountMenu: 'Account',
-  },
-  nav: {
-    home: 'Home',
-    allResources: 'All Resources',
-    resourceCategories: 'Resource Categories',
-    services: 'Services',
-    account: 'Account',
-  },
-  home: {
-    heroTitle: 'Intelligent Resource Sharing Platform for Electronic Hardware Developers',
-    heroSubtitle: 'Easily find and share hardware designs, software, 3D models, and more',
-    featuredResources: 'Featured Resources',
-    featuredServices: 'Explore Services',
-    nearbyServices: 'Services Near Me',
-    hardwareDescription: 'Collection of hardware designs for electronics, robots, IoT devices, etc.',
-    softwareDescription: 'Open source firmware, software, libraries, and more',
-    aiModelDescription: 'AI models and algorithms for hardware development',
-    modelingDescription: '3D printable modeling files, CAD, etc.',
-    freeContentDescription: 'Various useful materials available for free',
-    flashGamesSubtitle: 'Collection of flash games playable in browser',
-    moreGames: 'More Games',
-    noGamesYet: 'No games available yet',
-    gamesComingSoon: 'Various games will be added soon',
-  },
-  auth: {
-    loginTitle: 'Login',
-    registerTitle: 'Register',
-    username: 'Username',
-    password: 'Password',
-    confirmPassword: 'Confirm Password',
-    email: 'Email',
-    fullName: 'Full Name',
-    loginButton: 'Login',
-    registerButton: 'Register',
-    switchToRegister: 'Don\'t have an account? Register',
-    switchToLogin: 'Already have an account? Login',
-  },
-  footer: {
-    resources: 'Resources',
-    companyInfo: 'Company Info',
-    allRightsReserved: 'All rights reserved',
-  },
-  resourceType: {
-    hardware_design: 'Hardware Designs',
-    software: 'Open Source Software',
-    ai_model: 'AI Models',
-    '3d_model': '3D Modeling Files',
-    free_content: 'Free Content',
-    flash_game: 'Flash Games',
-  },
-};
-
-// 일본어 번역
-const jp: TranslationKeys = {
-  common: {
-    viewMore: 'もっと見る',
-    searchPlaceholder: 'ハードウェア、ソフトウェア、3Dプリンタなどを検索',
-    login: 'ログイン',
-    logout: 'ログアウト',
-    register: '会員登録',
-    menu: 'メニュー',
-    search: '検索',
-    sponsor: 'Webelを支援する',
-    mainMenu: 'メインメニュー',
-    accountMenu: 'アカウント',
-  },
-  nav: {
-    home: 'ホーム',
-    allResources: 'すべてのリソース',
-    resourceCategories: 'リソースカテゴリ',
-    services: 'サービス',
-    account: 'アカウント',
-  },
-  home: {
-    heroTitle: '電子ハードウェア開発者向けのインテリジェントリソース共有プラットフォーム',
-    heroSubtitle: 'ハードウェア設計図、ソフトウェア、3Dモデルなどを簡単に検索・共有',
-    featuredResources: '注目のリソース',
-    featuredServices: 'サービスを探す',
-    nearbyServices: '近くのサービス',
-    hardwareDescription: '電子製品、ロボット、IoTデバイスなどのハードウェア設計図コレクション',
-    softwareDescription: 'オープンソースファームウェア、ソフトウェア、ライブラリなど',
-    aiModelDescription: 'ハードウェア開発に活用できるAIモデルとアルゴリズム',
-    modelingDescription: '3D印刷可能なモデリングファイル、CADなど',
-    freeContentDescription: '無料で利用できる様々な有用な資料',
-    flashGamesSubtitle: 'ブラウザで楽しめるフラッシュゲームコレクション',
-    moreGames: 'もっとゲームを見る',
-    noGamesYet: 'まだゲームが登録されていません',
-    gamesComingSoon: '近日中に様々なゲームが追加される予定です',
-  },
-  auth: {
-    loginTitle: 'ログイン',
-    registerTitle: '会員登録',
-    username: 'ユーザー名',
-    password: 'パスワード',
-    confirmPassword: 'パスワード確認',
-    email: 'メールアドレス',
-    fullName: '名前',
-    loginButton: 'ログイン',
-    registerButton: '登録する',
-    switchToRegister: 'アカウントをお持ちでない方は？ 会員登録',
-    switchToLogin: 'すでにアカウントをお持ちの方は？ ログイン',
-  },
-  footer: {
-    resources: 'リソース',
-    companyInfo: '会社情報',
-    allRightsReserved: '無断複写・転載を禁じます',
-  },
-  resourceType: {
-    hardware_design: 'ハードウェア設計図',
-    software: 'ソフトウェアオープンソース',
-    ai_model: 'AIモデル',
-    '3d_model': '3Dモデリングファイル',
-    free_content: 'フリーコンテンツ',
-    flash_game: 'フラッシュゲーム',
-  },
-};
-
-// 번역 유틸리티 함수
-export const getTranslation = (language: Language, key: string, defaultText: string = ''): string => {
-  // 중첩된 키 경로 (예: 'common.viewMore')를 분해
-  const parts = key.split('.');
-  const translations = { ko, en, jp }[language];
-  
-  // 중첩 객체 속성에 접근
-  try {
-    let result: any = translations;
-    for (const part of parts) {
-      result = result[part];
-      if (result === undefined) return defaultText || key;
-    }
-    return result;
-  } catch (error) {
-    console.error(`Translation error for path: ${key} in language: ${language}`);
-    return defaultText || key;
+  jp: {
+    'nav.home': 'ホーム',
+    'nav.services': 'サービス',
+    'nav.resources': 'リソース',
+    'nav.auctions': 'オークション',
+    'nav.community': 'コミュニティ',
+    'nav.about': '紹介',
+    'nav.login': 'ログイン',
+    'nav.register': '会員登録',
+    'nav.mypage': 'マイページ',
+    'nav.logout': 'ログアウト',
+    'nav.admin': '管理者',
+    'header.search': '検索',
+    'header.notifications': 'お知らせ',
+    'header.language': '言語',
+    'header.location': '位置',
   }
 };
 
-// 번역 함수 훅
-export const useTranslation = (language: Language) => {
-  return (key: string, defaultText: string = ''): string => {
-    return getTranslation(language, key, defaultText);
-  };
+// 홈페이지 관련 번역
+const homeTranslations: LanguageMap = {
+  ko: {
+    'home.title': '웨벨 서비스 플랫폼',
+    'home.subtitle': '엔지니어, 소비자, 제조업체를 위한 지능형 적응 생태계',
+    'home.category.title': '카테고리',
+    'home.services.title': '인기 서비스',
+    'home.services.viewAll': '모두 보기',
+    'home.resources.title': '최신 리소스',
+    'home.resources.viewAll': '모두 보기',
+    'home.nearby.title': '주변 서비스',
+    'home.nearby.viewAll': '모두 보기',
+    'home.engineers.title': '전문 엔지니어',
+    'home.engineers.viewAll': '모두 보기',
+    'home.cta.title': '서비스 등록하기',
+    'home.cta.subtitle': '여러분의 서비스를 등록하고 새로운 고객을 만나보세요.',
+    'home.cta.button': '등록하기',
+  },
+  en: {
+    'home.title': 'Webel Service Platform',
+    'home.subtitle': 'Intelligent adaptive ecosystem for engineers, consumers, and manufacturers',
+    'home.category.title': 'Categories',
+    'home.services.title': 'Popular Services',
+    'home.services.viewAll': 'View All',
+    'home.resources.title': 'Latest Resources',
+    'home.resources.viewAll': 'View All',
+    'home.nearby.title': 'Nearby Services',
+    'home.nearby.viewAll': 'View All',
+    'home.engineers.title': 'Professional Engineers',
+    'home.engineers.viewAll': 'View All',
+    'home.cta.title': 'Register Your Service',
+    'home.cta.subtitle': 'Register your service and meet new customers.',
+    'home.cta.button': 'Register',
+  },
+  jp: {
+    'home.title': 'ウェベルサービスプラットフォーム',
+    'home.subtitle': 'エンジニア、消費者、メーカーのためのインテリジェントな適応エコシステム',
+    'home.category.title': 'カテゴリー',
+    'home.services.title': '人気サービス',
+    'home.services.viewAll': 'すべて見る',
+    'home.resources.title': '最新リソース',
+    'home.resources.viewAll': 'すべて見る',
+    'home.nearby.title': '近くのサービス',
+    'home.nearby.viewAll': 'すべて見る',
+    'home.engineers.title': '専門エンジニア',
+    'home.engineers.viewAll': 'すべて見る',
+    'home.cta.title': 'サービスを登録する',
+    'home.cta.subtitle': 'あなたのサービスを登録して、新しい顧客に会いましょう。',
+    'home.cta.button': '登録する',
+  }
 };
+
+// 서비스 관련 번역
+const serviceTranslations: LanguageMap = {
+  ko: {
+    'service.category.3d_printing': '3D 프린팅',
+    'service.category.manufacturing': '제조',
+    'service.category.engineer': '엔지니어',
+    'service.details.title': '서비스 상세',
+    'service.details.provider': '제공자',
+    'service.details.location': '위치',
+    'service.details.rating': '평점',
+    'service.details.price': '가격',
+    'service.details.contact': '연락처',
+    'service.details.description': '설명',
+    'service.register.title': '서비스 등록',
+    'service.register.type': '서비스 타입',
+    'service.register.submit': '등록하기',
+    'service.search.placeholder': '서비스 검색...',
+    'service.filter.title': '필터',
+    'service.filter.priceRange': '가격 범위',
+    'service.filter.location': '위치',
+    'service.filter.rating': '평점',
+    'service.filter.apply': '적용하기',
+  },
+  en: {
+    'service.category.3d_printing': '3D Printing',
+    'service.category.manufacturing': 'Manufacturing',
+    'service.category.engineer': 'Engineer',
+    'service.details.title': 'Service Details',
+    'service.details.provider': 'Provider',
+    'service.details.location': 'Location',
+    'service.details.rating': 'Rating',
+    'service.details.price': 'Price',
+    'service.details.contact': 'Contact',
+    'service.details.description': 'Description',
+    'service.register.title': 'Register Service',
+    'service.register.type': 'Service Type',
+    'service.register.submit': 'Submit',
+    'service.search.placeholder': 'Search services...',
+    'service.filter.title': 'Filters',
+    'service.filter.priceRange': 'Price Range',
+    'service.filter.location': 'Location',
+    'service.filter.rating': 'Rating',
+    'service.filter.apply': 'Apply',
+  },
+  jp: {
+    'service.category.3d_printing': '3Dプリンティング',
+    'service.category.manufacturing': '製造',
+    'service.category.engineer': 'エンジニア',
+    'service.details.title': 'サービス詳細',
+    'service.details.provider': '提供者',
+    'service.details.location': '場所',
+    'service.details.rating': '評価',
+    'service.details.price': '価格',
+    'service.details.contact': '連絡先',
+    'service.details.description': '説明',
+    'service.register.title': 'サービス登録',
+    'service.register.type': 'サービスタイプ',
+    'service.register.submit': '登録する',
+    'service.search.placeholder': 'サービスを検索...',
+    'service.filter.title': 'フィルター',
+    'service.filter.priceRange': '価格帯',
+    'service.filter.location': '場所',
+    'service.filter.rating': '評価',
+    'service.filter.apply': '適用する',
+  }
+};
+
+// 리소스 관련 번역
+const resourceTranslations: LanguageMap = {
+  ko: {
+    'resource.category.hardware_design': '하드웨어 설계',
+    'resource.category.3d_model': '3D 모델',
+    'resource.category.software': '소프트웨어',
+    'resource.category.ai_model': 'AI 모델',
+    'resource.category.flash_game': '플래시 게임',
+    'resource.category.free_content': '무료 콘텐츠',
+    'resource.details.title': '리소스 상세',
+    'resource.details.author': '작성자',
+    'resource.details.download': '다운로드',
+    'resource.details.description': '설명',
+    'resource.upload.title': '리소스 업로드',
+    'resource.upload.type': '리소스 타입',
+    'resource.upload.submit': '업로드하기',
+    'resource.search.placeholder': '리소스 검색...',
+    'resource.filter.title': '필터',
+    'resource.filter.category': '카테고리',
+    'resource.filter.date': '날짜',
+    'resource.filter.popularity': '인기도',
+    'resource.filter.apply': '적용하기',
+  },
+  en: {
+    'resource.category.hardware_design': 'Hardware Design',
+    'resource.category.3d_model': '3D Model',
+    'resource.category.software': 'Software',
+    'resource.category.ai_model': 'AI Model',
+    'resource.category.flash_game': 'Flash Game',
+    'resource.category.free_content': 'Free Content',
+    'resource.details.title': 'Resource Details',
+    'resource.details.author': 'Author',
+    'resource.details.download': 'Download',
+    'resource.details.description': 'Description',
+    'resource.upload.title': 'Upload Resource',
+    'resource.upload.type': 'Resource Type',
+    'resource.upload.submit': 'Upload',
+    'resource.search.placeholder': 'Search resources...',
+    'resource.filter.title': 'Filters',
+    'resource.filter.category': 'Category',
+    'resource.filter.date': 'Date',
+    'resource.filter.popularity': 'Popularity',
+    'resource.filter.apply': 'Apply',
+  },
+  jp: {
+    'resource.category.hardware_design': 'ハードウェア設計',
+    'resource.category.3d_model': '3Dモデル',
+    'resource.category.software': 'ソフトウェア',
+    'resource.category.ai_model': 'AIモデル',
+    'resource.category.flash_game': 'フラッシュゲーム',
+    'resource.category.free_content': '無料コンテンツ',
+    'resource.details.title': 'リソース詳細',
+    'resource.details.author': '作成者',
+    'resource.details.download': 'ダウンロード',
+    'resource.details.description': '説明',
+    'resource.upload.title': 'リソースアップロード',
+    'resource.upload.type': 'リソースタイプ',
+    'resource.upload.submit': 'アップロード',
+    'resource.search.placeholder': 'リソースを検索...',
+    'resource.filter.title': 'フィルター',
+    'resource.filter.category': 'カテゴリー',
+    'resource.filter.date': '日付',
+    'resource.filter.popularity': '人気度',
+    'resource.filter.apply': '適用する',
+  }
+};
+
+// 결제 및 인증 관련 번역
+const authAndPaymentTranslations: LanguageMap = {
+  ko: {
+    'auth.login.title': '로그인',
+    'auth.login.email': '이메일',
+    'auth.login.password': '비밀번호',
+    'auth.login.submit': '로그인',
+    'auth.login.forgotPassword': '비밀번호 찾기',
+    'auth.register.title': '회원가입',
+    'auth.register.name': '이름',
+    'auth.register.email': '이메일',
+    'auth.register.password': '비밀번호',
+    'auth.register.confirmPassword': '비밀번호 확인',
+    'auth.register.submit': '가입하기',
+    'payment.title': '결제',
+    'payment.service': '서비스',
+    'payment.amount': '금액',
+    'payment.method': '결제 방법',
+    'payment.card': '카드',
+    'payment.bank': '계좌이체',
+    'payment.submit': '결제하기',
+    'payment.success': '결제 성공',
+    'payment.fail': '결제 실패',
+  },
+  en: {
+    'auth.login.title': 'Login',
+    'auth.login.email': 'Email',
+    'auth.login.password': 'Password',
+    'auth.login.submit': 'Login',
+    'auth.login.forgotPassword': 'Forgot Password',
+    'auth.register.title': 'Register',
+    'auth.register.name': 'Name',
+    'auth.register.email': 'Email',
+    'auth.register.password': 'Password',
+    'auth.register.confirmPassword': 'Confirm Password',
+    'auth.register.submit': 'Register',
+    'payment.title': 'Payment',
+    'payment.service': 'Service',
+    'payment.amount': 'Amount',
+    'payment.method': 'Payment Method',
+    'payment.card': 'Card',
+    'payment.bank': 'Bank Transfer',
+    'payment.submit': 'Pay',
+    'payment.success': 'Payment Successful',
+    'payment.fail': 'Payment Failed',
+  },
+  jp: {
+    'auth.login.title': 'ログイン',
+    'auth.login.email': 'メール',
+    'auth.login.password': 'パスワード',
+    'auth.login.submit': 'ログイン',
+    'auth.login.forgotPassword': 'パスワードを忘れた',
+    'auth.register.title': '会員登録',
+    'auth.register.name': '名前',
+    'auth.register.email': 'メール',
+    'auth.register.password': 'パスワード',
+    'auth.register.confirmPassword': 'パスワード確認',
+    'auth.register.submit': '登録する',
+    'payment.title': '決済',
+    'payment.service': 'サービス',
+    'payment.amount': '金額',
+    'payment.method': '決済方法',
+    'payment.card': 'カード',
+    'payment.bank': '銀行振込',
+    'payment.submit': '決済する',
+    'payment.success': '決済成功',
+    'payment.fail': '決済失敗',
+  }
+};
+
+// 공통 UI 컴포넌트 관련 번역
+const commonUITranslations: LanguageMap = {
+  ko: {
+    'ui.button.submit': '제출',
+    'ui.button.cancel': '취소',
+    'ui.button.save': '저장',
+    'ui.button.edit': '수정',
+    'ui.button.delete': '삭제',
+    'ui.button.confirm': '확인',
+    'ui.button.back': '뒤로',
+    'ui.button.next': '다음',
+    'ui.button.previous': '이전',
+    'ui.button.viewMore': '더보기',
+    'ui.modal.close': '닫기',
+    'ui.pagination.prev': '이전',
+    'ui.pagination.next': '다음',
+    'ui.loading': '로딩 중...',
+    'ui.error': '오류가 발생했습니다',
+    'ui.noResults': '결과가 없습니다',
+    'ui.notFound': '페이지를 찾을 수 없습니다',
+    'ui.search': '검색',
+    'ui.filter': '필터',
+    'ui.sort': '정렬',
+  },
+  en: {
+    'ui.button.submit': 'Submit',
+    'ui.button.cancel': 'Cancel',
+    'ui.button.save': 'Save',
+    'ui.button.edit': 'Edit',
+    'ui.button.delete': 'Delete',
+    'ui.button.confirm': 'Confirm',
+    'ui.button.back': 'Back',
+    'ui.button.next': 'Next',
+    'ui.button.previous': 'Previous',
+    'ui.button.viewMore': 'View More',
+    'ui.modal.close': 'Close',
+    'ui.pagination.prev': 'Previous',
+    'ui.pagination.next': 'Next',
+    'ui.loading': 'Loading...',
+    'ui.error': 'An error occurred',
+    'ui.noResults': 'No results found',
+    'ui.notFound': 'Page not found',
+    'ui.search': 'Search',
+    'ui.filter': 'Filter',
+    'ui.sort': 'Sort',
+  },
+  jp: {
+    'ui.button.submit': '送信',
+    'ui.button.cancel': 'キャンセル',
+    'ui.button.save': '保存',
+    'ui.button.edit': '編集',
+    'ui.button.delete': '削除',
+    'ui.button.confirm': '確認',
+    'ui.button.back': '戻る',
+    'ui.button.next': '次へ',
+    'ui.button.previous': '前へ',
+    'ui.button.viewMore': 'もっと見る',
+    'ui.modal.close': '閉じる',
+    'ui.pagination.prev': '前へ',
+    'ui.pagination.next': '次へ',
+    'ui.loading': '読み込み中...',
+    'ui.error': 'エラーが発生しました',
+    'ui.noResults': '結果がありません',
+    'ui.notFound': 'ページが見つかりません',
+    'ui.search': '検索',
+    'ui.filter': 'フィルター',
+    'ui.sort': '並べ替え',
+  }
+};
+
+// 에러 메시지 및 상태 관련 번역
+const errorTranslations: LanguageMap = {
+  ko: {
+    'error.generic': '오류가 발생했습니다. 다시 시도해주세요.',
+    'error.network': '네트워크 오류가 발생했습니다.',
+    'error.server': '서버 오류가 발생했습니다.',
+    'error.auth.invalidCredentials': '이메일 또는 비밀번호가 올바르지 않습니다.',
+    'error.auth.accountExists': '이미 존재하는 계정입니다.',
+    'error.validation.required': '필수 항목입니다.',
+    'error.validation.email': '유효한 이메일 주소를 입력해주세요.',
+    'error.validation.minLength': '최소 {0}자 이상 입력해주세요.',
+    'error.validation.maxLength': '최대 {0}자까지 입력 가능합니다.',
+    'error.validation.passwordMatch': '비밀번호가 일치하지 않습니다.',
+    'error.notFound': '요청한 페이지를 찾을 수 없습니다.',
+    'error.unauthorized': '접근 권한이 없습니다.',
+    'error.forbidden': '금지된 접근입니다.',
+  },
+  en: {
+    'error.generic': 'An error occurred. Please try again.',
+    'error.network': 'A network error occurred.',
+    'error.server': 'A server error occurred.',
+    'error.auth.invalidCredentials': 'Invalid email or password.',
+    'error.auth.accountExists': 'Account already exists.',
+    'error.validation.required': 'This field is required.',
+    'error.validation.email': 'Please enter a valid email address.',
+    'error.validation.minLength': 'Please enter at least {0} characters.',
+    'error.validation.maxLength': 'Please enter no more than {0} characters.',
+    'error.validation.passwordMatch': 'Passwords do not match.',
+    'error.notFound': 'The requested page was not found.',
+    'error.unauthorized': 'You are not authorized to access this page.',
+    'error.forbidden': 'Access forbidden.',
+  },
+  jp: {
+    'error.generic': 'エラーが発生しました。もう一度お試しください。',
+    'error.network': 'ネットワークエラーが発生しました。',
+    'error.server': 'サーバーエラーが発生しました。',
+    'error.auth.invalidCredentials': 'メールまたはパスワードが正しくありません。',
+    'error.auth.accountExists': 'アカウントはすでに存在します。',
+    'error.validation.required': '必須項目です。',
+    'error.validation.email': '有効なメールアドレスを入力してください。',
+    'error.validation.minLength': '最小{0}文字以上入力してください。',
+    'error.validation.maxLength': '最大{0}文字まで入力可能です。',
+    'error.validation.passwordMatch': 'パスワードが一致しません。',
+    'error.notFound': 'リクエストしたページが見つかりません。',
+    'error.unauthorized': 'アクセス権限がありません。',
+    'error.forbidden': '禁止されたアクセスです。',
+  }
+};
+
+// 모든 번역을 하나의 객체로 병합
+const translations: LanguageMap = {
+  ko: {
+    ...headerTranslations.ko,
+    ...homeTranslations.ko,
+    ...serviceTranslations.ko,
+    ...resourceTranslations.ko,
+    ...authAndPaymentTranslations.ko,
+    ...commonUITranslations.ko,
+    ...errorTranslations.ko,
+  },
+  en: {
+    ...headerTranslations.en,
+    ...homeTranslations.en,
+    ...serviceTranslations.en,
+    ...resourceTranslations.en,
+    ...authAndPaymentTranslations.en,
+    ...commonUITranslations.en,
+    ...errorTranslations.en,
+  },
+  jp: {
+    ...headerTranslations.jp,
+    ...homeTranslations.jp,
+    ...serviceTranslations.jp,
+    ...resourceTranslations.jp,
+    ...authAndPaymentTranslations.jp,
+    ...commonUITranslations.jp,
+    ...errorTranslations.jp,
+  }
+};
+
+/**
+ * 지정된 언어와 키를 사용하여 번역을 가져옵니다.
+ * 해당 키가 없는 경우 키 자체를 반환합니다.
+ */
+export function getTranslation(key: TranslationKey, language: Language): string {
+  const translationMap = translations[language];
+  return translationMap[key] || key;
+}
+
+/**
+ * 사용하기 편리한 번역 함수를 제공하는 훅
+ * 현재 활성화된 언어와 함께 사용됩니다.
+ */
+export function useTranslations(language: Language) {
+  return {
+    t: (key: TranslationKey) => getTranslation(key, language),
+    // 인자를 포함한 번역을 위한 함수
+    tFormat: (key: TranslationKey, ...args: any[]) => {
+      let text = getTranslation(key, language);
+      args.forEach((arg, index) => {
+        text = text.replace(`{${index}}`, arg);
+      });
+      return text;
+    }
+  };
+}
+
+export default translations;

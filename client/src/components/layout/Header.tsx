@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
 import LanguageSelector from '@/components/ui/LanguageSelector';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTranslation } from '@/translations';
+// 번역 기능은 useLanguage에서 가져옵니다
 
 import { 
   Search, 
@@ -73,8 +73,7 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
-  const { language, setLanguage, translateUrl } = useLanguage();
-  const t = useTranslation(language);
+  const { language, setLanguage, translateUrl, t } = useLanguage();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
