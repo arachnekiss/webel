@@ -546,11 +546,11 @@ export default function UserVerification() {
                         name="verificationCode"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>인증번호</FormLabel>
+                            <FormLabel>{t('verification.verificationCode')}</FormLabel>
                             <div className="flex gap-2">
                               <FormControl>
                                 <Input
-                                  placeholder="6자리 인증번호 입력"
+                                  placeholder={t('verification.verificationCodePlaceholder')}
                                   {...field}
                                   maxLength={6}
                                 />
@@ -562,12 +562,12 @@ export default function UserVerification() {
                                 {verifyCodeMutation.isPending ? (
                                   <Loader2 className="h-4 w-4 animate-spin mr-1" />
                                 ) : (
-                                  "확인"
+                                  t('common.confirm')
                                 )}
                               </Button>
                             </div>
                             <FormDescription>
-                              인증번호 유효시간: {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
+                              {t('verification.validityTime')}: {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -609,14 +609,14 @@ export default function UserVerification() {
                       name="bankName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>은행</FormLabel>
+                          <FormLabel>{t('verification.bank')}</FormLabel>
                           <Select 
                             onValueChange={field.onChange} 
                             defaultValue={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="은행을 선택하세요" />
+                                <SelectValue placeholder={t('verification.selectBank')} />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -637,16 +637,16 @@ export default function UserVerification() {
                       name="accountNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>계좌번호</FormLabel>
+                          <FormLabel>{t('verification.accountNumber')}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="계좌번호 입력 (숫자만 입력)"
+                              placeholder={t('verification.accountNumberPlaceholder')}
                               {...field}
                               value={formatAccountNumber(field.value)}
                             />
                           </FormControl>
                           <FormDescription>
-                            숫자와 하이픈(-)만 입력 가능합니다
+                            {t('verification.accountNumberHelp')}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -658,15 +658,15 @@ export default function UserVerification() {
                       name="accountHolder"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>예금주</FormLabel>
+                          <FormLabel>{t('verification.accountHolder')}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="예금주명"
+                              placeholder={t('verification.accountHolderPlaceholder')}
                               {...field}
                             />
                           </FormControl>
                           <FormDescription>
-                            계좌 명의는 회원 정보와 일치해야 합니다
+                            {t('verification.accountHolderHelp')}
                           </FormDescription>
                           <FormMessage />
                         </FormItem>
@@ -675,13 +675,13 @@ export default function UserVerification() {
 
                     <Alert className="bg-amber-50 border-amber-200 text-amber-800">
                       <AlertCircle className="h-4 w-4 text-amber-600" />
-                      <AlertTitle>계좌 등록 주의사항</AlertTitle>
+                      <AlertTitle>{t('verification.accountCautions')}</AlertTitle>
                       <AlertDescription className="text-xs mt-2">
                         <ul className="list-disc pl-4 space-y-1">
-                          <li>등록된 계좌로 서비스 수익금이 정산됩니다</li>
-                          <li>계좌 명의는 회원 정보의 실명과 일치해야 합니다</li>
-                          <li>잘못된 계좌 정보 입력 시 정산이 지연될 수 있습니다</li>
-                          <li>개인 계좌와 사업자 계좌 모두 등록 가능합니다</li>
+                          <li>{t('verification.cautionSettlement')}</li>
+                          <li>{t('verification.cautionNameMatch')}</li>
+                          <li>{t('verification.cautionDelay')}</li>
+                          <li>{t('verification.cautionAccountTypes')}</li>
                         </ul>
                       </AlertDescription>
                     </Alert>
@@ -695,10 +695,10 @@ export default function UserVerification() {
                         {registerBankAccountMutation.isPending ? (
                           <>
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            처리 중...
+                            {t('common.processing')}
                           </>
                         ) : (
-                          "계좌 등록하기"
+                          t('verification.registerAccount')
                         )}
                       </Button>
                     </div>
