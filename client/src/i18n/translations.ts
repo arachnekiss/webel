@@ -1358,7 +1358,13 @@ export function getTranslation(lang: Language, path: string): string {
       
       // Check if section exists and has the key
       if (langData[section] && typeof langData[section] === 'object') {
-        return langData[section][key] || key;
+        // Handle direct access with bracket notation to support keys with special characters
+        const result = langData[section][key];
+        if (result !== undefined) {
+          return result;
+        }
+        // Return key as fallback
+        return key;
       }
     }
     
@@ -1373,8 +1379,27 @@ export function getTranslation(lang: Language, path: string): string {
         langData[section][subsection] && 
         typeof langData[section][subsection] === 'object'
       ) {
-        return langData[section][subsection][key] || key;
+        // Handle direct access with bracket notation for keys with special characters
+        const result = langData[section][subsection][key];
+        if (result !== undefined) {
+          return result;
+        }
+        // Return key as fallback
+        return key;
       }
+    }
+    
+    // Special case handling for error pages with numeric keys
+    if (path === 'errorPages.404_title') {
+      if (lang === 'ko') return '404 페이지를 찾을 수 없음';
+      if (lang === 'en') return '404 Page Not Found';
+      if (lang === 'jp') return '404 ページが見つかりません';
+    }
+    
+    if (path === 'errorPages.404_message') {
+      if (lang === 'ko') return '요청하신 페이지를 찾을 수 없습니다. URL을 확인해 주세요.';
+      if (lang === 'en') return 'The page you requested could not be found. Please check the URL.';
+      if (lang === 'jp') return 'リクエストされたページが見つかりませんでした。URLを確認してください。';
     }
     
     // If not found, return the last part of the path as fallback
