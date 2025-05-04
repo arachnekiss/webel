@@ -1,9 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { Link } from "wouter";
 
 export default function NotFound() {
-  const { t } = useLanguage();
+  const { t, formatUrl } = useLanguage();
   
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
@@ -18,6 +20,13 @@ export default function NotFound() {
             {t('errorPages.404_message')}
           </p>
         </CardContent>
+        <CardFooter>
+          <Link href={formatUrl('/')}>
+            <Button variant="default">
+              {t('goToHome')}
+            </Button>
+          </Link>
+        </CardFooter>
       </Card>
     </div>
   );

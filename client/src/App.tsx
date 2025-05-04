@@ -595,6 +595,17 @@ function Router() {
                   )}
                 </Route>
                 
+                {/* 404 Page routes */}
+                <Route path="/404">
+                  {() => <NotFound />}
+                </Route>
+                <Route path="/en/404">
+                  {() => <NotFound />}
+                </Route>
+                <Route path="/jp/404">
+                  {() => <NotFound />}
+                </Route>
+                
                 {/* Fallback to 404 */}
                 <Route>
                   {() => <NotFound />}
