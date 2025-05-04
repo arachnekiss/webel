@@ -239,7 +239,14 @@ const Services: React.FC = () => {
             onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
-            {type === '3d_printing' ? '프린터 등록' : type === 'engineer' ? '엔지니어 등록' : type === 'manufacturing' ? '생산업체 등록' : '서비스 등록'}
+            {type === '3d_printing' 
+              ? (language === 'ko' ? '프린터 등록' : language === 'jp' ? 'プリンター登録' : 'Register Printer')
+              : type === 'engineer' 
+              ? (language === 'ko' ? '엔지니어 등록' : language === 'jp' ? 'エンジニア登録' : 'Register Engineer')
+              : type === 'manufacturing' 
+              ? (language === 'ko' ? '생산업체 등록' : language === 'jp' ? '製造業者登録' : 'Register Manufacturer')
+              : (language === 'ko' ? '서비스 등록' : language === 'jp' ? 'サービス登録' : 'Register Service')
+            }
           </Button>
         </div>
         
@@ -250,7 +257,9 @@ const Services: React.FC = () => {
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="서비스명, 태그, 설명으로 검색..."
+                placeholder={language === 'ko' ? "서비스명, 태그, 설명으로 검색..." : 
+                            language === 'jp' ? "サービス名、タグ、説明で検索..." :
+                            "Search by service name, tags, description..."}
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -266,7 +275,9 @@ const Services: React.FC = () => {
                 }
               }}
             >
-              검색
+              {language === 'ko' ? '검색' : 
+               language === 'jp' ? '検索' : 
+               'Search'}
             </Button>
           </div>
           
@@ -277,22 +288,41 @@ const Services: React.FC = () => {
               {locationLoading ? (
                 <div className="flex items-center">
                   <span className="animate-spin mr-2 text-sm">⟳</span>
-                  <span className="font-medium">위치 확인 중...</span>
+                  <span className="font-medium">
+                    {language === 'ko' ? '위치 확인 중...' : 
+                     language === 'jp' ? '位置確認中...' : 
+                     'Checking location...'}
+                  </span>
                 </div>
               ) : currentLocation ? (
                 <div className="flex items-center gap-1">
-                  <span className="font-medium">현재 위치:</span>
-                  <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
+                  <span className="font-medium">
+                    {language === 'ko' ? '현재 위치:' : 
+                     language === 'jp' ? '現在位置:' : 
+                     'Current location:'}
+                  </span>
+                  <span className="text-gray-600">
+                    {currentLocation.address || 
+                     (language === 'ko' ? '알 수 없음' : 
+                      language === 'jp' ? '不明' : 
+                      'Unknown')}
+                  </span>
                 </div>
               ) : (
-                <span className="font-medium">위치 정보 사용 불가</span>
+                <span className="font-medium">
+                  {language === 'ko' ? '위치 정보 사용 불가' : 
+                   language === 'jp' ? '位置情報利用不可' : 
+                   'Location information unavailable'}
+                </span>
               )}
             </div>
             
             <div className="flex gap-2 items-center">
               <Select value={distance} onValueChange={setDistance}>
                 <SelectTrigger className="w-24 h-9 bg-white">
-                  <SelectValue placeholder="검색 반경" />
+                  <SelectValue placeholder={language === 'ko' ? "검색 반경" : 
+                                       language === 'jp' ? "検索範囲" : 
+                                       "Search radius"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="5">5km</SelectItem>
@@ -324,7 +354,9 @@ const Services: React.FC = () => {
                 }
               }}>
                 <SelectTrigger className="w-28 h-9">
-                  <SelectValue placeholder="도시 선택" />
+                  <SelectValue placeholder={language === 'ko' ? "도시 선택" : 
+                                       language === 'jp' ? "都市選択" : 
+                                       "Select city"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">전체</SelectItem>
@@ -357,7 +389,9 @@ const Services: React.FC = () => {
                   }
                 }}>
                   <SelectTrigger className="w-28 h-9">
-                    <SelectValue placeholder="지역구" />
+                    <SelectValue placeholder={language === 'ko' ? "지역구" : 
+                                         language === 'jp' ? "地域区" : 
+                                         "District"} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">전체</SelectItem>
@@ -415,7 +449,9 @@ const Services: React.FC = () => {
             <div className="flex gap-2 items-center">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-36 h-9">
-                  <SelectValue placeholder="정렬 기준" />
+                  <SelectValue placeholder={language === 'ko' ? "정렬 기준" : 
+                                       language === 'jp' ? "並べ替え" : 
+                                       "Sort by"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest" className="flex items-center gap-2">
