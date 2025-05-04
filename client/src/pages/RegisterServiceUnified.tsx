@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { ServiceType } from "@shared/schema";
 import { useLocation } from "@/contexts/LocationContext"; 
+import { useLanguage } from "@/contexts/LanguageContext";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -96,11 +97,11 @@ const productionItemOptions = [
   "에너지 시스템", "고효율 배터리", "나노 소재", "기타"
 ];
 
-// 서비스 유형 별 라벨
-const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
-  { value: "3d_printing", label: "3D 프린터", icon: Printer },
-  { value: "engineer", label: "엔지니어", icon: User },
-  { value: "manufacturing", label: "생산 서비스", icon: Building },
+// 서비스 유형 별 라벨 (동적으로 언어에 따라 변경되도록 함수형태로 생성)
+const getServiceTypeLabels = (t: (key: string) => string): { value: ServiceType; label: string; icon: any }[] => [
+  { value: "3d_printing", label: t('serviceType.3d_printing'), icon: Printer },
+  { value: "engineer", label: t('serviceType.engineer'), icon: User },
+  { value: "manufacturing", label: t('serviceType.manufacturing'), icon: Building },
 ];
 
 // 서비스 등록 폼 스키마
@@ -146,6 +147,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const params = location.split('/').pop(); // 간단히 마지막 세그먼트를 추출
   const { user, isLoading: isAuthLoading } = useAuth();
   const { currentLocation, getLocation } = useLocation();
+  const { t, language } = useLanguage();
   const queryClient = useQueryClient();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
