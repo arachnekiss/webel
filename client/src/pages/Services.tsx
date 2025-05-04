@@ -414,13 +414,13 @@ const Services: React.FC = () => {
                   }
                 }}>
                   <SelectTrigger className="w-28 h-9">
-                    <SelectValue placeholder={language === 'ko' ? "지역구" : 
-                                         language === 'jp' ? "地域区" : 
-                                         "District"} />
+                    <SelectValue placeholder={language === 'ko' ? "구 선택" : 
+                                         language === 'jp' ? "区域選択" : 
+                                         "Select district"} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">전체</SelectItem>
-                    {manualLocation.city === '서울' ? (
+                    {manualLocation.city === '서울' && (
                       <>
                         <SelectItem value="강남구">강남구</SelectItem>
                         <SelectItem value="강동구">강동구</SelectItem>
@@ -430,198 +430,124 @@ const Services: React.FC = () => {
                         <SelectItem value="광진구">광진구</SelectItem>
                         <SelectItem value="구로구">구로구</SelectItem>
                         <SelectItem value="금천구">금천구</SelectItem>
-                        <SelectItem value="노원구">노원구</SelectItem>
-                        <SelectItem value="도봉구">도봉구</SelectItem>
-                        <SelectItem value="동대문구">동대문구</SelectItem>
-                        <SelectItem value="동작구">동작구</SelectItem>
-                        <SelectItem value="마포구">마포구</SelectItem>
-                        <SelectItem value="서대문구">서대문구</SelectItem>
-                        <SelectItem value="서초구">서초구</SelectItem>
-                        <SelectItem value="성동구">성동구</SelectItem>
-                        <SelectItem value="성북구">성북구</SelectItem>
-                        <SelectItem value="송파구">송파구</SelectItem>
-                        <SelectItem value="양천구">양천구</SelectItem>
-                        <SelectItem value="영등포구">영등포구</SelectItem>
-                        <SelectItem value="용산구">용산구</SelectItem>
-                        <SelectItem value="은평구">은평구</SelectItem>
-                        <SelectItem value="종로구">종로구</SelectItem>
-                        <SelectItem value="중구">중구</SelectItem>
-                        <SelectItem value="중랑구">중랑구</SelectItem>
                       </>
-                    ) : manualLocation.city === '부산' ? (
+                    )}
+                    {manualLocation.city === '부산' && (
                       <>
+                        <SelectItem value="해운대구">해운대구</SelectItem>
                         <SelectItem value="금정구">금정구</SelectItem>
                         <SelectItem value="남구">남구</SelectItem>
-                        <SelectItem value="동구">동구</SelectItem>
-                        <SelectItem value="동래구">동래구</SelectItem>
-                        <SelectItem value="부산진구">부산진구</SelectItem>
-                        <SelectItem value="북구">북구</SelectItem>
-                        <SelectItem value="사상구">사상구</SelectItem>
-                        <SelectItem value="사하구">사하구</SelectItem>
-                        <SelectItem value="서구">서구</SelectItem>
-                        <SelectItem value="수영구">수영구</SelectItem>
-                        <SelectItem value="연제구">연제구</SelectItem>
-                        <SelectItem value="영도구">영도구</SelectItem>
-                        <SelectItem value="중구">중구</SelectItem>
-                        <SelectItem value="해운대구">해운대구</SelectItem>
                       </>
-                    ) : null}
+                    )}
                   </SelectContent>
                 </Select>
               )}
-            </div>
-            
-            <div className="flex gap-2 items-center">
+              
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-36 h-9">
+                <SelectTrigger className="w-28 h-9">
                   <SelectValue placeholder={language === 'ko' ? "정렬 기준" : 
                                        language === 'jp' ? "並べ替え" : 
                                        "Sort by"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest" className="flex items-center gap-2">
-                    <RefreshCw className="h-4 w-4" />
-                    <span>{language === 'ko' ? '최신순' : 
-                          language === 'jp' ? '最新順' : 
-                          'Newest'}</span>
+                  <SelectItem value="newest">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span>{language === 'ko' ? '최신순' : 
+                             language === 'jp' ? '最新順' : 
+                             'Newest'}</span>
+                    </div>
                   </SelectItem>
-                  <SelectItem value="rating" className="flex items-center gap-2">
-                    <Star className="h-4 w-4" />
-                    <span>{language === 'ko' ? '평점순' : 
-                          language === 'jp' ? '評価順' : 
-                          'By rating'}</span>
+                  <SelectItem value="rating">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      <span>{language === 'ko' ? '평점순' : 
+                             language === 'jp' ? '評価順' : 
+                             'Top rated'}</span>
+                    </div>
                   </SelectItem>
                   {type === '3d_printing' && (
-                    <SelectItem value="lowPrice" className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      <span>{language === 'ko' ? '낮은가격순' : 
-                            language === 'jp' ? '低価格順' : 
-                            'Lowest price'}</span>
+                    <SelectItem value="lowPrice">
+                      <div className="flex items-center gap-2">
+                        <SlidersHorizontal className="h-4 w-4" />
+                        <span>{language === 'ko' ? '낮은 가격순' : 
+                               language === 'jp' ? '低価格順' : 
+                               'Lowest price'}</span>
+                      </div>
                     </SelectItem>
                   )}
                 </SelectContent>
               </Select>
-              
-              <Button 
-                variant="outline"
-                size="icon"
-                className="h-9 w-9"
-                onClick={() => {
-                  setSearchTerm("");
-                  setSortBy("newest");
-                  getLocation();
-                  resetFilters();
-                }}
-                title={resetFiltersText}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-          
-          {/* 적용된 필터 표시 영역 */}
-          {(searchTerm || sortBy !== "newest" || manualLocation.city) && (
-            <div className="px-4 py-2 flex flex-wrap gap-2 bg-slate-50 text-sm">
-              <span className="font-medium">
-                {language === 'ko' ? '적용 필터:' : 
-                 language === 'jp' ? '適用フィルター:' : 
-                 'Applied filters:'}
-              </span>
+            
+            <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
               {searchTerm && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <Search className="h-3 w-3" />
-                  <span>{searchTerm}</span>
-                  <button 
-                    className="ml-1 hover:text-red-500"
-                    onClick={() => setSearchTerm("")}
-                  >
-                    ×
-                  </button>
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <span>{language === 'ko' ? '검색어:' : 
+                         language === 'jp' ? '検索キーワード:' : 
+                         'Search:'}</span>
+                  <span className="font-medium">{searchTerm}</span>
                 </Badge>
               )}
               
               {manualLocation.city && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>{manualLocation.city} {manualLocation.district}</span>
-                  <button 
-                    className="ml-1 hover:text-red-500"
-                    onClick={() => {
-                      setManualLocation({
-                        city: "",
-                        district: "",
-                        address: "",
-                        lat: 37.5665,
-                        long: 126.9780
-                      });
-                    }}
-                  >
-                    ×
-                  </button>
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <span>{language === 'ko' ? '위치:' : 
+                         language === 'jp' ? '位置:' : 
+                         'Location:'}</span>
+                  <span className="font-medium">{manualLocation.city} {manualLocation.district}</span>
                 </Badge>
               )}
               
-              {sortBy !== "newest" && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  {sortBy === "rating" ? (
-                    <Star className="h-3 w-3" />
-                  ) : (
-                    <Clock className="h-3 w-3" />
-                  )}
-                  <span>
-                    {sortBy === "rating" 
-                      ? (language === 'ko' ? '평점순' : language === 'jp' ? '評価順' : 'By rating') 
-                      : sortBy === "lowPrice" 
-                        ? (language === 'ko' ? '낮은가격순' : language === 'jp' ? '低価格順' : 'Lowest price') 
-                        : (language === 'ko' ? '최신순' : language === 'jp' ? '最新順' : 'Newest')}
-                  </span>
-                  <button 
-                    className="ml-1 hover:text-red-500"
-                    onClick={() => setSortBy("newest")}
-                  >
-                    ×
-                  </button>
-                </Badge>
-              )}
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-7 px-2"
+                onClick={resetFilters}
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                {resetFiltersText}
+              </Button>
             </div>
-          )}
-        </div>
-
-        {/* 3D 프린터 페이지에서는 목록 뷰를 기본값으로 하고 지도 옵션도 제공 */}
-        {type === '3d_printing' ? (
-          <Tabs defaultValue="list" className="mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <SlidersHorizontal className="h-5 w-5 text-primary mr-2" />
-                <h3 className="text-lg font-medium">
-                  {language === 'ko' ? '보기 모드' : 
-                   language === 'jp' ? '表示モード' : 
-                   'View mode'}
-                </h3>
-              </div>
-              
-              <TabsList>
-                <TabsTrigger value="list" className="flex items-center gap-1">
-                  <List className="h-4 w-4" />
-                  <span>
-                    {listViewText}
-                  </span>
-                </TabsTrigger>
-                <TabsTrigger value="map" className="flex items-center gap-1">
-                  <Map className="h-4 w-4" />
-                  <span>
-                    {mapViewText}
-                  </span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
+          </div>
+          
+          {/* 탭 전환: 목록 보기 / 지도 보기 */}
+          <Tabs defaultValue="list" className="w-full mt-4">
+            <TabsList className="grid w-48 grid-cols-2 mx-auto mb-4">
+              <TabsTrigger value="list" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                <List className="h-4 w-4 mr-2" />
+                {listViewText}
+              </TabsTrigger>
+              <TabsTrigger value="map" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                <Map className="h-4 w-4 mr-2" />
+                {mapViewText}
+              </TabsTrigger>
+            </TabsList>
+            
             <TabsContent value="list">
               {servicesLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {Array(8).fill(0).map((_, i) => (
-                    <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
-                  ))}
+                <div className="text-center py-12">
+                  <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-primary rounded-full"></div>
+                  <p className="mt-4 text-gray-600">
+                    {language === 'ko' ? '서비스 목록을 불러오는 중...' : 
+                     language === 'jp' ? 'サービスリスト読み込み中...' : 
+                     'Loading services...'}
+                  </p>
+                </div>
+              ) : locationError ? (
+                <div className="bg-yellow-50 p-8 rounded-lg text-center">
+                  <AlertTriangle className="h-10 w-10 text-yellow-500 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">
+                    {language === 'ko' ? '위치 정보를 가져오는 중 오류가 발생했습니다.' : 
+                     language === 'jp' ? '位置情報の取得中にエラーが発生しました。' :
+                     'An error occurred while retrieving location information.'}
+                  </p>
+                  <p className="text-sm text-gray-500 mb-6">
+                    {language === 'ko' ? '다시 시도하거나 도시를 수동으로 선택해주세요.' : 
+                     language === 'jp' ? '再試行するか、都市を手動で選択してください。' :
+                     'Please try again or select a city manually.'}
+                  </p>
+                  <ResetFilterButton />
                 </div>
               ) : filteredServices && filteredServices.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -641,78 +567,107 @@ const Services: React.FC = () => {
                      language === 'jp' ? '検索キーワードまたはフィルターを変更してください。' :
                      'Try changing your search terms or filters.'}
                   </p>
-                  <Button 
-                    className="bg-primary text-white hover:bg-blue-600"
-                    onClick={resetFilters}
-                  >
-                    필터 초기화
-                  </Button>
+                  <ResetFilterButton />
                 </div>
               )}
             </TabsContent>
-
+            
             <TabsContent value="map">
               {servicesLoading ? (
-                <div className="h-[500px] bg-gray-200 rounded-lg animate-pulse"></div>
-              ) : filteredServices && filteredServices.length > 0 ? (
-                <ServiceMap services={filteredServices} />
-              ) : (
-                <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">
-                    {language === 'ko' ? '이 지역에 이용 가능한 근처 3D 프린터가 없습니다.' : 
-                     language === 'jp' ? 'この地域で利用可能な3Dプリンターがありません。' :
-                     'No 3D printers available in this area.'}
+                <div className="text-center py-12">
+                  <div className="animate-spin mx-auto h-8 w-8 border-t-2 border-b-2 border-primary rounded-full"></div>
+                  <p className="mt-4 text-gray-600">
+                    {language === 'ko' ? '지도를 불러오는 중...' : 
+                     language === 'jp' ? 'マップ読み込み中...' : 
+                     'Loading map...'}
                   </p>
-                  <p className="text-sm text-gray-500 mb-6">
-                    {language === 'ko' ? '다른 지역을 검색하거나 필터를 조정해보세요.' : 
-                     language === 'jp' ? '別の地域を検索するか、フィルターを調整してください。' :
-                     'Try searching in another area or adjusting your filters.'}
-                  </p>
-                  <Button 
-                    className="bg-primary text-white hover:bg-blue-600"
-                    onClick={resetFilters}
-                  >
-                    필터 초기화
-                  </Button>
                 </div>
+              ) : (
+                <>
+                  <div className="h-[70vh] w-full relative rounded-lg overflow-hidden shadow border mb-4">
+                    <ServiceMap 
+                      center={selectedLocation}
+                      zoom={12}
+                      services={filteredServices || []}
+                    />
+                  </div>
+                  
+                  {filteredServices && filteredServices.length === 0 && (
+                    <div className="bg-gray-50 p-8 rounded-lg text-center">
+                      <p className="text-gray-600 mb-4">
+                        {language === 'ko' ? '이 지역에 이용 가능한 근처 3D 프린터가 없습니다.' : 
+                         language === 'jp' ? 'この地域で利用可能な3Dプリンターがありません。' :
+                         'No 3D printers available in this area.'}
+                      </p>
+                      <p className="text-sm text-gray-500 mb-6">
+                        {language === 'ko' ? '다른 지역을 검색하거나 필터를 조정해보세요.' : 
+                         language === 'jp' ? '別の地域を検索するか、フィルターを調整してください。' :
+                         'Try searching in another area or adjusting your filters.'}
+                      </p>
+                      <ResetFilterButton />
+                    </div>
+                  )}
+                </>
               )}
             </TabsContent>
           </Tabs>
-        ) : (
-          // 다른 서비스 유형은 일반 목록 뷰만 표시
+        </div>
+        
+        {/* 서비스 안내 영역 */}
+        {type === '3d_printing' && (
           <>
-            {servicesLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {Array(8).fill(0).map((_, i) => (
-                  <div key={i} className="h-64 bg-gray-200 rounded-lg animate-pulse"></div>
-                ))}
-              </div>
-            ) : filteredServices && filteredServices.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredServices.map((service) => (
-                  <LocationCard key={service.id} service={service} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-gray-50 p-8 rounded-lg text-center">
-                <p className="text-gray-600 mb-4">
-                  {language === 'ko' ? '검색 조건에 맞는 서비스가 없습니다.' : 
-                   language === 'jp' ? '検索条件に一致するサービスがありません。' :
-                   'No services found matching your search criteria.'}
-                </p>
-                <p className="text-sm text-gray-500 mb-6">
-                  {language === 'ko' ? '검색어나 필터를 변경해보세요.' : 
-                   language === 'jp' ? '検索キーワードまたはフィルターを変更してください。' :
-                   'Try changing your search terms or filters.'}
+            <div className="bg-white rounded-lg shadow p-6 mb-8">
+              <h2 className="text-xl font-bold mb-4">
+                {language === 'ko' ? '3D 프린팅 서비스 이용 안내' : 
+                 language === 'jp' ? '3Dプリントサービス利用案内' :
+                 '3D Printing Service Guide'}
+              </h2>
+              <p className="text-gray-600 mb-4">
+                {language === 'ko' ? '근처의 3D 프린터를 통해 원하는 모델을 출력할 수 있습니다. 사용 방법은 다음과 같습니다:' : 
+                 language === 'jp' ? '近くの3Dプリンターを通じて希望するモデルを出力できます。利用方法は次の通りです:' :
+                 'You can print your desired models using nearby 3D printers. Here\'s how to use this service:'}
+              </p>
+              <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                <li>
+                  {language === 'ko' ? '지도 또는 목록에서 근처 프린터를 찾고 선택하세요.' : 
+                   language === 'jp' ? 'マップまたはリストから近くのプリンターを見つけて選択してください。' :
+                   'Find and select a nearby printer from the map or list.'}
+                </li>
+                <li>
+                  {language === 'ko' ? '서비스 제공자와 가격, 일정 등을 상의하세요.' : 
+                   language === 'jp' ? 'サービス提供者と価格、スケジュールなどを相談してください。' :
+                   'Discuss price, schedule, and other details with the service provider.'}
+                </li>
+                <li>
+                  {language === 'ko' ? '3D 모델 파일(.stl, .obj 등)을 업로드하세요.' : 
+                   language === 'jp' ? '3Dモデルファイル(.stl、.objなど)をアップロードしてください。' :
+                   'Upload your 3D model file (.stl, .obj, etc.).'}
+                </li>
+                <li>
+                  {language === 'ko' ? '결제 후 서비스 제공자가 모델을 출력합니다.' : 
+                   language === 'jp' ? '支払い後、サービス提供者がモデルを出力します。' :
+                   'After payment, the service provider will print your model.'}
+                </li>
+                <li>
+                  {language === 'ko' ? '완성된 출력물을 수령하거나 배송 받으세요.' : 
+                   language === 'jp' ? '完成した出力物を受け取るか配送を受けてください。' :
+                   'Receive your completed print in person or via delivery.'}
+                </li>
+              </ul>
+              <div className="mt-6">
+                <p className="text-gray-600 mb-2">
+                  {language === 'ko' ? '아직 적합한 3D 프린터를 찾지 못하셨나요?' : 
+                   language === 'jp' ? 'まだ適切な3Dプリンターが見つかりませんでしたか？' :
+                   'Haven\'t found a suitable 3D printer yet?'}
                 </p>
                 <Button 
                   className="bg-primary text-white hover:bg-blue-600"
                   onClick={resetFilters}
                 >
-                  필터 초기화
+                  {resetFiltersText}
                 </Button>
               </div>
-            )}
+            </div>
           </>
         )}
       </div>
