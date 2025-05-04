@@ -211,8 +211,16 @@ export const translations: Record<Language, any> = {
       try_different_area: '다른 지역을 검색하거나 필터를 조정해보세요.'
     },
     
-    // Home page
+    // Home page (merged with home section defined above)
     home: {
+      tagline: '하드웨어 설계도부터 소프트웨어, 3D 모델까지 한 곳에서',
+      mainTitle: '창작자와 엔지니어를 위한',
+      mainTitleHighlight: '오픈 리소스 플랫폼',
+      mainDescription: 'Webel에서 다양한 리소스를 찾고 근처의 3D 프린터와 제작 서비스에 쉽게 연결하세요. 만들고 싶은 모든 것을 가능하게 하는 커뮤니티에 참여하세요.',
+      findResources: '리소스 찾기',
+      findNearby3DPrinters: '근처 3D 프린터 찾기',
+      participatingMembers: '다양한 업체와 개인 제작자 참여 중',
+      partnerTypes: ['제작업체', '개인 제작자', '유통업체', '제조 회사', '스타트업'],
       welcome: '웰컴 메시지',
       featuredResources: '추천 리소스',
       featuredServices: '추천 서비스',
@@ -315,6 +323,44 @@ export const translations: Record<Language, any> = {
     submit: 'Submit',
     goToHome: 'Go to Home',
     processing: 'Processing...',
+    
+    // Home page
+    home: {
+      tagline: 'From hardware designs to software, 3D models - all in one place',
+      mainTitle: 'An Open Resource Platform',
+      mainTitleHighlight: 'for creators and engineers',
+      mainDescription: 'Find diverse resources on Webel and easily connect with nearby 3D printers and manufacturing services. Join a community that makes everything you want to create possible.',
+      findResources: 'Find Resources',
+      findNearby3DPrinters: 'Find Nearby 3D Printers',
+      participatingMembers: 'Various companies and individual makers participating',
+      partnerTypes: ['Manufacturers', 'Individual Makers', 'Distributors', 'Manufacturing Companies', 'Startups'],
+      welcome: 'Welcome Message',
+      featuredResources: 'Featured Resources',
+      featuredServices: 'Featured Services',
+      nearbyServices: 'Nearby Services',
+      viewMore: 'View More',
+      latestResources: 'Latest Resources',
+      popularResources: 'Popular Resources',
+      featuredContent: 'Featured Content',
+      hardwareTitle: 'Hardware Design',
+      hardwareDescription: 'Resources for electronics and hardware design',
+      softwareTitle: 'Software',
+      softwareDescription: 'Firmware, drivers, and software solutions',
+      aiModelTitle: 'AI Models',
+      aiModelDescription: 'AI/ML models for hardware projects',
+      modelingTitle: '3D Models',
+      modelingDescription: 'Models for 3D printing and hardware cases',
+      freeContentTitle: 'Free Content',
+      freeContentDescription: 'Educational materials, guides, and tutorials',
+      flashGamesTitle: 'Flash Games',
+      flashGamesSubtitle: 'Enjoy classic flash games',
+      moreGames: 'More Games',
+      noGamesYet: 'No games yet',
+      gamesComingSoon: 'Games coming soon',
+      searchResources: 'Search Resources',
+      searchServices: 'Search Services',
+      browseByCategory: 'Browse by Category'
+    },
     
     // Header and footer
     login: 'Login',
@@ -835,6 +881,14 @@ export const translations: Record<Language, any> = {
     
     // Home page
     home: {
+      tagline: 'ハードウェア設計からソフトウェア、3Dモデルまで1か所で',
+      mainTitle: 'クリエイターとエンジニアのための',
+      mainTitleHighlight: 'オープンリソースプラットフォーム',
+      mainDescription: 'Webelで多様なリソースを見つけ、近くの3Dプリンターや製造サービスに簡単に接続。あなたが作りたいものすべてを可能にするコミュニティに参加しましょう。',
+      findResources: 'リソースを探す',
+      findNearby3DPrinters: '近くの3Dプリンターを探す',
+      participatingMembers: '様々な企業と個人メーカーが参加中',
+      partnerTypes: ['製造会社', '個人メーカー', '流通会社', '製造会社', 'スタートアップ'],
       welcome: 'ようこそメッセージ',
       featuredResources: 'おすすめリソース',
       featuredServices: 'おすすめサービス',

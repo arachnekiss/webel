@@ -48,7 +48,7 @@ const HeroSection: React.FC = () => {
             <Link href="/services/type/3d_printing">
               <Button variant="outline" className="group px-6 py-6 bg-blue-500/30 text-white backdrop-blur-sm font-medium rounded-xl border-2 border-white/20 hover:bg-blue-500/40 hover:border-white/30 shadow-lg transition-all duration-300 text-base">
                 <MapPin className="h-5 w-5 mr-2" />
-                근처 3D 프린터 찾기
+                {t('home.findNearby3DPrinters')}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -62,11 +62,14 @@ const HeroSection: React.FC = () => {
       <div className="relative z-10 bg-white/10 backdrop-blur-lg border-t border-white/10 py-4">
         <div className="container">
           <div className="text-center text-white/70 text-sm">
-            <span>다양한 업체와 개인 제작자 참여 중</span>
+            <span>{t('home.participatingMembers')}</span>
             <div className="mt-2 flex justify-center items-center space-x-8 opacity-70">
-              {["제작업체", "개인 제작자", "유통업체", "제조 회사", "스타트업"].map((name, idx) => (
-                <span key={idx} className="font-medium">{name}</span>
-              ))}
+              {Array.isArray(t('home.partnerTypes', { returnObjects: true })) 
+                ? t('home.partnerTypes', { returnObjects: true }).map((name: string, idx: number) => (
+                    <span key={idx} className="font-medium">{name}</span>
+                  ))
+                : <span className="font-medium">제작업체, 개인 제작자, 유통업체, 제조 회사, 스타트업</span>
+              }
             </div>
           </div>
         </div>
