@@ -1135,7 +1135,7 @@ const aiAssembly = {
 const nav = {
   ko: {
     home: '홈',
-    all_resources: '모든 리소스',
+    all_resources: '전체 리소스',
     resource_categories: '리소스 카테고리',
     services: '서비스',
     main_menu: '메인 메뉴',
@@ -1145,14 +1145,20 @@ const nav = {
     // 리소스 카테고리 항목들
     hardware_design: '하드웨어 설계도',
     software: '소프트웨어 오픈소스',
-    ai_model: 'AI 모델',
+    ai_model: '인공지능 모델',
     modeling_file: '3D 모델링 파일',
     flash_game: '플래시 게임',
-    free_content: '무료 콘텐츠',
+    free_content: '프리 콘텐츠',
     // 서비스 카테고리 항목들
     engineering_services: '엔지니어링 서비스',
     printing_services: '3D 프린팅 서비스',
     manufacturing_services: '제조 서비스',
+    // 서비스 메뉴 항목들
+    "3d_printer": '근처 3D 프린터',
+    ai_assistant: 'AI 조립 비서',
+    remote_support: '조립 원격 지원',
+    manufacturers: '생산업체 찾기',
+    sponsor: 'Webel 후원하기'
   },
   en: {
     home: 'Home',
@@ -1174,6 +1180,12 @@ const nav = {
     engineering_services: 'Engineering Services',
     printing_services: '3D Printing Services',
     manufacturing_services: 'Manufacturing Services',
+    // Service menu items
+    "3d_printer": 'Nearby 3D Printers',
+    ai_assistant: 'AI Assembly Assistant',
+    remote_support: 'Remote Assembly Support',
+    manufacturers: 'Find Manufacturers',
+    sponsor: 'Sponsor Webel',
   },
   jp: {
     home: 'ホーム',
@@ -1195,6 +1207,12 @@ const nav = {
     engineering_services: 'エンジニアリングサービス',
     printing_services: '3Dプリントサービス',
     manufacturing_services: '製造サービス',
+    // サービスメニュー項目
+    "3d_printer": '近くの3Dプリンター',
+    ai_assistant: 'AI組立アシスタント',
+    remote_support: '遠隔組立サポート',
+    manufacturers: 'メーカーを探す',
+    sponsor: 'Webelを支援する',
   }
 };
 

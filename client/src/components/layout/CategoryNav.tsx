@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
+import { useLanguage } from '@/contexts/LanguageContext';
 import TopLink from '@/components/ui/TopLink';
 import { 
   Printer, 
@@ -20,7 +21,7 @@ import {
 
 interface CategoryProps {
   id: string;
-  label: string;
+  labelKey: string; // 번역 키
   icon: React.ReactNode;
   href: string;
 }
@@ -29,31 +30,31 @@ interface CategoryProps {
 const serviceCategories: CategoryProps[] = [
   {
     id: '3d_printer',
-    label: '근처 3D 프린터',
+    labelKey: 'nav.3d_printer',
     icon: <Printer className="h-5 w-5" />,
     href: '/services/type/3d_printing'
   },
   {
     id: 'ai_assistant',
-    label: 'AI 조립 비서',
+    labelKey: 'nav.ai_assistant',
     icon: <Lightbulb className="h-5 w-5" />,
     href: '/ai-assembly'
   },
   {
     id: 'remote_support',
-    label: '조립 원격 지원',
+    labelKey: 'nav.remote_support',
     icon: <Video className="h-5 w-5" />,
     href: '/remote-support'
   },
   {
     id: 'manufacturers',
-    label: '생산업체 찾기',
+    labelKey: 'nav.manufacturers',
     icon: <Building2 className="h-5 w-5" />,
     href: '/services/type/manufacturing'
   },
   {
     id: 'sponsor',
-    label: 'Webel 후원하기',
+    labelKey: 'nav.sponsor',
     icon: <Heart className="h-5 w-5" />,
     href: '/sponsor'
   }
@@ -63,49 +64,49 @@ const serviceCategories: CategoryProps[] = [
 const resourceCategories: CategoryProps[] = [
   {
     id: 'home',
-    label: '홈',
+    labelKey: 'nav.home',
     icon: <Home className="h-5 w-5" />,
     href: '/'
   },
   {
     id: 'all_resources',
-    label: '전체 리소스',
+    labelKey: 'nav.all_resources',
     icon: <Layers className="h-5 w-5" />,
     href: '/resources'
   },
   {
     id: 'hardware_design',
-    label: '하드웨어 설계도',
+    labelKey: 'nav.hardware_design',
     icon: <Upload className="h-5 w-5" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: '소프트웨어 오픈소스',
+    labelKey: 'nav.software',
     icon: <Code2 className="h-5 w-5" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: '인공지능 모델',
+    labelKey: 'nav.ai_model',
     icon: <Cpu className="h-5 w-5" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_modeling',
-    label: '3D 모델링 파일',
+    labelKey: 'nav.modeling_file',
     icon: <Box className="h-5 w-5" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: '프리 콘텐츠',
+    labelKey: 'nav.free_content',
     icon: <FileText className="h-5 w-5" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: '플래시 게임',
+    labelKey: 'nav.flash_game',
     icon: <Gamepad2 className="h-5 w-5" />,
     href: '/resources/type/flash_game'
   }
@@ -119,6 +120,7 @@ interface CategoryNavProps {
 const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' }) => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
+  const { t, formatUrl } = useLanguage();
   
   // 타입에 따라 적절한 카테고리 선택
   const categoriesToShow = type === 'service' ? serviceCategories : resourceCategories;
@@ -133,7 +135,7 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
             return (
               <TopLink
                 key={category.id}
-                href={category.href}
+                href={formatUrl(category.href)}
                 showLoadingIndicator={true}
                 onClick={(e) => {
                   // 클릭 시 페이지 전환 효과
@@ -151,7 +153,7 @@ const CategoryNav: React.FC<Partial<CategoryNavProps>> = ({ type = 'resource' })
                     {category.icon}
                   </div>
                   <span className={`${type === 'service' ? 'ml-2' : ''} ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                    {category.label}
+                    {t(category.labelKey)}
                   </span>
                 </div>
               </TopLink>
