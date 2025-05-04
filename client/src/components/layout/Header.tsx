@@ -25,43 +25,71 @@ import {
   Gamepad2
 } from 'lucide-react';
 
-// 리소스 카테고리 아이템
-const resourceCategories = [
+// 리소스 카테고리 아이템을 생성하는 함수 (다국어 지원)
+const getResourceCategories = (language: string) => [
   {
     id: 'hardware_design',
-    label: '하드웨어 설계도',
+    label: language === 'ko' ? '하드웨어 설계도' : 
+           language === 'en' ? 'Hardware Designs' : 'ハードウェア設計図',
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: '소프트웨어 오픈소스',
+    label: language === 'ko' ? '소프트웨어 오픈소스' : 
+           language === 'en' ? 'Open Source Software' : 'オープンソースソフトウェア',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: 'AI 모델',
+    label: language === 'ko' ? 'AI 모델' : 
+           language === 'en' ? 'AI Models' : 'AIモデル',
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    label: '3D 모델링 파일',
+    label: language === 'ko' ? '3D 모델링 파일' : 
+           language === 'en' ? '3D Modeling Files' : '3Dモデリングファイル',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: '프리 콘텐츠',
+    label: language === 'ko' ? '무료 콘텐츠' : 
+           language === 'en' ? 'Free Content' : '無料コンテンツ',
     icon: <FileText className="h-4 w-4" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: '플래시 게임',
+    label: language === 'ko' ? '플래시 게임' : 
+           language === 'en' ? 'Flash Games' : 'フラッシュゲーム',
     icon: <Gamepad2 className="h-4 w-4" />,
     href: '/flash-game'
+  }
+];
+
+// 서비스 카테고리도 다국어 지원 추가
+const getServiceCategories = (language: string) => [
+  {
+    id: 'engineering',
+    label: language === 'ko' ? '엔지니어링 서비스' : 
+           language === 'en' ? 'Engineering Services' : 'エンジニアリングサービス',
+    href: '/services/type/engineering'
+  },
+  {
+    id: '3d_printing',
+    label: language === 'ko' ? '3D 프린팅 서비스' : 
+           language === 'en' ? '3D Printing Services' : '3Dプリントサービス',
+    href: '/services/type/3d_printing'
+  },
+  {
+    id: 'manufacturing',
+    label: language === 'ko' ? '제조 서비스' : 
+           language === 'en' ? 'Manufacturing Services' : '製造サービス',
+    href: '/services/type/manufacturing'
   }
 ];
 
@@ -72,7 +100,11 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  
+  // 리소스 및 서비스 카테고리 가져오기
+  const resourceCategories = getResourceCategories(language);
+  const serviceCategories = getServiceCategories(language);
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -281,131 +313,132 @@ const Header: React.FC = () => {
                 
                 <div 
                   onClick={() => handleNavigate('/')}
-                  className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
+                  className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
+                    location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
+                  }`}
                 >
                   {t('nav.home')}
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/resources')}
-                  className={`flex items-center px-4 py-2 ${
-                    location === '/resources'
-                    ? 'bg-primary/10 text-primary' 
-                    : 'text-foreground hover:bg-slate-50'
-                  } rounded cursor-pointer`}
+                  className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
+                    location === '/resources' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
+                  }`}
                 >
-                  <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>{t('nav.all_resources')}</span>
+                  {t('nav.all_resources')}
                 </div>
                 
-                <div className="mt-2 px-4 py-2 text-foreground font-semibold">
+                {/* 카테고리 선택기 */}
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   {t('nav.resource_categories')}
                 </div>
                 
-                {/* 모바일용 리소스 카테고리 메뉴 */}
-                {resourceCategories.map(category => (
+                {resourceCategories.map(item => (
                   <div 
-                    key={category.id}
-                    onClick={() => handleNavigate(category.href)}
-                    className={`flex items-center px-4 py-2 ${
-                      location === category.href || (category.href !== '/' && location.includes(category.href)) 
-                      ? 'bg-primary/10 text-primary' 
-                      : 'text-foreground hover:bg-slate-50'
-                    } rounded cursor-pointer`}
-                  >
-                    <span className="mr-2">{category.icon}</span>
-                    <span>{category.label}</span>
-                  </div>
-                ))}
-                
-                <div className="h-px bg-border my-3"></div>
-                
-                <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.services')}
-                </div>
-                
-                {/* 모바일용 서비스 카테고리 메뉴 */}
-                {serviceItems.map(item => (
-                  <div 
-                    key={item.id} 
+                    key={item.id}
                     onClick={() => handleNavigate(item.href)}
-                    className={`flex items-center px-4 py-2 ${
+                    className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
                       location === item.href || (item.href !== '/' && location.includes(item.href)) 
                       ? 'bg-primary/10 text-primary' 
-                      : 'text-foreground hover:bg-slate-50'
-                    } rounded cursor-pointer`}
+                      : 'text-foreground hover:bg-background/80'
+                    }`}
                   >
                     <span className="mr-2">{item.icon}</span>
                     <span>{item.label}</span>
                   </div>
                 ))}
-                <div className="h-px bg-border my-3"></div>
                 
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  {t('nav.services')}
+                </div>
+                
+                {serviceCategories.map(item => (
+                  <div 
+                    key={item.id}
+                    onClick={() => handleNavigate(item.href)}
+                    className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
+                      location === item.href || (item.href !== '/' && location.includes(item.href)) 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'text-foreground hover:bg-background/80'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+                
+                {/* 언어 설정 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   {t('nav.language_settings')}
                 </div>
+                
                 <div className="px-4 py-2">
                   <LanguageSelector />
                 </div>
                 
-                <div className="h-px bg-border my-3"></div>
-                
+                {/* 계정 관련 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   {t('nav.account')}
                 </div>
+                
                 {user ? (
                   <>
-                    <div className="px-4 py-2 text-primary font-medium mb-1">
-                      <span className="ml-2">{user.fullName || user.username}{t('common.honorific')}</span>
-                    </div>
-                    <div 
-                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
-                      onClick={() => {
-                        logoutMutation.mutate();
-                        if (isMobile) setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      {t('auth.logout')}
-                    </div>
-                    {isAdmin && (
-                      <div 
-                        onClick={() => handleNavigate('/admin/dashboard')}
-                        className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
-                      >
-                        {t('admin.dashboard')}
+                    <div className="px-4 py-2">
+                      <div className="text-foreground font-medium pb-2">
+                        {user.fullName || user.username}{t('common.honorific')}
                       </div>
-                    )}
+                      
+                      <Button 
+                        variant="outline" 
+                        className="border-border text-foreground w-full"
+                        onClick={() => logoutMutation.mutate()}
+                      >
+                        {t('auth.logout')}
+                      </Button>
+                      
+                      {isAdmin && (
+                        <div className="mt-2">
+                          <Button 
+                            variant="secondary" 
+                            className="w-full"
+                            onClick={() => handleNavigate('/admin/dashboard')}
+                          >
+                            {t('admin.dashboard')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <>
                     <div 
                       onClick={() => handleNavigate('/login')}
-                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                      className="flex items-center px-4 py-3 rounded-lg cursor-pointer text-foreground hover:bg-background/80"
                     >
                       {t('auth.login')}
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
-                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                      className="flex items-center px-4 py-3 rounded-lg cursor-pointer text-foreground hover:bg-background/80"
                     >
                       {t('auth.register')}
                     </div>
                   </>
                 )}
-
-                <div 
-                  onClick={() => handleNavigate('/sponsor')}
-                  className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  {t('sponsor.donate')}
+                
+                <div className="px-4 py-2">
+                  <Button 
+                    className="bg-primary text-white w-full"
+                    onClick={() => handleNavigate('/sponsor')}
+                  >
+                    {t('sponsor.donate')}
+                  </Button>
                 </div>
               </nav>
             </div>
           </div>
         </div>
       )}
-      
-      {/* 중복 제거: 카테고리 네비게이션은 Home.tsx에서 필요한 경우에만 추가 */}
     </header>
   );
 };
