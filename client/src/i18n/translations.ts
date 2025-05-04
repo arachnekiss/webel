@@ -492,7 +492,23 @@ export const translations: Record<Language, any> = {
       manufacturing: 'Manufacturing'
     },
     
-    services: {
+    // Resources page
+    resources: {
+      no_search_results: 'No search results found for',
+      no_resources_available: 'No resources available',
+      view_all: 'View All Resources',
+      search_placeholder: 'Search resources...',
+      upload_resource: 'Upload Resource',
+      filter_by_category: 'Filter by Category',
+      filter_by_type: 'Filter by Type',
+      sort_by: 'Sort by',
+      newest: 'Newest',
+      most_downloaded: 'Most Downloaded',
+      featured: 'Featured'
+    },
+    
+    // Services page
+    service_page: {
       nearby_3d_printers: 'Nearby 3D Printers',
       electronic_circuit_service: 'Electronic Circuit Service',
       woodworking_service: 'Woodworking Service',
@@ -773,7 +789,7 @@ export const translations: Record<Language, any> = {
     },
     
     // Services page
-    services: {
+    service_page: {
       nearby_3d_printers: '近くの3Dプリンター',
       electronic_circuit_service: '電子回路製作サービス',
       woodworking_service: '木工サービス',

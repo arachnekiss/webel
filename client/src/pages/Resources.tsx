@@ -96,18 +96,23 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // Get resource type name for display
   const getResourceTypeName = () => {
     if (type) {
-      const koreanDefault = {
-        'hardware_design': '하드웨어 설계도',
-        'software': '소프트웨어 오픈소스',
-        '3d_model': '3D 모델링 파일',
-        'free_content': '프리 콘텐츠',
-        'ai_model': '인공지능 모델',
-        'flash_game': '플래시 게임'
-      };
-      const defaultText = type in koreanDefault ? koreanDefault[type as keyof typeof koreanDefault] : '';
-      return getTranslation(language, `resourceType.${type}`, defaultText);
+      const key = `resourceType.${type}`;
+      const translation = getTranslation(language, key);
+      // If translation returns just the key part, use Korean default
+      if (translation === type) {
+        const koreanDefault: Record<string, string> = {
+          'hardware_design': '하드웨어 설계도',
+          'software': '소프트웨어 오픈소스',
+          '3d_model': '3D 모델링 파일',
+          'free_content': '프리 콘텐츠',
+          'ai_model': '인공지능 모델',
+          'flash_game': '플래시 게임'
+        };
+        return koreanDefault[type] || translation;
+      }
+      return translation;
     }
-    return getTranslation(language, 'nav.all_resources', '모든 리소스');
+    return getTranslation(language, 'nav.all_resources');
   };
   
   // 무한 스크롤 기능 제거
@@ -176,7 +181,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="relative w-full">
             <Input 
               type="text" 
-              placeholder={getTranslation(language, 'ui.search.placeholder', '리소스 검색...')}
+              placeholder={getTranslation(language, 'ui.search.placeholder') || '리소스 검색...'}
               className="w-full pr-10" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -207,8 +212,10 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="bg-gray-50 p-8 rounded-lg text-center">
             <p className="text-gray-600 mb-4">
               {searchQuery 
-                ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
-                : '이용 가능한 리소스가 없습니다.'}
+                ? language === 'ko' 
+                  ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
+                  : `${getTranslation(language, 'resources.no_search_results')} '${searchQuery}'`
+                : getTranslation(language, 'resources.no_resources_available') || '이용 가능한 리소스가 없습니다.'}
             </p>
             {searchQuery && (
               <Button 
@@ -227,7 +234,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                   }
                 }}
               >
-                모든 리소스 보기
+                {getTranslation(language, 'resources.view_all') || '모든 리소스 보기'}
               </Button>
             )}
           </div>
