@@ -186,7 +186,7 @@ export const translations: Record<Language, any> = {
       register_service: '서비스 등록',
       register_printer: '프린터 등록',
       register_engineer: '엔지니어 등록',
-      register_manufacturer: '제조사 등록',
+      register_manufacturer: '생산업체 등록',
       
       // Location and filtering
       current_location: '현재 위치',
@@ -221,7 +221,7 @@ export const translations: Record<Language, any> = {
     
     // Home page
     home: {
-      tagline: '하드웨어 설계도부터 소프트웨어, 3D 모델까지 한 곳에서',
+      tagline: '하드웨어 설계부터 소프트웨어, 3D 모델까지 한 곳에서',
       mainTitle: '창작자와 엔지니어를 위한',
       mainTitleHighlight: '오픈 리소스 플랫폼',
       mainDescription: 'Webel에서 다양한 리소스를 찾고 근처의 3D 프린터와 제작 서비스에 쉽게 연결하세요. 만들고 싶은 모든 것을 가능하게 하는 커뮤니티에 참여하세요.',
