@@ -1,5 +1,6 @@
 import React from 'react';
 import { useLocation } from 'wouter';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 /**
  * 전통적인 웹사이트 방식의 페이지 전환을 위한 링크 컴포넌트
@@ -32,9 +33,16 @@ const TopLink: React.FC<TopLinkProps> = ({
   ...props 
 }) => {
   const [location] = useLocation();
+  const { language, translateUrl } = useLanguage();
+  
+  // 링크 경로에 현재 언어 접두사 추가
+  const localizedHref = translateUrl(href);
+  
+  // 디버깅 목적으로 경로 변환 로깅
+  console.log(`[TopLink] Original: ${href}, Localized: ${localizedHref}`);
   
   // 현재 위치와 링크 경로가 같은지 확인 (활성화 상태 표시용)
-  const isActive = location === href || (href !== '/' && location.startsWith(href));
+  const isActive = location === localizedHref || (localizedHref !== '/' && location.startsWith(localizedHref));
   
   // 클릭 핸들러
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -67,9 +75,12 @@ const TopLink: React.FC<TopLinkProps> = ({
       // 기본 이벤트를 방지하고 window.location으로 페이지 이동
       event.preventDefault();
       
+      // 현재 language 상태에 맞게 URL 변환 후 이동
+      console.log(`[TopLink] Navigating to: ${localizedHref} (language: ${language})`);
+      
       // 짧은 딜레이 후 페이지 이동 (로딩 인디케이터가 표시될 수 있도록)
       setTimeout(() => {
-        window.location.href = href;
+        window.location.href = localizedHref;
       }, 10);
       
       return false;
@@ -83,7 +94,7 @@ const TopLink: React.FC<TopLinkProps> = ({
   
   return (
     <a
-      href={href}
+      href={localizedHref}
       className={`${className} ${isActive ? activeClassName : ''}`}
       onClick={handleClick}
       rel={prefetch ? "prefetch" : undefined}
