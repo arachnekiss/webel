@@ -13,12 +13,13 @@ import {
 } from 'lucide-react';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import TopLink from '@/components/ui/TopLink';
 
 // 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
 export interface SidebarItemProps {
   id: string;
-  label: string;
+  labelKey: string; // 번역 키로 변경
   icon: React.ReactNode;
   href: string;
 }
@@ -27,37 +28,37 @@ export interface SidebarItemProps {
 export const serviceItems: SidebarItemProps[] = [
   {
     id: '3d_printer',
-    label: '근처 3D 프린터',
+    labelKey: 'nav.3d_printer',
     icon: <Printer className="h-5 w-5" />,
     href: '/services/type/3d_printing'
   },
   {
     id: 'ai_assistant',
-    label: 'AI 조립 비서',
+    labelKey: 'nav.ai_assistant',
     icon: <Lightbulb className="h-5 w-5" />,
     href: '/ai-assembly'
   },
   {
     id: 'remote_support',
-    label: '조립 원격 지원',
+    labelKey: 'nav.remote_support',
     icon: <Video className="h-5 w-5" />,
     href: '/remote-support'
   },
   {
     id: 'engineers',
-    label: '엔지니어 찾기',
+    labelKey: 'nav.engineering_services',
     icon: <Wrench className="h-5 w-5" />,
     href: '/services/type/engineer'
   },
   {
     id: 'manufacturers',
-    label: '생산업체 찾기',
+    labelKey: 'nav.manufacturers',
     icon: <Building2 className="h-5 w-5" />,
     href: '/services/type/manufacturing'
   },
   {
     id: 'sponsor',
-    label: 'Webel 후원하기',
+    labelKey: 'nav.sponsor',
     icon: <Heart className="h-5 w-5" />,
     href: '/sponsor'
   }
@@ -67,14 +68,15 @@ const Sidebar: React.FC = () => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
   const { isAdmin } = useAuth();
+  const { t, formatUrl } = useLanguage();
   
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
   return (
     <aside className="hidden md:block w-full py-4 rounded-xl">
       <div className="px-6">
-        <h2 className="text-lg font-bold text-slate-800">서비스</h2>
-        <p className="text-slate-500 text-sm mt-1">하드웨어 및 조립 관련 서비스</p>
+        <h2 className="text-lg font-bold text-slate-800">{t('nav.services')}</h2>
+        <p className="text-slate-500 text-sm mt-1">{t('nav.services_description')}</p>
         <div className="mt-3 h-px bg-gradient-to-r from-primary/20 to-transparent"></div>
       </div>
       
@@ -94,7 +96,7 @@ const Sidebar: React.FC = () => {
                 <div className={`mr-3 transition-transform duration-300 ${isActive ? 'text-primary scale-110' : 'text-slate-500'}`}>
                   {item.icon}
                 </div>
-                <span>{item.label}</span>
+                <span>{t(item.labelKey)}</span>
               </div>
             </TopLink>
           );
@@ -105,7 +107,7 @@ const Sidebar: React.FC = () => {
           <>
             <div className="mt-6 mb-3 px-4">
               <div className="h-px bg-slate-200"></div>
-              <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
+              <h3 className="text-sm font-semibold text-slate-800 mt-3">{t('nav.admin_menu')}</h3>
             </div>
             <TopLink href="/admin/dashboard" showLoadingIndicator={true}>
               <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
@@ -116,7 +118,7 @@ const Sidebar: React.FC = () => {
                 <div className={`mr-3 transition-transform duration-300 ${location === '/admin/dashboard' ? 'text-primary scale-110' : 'text-slate-500'}`}>
                   <GanttChart className="h-5 w-5" />
                 </div>
-                <span>관리자 대시보드</span>
+                <span>{t('nav.admin_dashboard')}</span>
               </div>
             </TopLink>
           </>
@@ -125,18 +127,18 @@ const Sidebar: React.FC = () => {
       
       <div className="px-6 mt-2 space-y-4">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
-          <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
-          <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
+          <h3 className="font-medium text-slate-800 mb-2">{t('nav.start_3d_printing')}</h3>
+          <p className="text-sm text-slate-600 mb-3">{t('nav.start_3d_printing_desc')}</p>
           <TopLink href="/services/type/3d_printing" showLoadingIndicator={true}>
-            <div className="text-primary text-sm font-medium hover:underline">프린터 찾기 →</div>
+            <div className="text-primary text-sm font-medium hover:underline">{t('nav.find_printer')} →</div>
           </TopLink>
         </div>
         
         <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
-          <h3 className="font-medium text-slate-800 mb-2">내 프린터 등록하기</h3>
-          <p className="text-sm text-slate-600 mb-3">보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.</p>
+          <h3 className="font-medium text-slate-800 mb-2">{t('nav.register_printer')}</h3>
+          <p className="text-sm text-slate-600 mb-3">{t('nav.register_printer_desc')}</p>
           <TopLink href="/register-printer" showLoadingIndicator={true}>
-            <div className="text-primary text-sm font-medium hover:underline">프린터 등록하기 →</div>
+            <div className="text-primary text-sm font-medium hover:underline">{t('nav.register_printer_link')} →</div>
           </TopLink>
         </div>
       </div>
