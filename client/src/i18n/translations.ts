@@ -749,7 +749,7 @@ export const translations: Record<Language, any> = {
   jp: {
     // Navigation and general UI
     loading: '読み込み中...',
-    pageLoading: 'ページを読み込んでいます...',
+    pageLoading: 'ページを読み込み中...',
     error: 'エラーが発生しました',
     tryAgain: '再試行',
     close: '閉じる',
@@ -762,6 +762,10 @@ export const translations: Record<Language, any> = {
     search: '検索',
     send: '送信',
     upload: 'アップロード',
+    ready: '準備はできましたか？',
+    startNow: '今すぐ',
+    easyAssembly: 'と一緒にプロジェクトを始めましょう。複雑な組み立ても簡単かつ速く完成できます。',
+    start: 'スタート',
     download: 'ダウンロード',
     submit: '提出',
     goToHome: 'ホームへ戻る',
