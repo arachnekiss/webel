@@ -14,6 +14,7 @@ import {
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
 import TopLink from '@/components/ui/TopLink';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
 export interface SidebarItemProps {
@@ -23,42 +24,52 @@ export interface SidebarItemProps {
   href: string;
 }
 
-// 서비스 카테고리
-export const serviceItems: SidebarItemProps[] = [
+// 서비스 카테고리 아이콘 정의
+const serviceIcons: Record<string, React.ReactNode> = {
+  '3d_printer': <Printer className="h-5 w-5" />,
+  'ai_assistant': <Lightbulb className="h-5 w-5" />,
+  'remote_support': <Video className="h-5 w-5" />,
+  'engineers': <Wrench className="h-5 w-5" />,
+  'manufacturers': <Building2 className="h-5 w-5" />,
+  'sponsor': <Heart className="h-5 w-5" />
+};
+
+// 서비스 카테고리 아이템 생성 함수
+export const getServiceItems = (t: (key: string) => string): SidebarItemProps[] => [
   {
     id: '3d_printer',
-    label: '근처 3D 프린터',
-    icon: <Printer className="h-5 w-5" />,
+    label: t('service.category.3d_printer'),
+    icon: serviceIcons['3d_printer'],
     href: '/services/type/3d_printing'
   },
   {
     id: 'ai_assistant',
-    label: 'AI 조립 비서',
-    icon: <Lightbulb className="h-5 w-5" />,
+    label: t('service.category.ai_assistant'),
+    icon: serviceIcons['ai_assistant'],
     href: '/ai-assembly'
   },
   {
     id: 'remote_support',
-    label: '조립 원격 지원',
-    icon: <Video className="h-5 w-5" />,
+    label: t('service.category.remote_support'),
+    icon: serviceIcons['remote_support'],
     href: '/remote-support'
   },
   {
     id: 'engineers',
-    label: '엔지니어 찾기',
-    icon: <Wrench className="h-5 w-5" />,
+    label: t('service.category.engineers'),
+    icon: serviceIcons['engineers'],
     href: '/services/type/engineer'
   },
   {
     id: 'manufacturers',
-    label: '생산업체 찾기',
-    icon: <Building2 className="h-5 w-5" />,
+    label: t('service.category.manufacturers'),
+    icon: serviceIcons['manufacturers'],
     href: '/services/type/manufacturing'
   },
   {
     id: 'sponsor',
-    label: 'Webel 후원하기',
-    icon: <Heart className="h-5 w-5" />,
+    label: t('service.category.sponsor'),
+    icon: serviceIcons['sponsor'],
     href: '/sponsor'
   }
 ];
@@ -67,6 +78,7 @@ const Sidebar: React.FC = () => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
   const { isAdmin } = useAuth();
+  const { language, t } = useLanguage();
   
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
@@ -79,7 +91,7 @@ const Sidebar: React.FC = () => {
       </div>
       
       <nav className="px-4 py-4">
-        {serviceItems.map((item) => {
+        {getServiceItems(t).map((item) => {
           const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
           
           return (

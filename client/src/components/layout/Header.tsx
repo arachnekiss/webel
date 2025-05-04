@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
-import { serviceItems } from './Sidebar';
+import { getServiceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
 import LanguageSelector from '@/components/ui/LanguageSelector';
@@ -26,42 +26,52 @@ import {
   Gamepad2
 } from 'lucide-react';
 
+// 리소스 카테고리의 아이콘만 정의합니다 (라벨은 t 함수로 처리)
+const resourceCategoryIcons: Record<string, React.ReactNode> = {
+  'hardware_design': <Upload className="h-4 w-4" />,
+  'software': <Code2 className="h-4 w-4" />,
+  'ai_model': <Cpu className="h-4 w-4" />,
+  '3d_model': <Box className="h-4 w-4" />,
+  'free_content': <FileText className="h-4 w-4" />,
+  'flash_game': <Gamepad2 className="h-4 w-4" />
+};
+
 // 리소스 카테고리 아이템
-const resourceCategories = [
+const getResourceCategories = (t: (key: string) => string) => [
   {
     id: 'hardware_design',
-    label: '하드웨어 설계도',
-    icon: <Upload className="h-4 w-4" />,
+    label: t('resource.category.hardware_design'),
+    icon: resourceCategoryIcons['hardware_design'],
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: '소프트웨어 오픈소스',
-    icon: <Code2 className="h-4 w-4" />,
+    label: t('resource.category.software'),
+    icon: resourceCategoryIcons['software'],
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: 'AI 모델',
-    icon: <Cpu className="h-4 w-4" />,
+    label: t('resource.category.ai_model'),
+    icon: resourceCategoryIcons['ai_model'],
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    label: '3D 모델링 파일',
-    icon: <Box className="h-4 w-4" />,
+    label: t('resource.category.3d_model'),
+    icon: resourceCategoryIcons['3d_model'],
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: '프리 콘텐츠',
-    icon: <FileText className="h-4 w-4" />,
+    label: t('resource.category.free_content'),
+    icon: resourceCategoryIcons['free_content'],
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: '플래시 게임',
-    icon: <Gamepad2 className="h-4 w-4" />,
+    label: t('resource.category.flash_game'),
+    icon: resourceCategoryIcons['flash_game'],
     href: '/flash-game'
   }
 ];
@@ -221,7 +231,7 @@ const Header: React.FC = () => {
             </TopLink>
             
             {/* 직접 리소스 카테고리 링크 (데스크탑) */}
-            {resourceCategories.map(category => (
+            {getResourceCategories(t).map(category => (
               <TopLink 
                 key={category.id} 
                 href={category.href}
@@ -306,7 +316,7 @@ const Header: React.FC = () => {
                 </div>
                 
                 {/* 모바일용 리소스 카테고리 메뉴 */}
-                {resourceCategories.map(category => (
+                {getResourceCategories(t).map(category => (
                   <div 
                     key={category.id}
                     onClick={() => handleNavigate(category.href)}
