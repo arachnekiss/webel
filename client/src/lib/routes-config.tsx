@@ -38,10 +38,22 @@ export const appRoutes: RouteConfig[] = [
   { path: '/services/type/:type', component: Services },
   { path: '/services/:id', component: ServiceDetail },
   
+  // 서비스 타입별 직접 경로
+  { path: '/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
+  { path: '/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
+  { path: '/services/type/engineer', component: Services, props: { type: 'engineer' } },
+  
   // 리소스 관련 페이지
   { path: '/resources/type/:type', component: Resources },
   { path: '/resources', component: Resources },
   { path: '/resources/:id', component: ResourceDetail },
+  
+  // 리소스 타입별 직접 경로
+  { path: '/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
+  { path: '/resources/type/software', component: Resources, props: { type: 'software' } },
+  { path: '/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
+  { path: '/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
+  { path: '/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
   
   // 플래시 게임 페이지
   { path: '/flash-game', component: Resources, props: { type: 'flash_game' } },
@@ -70,7 +82,7 @@ export const appRoutes: RouteConfig[] = [
   // 기타 페이지
   { path: '/ai-assembly', component: AiAssembly },
   { path: '/remote-support', component: RemoteSupport },
-  { path: '/services/type/engineer', component: Engineers },
+  { path: '/engineers', component: Engineers },
   { path: '/sponsor', component: Sponsor },
   { path: '/about', component: About },
   
