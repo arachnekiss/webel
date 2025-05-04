@@ -111,13 +111,26 @@ interface LanguageProviderProps {
 // 언어 제공자 컴포넌트
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [location, navigate] = useLocation();
-  const [language, setLanguageState] = useState<Language>('ko');
   
-  // 초기 로드 시 URL에서 언어 감지
+  // 초기 언어 설정 - 로컬 스토리지에서 불러오기
+  const [language, setLanguageState] = useState<Language>(() => {
+    // 브라우저 환경에서만 로컬 스토리지 접근
+    if (typeof window !== 'undefined') {
+      // 저장된 언어 설정이 있으면 사용, 없으면 기본값 'ko'
+      const savedLang = localStorage.getItem('webel_language') as Language;
+      if (savedLang && ['ko', 'en', 'jp'].includes(savedLang)) {
+        return savedLang;
+      }
+    }
+    return 'ko';
+  });
+  
+  // 초기 로드 시 URL에서 언어 감지 (URL의 언어가 로컬 스토리지보다 우선)
   useEffect(() => {
     const { lang } = extractLanguageFromPath(location);
     if (lang) {
       setLanguageState(lang);
+      localStorage.setItem('webel_language', lang);
     }
   }, [location]);
   
@@ -182,16 +195,21 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return result;
   }, []);
   
-  // 언어 변경 함수 - 경로 처리 로직 개선
+  // 언어 변경 함수 - 완전 페이지 로드 방식으로 변경
   const setLanguage = useCallback((lang: Language) => {
     console.log(`[LanguageContext] Changing language to: ${lang}, current path: ${location}`);
+    
+    // 현재 언어를 로컬 스토리지에 저장 (페이지 새로고침 후에도 유지)
+    localStorage.setItem('webel_language', lang);
     setLanguageState(lang);
     
     // 현재 경로를 새 언어로 변환
     const newPath = getPathInLanguage(location, lang);
-    console.log(`[LanguageContext] Redirecting to: ${newPath}`);
-    navigate(newPath, { replace: true });
-  }, [location, navigate, getPathInLanguage]);
+    console.log(`[LanguageContext] Redirecting to: ${newPath} with full page reload`);
+    
+    // 새 경로로 전체 페이지 리로드 - 모든 컴포넌트가 새 언어로 완전히 렌더링됨
+    window.location.href = newPath;
+  }, [location, getPathInLanguage]);
   
   // URL을 현재 언어로 번역
   const translateUrl = useCallback((path: string): string => {
