@@ -399,8 +399,10 @@ export const translations: Record<Language, any> = {
       emailPlaceholder: '예: your.email@example.com',
       pricing: '가격 정보',
       pricingPlaceholder: '예: 기본 10,000원부터, 크기에 따라 추가 비용',
-      availableHours: '이용 가능 시간',
-      availableHoursPlaceholder: '예: 평일 10:00-18:00',
+      availableHours: {
+        title: '이용 가능 시간',
+        placeholder: '예: 평일 10:00-18:00'
+      },
       location: '위치 정보',
       useCurrentLocation: '현재 위치 사용',
       currentLocationDescription: '현재 위치를 서비스 제공 장소로 사용합니다',
@@ -670,8 +672,10 @@ export const translations: Record<Language, any> = {
       emailPlaceholder: 'E.g., your.email@example.com',
       pricing: 'Pricing',
       pricingPlaceholder: 'E.g., Basic $10, additional cost depending on size',
-      availableHours: 'Available Hours',
-      availableHoursPlaceholder: 'E.g., Weekdays 10:00-18:00',
+      availableHours: {
+        title: 'Available Hours',
+        placeholder: 'E.g., Weekdays 10:00-18:00'
+      },
       location: 'Location',
       useCurrentLocation: 'Use Current Location',
       currentLocationDescription: 'Use your current location as the service location',
@@ -1306,8 +1310,10 @@ export const translations: Record<Language, any> = {
       emailPlaceholder: '例：your.email@example.com',
       pricing: '価格情報',
       pricingPlaceholder: '例：基本料金1,000円から、サイズにより追加料金',
-      availableHours: '利用可能時間',
-      availableHoursPlaceholder: '例：平日10:00-18:00',
+      availableHours: {
+        title: '利用可能時間',
+        placeholder: '例：平日10:00-18:00'
+      },
       location: '位置情報',
       useCurrentLocation: '現在の位置を使用',
       currentLocationDescription: '現在の位置をサービス提供場所として使用します',
