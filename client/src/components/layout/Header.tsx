@@ -257,7 +257,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder="검색어를 입력하세요" 
+                    placeholder={t('search.mobile_placeholder')} 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}

@@ -1005,6 +1005,65 @@ const aiAssembly = {
 };
 
 // Export all translations
+// 네비게이션 메뉴 번역
+const nav = {
+  ko: {
+    home: '홈',
+    all_resources: '모든 리소스',
+    resource_categories: '리소스 카테고리',
+    services: '서비스',
+    main_menu: '메인 메뉴',
+    menu: '메뉴',
+    language_settings: '언어 설정',
+    account: '계정',
+  },
+  en: {
+    home: 'Home',
+    all_resources: 'All Resources',
+    resource_categories: 'Resource Categories',
+    services: 'Services',
+    main_menu: 'Main Menu',
+    menu: 'Menu',
+    language_settings: 'Language Settings',
+    account: 'Account',
+  },
+  jp: {
+    home: 'ホーム',
+    all_resources: 'すべてのリソース',
+    resource_categories: 'リソースカテゴリ',
+    services: 'サービス',
+    main_menu: 'メインメニュー',
+    menu: 'メニュー',
+    language_settings: '言語設定',
+    account: 'アカウント',
+  }
+};
+
+// 검색 관련 번역
+const search = {
+  ko: {
+    placeholder: '하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요',
+    mobile_placeholder: '검색어를 입력하세요',
+    results: '검색 결과',
+    no_results: '검색 결과가 없습니다',
+    search_button: '검색',
+  },
+  en: {
+    placeholder: 'Search for hardware, software, 3D printers, etc.',
+    mobile_placeholder: 'Enter search terms',
+    results: 'Search Results',
+    no_results: 'No search results found',
+    search_button: 'Search',
+  },
+  jp: {
+    placeholder: 'ハードウェア、ソフトウェア、3Dプリンターなどを検索',
+    mobile_placeholder: '検索語を入力',
+    results: '検索結果',
+    no_results: '検索結果が見つかりません',
+    search_button: '検索',
+  }
+};
+
 export const translations = {
   common,
   auth,
@@ -1015,7 +1074,9 @@ export const translations = {
   resources,
   payment,
   errors,
-  aiAssembly
+  aiAssembly,
+  nav,
+  search
 };
 
 // Helper function to handle nested paths in translations
