@@ -1118,7 +1118,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         <div className="mb-2">
                           <Input
                             id="address-input"
-                            placeholder="정확한 주소를 입력해주세요"
+                            placeholder={t('registerService.location.addressPlaceholder')}
                             value={addressInput}
                             onChange={handleAddressChange}
                           />
@@ -1269,34 +1269,31 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>등록 안내</CardTitle>
+                <CardTitle>{t('registerService.sidebar.guidanceTitle')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start">
                   <Info className="h-5 w-5 text-primary mt-0.5 mr-3" />
                   <p className="text-sm">
-                    등록한 서비스는 다른 사용자들이 검색하고 이용할 수 있습니다.
+                    {t('registerService.sidebar.searchableService')}
                   </p>
                 </div>
                 <div className="flex items-start">
                   <MapPin className="h-5 w-5 text-primary mt-0.5 mr-3" />
                   <p className="text-sm">
-                    정확한 위치 정보를 제공하면 근처 사용자들이 더 쉽게 찾을 수
-                    있습니다.
+                    {t('registerService.sidebar.locationAccuracy')}
                   </p>
                 </div>
                 <div className="flex items-start">
                   <DollarSign className="h-5 w-5 text-primary mt-0.5 mr-3" />
                   <p className="text-sm">
-                    명확한 가격 정책을 설정하여 사용자들이 예상 비용을 알 수
-                    있게 해주세요.
+                    {t('registerService.sidebar.pricingPolicy')}
                   </p>
                 </div>
                 <div className="flex items-start">
                   <Clock className="h-5 w-5 text-primary mt-0.5 mr-3" />
                   <p className="text-sm">
-                    운영 시간을 정확히 표시하여 예약과 문의가 원활하게
-                    이루어지도록 하세요.
+                    {t('registerService.sidebar.operatingHours')}
                   </p>
                 </div>
               </CardContent>
@@ -1304,35 +1301,32 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
             <Card>
               <CardHeader>
-                <CardTitle>서비스 등록 혜택</CardTitle>
+                <CardTitle>{t('registerService.sidebar.benefitsTitle')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="bg-primary/10 p-3 rounded-md">
                     <h4 className="font-medium text-primary">
-                      추가 수익 창출
+                      {t('registerService.sidebar.additionalIncome')}
                     </h4>
                     <p className="text-sm mt-1">
-                      여유 시간에 서비스를 제공하여 추가 수익을 얻을 수
-                      있습니다.
+                      {t('registerService.sidebar.additionalIncomeDesc')}
                     </p>
                   </div>
                   <div className="bg-primary/10 p-3 rounded-md">
                     <h4 className="font-medium text-primary">
-                      커뮤니티 참여
+                      {t('registerService.sidebar.communityParticipation')}
                     </h4>
                     <p className="text-sm mt-1">
-                      메이커 커뮤니티와 연결되어 다양한 프로젝트와 아이디어를
-                      공유할 수 있습니다.
+                      {t('registerService.sidebar.communityParticipationDesc')}
                     </p>
                   </div>
                   <div className="bg-primary/10 p-3 rounded-md">
                     <h4 className="font-medium text-primary">
-                      프로필 인지도 상승
+                      {t('registerService.sidebar.profileVisibility')}
                     </h4>
                     <p className="text-sm mt-1">
-                      다양한 작업을 통해 포트폴리오를 구축하고 전문성을 인정받을
-                      수 있습니다.
+                      {t('registerService.sidebar.profileVisibilityDesc')}
                     </p>
                   </div>
                 </div>
