@@ -115,6 +115,12 @@ const homeTranslations: LanguageMap = {
 // 서비스 관련 번역
 const serviceTranslations: LanguageMap = {
   ko: {
+    'service.category.3d_printer': '근처 3D 프린터',
+    'service.category.ai_assistant': 'AI 조립 비서',
+    'service.category.remote_support': '조립 원격 지원',
+    'service.category.engineers': '엔지니어 찾기',
+    'service.category.manufacturers': '생산업체 찾기',
+    'service.category.sponsor': 'Webel 후원하기',
     'service.category.3d_printing': '3D 프린팅',
     'service.category.manufacturing': '제조',
     'service.category.engineer': '엔지니어',
@@ -136,6 +142,12 @@ const serviceTranslations: LanguageMap = {
     'service.filter.apply': '적용하기',
   },
   en: {
+    'service.category.3d_printer': 'Nearby 3D Printers',
+    'service.category.ai_assistant': 'AI Assembly Assistant',
+    'service.category.remote_support': 'Remote Assembly Support',
+    'service.category.engineers': 'Find Engineers',
+    'service.category.manufacturers': 'Find Manufacturers',
+    'service.category.sponsor': 'Sponsor Webel',
     'service.category.3d_printing': '3D Printing',
     'service.category.manufacturing': 'Manufacturing',
     'service.category.engineer': 'Engineer',
@@ -157,6 +169,12 @@ const serviceTranslations: LanguageMap = {
     'service.filter.apply': 'Apply',
   },
   jp: {
+    'service.category.3d_printer': '近くの3Dプリンター',
+    'service.category.ai_assistant': 'AI組立アシスタント',
+    'service.category.remote_support': '遠隔組立サポート',
+    'service.category.engineers': 'エンジニアを探す',
+    'service.category.manufacturers': '製造会社を探す',
+    'service.category.sponsor': 'Webelを支援する',
     'service.category.3d_printing': '3Dプリンティング',
     'service.category.manufacturing': '製造',
     'service.category.engineer': 'エンジニア',

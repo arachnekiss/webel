@@ -338,7 +338,7 @@ const Header: React.FC = () => {
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
-                {serviceItems.map(item => (
+                {getServiceItems(t).map(item => (
                   <div 
                     key={item.id} 
                     onClick={() => handleNavigate(item.href)}

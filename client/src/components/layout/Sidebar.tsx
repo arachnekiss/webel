@@ -85,8 +85,14 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="hidden md:block w-full py-4 rounded-xl">
       <div className="px-6">
-        <h2 className="text-lg font-bold text-slate-800">서비스</h2>
-        <p className="text-slate-500 text-sm mt-1">하드웨어 및 조립 관련 서비스</p>
+        <h2 className="text-lg font-bold text-slate-800">
+          {language === 'ko' ? '서비스' : language === 'jp' ? 'サービス' : 'Services'}
+        </h2>
+        <p className="text-slate-500 text-sm mt-1">
+          {language === 'ko' ? '하드웨어 및 조립 관련 서비스' : 
+           language === 'jp' ? 'ハードウェアおよび組み立て関連サービス' : 
+           'Hardware and assembly related services'}
+        </p>
         <div className="mt-3 h-px bg-gradient-to-r from-primary/20 to-transparent"></div>
       </div>
       
@@ -117,7 +123,11 @@ const Sidebar: React.FC = () => {
           <>
             <div className="mt-6 mb-3 px-4">
               <div className="h-px bg-slate-200"></div>
-              <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
+              <h3 className="text-sm font-semibold text-slate-800 mt-3">
+                {language === 'ko' ? '관리자 메뉴' : 
+                 language === 'jp' ? '管理者メニュー' : 
+                 'Admin Menu'}
+              </h3>
             </div>
             <TopLink href="/admin/dashboard" showLoadingIndicator={true}>
               <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
@@ -128,7 +138,11 @@ const Sidebar: React.FC = () => {
                 <div className={`mr-3 transition-transform duration-300 ${location === '/admin/dashboard' ? 'text-primary scale-110' : 'text-slate-500'}`}>
                   <GanttChart className="h-5 w-5" />
                 </div>
-                <span>관리자 대시보드</span>
+                <span>
+                  {language === 'ko' ? '관리자 대시보드' : 
+                   language === 'jp' ? '管理者ダッシュボード' : 
+                   'Admin Dashboard'}
+                </span>
               </div>
             </TopLink>
           </>
@@ -137,18 +151,42 @@ const Sidebar: React.FC = () => {
       
       <div className="px-6 mt-2 space-y-4">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
-          <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
-          <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
+          <h3 className="font-medium text-slate-800 mb-2">
+            {language === 'ko' ? '3D 프린팅 시작하기' : 
+             language === 'jp' ? '3Dプリント始めよう' : 
+             'Start 3D Printing'}
+          </h3>
+          <p className="text-sm text-slate-600 mb-3">
+            {language === 'ko' ? '가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.' : 
+             language === 'jp' ? '近くの3Dプリンタを利用してデザインを現実にしましょう。' : 
+             'Use nearby 3D printers to turn your designs into reality.'}
+          </p>
           <TopLink href="/services/type/3d_printing" showLoadingIndicator={true}>
-            <div className="text-primary text-sm font-medium hover:underline">프린터 찾기 →</div>
+            <div className="text-primary text-sm font-medium hover:underline">
+              {language === 'ko' ? '프린터 찾기 →' : 
+               language === 'jp' ? 'プリンタを探す →' : 
+               'Find Printers →'}
+            </div>
           </TopLink>
         </div>
         
         <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
-          <h3 className="font-medium text-slate-800 mb-2">내 프린터 등록하기</h3>
-          <p className="text-sm text-slate-600 mb-3">보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.</p>
+          <h3 className="font-medium text-slate-800 mb-2">
+            {language === 'ko' ? '내 프린터 등록하기' : 
+             language === 'jp' ? '私のプリンタを登録する' : 
+             'Register Your Printer'}
+          </h3>
+          <p className="text-sm text-slate-600 mb-3">
+            {language === 'ko' ? '보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.' : 
+             language === 'jp' ? 'お持ちの3Dプリンタでサービスを提供して収益を上げましょう。' : 
+             'Offer services with your 3D printer and generate revenue.'}
+          </p>
           <TopLink href="/register-printer" showLoadingIndicator={true}>
-            <div className="text-primary text-sm font-medium hover:underline">프린터 등록하기 →</div>
+            <div className="text-primary text-sm font-medium hover:underline">
+              {language === 'ko' ? '프린터 등록하기 →' : 
+               language === 'jp' ? 'プリンタを登録する →' : 
+               'Register Printer →'}
+            </div>
           </TopLink>
         </div>
       </div>
