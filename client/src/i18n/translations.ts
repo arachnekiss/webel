@@ -416,7 +416,24 @@ export const translations: Record<Language, any> = {
       submitService: '서비스 등록',
       notLoggedInTitle: '로그인 없이 서비스 등록',
       notLoggedInDesc: '비로그인 상태로 서비스를 등록하실 수 있습니다.',
-      login: '로그인'
+      login: '로그인',
+      
+      // 사이드바
+      sidebar: {
+        guidanceTitle: '서비스 등록 가이드',
+        searchableService: '등록하신 서비스는 웹에서 검색 가능하며, 관련된 키워드로 쉽게 찾을 수 있습니다.',
+        locationAccuracy: '정확한 위치 정보를 제공하면 주변 사용자들이 서비스를 더 쉽게 찾을 수 있습니다.',
+        pricingPolicy: '무료 서비스와 유료 서비스 모두 등록 가능합니다. 가격 정책을 명확히 설명해주세요.',
+        operatingHours: '운영 시간을 자세히 기재하면 사용자의 방문 계획에 도움이 됩니다.',
+        
+        benefitsTitle: '서비스 등록의 장점',
+        additionalIncome: '추가 수입 창출',
+        additionalIncomeDesc: '유휴 장비를 활용하여 추가 수입을 얻을 수 있습니다.',
+        communityParticipation: '커뮤니티 참여',
+        communityParticipationDesc: '메이커 커뮤니티에 참여하고 다양한 프로젝트를 지원할 수 있습니다.',
+        profileVisibility: '프로필 노출',
+        profileVisibilityDesc: '귀하의 기술과 서비스가 더 많은 사람들에게 노출됩니다.'
+      }
     }
   },
   
@@ -689,7 +706,24 @@ export const translations: Record<Language, any> = {
       submitService: 'Register Service',
       notLoggedInTitle: 'Register Service Without Login',
       notLoggedInDesc: 'You can register a service without logging in.',
-      login: 'Login'
+      login: 'Login',
+      
+      // Sidebar
+      sidebar: {
+        guidanceTitle: 'Service Registration Guide',
+        searchableService: 'Your registered service will be searchable on the web and can be easily found with relevant keywords.',
+        locationAccuracy: 'Providing accurate location information makes it easier for nearby users to find your service.',
+        pricingPolicy: 'Both free and paid services can be registered. Please clearly explain your pricing policy.',
+        operatingHours: 'Detailed operating hours help users plan their visits.',
+        
+        benefitsTitle: 'Benefits of Service Registration',
+        additionalIncome: 'Additional Income',
+        additionalIncomeDesc: 'Earn extra income by utilizing your idle equipment.',
+        communityParticipation: 'Community Participation',
+        communityParticipationDesc: 'Participate in the maker community and support various projects.',
+        profileVisibility: 'Profile Visibility',
+        profileVisibilityDesc: 'Your skills and services are exposed to more people.'
+      }
     },
     
     // Home page
@@ -1327,7 +1361,24 @@ export const translations: Record<Language, any> = {
       submitService: 'サービスを登録',
       notLoggedInTitle: 'ログインなしでサービス登録',
       notLoggedInDesc: 'ログインせずにサービスを登録できます。',
-      login: 'ログイン'
+      login: 'ログイン',
+      
+      // サイドバー
+      sidebar: {
+        guidanceTitle: 'サービス登録ガイド',
+        searchableService: '登録したサービスはウェブで検索可能になり、関連キーワードで簡単に見つけることができます。',
+        locationAccuracy: '正確な位置情報を提供すると、近くのユーザーがサービスを見つけやすくなります。',
+        pricingPolicy: '無料と有料の両方のサービスを登録できます。価格ポリシーを明確に説明してください。',
+        operatingHours: '詳細な営業時間はユーザーの訪問計画に役立ちます。',
+        
+        benefitsTitle: 'サービス登録のメリット',
+        additionalIncome: '追加収入',
+        additionalIncomeDesc: '遊休機器を活用して追加収入を得ることができます。',
+        communityParticipation: 'コミュニティ参加',
+        communityParticipationDesc: 'メーカーコミュニティに参加し、様々なプロジェクトをサポートできます。',
+        profileVisibility: 'プロフィール露出',
+        profileVisibilityDesc: 'あなたのスキルとサービスがより多くの人に知られるようになります。'
+      }
     }
   }
 };
