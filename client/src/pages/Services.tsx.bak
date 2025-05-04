@@ -640,7 +640,13 @@ const Services: React.FC = () => {
                     {language === 'ko' ? '검색어나 필터를 변경해보세요.' : 
                      language === 'jp' ? '検索キーワードまたはフィルターを変更してください。' :
                      'Try changing your search terms or filters.'}
-                  <ResetFilterButton />
+                  </p>
+                  <Button 
+                    className="bg-primary text-white hover:bg-blue-600"
+                    onClick={resetFilters}
+                  >
+                    필터 초기화
+                  </Button>
                 </div>
               )}
             </TabsContent>
@@ -662,7 +668,12 @@ const Services: React.FC = () => {
                      language === 'jp' ? '別の地域を検索するか、フィルターを調整してください。' :
                      'Try searching in another area or adjusting your filters.'}
                   </p>
-                  <ResetFilterButton />
+                  <Button 
+                    className="bg-primary text-white hover:bg-blue-600"
+                    onClick={resetFilters}
+                  >
+                    필터 초기화
+                  </Button>
                 </div>
               )}
             </TabsContent>
@@ -695,7 +706,11 @@ const Services: React.FC = () => {
                    'Try changing your search terms or filters.'}
                 </p>
                 <Button 
-                <ResetFilterButton />
+                  className="bg-primary text-white hover:bg-blue-600"
+                  onClick={resetFilters}
+                >
+                  필터 초기화
+                </Button>
               </div>
             )}
           </>
