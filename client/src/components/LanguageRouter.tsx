@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Switch, Route, useLocation } from 'wouter';
 import { Language, useLanguage } from '@/contexts/LanguageContext';
 import { RouteConfig } from '../lib/language-routes';
@@ -29,6 +29,7 @@ const LoadingSpinner = ({
 // NotFound 페이지
 const NotFound = lazy(() => import('@/pages/not-found'));
 
+// 라우터 속성
 interface LanguageRouterProps {
   routes: RouteConfig[];
 }
@@ -46,75 +47,34 @@ export const LanguageRouter: React.FC<LanguageRouterProps> = ({ routes }) => {
     : language === 'jp' 
       ? 'ページを読み込んでいます...' 
       : 'Loading page...';
-  
+      
   // 각 언어별 경로 생성
-  const getRoutePath = (basePath: string, currentLanguage: Language) => {
+  const getRoutePath = (basePath: string) => {
     // 기본 언어(한국어)는 경로 앞에 접두사 없음
-    if (currentLanguage === 'ko') return basePath;
+    if (language === 'ko') return basePath;
     
     // 다른 언어는 /en/, /jp/ 같은 접두사 추가
-    return `/${currentLanguage}${basePath}`;
+    return `/${language}${basePath}`;
   };
-  
-  // 기본 라우트 외에 추가로 동적 경로를 위한 라우트 생성
-  const generateSpecialRoutes = () => {
-    // 리소스 타입별 경로 처리
-    const resourceTypeRoutes = [
-      'hardware_design',
-      'software',
-      '3d_model',
-      'ai_model',
-      'free_content',
-      'flash_game'
-    ].map(type => ({
-      path: `/resources/type/${type}`,
-      component: lazy(() => import('@/pages/Resources')),
-      props: { type }
-    }));
-    
-    // 서비스 타입별 경로 처리
-    const serviceTypeRoutes = [
-      '3d_printing',
-      'manufacturing',
-      'engineer'
-    ].map(type => ({
-      path: `/services/type/${type}`,
-      component: lazy(() => import('@/pages/Services')),
-      props: { type }
-    }));
-    
-    return [...resourceTypeRoutes, ...serviceTypeRoutes];
-  };
-  
-  // 동적 라우트 생성하여 기존 라우트에 추가
-  const allRoutes = [...routes, ...generateSpecialRoutes()];
   
   console.log(`[LanguageRouter] Current language: ${language}, location: ${location}, rendering routes`);
   
   return (
     <Suspense fallback={<LoadingSpinner size="lg" message={loadingMessage} />}>
       <Switch>
-        {/* 기존 라우트 + 특수 라우트 */}
-        {allRoutes.map((route) => (
+        {/* 각 언어별 경로 생성 */}
+        {routes.map((route) => (
           <Route 
-            key={getRoutePath(route.path, language)}
-            path={getRoutePath(route.path, language)}
+            key={`${language}-${route.path}`}
+            path={getRoutePath(route.path)}
           >
-            {(params) => {
-              console.log(`[Route] Rendering ${route.path} with params:`, params);
-              return <route.component {...params} {...route.props} />;
-            }}
+            {(params) => <route.component {...params} {...route.props} />}
           </Route>
         ))}
         
-        {/* 동적 경로 직접 처리 - 더 이상 사용하지 않음. 다른 방식으로 해결 */}
-        
         {/* 404 처리 */}
         <Route path="*">
-          {() => {
-            console.log(`[NotFound] No route matched for path: ${location}`);
-            return <NotFound />;
-          }}
+          {() => <NotFound />}
         </Route>
       </Switch>
     </Suspense>

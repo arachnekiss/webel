@@ -7,7 +7,6 @@ const Services = lazy(() => import('@/pages/Services'));
 const ServiceDetail = lazy(() => import('@/pages/ServiceDetail'));
 const Resources = lazy(() => import('@/pages/Resources'));
 const ResourceDetail = lazy(() => import('@/pages/ResourceDetail'));
-const Redirector = lazy(() => import('@/pages/Redirector'));
 const RegisterServiceUnified = lazy(() => import('@/pages/RegisterServiceUnified'));
 const RegisterService = lazy(() => import('@/pages/RegisterService'));
 const ResourceManagementPage = lazy(() => import('@/pages/ResourceManagementPage'));
