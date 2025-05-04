@@ -1135,8 +1135,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                                 setAddressInput(currentLocation.address);
                               } else {
                                 toast({
-                                  title: "위치 정보를 가져올 수 없습니다",
-                                  description: "수동으로 주소를 입력해주세요",
+                                  title: t('registerService.location.errors.locationFailed'),
+                                  description: t('registerService.location.errors.enterManually'),
                                   variant: "destructive",
                                 });
                               }
@@ -1144,7 +1144,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             className="flex-1"
                           >
                             <MapPin className="h-4 w-4 mr-1" />
-                            현재 위치 사용
+                            {t('registerService.location.useCurrentLocation')}
                           </Button>
                           <Button
                             type="button"
@@ -1153,8 +1153,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             onClick={() => {
                               if (!addressInput.trim()) {
                                 toast({
-                                  title: "주소를 입력해주세요",
-                                  description: "추가할 주소를 입력해주세요.",
+                                  title: t('registerService.location.errors.noAddress'),
+                                  description: t('registerService.location.errors.enterAddress'),
                                   variant: "destructive",
                                 });
                                 return;
@@ -1184,7 +1184,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             className="flex-1"
                           >
                             <Plus className="h-4 w-4 mr-1" />
-                            추가
+                            {t('common.add')}
                           </Button>
                         </div>
                       </div>
@@ -1198,7 +1198,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     {locationList.length > 0 ? (
                       <div className="bg-muted rounded-md overflow-hidden mt-2">
                         <div className="px-3 py-2 bg-muted-foreground/10 border-b font-medium text-sm">
-                          서비스 제공 장소 ({locationList.length}개)
+                          {t('registerService.location.serviceLocations', { count: locationList.length })}
                         </div>
                         <div className="p-3 space-y-2">
                           {locationList.map((loc, index) => (
@@ -1240,7 +1240,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     ) : (
                       <div className="text-center py-3 text-muted-foreground text-sm bg-muted/50 rounded-md border border-dashed">
                         <MapPin className="h-4 w-4 mx-auto mb-1" />
-                        서비스 제공 장소를 하나 이상 추가해주세요
+                        {t('registerService.location.addAtLeastOneLocation')}
                       </div>
                     )}
                   </div>
@@ -1256,7 +1256,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       {registerServiceMutation.isPending && (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       )}
-                      서비스 등록하기
+                      {t('registerService.registerButton')}
                     </Button>
                   </div>
                 </form>
