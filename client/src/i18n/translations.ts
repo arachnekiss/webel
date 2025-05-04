@@ -433,7 +433,10 @@ export const translations: Record<Language, any> = {
         communityParticipationDesc: '메이커 커뮤니티에 참여하고 다양한 프로젝트를 지원할 수 있습니다.',
         profileVisibility: '프로필 노출',
         profileVisibilityDesc: '귀하의 기술과 서비스가 더 많은 사람들에게 노출됩니다.'
-      }
+      },
+      
+      imageUploadText: '이미지를 업로드하려면 클릭하세요',
+      imageFormatAndSize: 'PNG, JPG, GIF (최대 5MB)'
     }
   },
   
