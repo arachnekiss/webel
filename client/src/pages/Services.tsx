@@ -209,6 +209,11 @@ const Services: React.FC = () => {
     }
   };
 
+  // 공통 텍스트
+  const resetFiltersText = language === 'ko' ? '필터 초기화' : 
+                         language === 'jp' ? 'フィルターをリセット' : 
+                         'Reset filters';
+  
   // 필터 초기화 함수
   const resetFilters = () => {
     setSearchTerm("");
