@@ -360,7 +360,7 @@ const Header: React.FC = () => {
                 
                 {/* 언어 설정 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.language_settings')}
+                  언어 설정
                 </div>
                 
                 <div className="px-4 py-2">
@@ -369,7 +369,7 @@ const Header: React.FC = () => {
                 
                 {/* 계정 관련 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.account')}
+                  계정
                 </div>
                 
                 {user ? (
