@@ -845,10 +845,10 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     </>
                   )}
 
-                  {/* 제조업체 특화 필드 */}
+                  {/* 제조업체 특화 필드 - Manufacturing-specific fields */}
                   {serviceType === "manufacturing" && (
                     <>
-                      {/* 생산 품목 */}
+                      {/* 생산 품목 - Product items */}
                       <div className="space-y-3">
                         <FormLabel>{t('registerService.manufacturing.products')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -872,7 +872,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         {selectedCapabilities.includes('기타') && (
                           <div className="mt-2">
                             <Input
-                              placeholder="기타 생산 품목을 입력해주세요"
+                              placeholder={t('registerService.manufacturing.otherItemsPlaceholder')}
                               value={otherProductInput}
                               onChange={(e) => setOtherProductInput(e.target.value)}
                             />
@@ -956,7 +956,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               className={`cursor-pointer border rounded-lg p-4 ${field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
                               onClick={() => {
                                 field.onChange(true);
-                                form.setValue("pricing", "무료");
+                                form.setValue("pricing", t('registerService.pricing.free'));
                               }}
                             >
                               <div className="flex justify-between items-center mb-2">
@@ -975,13 +975,13 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               className={`cursor-pointer border rounded-lg p-4 ${!field.value ? 'border-primary bg-primary/5' : 'border-border'}`}
                               onClick={() => {
                                 field.onChange(false);
-                                // 서비스 유형에 따라 적절한 기본 가격 템플릿 설정
+                                // 서비스 유형에 따라 적절한 기본 가격 템플릿 설정 (Set appropriate default price template by service type)
                                 if (serviceType === "3d_printing") {
-                                  form.setValue("pricing", "10g당 1,000원, 기본 출력비 5,000원 + 재료비");
+                                  form.setValue("pricing", t('registerService.pricing.default3dPrinting'));
                                 } else if (serviceType === "engineer") {
-                                  form.setValue("pricing", "시간당 50,000원, 최소 작업 시간 1시간");
+                                  form.setValue("pricing", t('registerService.pricing.defaultEngineer'));
                                 } else {
-                                  form.setValue("pricing", "기본 서비스 20,000원부터, 작업량에 따라 추가 비용");
+                                  form.setValue("pricing", t('registerService.pricing.defaultService'));
                                 }
                               }}
                             >
