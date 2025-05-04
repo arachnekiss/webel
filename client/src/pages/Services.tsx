@@ -176,24 +176,24 @@ const Services: React.FC = () => {
     return result;
   }, [services, searchTerm, sortBy]);
   
-  // Get service type name for display
+  // Get service type name for display based on language
   const getServiceTypeName = () => {
-    switch (type) {
-      case '3d_printing':
-        return '근처 3D 프린터';
-      case 'electronics':
-        return '전자 회로 제작 서비스';
-      case 'woodworking':
-        return '목공 서비스';
-      case 'metalworking':
-        return '금속 가공 서비스';
-      case 'manufacturing':
-        return '생산업체 찾기';
-      case 'engineer':
-        return '엔지니어 찾기';
-      default:
-        return '모든 서비스';
+    if (!type) {
+      return getTranslation(language, 'services.all_services');
     }
+    
+    // Map service types to translation keys
+    const translationMap: Record<string, string> = {
+      '3d_printing': 'services.nearby_3d_printers',
+      'electronics': 'services.electronic_circuit_service',
+      'woodworking': 'services.woodworking_service',
+      'metalworking': 'services.metalworking_service',
+      'manufacturing': 'services.find_manufacturer',
+      'engineer': 'services.find_engineer'
+    };
+    
+    // Get translation for the specified type
+    return getTranslation(language, translationMap[type] || 'services.all_services');
   };
 
   // 필터 초기화 함수
@@ -224,7 +224,14 @@ const Services: React.FC = () => {
             onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
-            {type === '3d_printing' ? '프린터 등록' : type === 'engineer' ? '엔지니어 등록' : type === 'manufacturing' ? '생산업체 등록' : '서비스 등록'}
+            {type === '3d_printing' 
+              ? getTranslation(language, 'services.register_printer')
+              : type === 'engineer' 
+                ? getTranslation(language, 'services.register_engineer')
+                : type === 'manufacturing' 
+                  ? getTranslation(language, 'services.register_manufacturer')
+                  : getTranslation(language, 'services.register_service')
+            }
           </Button>
         </div>
         
@@ -251,7 +258,7 @@ const Services: React.FC = () => {
                 }
               }}
             >
-              검색
+              {getTranslation(language, 'ui.search.button')}
             </Button>
           </div>
           

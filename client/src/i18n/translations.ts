@@ -164,6 +164,51 @@ export const translations: Record<Language, any> = {
       manufacturing: '제조'
     },
     
+    // Services page
+    services: {
+      nearby_3d_printers: '근처 3D 프린터',
+      electronic_circuit_service: '전자 회로 제작 서비스',
+      woodworking_service: '목공 서비스',
+      metalworking_service: '금속 가공 서비스',
+      find_manufacturer: '생산업체 찾기',
+      find_engineer: '엔지니어 찾기',
+      all_services: '모든 서비스',
+      register_service: '서비스 등록',
+      register_printer: '프린터 등록',
+      register_engineer: '엔지니어 등록',
+      register_manufacturer: '생산업체 등록',
+      
+      // Location and filtering
+      current_location: '현재 위치',
+      location_loading: '위치 확인 중...',
+      location_unknown: '알 수 없음',
+      location_unavailable: '위치 정보 사용 불가',
+      search_radius: '검색 반경',
+      city_selection: '도시 선택',
+      district_selection: '지역구',
+      all: '전체',
+      filter_applied: '적용 필터',
+      reset_filters: '필터 초기화',
+      
+      // Sorting options
+      sort_by: '정렬 기준',
+      newest: '최신순',
+      rating: '평점순',
+      low_price: '낮은가격순',
+      
+      // View modes
+      view_mode: '보기 모드',
+      list_view: '목록 보기',
+      map_view: '지도 보기',
+      
+      // Empty states
+      no_printers_found: '검색 조건에 맞는 근처 3D 프린터가 없습니다.',
+      no_services_found: '검색 조건에 맞는 서비스가 없습니다.',
+      try_different_filters: '검색어나 필터를 변경해보세요.',
+      no_printers_in_area: '이 지역에 이용 가능한 근처 3D 프린터가 없습니다.',
+      try_different_area: '다른 지역을 검색하거나 필터를 조정해보세요.'
+    },
+    
     // Home page
     home: {
       welcome: '웰컴 메시지',
@@ -399,6 +444,51 @@ export const translations: Record<Language, any> = {
       manufacturing: 'Manufacturing'
     },
     
+    // Services page
+    services: {
+      nearby_3d_printers: 'Nearby 3D Printers',
+      electronic_circuit_service: 'Electronic Circuit Service',
+      woodworking_service: 'Woodworking Service',
+      metalworking_service: 'Metalworking Service',
+      find_manufacturer: 'Find Manufacturer',
+      find_engineer: 'Find Engineer',
+      all_services: 'All Services',
+      register_service: 'Register Service',
+      register_printer: 'Register Printer',
+      register_engineer: 'Register as Engineer',
+      register_manufacturer: 'Register as Manufacturer',
+      
+      // Location and filtering
+      current_location: 'Current Location',
+      location_loading: 'Checking location...',
+      location_unknown: 'Unknown',
+      location_unavailable: 'Location unavailable',
+      search_radius: 'Search Radius',
+      city_selection: 'Select City',
+      district_selection: 'District',
+      all: 'All',
+      filter_applied: 'Applied Filters',
+      reset_filters: 'Reset Filters',
+      
+      // Sorting options
+      sort_by: 'Sort by',
+      newest: 'Newest',
+      rating: 'Rating',
+      low_price: 'Lowest Price',
+      
+      // View modes
+      view_mode: 'View Mode',
+      list_view: 'List View',
+      map_view: 'Map View',
+      
+      // Empty states
+      no_printers_found: 'No 3D printers found matching your criteria.',
+      no_services_found: 'No services found matching your criteria.',
+      try_different_filters: 'Try different search terms or filters.',
+      no_printers_in_area: 'No available 3D printers in this area.',
+      try_different_area: 'Try searching in a different area or adjust your filters.'
+    },
+    
     // Home page
     home: {
       welcome: 'Welcome Message',
@@ -632,6 +722,51 @@ export const translations: Record<Language, any> = {
       '3d_printing': '3Dプリンティング',
       engineer: 'エンジニア',
       manufacturing: '製造'
+    },
+    
+    // Services page
+    services: {
+      nearby_3d_printers: '近くの3Dプリンター',
+      electronic_circuit_service: '電子回路製作サービス',
+      woodworking_service: '木工サービス',
+      metalworking_service: '金属加工サービス',
+      find_manufacturer: '製造業者を探す',
+      find_engineer: 'エンジニアを探す',
+      all_services: 'すべてのサービス',
+      register_service: 'サービス登録',
+      register_printer: 'プリンター登録',
+      register_engineer: 'エンジニアとして登録',
+      register_manufacturer: '製造業者として登録',
+      
+      // Location and filtering
+      current_location: '現在地',
+      location_loading: '位置確認中...',
+      location_unknown: '不明',
+      location_unavailable: '位置情報が利用できません',
+      search_radius: '検索範囲',
+      city_selection: '都市を選択',
+      district_selection: '地区',
+      all: 'すべて',
+      filter_applied: '適用済みフィルター',
+      reset_filters: 'フィルターをリセット',
+      
+      // Sorting options
+      sort_by: '並び替え',
+      newest: '最新順',
+      rating: '評価順',
+      low_price: '価格の安い順',
+      
+      // View modes
+      view_mode: '表示モード',
+      list_view: 'リスト表示',
+      map_view: '地図表示',
+      
+      // Empty states
+      no_printers_found: '条件に一致する3Dプリンターが見つかりません。',
+      no_services_found: '条件に一致するサービスが見つかりません。',
+      try_different_filters: '検索条件やフィルターを変更してみてください。',
+      no_printers_in_area: 'この地域には利用可能な3Dプリンターがありません。',
+      try_different_area: '別の地域で検索するか、フィルターを調整してください。'
     },
     
     // Home page
