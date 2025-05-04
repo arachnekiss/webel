@@ -194,53 +194,57 @@ export const translations: Record<Language, any> = {
       browseByCategory: '카테고리별 둘러보기'
     },
     
-    // Features
-    aiAssembly: {
-      title: 'AI 조립 어시스턴트',
-      subtitle: 'AI가 부품 선택과 조립을 도와드립니다',
-      askQuestion: '질문하기',
-      uploadImage: '이미지 업로드',
-      recordAudio: '음성 녹음',
-      sendingMessage: '메시지 전송 중...',
-      uploadingImage: '이미지 업로드 중...',
-      processingAudio: '음성 처리 중...',
-      askAI: 'AI에게 물어보기',
-      imagePlaceholder: '이미지를 업로드하려면 클릭하세요',
-      askAboutCircuits: '회로에 대해 질문하기',
-      askAboutComponents: '부품에 대해 질문하기',
-      askAboutConnectionIssues: '연결 문제에 대해 질문하기',
-      askAboutReplacements: '대체 부품에 대해 질문하기',
-      uploadCircuitImage: '회로 이미지 업로드',
-      analyzeImage: '이미지 분석',
-      analyzeCircuit: '회로 분석'
-    },
-    
-    sponsor: {
-      title: '후원하기',
-      subtitle: '웹엘의 발전을 위해 후원해주세요',
-      description: '웹엘은 엔지니어와 메이커들을 위한 오픈 플랫폼입니다. 여러분의 후원으로 더 좋은 서비스를 제공할 수 있습니다.',
-      monthly: '월간 후원',
-      oneTime: '일회성 후원',
-      amount: '금액',
-      custom: '직접 입력',
-      currency: '원',
-      donate: '후원하기',
-      thankYou: '후원해주셔서 감사합니다',
-      donationComplete: '후원이 완료되었습니다',
-      errorProcessing: '처리 중 오류가 발생했습니다',
-      tryAgain: '다시 시도해주세요'
+    // Features sections
+    features: {
+      aiAssembly: {
+        title: 'AI 조립 어시스턴트',
+        subtitle: 'AI가 부품 선택과 조립을 도와드립니다',
+        askQuestion: '질문하기',
+        uploadImage: '이미지 업로드',
+        recordAudio: '음성 녹음',
+        sendingMessage: '메시지 전송 중...',
+        uploadingImage: '이미지 업로드 중...',
+        processingAudio: '음성 처리 중...',
+        askAI: 'AI에게 물어보기',
+        imagePlaceholder: '이미지를 업로드하려면 클릭하세요',
+        askAboutCircuits: '회로에 대해 질문하기',
+        askAboutComponents: '부품에 대해 질문하기',
+        askAboutConnectionIssues: '연결 문제에 대해 질문하기',
+        askAboutReplacements: '대체 부품에 대해 질문하기',
+        uploadCircuitImage: '회로 이미지 업로드',
+        analyzeImage: '이미지 분석',
+        analyzeCircuit: '회로 분석'
+      },
+      
+      sponsor: {
+        title: '후원하기',
+        subtitle: '웹엘의 발전을 위해 후원해주세요',
+        description: '웹엘은 엔지니어와 메이커들을 위한 오픈 플랫폼입니다. 여러분의 후원으로 더 좋은 서비스를 제공할 수 있습니다.',
+        monthly: '월간 후원',
+        oneTime: '일회성 후원',
+        amount: '금액',
+        custom: '직접 입력',
+        currency: '원',
+        donate: '후원하기',
+        thankYou: '후원해주셔서 감사합니다',
+        donationComplete: '후원이 완료되었습니다',
+        errorProcessing: '처리 중 오류가 발생했습니다',
+        tryAgain: '다시 시도해주세요'
+      }
     },
     
     common: {
       viewMore: '더보기'
     },
     
-    search: {
-      placeholder: '검색어를 입력하세요',
-      button: '검색',
-      results: '검색 결과',
-      no_results: '검색 결과가 없습니다',
-      search_button: '검색',
+    ui: {
+      search: {
+        placeholder: '검색어를 입력하세요',
+        button: '검색',
+        results: '검색 결과',
+        no_results: '검색 결과가 없습니다',
+        search_button: '검색'
+      }
     }
   },
   
@@ -425,53 +429,57 @@ export const translations: Record<Language, any> = {
       browseByCategory: 'Browse by Category'
     },
     
-    // Features
-    aiAssembly: {
-      title: 'AI Assembly Assistant',
-      subtitle: 'AI helps with parts selection and assembly',
-      askQuestion: 'Ask a Question',
-      uploadImage: 'Upload Image',
-      recordAudio: 'Record Audio',
-      sendingMessage: 'Sending message...',
-      uploadingImage: 'Uploading image...',
-      processingAudio: 'Processing audio...',
-      askAI: 'Ask AI',
-      imagePlaceholder: 'Click to upload an image',
-      askAboutCircuits: 'Ask about circuits',
-      askAboutComponents: 'Ask about components',
-      askAboutConnectionIssues: 'Ask about connection issues',
-      askAboutReplacements: 'Ask about replacement parts',
-      uploadCircuitImage: 'Upload circuit image',
-      analyzeImage: 'Analyze Image',
-      analyzeCircuit: 'Analyze Circuit'
-    },
-    
-    sponsor: {
-      title: 'Sponsor',
-      subtitle: 'Support Webel to help us grow',
-      description: 'Webel is an open platform for engineers and makers. Your sponsorship helps us provide better services.',
-      monthly: 'Monthly Sponsorship',
-      oneTime: 'One-time Donation',
-      amount: 'Amount',
-      custom: 'Custom',
-      currency: 'USD',
-      donate: 'Donate',
-      thankYou: 'Thank you for your support',
-      donationComplete: 'Donation completed',
-      errorProcessing: 'Error processing your donation',
-      tryAgain: 'Please try again'
+    // Features sections
+    features: {
+      aiAssembly: {
+        title: 'AI Assembly Assistant',
+        subtitle: 'AI helps with parts selection and assembly',
+        askQuestion: 'Ask a Question',
+        uploadImage: 'Upload Image',
+        recordAudio: 'Record Audio',
+        sendingMessage: 'Sending message...',
+        uploadingImage: 'Uploading image...',
+        processingAudio: 'Processing audio...',
+        askAI: 'Ask AI',
+        imagePlaceholder: 'Click to upload an image',
+        askAboutCircuits: 'Ask about circuits',
+        askAboutComponents: 'Ask about components',
+        askAboutConnectionIssues: 'Ask about connection issues',
+        askAboutReplacements: 'Ask about replacement parts',
+        uploadCircuitImage: 'Upload circuit image',
+        analyzeImage: 'Analyze Image',
+        analyzeCircuit: 'Analyze Circuit'
+      },
+      
+      sponsor: {
+        title: 'Sponsor',
+        subtitle: 'Support Webel to help us grow',
+        description: 'Webel is an open platform for engineers and makers. Your sponsorship helps us provide better services.',
+        monthly: 'Monthly Sponsorship',
+        oneTime: 'One-time Donation',
+        amount: 'Amount',
+        custom: 'Custom',
+        currency: 'USD',
+        donate: 'Donate',
+        thankYou: 'Thank you for your support',
+        donationComplete: 'Donation completed',
+        errorProcessing: 'Error processing your donation',
+        tryAgain: 'Please try again'
+      }
     },
     
     common: {
       viewMore: 'View More'
     },
     
-    search: {
-      placeholder: 'Enter search terms',
-      button: 'Search',
-      results: 'Search Results',
-      no_results: 'No results found',
-      search_button: 'Search',
+    ui: {
+      search: {
+        placeholder: 'Enter search terms',
+        button: 'Search',
+        results: 'Search Results',
+        no_results: 'No results found',
+        search_button: 'Search'
+      }
     }
   },
   
@@ -656,53 +664,57 @@ export const translations: Record<Language, any> = {
       browseByCategory: 'カテゴリーで閲覧'
     },
     
-    // Features
-    aiAssembly: {
-      title: 'AI組立アシスタント',
-      subtitle: 'AIが部品選択と組立をサポート',
-      askQuestion: '質問する',
-      uploadImage: '画像をアップロード',
-      recordAudio: '音声を録音',
-      sendingMessage: 'メッセージを送信中...',
-      uploadingImage: '画像をアップロード中...',
-      processingAudio: '音声を処理中...',
-      askAI: 'AIに質問する',
-      imagePlaceholder: 'クリックして画像をアップロード',
-      askAboutCircuits: '回路について質問',
-      askAboutComponents: '部品について質問',
-      askAboutConnectionIssues: '接続問題について質問',
-      askAboutReplacements: '代替部品について質問',
-      uploadCircuitImage: '回路の画像をアップロード',
-      analyzeImage: '画像を分析',
-      analyzeCircuit: '回路を分析'
-    },
-    
-    sponsor: {
-      title: 'スポンサー',
-      subtitle: 'Webelの成長を支援する',
-      description: 'Webelはエンジニアとメーカーのためのオープンプラットフォームです。あなたの支援でより良いサービスを提供できます。',
-      monthly: '月額スポンサーシップ',
-      oneTime: '一回限りの寄付',
-      amount: '金額',
-      custom: 'カスタム',
-      currency: '円',
-      donate: '寄付する',
-      thankYou: 'ご支援ありがとうございます',
-      donationComplete: '寄付が完了しました',
-      errorProcessing: '寄付処理中にエラーが発生しました',
-      tryAgain: 'もう一度お試しください'
+    // Features sections
+    features: {
+      aiAssembly: {
+        title: 'AI組立アシスタント',
+        subtitle: 'AIが部品選択と組立をサポート',
+        askQuestion: '質問する',
+        uploadImage: '画像をアップロード',
+        recordAudio: '音声を録音',
+        sendingMessage: 'メッセージを送信中...',
+        uploadingImage: '画像をアップロード中...',
+        processingAudio: '音声を処理中...',
+        askAI: 'AIに質問する',
+        imagePlaceholder: 'クリックして画像をアップロード',
+        askAboutCircuits: '回路について質問',
+        askAboutComponents: '部品について質問',
+        askAboutConnectionIssues: '接続問題について質問',
+        askAboutReplacements: '代替部品について質問',
+        uploadCircuitImage: '回路の画像をアップロード',
+        analyzeImage: '画像を分析',
+        analyzeCircuit: '回路を分析'
+      },
+      
+      sponsor: {
+        title: 'スポンサー',
+        subtitle: 'Webelの成長を支援する',
+        description: 'Webelはエンジニアとメーカーのためのオープンプラットフォームです。あなたの支援でより良いサービスを提供できます。',
+        monthly: '月額スポンサーシップ',
+        oneTime: '一回限りの寄付',
+        amount: '金額',
+        custom: 'カスタム',
+        currency: '円',
+        donate: '寄付する',
+        thankYou: 'ご支援ありがとうございます',
+        donationComplete: '寄付が完了しました',
+        errorProcessing: '寄付処理中にエラーが発生しました',
+        tryAgain: 'もう一度お試しください'
+      }
     },
     
     common: {
       viewMore: 'もっと見る'
     },
     
-    search: {
-      placeholder: '検索語を入力',
-      button: '検索',
-      results: '検索結果',
-      no_results: '検索結果が見つかりません',
-      search_button: '検索',
+    ui: {
+      search: {
+        placeholder: '検索語を入力',
+        button: '検索',
+        results: '検索結果',
+        no_results: '検索結果が見つかりません',
+        search_button: '検索'
+      }
     }
   }
 };

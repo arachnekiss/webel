@@ -5,6 +5,8 @@ import type { Service } from '@shared/schema';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { getTranslation } from '@/i18n/translations';
 import { MapPin, AlertTriangle, List, Map, Search, SlidersHorizontal, RefreshCw, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +17,7 @@ import { Badge } from '@/components/ui/badge';
 const Services: React.FC = () => {
   const { type } = useParams();
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
+  const { language } = useLanguage();
   const [_, navigate] = useWouterLocation();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
@@ -214,7 +217,7 @@ const Services: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
             <p className="text-gray-600">
-              필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.
+              {getTranslation(language, 'nav.services_description')}
             </p>
           </div>
           <Button 
@@ -232,7 +235,7 @@ const Services: React.FC = () => {
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="서비스명, 태그, 설명으로 검색..."
+                placeholder={getTranslation(language, 'ui.search.placeholder')}
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
