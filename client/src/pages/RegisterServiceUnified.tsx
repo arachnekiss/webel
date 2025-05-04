@@ -508,17 +508,16 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       return (
         <Alert className="mb-6">
           <InfoIcon className="h-4 w-4" />
-          <AlertTitle>{t('registerService.notLoggedIn.title')}</AlertTitle>
+          <AlertTitle>{t('registerService.notLoggedInTitle')}</AlertTitle>
           <AlertDescription>
-            {t('registerService.notLoggedIn.description')}
+            {t('registerService.notLoggedInDesc')}
             <Button
               variant="link"
               className="p-0 mx-1"
               onClick={() => navigate('/auth')}
             >
-              {t('common.login')}
+              {t('registerService.login')}
             </Button>
-            {t('registerService.notLoggedIn.postLogin')}
           </AlertDescription>
         </Alert>
       );
