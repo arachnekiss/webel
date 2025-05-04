@@ -75,7 +75,7 @@ export const translations: Record<Language, any> = {
       ai_assistant: 'AI 어시스턴트',
       remote_support: '원격 지원',
       manufacturers: '제조사',
-      sponsor: '후원하기'
+      sponsor: 'Webel 후원하기'
     },
     
     // Authentication
@@ -278,7 +278,7 @@ export const translations: Record<Language, any> = {
         amount: '금액',
         custom: '직접 입력',
         currency: '원',
-        donate: '후원하기',
+        donate: 'Webel 후원하기',
         thankYou: '후원해주셔서 감사합니다',
         donationComplete: '후원이 완료되었습니다',
         errorProcessing: '처리 중 오류가 발생했습니다',
