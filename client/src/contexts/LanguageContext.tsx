@@ -85,9 +85,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     
     // 한국어가 아닌 경우 언어 접두사 추가
     if (language !== 'ko') {
+      console.log(`[LanguageContext] Translating URL: ${path} -> /${language}${cleanPath}`);
       return `/${language}${cleanPath}`;
     }
     
+    console.log(`[LanguageContext] Translating URL: ${path} -> ${cleanPath}`);
     return cleanPath;
   };
   

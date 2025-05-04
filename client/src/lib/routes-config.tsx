@@ -7,6 +7,7 @@ const Services = lazy(() => import('@/pages/Services'));
 const ServiceDetail = lazy(() => import('@/pages/ServiceDetail'));
 const Resources = lazy(() => import('@/pages/Resources'));
 const ResourceDetail = lazy(() => import('@/pages/ResourceDetail'));
+const Redirector = lazy(() => import('@/pages/Redirector'));
 const RegisterServiceUnified = lazy(() => import('@/pages/RegisterServiceUnified'));
 const RegisterService = lazy(() => import('@/pages/RegisterService'));
 const ResourceManagementPage = lazy(() => import('@/pages/ResourceManagementPage'));
@@ -105,4 +106,23 @@ export const appRoutes: RouteConfig[] = [
   { path: '/admin/resources', component: AdminResourceManagement },
   { path: '/admin/services', component: AdminServiceManagement },
   { path: '/admin/engineers', component: AdminServiceManagement },
+  
+  // 언어별 리다이렉션 경로
+  { path: '/en/services/type/3d_printing', component: Redirector, props: { to: '/services/type/3d_printing' } },
+  { path: '/en/services/type/engineer', component: Redirector, props: { to: '/services/type/engineer' } },
+  { path: '/en/services/type/manufacturing', component: Redirector, props: { to: '/services/type/manufacturing' } },
+  { path: '/en/resources/type/hardware_design', component: Redirector, props: { to: '/resources/type/hardware_design' } },
+  { path: '/en/resources/type/software', component: Redirector, props: { to: '/resources/type/software' } },
+  { path: '/en/resources/type/3d_model', component: Redirector, props: { to: '/resources/type/3d_model' } },
+  { path: '/en/resources/type/ai_model', component: Redirector, props: { to: '/resources/type/ai_model' } },
+  { path: '/en/resources/type/free_content', component: Redirector, props: { to: '/resources/type/free_content' } },
+  
+  { path: '/jp/services/type/3d_printing', component: Redirector, props: { to: '/services/type/3d_printing' } },
+  { path: '/jp/services/type/engineer', component: Redirector, props: { to: '/services/type/engineer' } },
+  { path: '/jp/services/type/manufacturing', component: Redirector, props: { to: '/services/type/manufacturing' } },
+  { path: '/jp/resources/type/hardware_design', component: Redirector, props: { to: '/resources/type/hardware_design' } },
+  { path: '/jp/resources/type/software', component: Redirector, props: { to: '/resources/type/software' } },
+  { path: '/jp/resources/type/3d_model', component: Redirector, props: { to: '/resources/type/3d_model' } },
+  { path: '/jp/resources/type/ai_model', component: Redirector, props: { to: '/resources/type/ai_model' } },
+  { path: '/jp/resources/type/free_content', component: Redirector, props: { to: '/resources/type/free_content' } },
 ];

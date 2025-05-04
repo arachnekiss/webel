@@ -55,6 +55,8 @@ export const LanguageRouter: React.FC<LanguageRouterProps> = ({ routes }) => {
     return `/${currentLanguage}${basePath}`;
   };
   
+  console.log(`[LanguageRouter] Current language: ${language}, rendering routes for this language`);
+  
   return (
     <Suspense fallback={<LoadingSpinner size="lg" message={loadingMessage} />}>
       <Switch>
