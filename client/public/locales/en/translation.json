@@ -4,6 +4,7 @@
     "slogan": "Intelligent service discovery platform connecting engineers, consumers, and manufacturers"
   },
   "common": {
+    "honorific": "",
     "loading": "Loading...",
     "seeAll": "See All",
     "backToHome": "Back to Home",
@@ -37,7 +38,11 @@
     "logout": "Logout",
     "admin": "Admin",
     "engineer": "Engineer",
-    "sponsor": "Sponsor"
+    "sponsor": "Sponsor",
+    "allResources": "All Resources",
+    "menu": "Menu",
+    "resourceCategories": "Resource Categories",
+    "mainMenu": "Main Menu"
   },
   "languageSwitcher": {
     "language": "Language",
@@ -66,7 +71,14 @@
     "rating": "Rating",
     "register": "Register Service",
     "allServices": "All Services",
-    "noServices": "No services found"
+    "noServices": "No services found",
+    "categories": {
+      "3dPrinter": "3D Printer",
+      "aiAssistant": "AI Assistant",
+      "remoteSupport": "Remote Support",
+      "engineers": "Engineers",
+      "manufacturers": "Manufacturers"
+    }
   },
   "serviceTypes": {
     "3d_printing": "3D Printing",
@@ -86,7 +98,15 @@
     "allResources": "All Resources",
     "noResources": "No resources found",
     "downloaded": "Downloaded",
-    "views": "Views"
+    "views": "Views",
+    "categories": {
+      "hardwareDesign": "Hardware Design",
+      "software": "Software",
+      "aiModel": "AI Model",
+      "3dModel": "3D Model",
+      "freeContent": "Free Content",
+      "flashGame": "Flash Game"
+    }
   },
   "resourceTypes": {
     "hardware_design": "Hardware Design",
@@ -194,35 +214,5 @@
   },
   "sponsor": {
     "button": "Sponsor"
-  },
-  "nav": {
-    "home": "Home",
-    "allResources": "All Resources",
-    "menu": "Menu",
-    "resourceCategories": "Resource Categories",
-    "mainMenu": "Main Menu"
-  },
-  "common": {
-    "honorific": "",
-    "loading": "Loading...",
-    "seeAll": "See All",
-    "backToHome": "Back to Home",
-    "search": "Search",
-    "notFound": "Not Found",
-    "error": "An error has occurred",
-    "tryAgain": "Try Again",
-    "details": "Details",
-    "delete": "Delete",
-    "edit": "Edit",
-    "save": "Save",
-    "cancel": "Cancel",
-    "upload": "Upload",
-    "download": "Download",
-    "share": "Share",
-    "more": "More",
-    "contactUs": "Contact Us",
-    "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "copyright": "© 2025 Webel. All rights reserved."
   }
 }

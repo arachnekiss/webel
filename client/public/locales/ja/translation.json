@@ -4,6 +4,7 @@
     "slogan": "エンジニア、消費者、メーカーをつなぐインテリジェントなサービス発見プラットフォーム"
   },
   "common": {
+    "honorific": "様",
     "loading": "読み込み中...",
     "seeAll": "すべて見る",
     "backToHome": "ホームに戻る",
@@ -37,7 +38,11 @@
     "logout": "ログアウト",
     "admin": "管理者",
     "engineer": "エンジニア",
-    "sponsor": "スポンサー"
+    "sponsor": "スポンサー",
+    "allResources": "すべてのリソース",
+    "menu": "メニュー",
+    "resourceCategories": "リソースカテゴリ",
+    "mainMenu": "メインメニュー"
   },
   "languageSwitcher": {
     "language": "言語",
@@ -66,7 +71,14 @@
     "rating": "評価",
     "register": "サービス登録",
     "allServices": "すべてのサービス",
-    "noServices": "サービスが見つかりません"
+    "noServices": "サービスが見つかりません",
+    "categories": {
+      "3dPrinter": "3Dプリンター",
+      "aiAssistant": "AIアシスタント",
+      "remoteSupport": "リモートサポート",
+      "engineers": "エンジニア",
+      "manufacturers": "製造メーカー"
+    }
   },
   "serviceTypes": {
     "3d_printing": "3Dプリント",
@@ -86,7 +98,15 @@
     "allResources": "すべてのリソース",
     "noResources": "リソースが見つかりません",
     "downloaded": "ダウンロード済み",
-    "views": "閲覧数"
+    "views": "閲覧数",
+    "categories": {
+      "hardwareDesign": "ハードウェア設計",
+      "software": "ソフトウェア",
+      "aiModel": "AIモデル",
+      "3dModel": "3Dモデル",
+      "freeContent": "無料コンテンツ",
+      "flashGame": "フラッシュゲーム"
+    }
   },
   "resourceTypes": {
     "hardware_design": "ハードウェア設計",
@@ -194,35 +214,5 @@
   },
   "sponsor": {
     "button": "スポンサー"
-  },
-  "nav": {
-    "home": "ホーム",
-    "allResources": "すべてのリソース",
-    "menu": "メニュー",
-    "resourceCategories": "リソースカテゴリ",
-    "mainMenu": "メインメニュー"
-  },
-  "common": {
-    "honorific": "様",
-    "loading": "読み込み中...",
-    "seeAll": "すべて見る",
-    "backToHome": "ホームに戻る",
-    "search": "検索",
-    "notFound": "見つかりません",
-    "error": "エラーが発生しました",
-    "tryAgain": "再試行",
-    "details": "詳細",
-    "delete": "削除",
-    "edit": "編集",
-    "save": "保存",
-    "cancel": "キャンセル",
-    "upload": "アップロード",
-    "download": "ダウンロード",
-    "share": "共有",
-    "more": "もっと見る",
-    "contactUs": "お問い合わせ",
-    "privacyPolicy": "プライバシーポリシー",
-    "termsOfService": "利用規約",
-    "copyright": "© 2025 Webel. All rights reserved."
   }
 }

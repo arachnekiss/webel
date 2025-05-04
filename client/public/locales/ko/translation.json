@@ -4,6 +4,7 @@
     "slogan": "엔지니어, 소비자 및 제조업체를 연결하는 지능형 서비스 발견 플랫폼"
   },
   "common": {
+    "honorific": "님",
     "loading": "로딩 중...",
     "seeAll": "전체보기",
     "backToHome": "홈으로 돌아가기",
@@ -37,7 +38,11 @@
     "logout": "로그아웃",
     "admin": "관리자",
     "engineer": "엔지니어",
-    "sponsor": "스폰서"
+    "sponsor": "스폰서",
+    "allResources": "모든 리소스",
+    "menu": "메뉴",
+    "resourceCategories": "리소스 카테고리",
+    "mainMenu": "메인 메뉴"
   },
   "languageSwitcher": {
     "language": "언어",
@@ -86,7 +91,15 @@
     "allResources": "모든 리소스",
     "noResources": "리소스를 찾을 수 없습니다",
     "downloaded": "다운로드됨",
-    "views": "조회수"
+    "views": "조회수",
+    "categories": {
+      "hardwareDesign": "하드웨어 설계도",
+      "software": "소프트웨어",
+      "aiModel": "AI 모델",
+      "3dModel": "3D 모델",
+      "freeContent": "무료 콘텐츠",
+      "flashGame": "플래시 게임"
+    }
   },
   "resourceTypes": {
     "hardware_design": "하드웨어 설계도",
@@ -95,6 +108,15 @@
     "free_content": "무료 콘텐츠",
     "ai_model": "AI 모델",
     "flash_game": "플래시 게임"
+  },
+  "services": {
+    "categories": {
+      "3dPrinter": "3D 프린터",
+      "aiAssistant": "AI 어시스턴트",
+      "remoteSupport": "원격 지원",
+      "engineers": "엔지니어",
+      "manufacturers": "제조업체"
+    }
   },
   "auctions": {
     "title": "경매",
@@ -194,35 +216,5 @@
   },
   "sponsor": {
     "button": "스폰서"
-  },
-  "nav": {
-    "home": "홈",
-    "allResources": "모든 리소스",
-    "menu": "메뉴",
-    "resourceCategories": "리소스 카테고리",
-    "mainMenu": "메인 메뉴"
-  },
-  "common": {
-    "honorific": "님",
-    "loading": "로딩 중...",
-    "seeAll": "전체보기",
-    "backToHome": "홈으로 돌아가기",
-    "search": "검색",
-    "notFound": "찾을 수 없음",
-    "error": "오류가 발생했습니다",
-    "tryAgain": "다시 시도하기",
-    "details": "상세 정보",
-    "delete": "삭제",
-    "edit": "수정",
-    "save": "저장",
-    "cancel": "취소",
-    "upload": "업로드",
-    "download": "다운로드",
-    "share": "공유",
-    "more": "더 보기",
-    "contactUs": "문의하기",
-    "privacyPolicy": "개인정보 처리방침",
-    "termsOfService": "이용약관",
-    "copyright": "© 2025 Webel. 모든 권리 보유."
   }
 }
