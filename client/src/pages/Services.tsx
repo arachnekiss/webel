@@ -546,7 +546,7 @@ const Services: React.FC = () => {
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={resetFilters}
                   >
-                    필터 초기화
+                    {getTranslation(language, 'services.reset_filters')}
                   </Button>
                 </div>
               )}
@@ -559,13 +559,13 @@ const Services: React.FC = () => {
                 <ServiceMap services={filteredServices} />
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 근처 3D 프린터가 없습니다.</p>
-                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
+                  <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_printers_in_area')}</p>
+                  <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_area')}</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={resetFilters}
                   >
-                    필터 초기화
+                    {getTranslation(language, 'services.reset_filters')}
                   </Button>
                 </div>
               )}
@@ -588,13 +588,13 @@ const Services: React.FC = () => {
               </div>
             ) : (
               <div className="bg-gray-50 p-8 rounded-lg text-center">
-                <p className="text-gray-600 mb-4">검색 조건에 맞는 서비스가 없습니다.</p>
-                <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
+                <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_matching_services')}</p>
+                <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_search')}</p>
                 <Button 
                   className="bg-primary text-white hover:bg-blue-600"
                   onClick={resetFilters}
                 >
-                  필터 초기화
+                  {getTranslation(language, 'services.reset_filters')}
                 </Button>
               </div>
             )}
