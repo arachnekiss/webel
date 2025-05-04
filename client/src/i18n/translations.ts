@@ -480,6 +480,18 @@ const home = {
     registerService: '서비스 등록하기',
     uploadResource: '리소스 업로드하기',
     becomeEngineer: '엔지니어로 등록하기',
+    // 홈페이지 리소스 섹션
+    hardwareDescription: '혁신적인 하드웨어 설계도를 살펴보세요',
+    softwareDescription: '다양한 오픈소스 소프트웨어 프로젝트',
+    aiModelDescription: '최신 AI 모델과 학습 데이터셋',
+    modelingDescription: '3D 프린팅용 모델 파일 라이브러리',
+    freeContentDescription: '자유롭게 이용 가능한 다양한 콘텐츠',
+    // 플래시 게임 섹션
+    flashGamesSubtitle: '인기 플래시 게임을 Webel에서 바로 즐겨보세요',
+    moreGames: '더 많은 게임',
+    noGamesYet: '아직 등록된 게임이 없습니다',
+    gamesComingSoon: '곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!',
+    viewMore: '더 보기',
   },
   en: {
     welcomeTitle: 'Welcome to Webel',
@@ -499,6 +511,18 @@ const home = {
     registerService: 'Register a Service',
     uploadResource: 'Upload a Resource',
     becomeEngineer: 'Become an Engineer',
+    // Home page resource sections
+    hardwareDescription: 'Explore innovative hardware designs',
+    softwareDescription: 'Various open-source software projects',
+    aiModelDescription: 'Latest AI models and training datasets',
+    modelingDescription: '3D model file library for printing',
+    freeContentDescription: 'Various content available for free use',
+    // Flash games section
+    flashGamesSubtitle: 'Enjoy popular flash games right on Webel',
+    moreGames: 'More Games',
+    noGamesYet: 'No games available yet',
+    gamesComingSoon: 'Various HTML5-based games will be added soon!',
+    viewMore: 'View More',
   },
   jp: {
     welcomeTitle: 'Webelへようこそ',
@@ -518,6 +542,18 @@ const home = {
     registerService: 'サービスを登録する',
     uploadResource: 'リソースをアップロードする',
     becomeEngineer: 'エンジニアとして登録する',
+    // ホームページのリソースセクション
+    hardwareDescription: '革新的なハードウェア設計をご覧ください',
+    softwareDescription: '様々なオープンソースソフトウェアプロジェクト',
+    aiModelDescription: '最新のAIモデルと学習データセット',
+    modelingDescription: '3Dプリンティング用のモデルファイルライブラリ',
+    freeContentDescription: '自由に利用できる様々なコンテンツ',
+    // フラッシュゲームセクション
+    flashGamesSubtitle: '人気のフラッシュゲームをWebelで直接お楽しみください',
+    moreGames: 'もっとゲームを見る',
+    noGamesYet: 'まだゲームが登録されていません',
+    gamesComingSoon: '近日中に様々なHTML5ベースのゲームが追加される予定です！',
+    viewMore: 'もっと見る',
   }
 };
 
