@@ -20,7 +20,6 @@ import {
   Wand2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   sendChatMessage, 
   analyzeImage, 
@@ -96,7 +95,6 @@ const AiAssembly = () => {
   const [showChatInterface, setShowChatInterface] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { t } = useLanguage();
 
   // 고유 ID 생성
   const generateId = () => {
@@ -684,22 +682,23 @@ const AiAssembly = () => {
         <div className="md:flex">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              {t('features.aiAssembly.smartAssemblyTitle')} {t('features.aiAssembly.smartAssemblyProcess')}
+              AI 조립 비서가 도와드립니다
             </h1>
             <p className="text-blue-100 mb-6">
-              {t('features.aiAssembly.description')}
+              복잡한 조립 과정을 AI가 단계별로 안내해드립니다. 실시간으로 진행 상황을 분석하고 
+              피드백을 제공하여 실수 없이 완성할 수 있습니다.
             </p>
             <Button 
               onClick={handleStartChat}
               className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors w-full md:w-auto text-center"
             >
-              {t('features.aiAssembly.startAIAssistant')}
+              지금 시작하기
             </Button>
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
             <img 
               src="/images/ai-assembly-hero.png" 
-              alt="AI Assembly Assistant" 
+              alt="AI 조립 비서와 함께 3D 프린터 부품 조립하기" 
               className="rounded-lg shadow-lg max-h-96 object-cover" 
             />
           </div>
@@ -708,17 +707,17 @@ const AiAssembly = () => {
       
       {/* Features */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('services.all_services')}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">주요 기능</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="pb-2">
               <Camera className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>{t('features.aiAssembly.realTimeAnalysis')}</CardTitle>
+              <CardTitle>실시간 진행 상황 분석</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                {t('features.aiAssembly.realTimeAnalysisDesc')}
+                카메라를 통해 현재 조립 상태를 인식하고 다음 단계를 실시간으로 안내해드립니다.
               </p>
             </CardContent>
           </Card>
@@ -726,11 +725,11 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <Lightbulb className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>{t('features.aiAssembly.visualization3D')}</CardTitle>
+              <CardTitle>3D 시각화 가이드</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                {t('features.aiAssembly.visualization3DDesc')}
+                복잡한 부품과 조립 방법을 3D로 시각화하여 직관적으로 이해할 수 있습니다.
               </p>
             </CardContent>
           </Card>
@@ -738,11 +737,11 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <Mic className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>{t('features.aiAssembly.intelligentGuidance')}</CardTitle>
+              <CardTitle>음성 안내 지원</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                {t('features.aiAssembly.intelligentGuidanceDesc')}
+                양손으로 작업 중에도 음성 안내를 통해 다음 단계를 확인할 수 있습니다.
               </p>
             </CardContent>
           </Card>
@@ -750,11 +749,11 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <HelpCircle className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>{t('features.aiAssembly.problemSolving')}</CardTitle>
+              <CardTitle>실시간 문제 해결</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                {t('features.aiAssembly.problemSolvingDesc')}
+                문제가 발생할 경우 즉시 감지하고 해결 방법을 제안해 드립니다.
               </p>
             </CardContent>
           </Card>
@@ -765,10 +764,10 @@ const AiAssembly = () => {
       <section className="mb-12">
         <div className="bg-gray-50 rounded-xl p-8 md:flex items-center justify-between">
           <div className="md:w-2/3 mb-6 md:mb-0">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">{t('ready')}</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">준비되셨나요?</h3>
             <p className="text-gray-600">
-              {t('startNow')} {t('features.aiAssembly.aiAssistant')}
-              {t('easyAssembly')}
+              지금 바로 AI 조립 비서와 함께 프로젝트를 시작해보세요.
+              어떤 복잡한 조립도 쉽고 빠르게 완성할 수 있습니다.
             </p>
           </div>
           <div>
@@ -776,7 +775,7 @@ const AiAssembly = () => {
               className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-md w-full md:w-auto flex items-center justify-center gap-2"
               onClick={handleStartChat}
             >
-              <span>{t('start')}</span>
+              <span>시작하기</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>

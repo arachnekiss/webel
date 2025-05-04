@@ -5,8 +5,6 @@ import type { Service } from '@shared/schema';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/i18n/translations';
 import { MapPin, AlertTriangle, List, Map, Search, SlidersHorizontal, RefreshCw, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,7 +15,6 @@ import { Badge } from '@/components/ui/badge';
 const Services: React.FC = () => {
   const { type } = useParams();
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
-  const { language } = useLanguage();
   const [_, navigate] = useWouterLocation();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
@@ -176,24 +173,24 @@ const Services: React.FC = () => {
     return result;
   }, [services, searchTerm, sortBy]);
   
-  // Get service type name for display based on language
+  // Get service type name for display
   const getServiceTypeName = () => {
-    if (!type) {
-      return getTranslation(language, 'services.all_services');
+    switch (type) {
+      case '3d_printing':
+        return '근처 3D 프린터';
+      case 'electronics':
+        return '전자 회로 제작 서비스';
+      case 'woodworking':
+        return '목공 서비스';
+      case 'metalworking':
+        return '금속 가공 서비스';
+      case 'manufacturing':
+        return '생산업체 찾기';
+      case 'engineer':
+        return '엔지니어 찾기';
+      default:
+        return '모든 서비스';
     }
-    
-    // Map service types to translation keys
-    const translationMap: Record<string, string> = {
-      '3d_printing': 'services.nearby_3d_printers',
-      'electronics': 'services.electronic_circuit_service',
-      'woodworking': 'services.woodworking_service',
-      'metalworking': 'services.metalworking_service',
-      'manufacturing': 'services.find_manufacturer',
-      'engineer': 'services.find_engineer'
-    };
-    
-    // Get translation for the specified type
-    return getTranslation(language, translationMap[type] || 'services.all_services');
   };
 
   // 필터 초기화 함수
@@ -217,21 +214,14 @@ const Services: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
             <p className="text-gray-600">
-              {getTranslation(language, 'nav.services_description')}
+              필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.
             </p>
           </div>
           <Button 
             onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
-            {type === '3d_printing' 
-              ? getTranslation(language, 'services.register_printer')
-              : type === 'engineer' 
-                ? getTranslation(language, 'services.register_engineer')
-                : type === 'manufacturing' 
-                  ? getTranslation(language, 'services.register_manufacturer')
-                  : getTranslation(language, 'services.register_service')
-            }
+            {type === '3d_printing' ? '프린터 등록' : type === 'engineer' ? '엔지니어 등록' : type === 'manufacturing' ? '생산업체 등록' : '서비스 등록'}
           </Button>
         </div>
         
@@ -242,7 +232,7 @@ const Services: React.FC = () => {
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={getTranslation(language, 'ui.search.placeholder')}
+                placeholder="서비스명, 태그, 설명으로 검색..."
                 className="pl-10"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -258,7 +248,7 @@ const Services: React.FC = () => {
                 }
               }}
             >
-              {getTranslation(language, 'ui.search.button')}
+              검색
             </Button>
           </div>
           
@@ -269,22 +259,22 @@ const Services: React.FC = () => {
               {locationLoading ? (
                 <div className="flex items-center">
                   <span className="animate-spin mr-2 text-sm">⟳</span>
-                  <span className="font-medium">{getTranslation(language, 'services.location_loading')}</span>
+                  <span className="font-medium">위치 확인 중...</span>
                 </div>
               ) : currentLocation ? (
                 <div className="flex items-center gap-1">
-                  <span className="font-medium">{getTranslation(language, 'services.current_location')}:</span>
-                  <span className="text-gray-600">{currentLocation.address || getTranslation(language, 'services.location_unknown')}</span>
+                  <span className="font-medium">현재 위치:</span>
+                  <span className="text-gray-600">{currentLocation.address || '알 수 없음'}</span>
                 </div>
               ) : (
-                <span className="font-medium">{getTranslation(language, 'services.location_unavailable')}</span>
+                <span className="font-medium">위치 정보 사용 불가</span>
               )}
             </div>
             
             <div className="flex gap-2 items-center">
               <Select value={distance} onValueChange={setDistance}>
                 <SelectTrigger className="w-24 h-9 bg-white">
-                  <SelectValue placeholder={getTranslation(language, 'services.search_radius')} />
+                  <SelectValue placeholder="검색 반경" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="5">5km</SelectItem>
@@ -316,7 +306,7 @@ const Services: React.FC = () => {
                 }
               }}>
                 <SelectTrigger className="w-28 h-9">
-                  <SelectValue placeholder={getTranslation(language, 'services.city_selection')} />
+                  <SelectValue placeholder="도시 선택" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">전체</SelectItem>
@@ -349,7 +339,7 @@ const Services: React.FC = () => {
                   }
                 }}>
                   <SelectTrigger className="w-28 h-9">
-                    <SelectValue placeholder={getTranslation(language, 'services.district_selection')} />
+                    <SelectValue placeholder="지역구" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">전체</SelectItem>
@@ -407,21 +397,21 @@ const Services: React.FC = () => {
             <div className="flex gap-2 items-center">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-36 h-9">
-                  <SelectValue placeholder={getTranslation(language, 'services.sort_by')} />
+                  <SelectValue placeholder="정렬 기준" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="newest" className="flex items-center gap-2">
                     <RefreshCw className="h-4 w-4" />
-                    <span>{getTranslation(language, 'services.newest')}</span>
+                    <span>최신순</span>
                   </SelectItem>
                   <SelectItem value="rating" className="flex items-center gap-2">
                     <Star className="h-4 w-4" />
-                    <span>{getTranslation(language, 'services.by_rating')}</span>
+                    <span>평점순</span>
                   </SelectItem>
                   {type === '3d_printing' && (
                     <SelectItem value="lowPrice" className="flex items-center gap-2">
                       <Clock className="h-4 w-4" />
-                      <span>{getTranslation(language, 'services.lowest_price')}</span>
+                      <span>낮은가격순</span>
                     </SelectItem>
                   )}
                 </SelectContent>
@@ -437,7 +427,7 @@ const Services: React.FC = () => {
                   getLocation();
                   resetFilters();
                 }}
-                title={getTranslation(language, 'services.reset_filters')}
+                title="필터 초기화"
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -447,7 +437,7 @@ const Services: React.FC = () => {
           {/* 적용된 필터 표시 영역 */}
           {(searchTerm || sortBy !== "newest" || manualLocation.city) && (
             <div className="px-4 py-2 flex flex-wrap gap-2 bg-slate-50 text-sm">
-              <span className="font-medium">{getTranslation(language, 'services.applied_filters')}:</span>
+              <span className="font-medium">적용 필터:</span>
               {searchTerm && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Search className="h-3 w-3" />
@@ -490,7 +480,7 @@ const Services: React.FC = () => {
                     <Clock className="h-3 w-3" />
                   )}
                   <span>
-                    {sortBy === "rating" ? getTranslation(language, 'services.by_rating') : sortBy === "lowPrice" ? getTranslation(language, 'services.lowest_price') : getTranslation(language, 'services.newest')}
+                    {sortBy === "rating" ? "평점순" : sortBy === "lowPrice" ? "낮은가격순" : "최신순"}
                   </span>
                   <button 
                     className="ml-1 hover:text-red-500"
@@ -510,17 +500,17 @@ const Services: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <SlidersHorizontal className="h-5 w-5 text-primary mr-2" />
-                <h3 className="text-lg font-medium">{getTranslation(language, 'services.view_mode')}</h3>
+                <h3 className="text-lg font-medium">보기 모드</h3>
               </div>
               
               <TabsList>
                 <TabsTrigger value="list" className="flex items-center gap-1">
                   <List className="h-4 w-4" />
-                  <span>{getTranslation(language, 'services.list_view')}</span>
+                  <span>목록 보기</span>
                 </TabsTrigger>
                 <TabsTrigger value="map" className="flex items-center gap-1">
                   <Map className="h-4 w-4" />
-                  <span>{getTranslation(language, 'services.map_view')}</span>
+                  <span>지도 보기</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -540,13 +530,13 @@ const Services: React.FC = () => {
                 </div>
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_nearby_printers')}</p>
-                  <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_search')}</p>
+                  <p className="text-gray-600 mb-4">검색 조건에 맞는 근처 3D 프린터가 없습니다.</p>
+                  <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={resetFilters}
                   >
-                    {getTranslation(language, 'services.reset_filters')}
+                    필터 초기화
                   </Button>
                 </div>
               )}
@@ -559,13 +549,13 @@ const Services: React.FC = () => {
                 <ServiceMap services={filteredServices} />
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_printers_in_area')}</p>
-                  <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_area')}</p>
+                  <p className="text-gray-600 mb-4">이 지역에 이용 가능한 근처 3D 프린터가 없습니다.</p>
+                  <p className="text-sm text-gray-500 mb-6">다른 지역을 검색하거나 필터를 조정해보세요.</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={resetFilters}
                   >
-                    {getTranslation(language, 'services.reset_filters')}
+                    필터 초기화
                   </Button>
                 </div>
               )}
@@ -588,13 +578,13 @@ const Services: React.FC = () => {
               </div>
             ) : (
               <div className="bg-gray-50 p-8 rounded-lg text-center">
-                <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_matching_services')}</p>
-                <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_search')}</p>
+                <p className="text-gray-600 mb-4">검색 조건에 맞는 서비스가 없습니다.</p>
+                <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
                 <Button 
                   className="bg-primary text-white hover:bg-blue-600"
                   onClick={resetFilters}
                 >
-                  {getTranslation(language, 'services.reset_filters')}
+                  필터 초기화
                 </Button>
               </div>
             )}

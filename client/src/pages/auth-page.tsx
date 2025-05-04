@@ -28,36 +28,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 
-// 로그인 폼 유효성 검사를 위한 스키마 생성 함수
-const createLoginSchema = (t: (key: string) => string) => z.object({
-  username: z.string().min(3, t('auth.errors.usernameMin')),
-  password: z.string().min(6, t('auth.errors.passwordMin'))
+// 로그인 폼 유효성 검사를 위한 스키마
+const loginSchema = z.object({
+  username: z.string().min(3, '아이디는 최소 3자 이상이어야 합니다.'),
+  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
 });
 
-// 회원가입 폼 유효성 검사를 위한 스키마 생성 함수
-const createRegisterSchema = (t: (key: string) => string) => z.object({
-  fullName: z.string().max(50, t('auth.errors.fullNameMax')),
-  email: z.string().email(t('auth.errors.emailInvalid')),
-  username: z.string().min(3, t('auth.errors.usernameMin')),
-  password: z.string().min(6, t('auth.errors.passwordMin'))
+// 회원가입 폼 유효성 검사를 위한 스키마
+const registerSchema = z.object({
+  fullName: z.string().max(50, '닉네임은 최대 50자까지 입력 가능합니다.'),
+  email: z.string().email('유효한 이메일 주소를 입력해주세요.'),
+  username: z.string().min(3, '아이디는 최소 3자 이상이어야 합니다.'),
+  password: z.string().min(6, '비밀번호는 최소 6자 이상이어야 합니다.')
 });
 
-// 스키마 타입 정의
-type LoginSchema = ReturnType<typeof createLoginSchema>;
-type RegisterSchema = ReturnType<typeof createRegisterSchema>;
-type LoginFormValues = {
-  username: string;
-  password: string;
-};
-type RegisterFormValues = {
-  fullName: string;
-  email: string;
-  username: string;
-  password: string;
-};
+type LoginFormValues = z.infer<typeof loginSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 interface AuthPageProps {
   initialTab?: 'login' | 'register';
@@ -71,11 +59,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
   const [matchLogin] = useRoute('/login');
   const [matchRegister] = useRoute('/register');
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
-  const { t } = useLanguage();
-
-  // 현재 언어에 맞는 유효성 검사 스키마 생성
-  const loginSchema = createLoginSchema(t);
-  const registerSchema = createRegisterSchema(t);
 
   // 로그인 상태라면 메인 페이지로 리디렉션
   useEffect(() => {
@@ -137,16 +120,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
       <div className="flex-1 flex flex-col items-center justify-center p-8">
         <Card className="w-full max-w-md mx-auto">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">{t('auth.welcomeTitle')}</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">환영합니다!</CardTitle>
             <CardDescription className="text-center">
-              {activeTab === 'login' ? t('auth.loginSubtitle') : t('auth.registerSubtitle')}
+              {activeTab === 'login' ? '계정에 로그인하세요' : '새 계정을 생성하세요'}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'login' | 'register')} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <TabsList className="grid grid-cols-2 mb-4">
-                <TabsTrigger value="login">{t('auth.loginTab')}</TabsTrigger>
-                <TabsTrigger value="register">{t('auth.registerTab')}</TabsTrigger>
+                <TabsTrigger value="login">로그인</TabsTrigger>
+                <TabsTrigger value="register">회원가입</TabsTrigger>
               </TabsList>
               
               {/* 로그인 폼 */}
@@ -158,9 +141,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.username')}</FormLabel>
+                          <FormLabel>아이디</FormLabel>
                           <FormControl>
-                            <Input placeholder={t('auth.username')} {...field} />
+                            <Input placeholder="아이디" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -171,12 +154,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.password')}</FormLabel>
+                          <FormLabel>비밀번호</FormLabel>
                           <div className="relative">
                             <FormControl>
                               <Input 
                                 type={showLoginPassword ? "text" : "password"} 
-                                placeholder={t('auth.password')} 
+                                placeholder="비밀번호" 
                                 {...field} 
                               />
                             </FormControl>
@@ -200,7 +183,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       {loginMutation.isPending ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : null}
-                      {t('auth.login')}
+                      로그인
                     </Button>
                   </form>
                 </Form>
@@ -215,9 +198,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="fullName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.fullName')}</FormLabel>
+                          <FormLabel>닉네임</FormLabel>
                           <FormControl>
-                            <Input placeholder={t('auth.fullNamePlaceholder')} {...field} />
+                            <Input placeholder="닉네임 입력" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -228,9 +211,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.email')}</FormLabel>
+                          <FormLabel>이메일</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder={t('auth.emailPlaceholder')} {...field} />
+                            <Input type="email" placeholder="이메일 주소" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -241,9 +224,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="username"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.username')}</FormLabel>
+                          <FormLabel>아이디</FormLabel>
                           <FormControl>
-                            <Input placeholder={t('auth.usernamePlaceholder')} {...field} />
+                            <Input placeholder="로그인에 사용할 아이디" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -254,12 +237,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t('auth.password')}</FormLabel>
+                          <FormLabel>비밀번호</FormLabel>
                           <div className="relative">
                             <FormControl>
                               <Input 
                                 type={showRegisterPassword ? "text" : "password"} 
-                                placeholder={t('auth.passwordPlaceholder')} 
+                                placeholder="6자 이상의 비밀번호" 
                                 {...field} 
                               />
                             </FormControl>
@@ -283,7 +266,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                       {registerMutation.isPending ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       ) : null}
-                      {t('auth.register')}
+                      회원가입
                     </Button>
                   </form>
                 </Form>
@@ -296,9 +279,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
       {/* 오른쪽 소개 영역 */}
       <div className="hidden md:flex flex-1 flex-col bg-primary text-white p-8 items-center justify-center">
         <div className="max-w-md">
-          <h2 className="text-3xl font-bold mb-4">{t('auth.welcomeToWebel')}</h2>
+          <h2 className="text-3xl font-bold mb-4">Webel 플랫폼에 오신 것을 환영합니다</h2>
           <p className="mb-6 text-lg">
-            {t('auth.platformDescription')}
+            3D 프린팅 서비스, 엔지니어링 자원, 제작 노하우가 한 곳에 모인 
+            메이커를 위한 통합 플랫폼을 경험하세요. 필요한 서비스와 자원을 빠르고 쉽게 찾아보세요.
           </p>
           <div className="space-y-4">
             <div className="flex items-start">
@@ -310,8 +294,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold">{t('auth.resourceSharing')}</h3>
-                <p>{t('auth.resourceSharingDescription')}</p>
+                <h3 className="font-semibold">리소스 공유</h3>
+                <p>하드웨어 설계도, 소프트웨어, AI 모델, 3D 모델링 파일까지 다양한 엔지니어링 리소스를 공유하고 발견하세요.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -322,8 +306,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold">{t('auth.locationBasedServices')}</h3>
-                <p>{t('auth.locationBasedServicesDescription')}</p>
+                <h3 className="font-semibold">위치 기반 서비스</h3>
+                <p>가까운 3D 프린터, 전자 수리 서비스, 제작 워크숍을 지도에서 쉽게 찾고 이용하세요.</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -336,8 +320,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold">{t('auth.aiAssistant')}</h3>
-                <p>{t('auth.aiAssistantDescription')}</p>
+                <h3 className="font-semibold">AI 조립 비서</h3>
+                <p>지능형 AI 비서가 하드웨어 조립, 문제 해결, 부품 선택에 대한 실시간 도움을 제공합니다.</p>
               </div>
             </div>
           </div>

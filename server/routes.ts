@@ -131,10 +131,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(services);
   });
   
-  app.post('/api/services', async (req: Request, res: Response) => {
+  app.post('/api/services', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      // 유료 서비스인 경우 로그인된 사용자만 가능 & 본인 인증이 필요한지 확인
-      if ((req.body.isFreeService === false || req.body.basePrice > 0) && req.user) {
+      if (!req.user) {
+        return res.status(401).json({ message: '로그인이 필요합니다.' });
+      }
+      
+      // 유료 서비스인 경우 본인 인증이 필요한지 확인
+      if (req.body.isFreeService === false || req.body.basePrice > 0) {
         // 인증 상태 확인
         const verificationStatus = await storage.getVerificationStatus(req.user.id);
         
@@ -162,7 +166,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 데이터 정제
       const serviceData = {
         ...req.body,
-        userId: req.user ? req.user.id : null
+        userId: req.user.id
       };
       
       // tags 배열 처리

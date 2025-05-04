@@ -7,8 +7,6 @@ import ResourceCard from '@/components/ui/ResourceCard';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Loader2, PlusCircle } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { getTranslation } from '@/i18n/translations';
 
 // 브라우저 환경인지 확인하는 전역 변수
 const isBrowser = typeof window !== 'undefined';
@@ -24,7 +22,6 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   // Use props.type if provided directly, or from params prop, or from route params
   const type = props.type || (props.params?.type) || routeParams.type;
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const { language } = useLanguage();
   
   // URL에서 검색 쿼리 파라미터 추출
   useEffect(() => {
@@ -95,24 +92,22 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   
   // Get resource type name for display
   const getResourceTypeName = () => {
-    if (type) {
-      const key = `resourceType.${type}`;
-      const translation = getTranslation(language, key);
-      // If translation returns just the key part, use Korean default
-      if (translation === type) {
-        const koreanDefault: Record<string, string> = {
-          'hardware_design': '하드웨어 설계도',
-          'software': '소프트웨어 오픈소스',
-          '3d_model': '3D 모델링 파일',
-          'free_content': '프리 콘텐츠',
-          'ai_model': '인공지능 모델',
-          'flash_game': '플래시 게임'
-        };
-        return koreanDefault[type] || translation;
-      }
-      return translation;
+    switch (type) {
+      case 'hardware_design':
+        return '하드웨어 설계도';
+      case 'software':
+        return '소프트웨어 오픈소스';
+      case '3d_model':
+        return '3D 모델링 파일';
+      case 'free_content':
+        return '프리 콘텐츠';
+      case 'ai_model':
+        return '인공지능 모델';
+      case 'flash_game':
+        return '플래시 게임';
+      default:
+        return '모든 리소스';
     }
-    return getTranslation(language, 'nav.all_resources');
   };
   
   // 무한 스크롤 기능 제거
@@ -181,7 +176,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="relative w-full">
             <Input 
               type="text" 
-              placeholder={getTranslation(language, 'ui.search.placeholder') || '리소스 검색...'}
+              placeholder="리소스 검색..." 
               className="w-full pr-10" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -212,10 +207,8 @@ const Resources: React.FC<ResourcesProps> = (props) => {
           <div className="bg-gray-50 p-8 rounded-lg text-center">
             <p className="text-gray-600 mb-4">
               {searchQuery 
-                ? language === 'ko' 
-                  ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
-                  : `${getTranslation(language, 'resources.no_search_results')} '${searchQuery}'`
-                : getTranslation(language, 'resources.no_resources_available') || '이용 가능한 리소스가 없습니다.'}
+                ? `'${searchQuery}'에 대한 검색 결과가 없습니다.` 
+                : '이용 가능한 리소스가 없습니다.'}
             </p>
             {searchQuery && (
               <Button 
@@ -234,7 +227,7 @@ const Resources: React.FC<ResourcesProps> = (props) => {
                   }
                 }}
               >
-                {getTranslation(language, 'resources.view_all') || '모든 리소스 보기'}
+                모든 리소스 보기
               </Button>
             )}
           </div>

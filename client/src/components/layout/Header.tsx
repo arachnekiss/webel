@@ -5,11 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
-import { LanguageSelector } from '@/components/ui/language-selector';
 
 import { 
   Search, 
@@ -25,11 +23,11 @@ import {
   Gamepad2
 } from 'lucide-react';
 
-// 리소스 카테고리 아이템을 생성하는 함수
-const getResourceCategories = () => [
+// 리소스 카테고리 아이템
+const resourceCategories = [
   {
     id: 'hardware_design',
-    label: '하드웨어 설계',
+    label: '하드웨어 설계도',
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
@@ -65,25 +63,6 @@ const getResourceCategories = () => [
   }
 ];
 
-// 서비스 카테고리
-const getServiceCategories = () => [
-  {
-    id: 'engineering',
-    label: '엔지니어링 서비스',
-    href: '/services/type/engineering'
-  },
-  {
-    id: '3d_printing',
-    label: '3D 프린팅 서비스',
-    href: '/services/type/3d_printing'
-  },
-  {
-    id: 'manufacturing',
-    label: '제조 서비스',
-    href: '/services/type/manufacturing'
-  }
-];
-
 const Header: React.FC = () => {
   const [location, navigate] = useLocation();
   const { isMobile } = useDeviceDetect();
@@ -91,11 +70,6 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
-  const { t, language } = useLanguage();
-  
-  // 리소스 및 서비스 카테고리 가져오기
-  const resourceCategories = getResourceCategories();
-  const serviceCategories = getServiceCategories();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -147,7 +121,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder={t('search.placeholder')} 
+                    placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full bg-background/80 focus:bg-background" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -166,41 +140,38 @@ const Header: React.FC = () => {
             
             {/* 로그인/회원가입 또는 사용자 메뉴 */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* 언어 선택기 추가 */}
-              <LanguageSelector />
-              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-foreground font-medium">
-                    {user.fullName || user.username}{t('common.honorific')}
+                    {user.fullName || user.username}님
                   </div>
                   <Button 
                     variant="outline" 
                     className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
-                    {t('auth.logout')}
+                    로그아웃
                   </Button>
                   {isAdmin && (
                     <TopLink href="/admin/dashboard" className="inline-block">
-                      <Button variant="secondary">{t('admin.dashboard')}</Button>
+                      <Button variant="secondary">관리자 대시보드</Button>
                     </TopLink>
                   )}
                 </div>
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    {t('auth.login')}
+                    로그인
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    {t('auth.register')}
+                    회원가입
                   </TopLink>
                 </>
               )}
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'スポンサー' : 'Donate'}
+                  Webel 후원하기
                 </Button>
               </TopLink>
             </div>
@@ -264,7 +235,7 @@ const Header: React.FC = () => {
             {/* 모바일 메뉴 닫기 버튼 */}
             <div className="flex justify-between items-center p-3 border-b border-border">
               <div className="text-foreground font-bold text-lg pl-2">
-                {t('nav.menu')}
+                메뉴
               </div>
               <Button 
                 variant="ghost" 
@@ -280,7 +251,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder={t('search.mobile_placeholder')} 
+                    placeholder="검색어를 입력하세요" 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -304,132 +275,121 @@ const Header: React.FC = () => {
                 
                 <div 
                   onClick={() => handleNavigate('/')}
-                  className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
-                    location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
-                  }`}
+                  className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
                   홈
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/resources')}
-                  className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
-                    location === '/resources' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
-                  }`}
+                  className={`flex items-center px-4 py-2 ${
+                    location === '/resources'
+                    ? 'bg-primary/10 text-primary' 
+                    : 'text-foreground hover:bg-slate-50'
+                  } rounded cursor-pointer`}
                 >
-                  모든 리소스
+                  <span className="mr-2"><Layers className="h-4 w-4" /></span>
+                  <span>모든 리소스</span>
                 </div>
                 
-                {/* 카테고리 선택기 */}
-                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                <div className="mt-2 px-4 py-2 text-foreground font-semibold">
                   리소스 카테고리
                 </div>
                 
-                {resourceCategories.map(item => (
+                {/* 모바일용 리소스 카테고리 메뉴 */}
+                {resourceCategories.map(category => (
                   <div 
-                    key={item.id}
-                    onClick={() => handleNavigate(item.href)}
-                    className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
-                      location === item.href || (item.href !== '/' && location.includes(item.href)) 
+                    key={category.id}
+                    onClick={() => handleNavigate(category.href)}
+                    className={`flex items-center px-4 py-2 ${
+                      location === category.href || (category.href !== '/' && location.includes(category.href)) 
                       ? 'bg-primary/10 text-primary' 
-                      : 'text-foreground hover:bg-background/80'
-                    }`}
+                      : 'text-foreground hover:bg-slate-50'
+                    } rounded cursor-pointer`}
                   >
-                    <span className="mr-2">{item.icon}</span>
-                    <span>{item.label}</span>
+                    <span className="mr-2">{category.icon}</span>
+                    <span>{category.label}</span>
                   </div>
                 ))}
+                
+                <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   서비스
                 </div>
                 
-                {serviceCategories.map(item => (
+                {/* 모바일용 서비스 카테고리 메뉴 */}
+                {serviceItems.map(item => (
                   <div 
-                    key={item.id}
+                    key={item.id} 
                     onClick={() => handleNavigate(item.href)}
-                    className={`flex items-center px-4 py-3 rounded-lg cursor-pointer ${
+                    className={`flex items-center px-4 py-2 ${
                       location === item.href || (item.href !== '/' && location.includes(item.href)) 
                       ? 'bg-primary/10 text-primary' 
-                      : 'text-foreground hover:bg-background/80'
-                    }`}
+                      : 'text-foreground hover:bg-slate-50'
+                    } rounded cursor-pointer`}
                   >
+                    <span className="mr-2">{item.icon}</span>
                     <span>{item.label}</span>
                   </div>
                 ))}
-                
-                {/* 언어 설정 */}
-                <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  언어 설정
-                </div>
-                
-                <div className="px-4 py-2">
-                  <LanguageSelector />
-                </div>
-                
-                {/* 계정 관련 */}
+                <div className="h-px bg-border my-3"></div>
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   계정
                 </div>
-                
                 {user ? (
                   <>
-                    <div className="px-4 py-2">
-                      <div className="text-foreground font-medium pb-2">
-                        {user.fullName || user.username}{t('common.honorific')}
-                      </div>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="border-border text-foreground w-full"
-                        onClick={() => logoutMutation.mutate()}
-                      >
-                        {t('auth.logout')}
-                      </Button>
-                      
-                      {isAdmin && (
-                        <div className="mt-2">
-                          <Button 
-                            variant="secondary" 
-                            className="w-full"
-                            onClick={() => handleNavigate('/admin/dashboard')}
-                          >
-                            {t('admin.dashboard')}
-                          </Button>
-                        </div>
-                      )}
+                    <div className="px-4 py-2 text-primary font-medium mb-1">
+                      <span className="ml-2">{user.fullName || user.username}님</span>
                     </div>
+                    <div 
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
+                      onClick={() => {
+                        logoutMutation.mutate();
+                        if (isMobile) setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      로그아웃
+                    </div>
+                    {isAdmin && (
+                      <div 
+                        onClick={() => handleNavigate('/admin/dashboard')}
+                        className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
+                      >
+                        관리자 대시보드
+                      </div>
+                    )}
                   </>
                 ) : (
                   <>
                     <div 
                       onClick={() => handleNavigate('/login')}
-                      className="flex items-center px-4 py-3 rounded-lg cursor-pointer text-foreground hover:bg-background/80"
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      {t('auth.login')}
+                      로그인
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
-                      className="flex items-center px-4 py-3 rounded-lg cursor-pointer text-foreground hover:bg-background/80"
+                      className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      {t('auth.register')}
+                      회원가입
                     </div>
                   </>
                 )}
-                
-                <div className="px-4 py-2">
-                  <Button 
-                    className="bg-primary text-white w-full"
-                    onClick={() => handleNavigate('/sponsor')}
-                  >
-                    {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'スポンサー' : 'Donate'}
-                  </Button>
+
+                <div 
+                  onClick={() => handleNavigate('/sponsor')}
+                  className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
+                >
+                  Webel 후원하기
                 </div>
               </nav>
             </div>
           </div>
         </div>
       )}
+      
+      {/* 중복 제거: 카테고리 네비게이션은 Home.tsx에서 필요한 경우에만 추가 */}
     </header>
   );
 };

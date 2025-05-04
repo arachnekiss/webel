@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
-import { useLanguage } from '@/contexts/LanguageContext';
 import TopLink from '@/components/ui/TopLink';
 
 // 모든 컴포넌트에서 접근할 수 있도록 타입과 항목을 export
@@ -28,7 +27,7 @@ export interface SidebarItemProps {
 export const serviceItems: SidebarItemProps[] = [
   {
     id: '3d_printer',
-    label: '근처 3D 프린터 찾기',
+    label: '근처 3D 프린터',
     icon: <Printer className="h-5 w-5" />,
     href: '/services/type/3d_printing'
   },
@@ -58,7 +57,7 @@ export const serviceItems: SidebarItemProps[] = [
   },
   {
     id: 'sponsor',
-    label: '후원하기',
+    label: 'Webel 후원하기',
     icon: <Heart className="h-5 w-5" />,
     href: '/sponsor'
   }
@@ -68,7 +67,6 @@ const Sidebar: React.FC = () => {
   const [location] = useLocation();
   const { isMobile } = useDeviceDetect();
   const { isAdmin } = useAuth();
-  const { currentLanguage, formatUrl } = useLanguage();
   
   if (isMobile) return null; // 모바일에서는 사이드바를 표시하지 않음
   
@@ -76,7 +74,7 @@ const Sidebar: React.FC = () => {
     <aside className="hidden md:block w-full py-4 rounded-xl">
       <div className="px-6">
         <h2 className="text-lg font-bold text-slate-800">서비스</h2>
-        <p className="text-slate-500 text-sm mt-1">도움이 필요한 서비스를 찾아보세요.</p>
+        <p className="text-slate-500 text-sm mt-1">하드웨어 및 조립 관련 서비스</p>
         <div className="mt-3 h-px bg-gradient-to-r from-primary/20 to-transparent"></div>
       </div>
       
@@ -85,7 +83,7 @@ const Sidebar: React.FC = () => {
           const isActive = location === item.href || (item.href !== '/' && location.startsWith(item.href));
           
           return (
-            <TopLink key={item.id} href={formatUrl(item.href)} showLoadingIndicator={true}>
+            <TopLink key={item.id} href={item.href} showLoadingIndicator={true}>
               <div
                 className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                   isActive 
@@ -109,7 +107,7 @@ const Sidebar: React.FC = () => {
               <div className="h-px bg-slate-200"></div>
               <h3 className="text-sm font-semibold text-slate-800 mt-3">관리자 메뉴</h3>
             </div>
-            <TopLink href={formatUrl('/admin/dashboard')} showLoadingIndicator={true}>
+            <TopLink href="/admin/dashboard" showLoadingIndicator={true}>
               <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base ${
                 location === '/admin/dashboard' 
                   ? 'bg-primary/5 text-primary font-medium' 
@@ -128,17 +126,17 @@ const Sidebar: React.FC = () => {
       <div className="px-6 mt-2 space-y-4">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
           <h3 className="font-medium text-slate-800 mb-2">3D 프린팅 시작하기</h3>
-          <p className="text-sm text-slate-600 mb-3">3D 프린터를 사용하여 원하는 모델을 출력해보세요.</p>
-          <TopLink href={formatUrl('/services/type/3d_printing')} showLoadingIndicator={true}>
+          <p className="text-sm text-slate-600 mb-3">가까운 3D 프린터를 활용하여 디자인을 현실로 만들어보세요.</p>
+          <TopLink href="/services/type/3d_printing" showLoadingIndicator={true}>
             <div className="text-primary text-sm font-medium hover:underline">프린터 찾기 →</div>
           </TopLink>
         </div>
         
         <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
-          <h3 className="font-medium text-slate-800 mb-2">프린터 등록하기</h3>
-          <p className="text-sm text-slate-600 mb-3">프린터를 등록하고 수익을 창출하세요.</p>
-          <TopLink href={formatUrl('/register-printer')} showLoadingIndicator={true}>
-            <div className="text-primary text-sm font-medium hover:underline">프린터 등록 →</div>
+          <h3 className="font-medium text-slate-800 mb-2">내 프린터 등록하기</h3>
+          <p className="text-sm text-slate-600 mb-3">보유하신 3D 프린터로 서비스를 제공하고 수익을 창출하세요.</p>
+          <TopLink href="/register-printer" showLoadingIndicator={true}>
+            <div className="text-primary text-sm font-medium hover:underline">프린터 등록하기 →</div>
           </TopLink>
         </div>
       </div>

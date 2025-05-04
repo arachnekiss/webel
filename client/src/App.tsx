@@ -5,7 +5,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
-import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
@@ -19,7 +18,7 @@ import Sidebar from '@/components/layout/Sidebar';
 // 로딩 스피너 인라인 구현
 const LoadingSpinner = ({ 
   size = 'md', 
-  message
+  message = '로딩 중...'
 }: { 
   size?: 'sm' | 'md' | 'lg'; 
   message?: string;
@@ -30,13 +29,10 @@ const LoadingSpinner = ({
     lg: 'h-12 w-12',
   }[size];
 
-  // 메시지가 제공되지 않은 경우 기본 로딩 메시지 사용
-  const displayMessage = message || '로딩 중...';
-
   return (
     <div className="flex flex-col items-center justify-center w-full py-12">
       <Loader2 className={`${sizeClass} animate-spin text-primary mb-4`} />
-      <p className="text-muted-foreground text-center">{displayMessage}</p>
+      {message && <p className="text-muted-foreground text-center">{message}</p>}
     </div>
   );
 };
@@ -74,7 +70,6 @@ import { usePageScroll } from '@/hooks/use-page-scroll';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
-  const { t } = useLanguage();
   
   // 성능 모니터링 적용
   useEffect(() => {
@@ -225,79 +220,33 @@ function Router() {
           
           {/* 메인 콘텐츠 영역 */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            <Suspense fallback={<LoadingSpinner size="lg" message={t('common.pageLoading')} />}>
+            <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
               <Switch>
-                {/* Root route - 모든 언어 버전에서 홈페이지 */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
-                <Route path="/en">
-                  {() => <Home />}
-                </Route>
-                <Route path="/jp">
-                  {() => <Home />}
-                </Route>
                 
-                {/* Services routes - 카테고리별 서비스 목록 (각 언어별 경로) */}
+                {/* Services routes - 카테고리별 서비스 목록 */}
                 <Route path="/services/type/:type">
                   {(params) => <Services type={params.type} />}
                 </Route>
-                <Route path="/en/services/type/:type">
-                  {(params) => <Services type={params.type} />}
-                </Route>
-                <Route path="/jp/services/type/:type">
-                  {(params) => <Services type={params.type} />}
-                </Route>
-                
                 <Route path="/services/:id">
                   {(params) => <ServiceDetail id={params.id} />}
                 </Route>
-                <Route path="/en/services/:id">
-                  {(params) => <ServiceDetail id={params.id} />}
-                </Route>
-                <Route path="/jp/services/:id">
-                  {(params) => <ServiceDetail id={params.id} />}
-                </Route>
                 
-                {/* Resource routes with resource type categories (각 언어별 경로) */}
+                {/* Resource routes with resource type categories */}
                 <Route path="/resources/type/:type">
                   {(params) => <Resources params={params} />}
                 </Route>
-                <Route path="/en/resources/type/:type">
-                  {(params) => <Resources params={params} />}
-                </Route>
-                <Route path="/jp/resources/type/:type">
-                  {(params) => <Resources params={params} />}
-                </Route>
-                
                 <Route path="/resources">
                   {() => <Resources />}
                 </Route>
-                <Route path="/en/resources">
-                  {() => <Resources />}
-                </Route>
-                <Route path="/jp/resources">
-                  {() => <Resources />}
-                </Route>
-                
                 <Route path="/resources/:id">
                   {(params) => <ResourceDetail id={params.id} />}
                 </Route>
-                <Route path="/en/resources/:id">
-                  {(params) => <ResourceDetail id={params.id} />}
-                </Route>
-                <Route path="/jp/resources/:id">
-                  {(params) => <ResourceDetail id={params.id} />}
-                </Route>
                 
-                {/* 플래시 게임 페이지 (각 언어별 경로) */}
+                {/* 플래시 게임 페이지 (띄어쓰기 수정) */}
                 <Route path="/flash-game">
-                  {() => <Resources type="flash_game" />}
-                </Route>
-                <Route path="/en/flash-game">
-                  {() => <Resources type="flash_game" />}
-                </Route>
-                <Route path="/jp/flash-game">
                   {() => <Resources type="flash_game" />}
                 </Route>
                 
@@ -353,54 +302,20 @@ function Router() {
                   {() => <UploadResource />}
                 </Route>
                 
-                {/* Other pages - with language specific routes */}
+                {/* Other pages */}
                 <Route path="/ai-assembly">
                   {() => <AiAssembly />}
                 </Route>
-                <Route path="/en/ai-assembly">
-                  {() => <AiAssembly />}
-                </Route>
-                <Route path="/jp/ai-assembly">
-                  {() => <AiAssembly />}
-                </Route>
-                
                 <Route path="/remote-support">
                   {() => <RemoteSupport />}
                 </Route>
-                <Route path="/en/remote-support">
-                  {() => <RemoteSupport />}
-                </Route>
-                <Route path="/jp/remote-support">
-                  {() => <RemoteSupport />}
-                </Route>
-                
                 <Route path="/services/type/engineer">
                   {() => <Engineers />}
                 </Route>
-                <Route path="/en/services/type/engineer">
-                  {() => <Engineers />}
-                </Route>
-                <Route path="/jp/services/type/engineer">
-                  {() => <Engineers />}
-                </Route>
-                
                 <Route path="/sponsor">
                   {() => <Sponsor />}
                 </Route>
-                <Route path="/en/sponsor">
-                  {() => <Sponsor />}
-                </Route>
-                <Route path="/jp/sponsor">
-                  {() => <Sponsor />}
-                </Route>
-                
                 <Route path="/about">
-                  {() => <About />}
-                </Route>
-                <Route path="/en/about">
-                  {() => <About />}
-                </Route>
-                <Route path="/jp/about">
                   {() => <About />}
                 </Route>
                 
@@ -408,30 +323,10 @@ function Router() {
                 <Route path="/auth">
                   {() => <AuthPage />}
                 </Route>
-                <Route path="/en/auth">
-                  {() => <AuthPage />}
-                </Route>
-                <Route path="/jp/auth">
-                  {() => <AuthPage />}
-                </Route>
-                
                 <Route path="/login">
                   {() => <AuthPage initialTab="login" />}
                 </Route>
-                <Route path="/en/login">
-                  {() => <AuthPage initialTab="login" />}
-                </Route>
-                <Route path="/jp/login">
-                  {() => <AuthPage initialTab="login" />}
-                </Route>
-                
                 <Route path="/register">
-                  {() => <AuthPage initialTab="register" />}
-                </Route>
-                <Route path="/en/register">
-                  {() => <AuthPage initialTab="register" />}
-                </Route>
-                <Route path="/jp/register">
                   {() => <AuthPage initialTab="register" />}
                 </Route>
                 
@@ -441,45 +336,15 @@ function Router() {
                     {() => <UserVerification />}
                   </ProtectedRoute>}
                 </Route>
-                <Route path="/en/my/verification">
-                  {() => <ProtectedRoute>
-                    {() => <UserVerification />}
-                  </ProtectedRoute>}
-                </Route>
-                <Route path="/jp/my/verification">
-                  {() => <ProtectedRoute>
-                    {() => <UserVerification />}
-                  </ProtectedRoute>}
-                </Route>
                 
                 {/* Payment pages */}
                 <Route path="/payment/service/:id">
                   {(params) => <PaymentPage id={params.id} />}
                 </Route>
-                <Route path="/en/payment/service/:id">
-                  {(params) => <PaymentPage id={params.id} />}
-                </Route>
-                <Route path="/jp/payment/service/:id">
-                  {(params) => <PaymentPage id={params.id} />}
-                </Route>
-                
                 <Route path="/payment/success">
                   {() => <PaymentResult status="success" />}
                 </Route>
-                <Route path="/en/payment/success">
-                  {() => <PaymentResult status="success" />}
-                </Route>
-                <Route path="/jp/payment/success">
-                  {() => <PaymentResult status="success" />}
-                </Route>
-                
                 <Route path="/payment/fail">
-                  {() => <PaymentResult status="fail" />}
-                </Route>
-                <Route path="/en/payment/fail">
-                  {() => <PaymentResult status="fail" />}
-                </Route>
-                <Route path="/jp/payment/fail">
                   {() => <PaymentResult status="fail" />}
                 </Route>
                 
@@ -491,21 +356,6 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
-                <Route path="/en/admin/dashboard">
-                  {() => (
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/jp/admin/dashboard">
-                  {() => (
-                    <AdminRoute>
-                      <AdminDashboard />
-                    </AdminRoute>
-                  )}
-                </Route>
-
                 <Route path="/admin/users">
                   {() => (
                     <AdminRoute>
@@ -513,21 +363,6 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
-                <Route path="/en/admin/users">
-                  {() => (
-                    <AdminRoute>
-                      <AdminUserManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/jp/admin/users">
-                  {() => (
-                    <AdminRoute>
-                      <AdminUserManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-
                 <Route path="/admin/resources">
                   {() => (
                     <AdminRoute>
@@ -535,36 +370,7 @@ function Router() {
                     </AdminRoute>
                   )}
                 </Route>
-                <Route path="/en/admin/resources">
-                  {() => (
-                    <AdminRoute>
-                      <AdminResourceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/jp/admin/resources">
-                  {() => (
-                    <AdminRoute>
-                      <AdminResourceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-
                 <Route path="/admin/services">
-                  {() => (
-                    <AdminRoute>
-                      <AdminServiceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/en/admin/services">
-                  {() => (
-                    <AdminRoute>
-                      <AdminServiceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/jp/admin/services">
                   {() => (
                     <AdminRoute>
                       <AdminServiceManagement />
@@ -579,31 +385,6 @@ function Router() {
                       <AdminServiceManagement />
                     </AdminRoute>
                   )}
-                </Route>
-                <Route path="/en/admin/engineers">
-                  {() => (
-                    <AdminRoute>
-                      <AdminServiceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                <Route path="/jp/admin/engineers">
-                  {() => (
-                    <AdminRoute>
-                      <AdminServiceManagement />
-                    </AdminRoute>
-                  )}
-                </Route>
-                
-                {/* 404 Page routes */}
-                <Route path="/404">
-                  {() => <NotFound />}
-                </Route>
-                <Route path="/en/404">
-                  {() => <NotFound />}
-                </Route>
-                <Route path="/jp/404">
-                  {() => <NotFound />}
                 </Route>
                 
                 {/* Fallback to 404 */}
@@ -682,12 +463,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LocationProvider>
-          <LanguageProvider>
-            <AuthProvider>
-              <Toaster />
-              <Router />
-            </AuthProvider>
-          </LanguageProvider>
+          <AuthProvider>
+            <Toaster />
+            <Router />
+          </AuthProvider>
         </LocationProvider>
       </TooltipProvider>
     </QueryClientProvider>
