@@ -230,13 +230,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              {t('nav.home')}
+              홈
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                {t('nav.all_resources')}
+                모든 리소스
               </div>
             </TopLink>
             
@@ -299,7 +299,7 @@ const Header: React.FC = () => {
               {/* 메뉴 아이템 */}
               <nav className="space-y-3">
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.main_menu')}
+                  메인 메뉴
                 </div>
                 
                 <div 
@@ -308,7 +308,7 @@ const Header: React.FC = () => {
                     location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
                   }`}
                 >
-                  {t('nav.home')}
+                  홈
                 </div>
                 
                 <div 
@@ -317,12 +317,12 @@ const Header: React.FC = () => {
                     location === '/resources' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-background/80'
                   }`}
                 >
-                  {t('nav.all_resources')}
+                  모든 리소스
                 </div>
                 
                 {/* 카테고리 선택기 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.resource_categories')}
+                  리소스 카테고리
                 </div>
                 
                 {resourceCategories.map(item => (
@@ -341,7 +341,7 @@ const Header: React.FC = () => {
                 ))}
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.services')}
+                  서비스
                 </div>
                 
                 {serviceCategories.map(item => (
