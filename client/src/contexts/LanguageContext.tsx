@@ -19,12 +19,8 @@ const LanguageContext = createContext<LanguageContextType>({
   formatUrl: (path: string) => path,
 });
 
-// Helper to get translation path dynamically
-const getTranslation = async (lang: Language, path: string): Promise<string> => {
-  // Dynamic import to avoid circular dependencies
-  const { getTranslation: gt } = await import('../i18n/translations');
-  return gt(lang, path);
-};
+// Import translations directly
+import { getTranslation as gt } from '../i18n/translations';
 
 interface LanguageProviderProps {
   children: ReactNode;
@@ -93,9 +89,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   
   // Function to translate text based on the current language
   const t = (path: string): string => {
-    // We need to use a synchronous call here, so we use the imported function directly
-    // The dynamic import in getTranslation would be async, which isn't suitable for render
-    const { getTranslation: gt } = require('../i18n/translations');
     return gt(language, path);
   };
   

@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
+import { LanguageSelector } from '@/components/ui/language-selector';
 
 import { 
   Search, 

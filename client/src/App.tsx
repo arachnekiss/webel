@@ -5,6 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
@@ -18,7 +19,7 @@ import Sidebar from '@/components/layout/Sidebar';
 // 로딩 스피너 인라인 구현
 const LoadingSpinner = ({ 
   size = 'md', 
-  message = '로딩 중...'
+  message
 }: { 
   size?: 'sm' | 'md' | 'lg'; 
   message?: string;
@@ -29,10 +30,13 @@ const LoadingSpinner = ({
     lg: 'h-12 w-12',
   }[size];
 
+  // 메시지가 제공되지 않은 경우 기본 로딩 메시지 사용
+  const displayMessage = message || '로딩 중...';
+
   return (
     <div className="flex flex-col items-center justify-center w-full py-12">
       <Loader2 className={`${sizeClass} animate-spin text-primary mb-4`} />
-      {message && <p className="text-muted-foreground text-center">{message}</p>}
+      <p className="text-muted-foreground text-center">{displayMessage}</p>
     </div>
   );
 };
@@ -70,6 +74,7 @@ import { usePageScroll } from '@/hooks/use-page-scroll';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
+  const { t } = useLanguage();
   
   // 성능 모니터링 적용
   useEffect(() => {
@@ -220,7 +225,7 @@ function Router() {
           
           {/* 메인 콘텐츠 영역 */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
+            <Suspense fallback={<LoadingSpinner size="lg" message={t('common.pageLoading')} />}>
               <Switch>
                 <Route path="/">
                   {() => <Home />}
@@ -463,10 +468,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LocationProvider>
-          <AuthProvider>
-            <Toaster />
-            <Router />
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <Toaster />
+              <Router />
+            </AuthProvider>
+          </LanguageProvider>
         </LocationProvider>
       </TooltipProvider>
     </QueryClientProvider>
