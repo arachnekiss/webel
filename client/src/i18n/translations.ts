@@ -57,7 +57,7 @@ export const translations: Record<Language, any> = {
     nav: {
       home: '홈',
       all_resources: '모든 리소스',
-      hardware_design: '하드웨어 설계',
+      hardware_design: '하드웨어 설계도',
       software: '소프트웨어',
       ai_model: 'AI 모델',
       modeling_file: '3D 모델링 파일',
@@ -84,7 +84,7 @@ export const translations: Record<Language, any> = {
       '3d_printer': '3D 프린터',
       ai_assistant: 'AI 어시스턴트',
       remote_support: '원격 지원',
-      manufacturers: '생산업체',
+      manufacturers: '제조사',
       sponsor: 'Webel 후원하기'
     },
     
@@ -161,7 +161,7 @@ export const translations: Record<Language, any> = {
     resourceType: {
       free_content: '무료 콘텐츠',
       flash_game: '플래시 게임',
-      hardware_design: '하드웨어 설계',
+      hardware_design: '하드웨어 설계도',
       software: '소프트웨어',
       ai_model: 'AI 모델',
       '3d_model': '3D 모델'
@@ -237,7 +237,7 @@ export const translations: Record<Language, any> = {
       latestResources: '최신 리소스',
       popularResources: '인기 리소스',
       featuredContent: '추천 콘텐츠',
-      hardwareTitle: '하드웨어 설계',
+      hardwareTitle: '하드웨어 설계도',
       hardwareDescription: '전자 제품과 하드웨어 설계를 위한 리소스',
       softwareTitle: '소프트웨어',
       softwareDescription: '펌웨어, 드라이버 및 소프트웨어 솔루션',
