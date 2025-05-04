@@ -1052,6 +1052,17 @@ const nav = {
     menu: '메뉴',
     language_settings: '언어 설정',
     account: '계정',
+    // 리소스 카테고리 항목들
+    hardware_design: '하드웨어 설계도',
+    software: '소프트웨어 오픈소스',
+    ai_model: 'AI 모델',
+    modeling_file: '3D 모델링 파일',
+    flash_game: '플래시 게임',
+    free_content: '무료 콘텐츠',
+    // 서비스 카테고리 항목들
+    engineering_services: '엔지니어링 서비스',
+    printing_services: '3D 프린팅 서비스',
+    manufacturing_services: '제조 서비스',
   },
   en: {
     home: 'Home',
@@ -1062,6 +1073,17 @@ const nav = {
     menu: 'Menu',
     language_settings: 'Language Settings',
     account: 'Account',
+    // Resource category items
+    hardware_design: 'Hardware Designs',
+    software: 'Open Source Software',
+    ai_model: 'AI Models',
+    modeling_file: '3D Modeling Files',
+    flash_game: 'Flash Games',
+    free_content: 'Free Content',
+    // Service category items
+    engineering_services: 'Engineering Services',
+    printing_services: '3D Printing Services',
+    manufacturing_services: 'Manufacturing Services',
   },
   jp: {
     home: 'ホーム',
@@ -1072,6 +1094,17 @@ const nav = {
     menu: 'メニュー',
     language_settings: '言語設定',
     account: 'アカウント',
+    // リソースカテゴリー項目
+    hardware_design: 'ハードウェア設計図',
+    software: 'オープンソースソフトウェア',
+    ai_model: 'AIモデル',
+    modeling_file: '3Dモデリングファイル',
+    flash_game: 'フラッシュゲーム',
+    free_content: '無料コンテンツ',
+    // サービスカテゴリー項目
+    engineering_services: 'エンジニアリングサービス',
+    printing_services: '3Dプリントサービス',
+    manufacturing_services: '製造サービス',
   }
 };
 
