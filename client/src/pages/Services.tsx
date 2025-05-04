@@ -209,10 +209,22 @@ const Services: React.FC = () => {
     }
   };
 
-  // 공통 텍스트
+  // 공통 텍스트 변수
   const resetFiltersText = language === 'ko' ? '필터 초기화' : 
                          language === 'jp' ? 'フィルターをリセット' : 
                          'Reset filters';
+  const searchText = language === 'ko' ? '검색' : 
+                   language === 'jp' ? '検索' : 
+                   'Search';
+  const noServicesText = language === 'ko' ? '검색 결과가 없습니다' : 
+                       language === 'jp' ? '検索結果がありません' : 
+                       'No search results';
+  const listViewText = language === 'ko' ? '목록 보기' : 
+                     language === 'jp' ? 'リスト表示' : 
+                     'List view';
+  const mapViewText = language === 'ko' ? '지도 보기' : 
+                    language === 'jp' ? 'マップ表示' : 
+                    'Map view';
   
   // 필터 초기화 함수
   const resetFilters = () => {
@@ -227,6 +239,16 @@ const Services: React.FC = () => {
       long: 126.9780
     });
   };
+  
+  // 재사용 가능한 필터 초기화 버튼 컴포넌트
+  const ResetFilterButton = () => (
+    <Button 
+      className="bg-primary text-white hover:bg-blue-600"
+      onClick={resetFilters}
+    >
+      {resetFiltersText}
+    </Button>
+  );
   
   return (
     <>
@@ -280,9 +302,7 @@ const Services: React.FC = () => {
                 }
               }}
             >
-              {language === 'ko' ? '검색' : 
-               language === 'jp' ? '検索' : 
-               'Search'}
+              {searchText}
             </Button>
           </div>
           
@@ -492,9 +512,7 @@ const Services: React.FC = () => {
                   getLocation();
                   resetFilters();
                 }}
-                title={language === 'ko' ? "필터 초기화" : 
-                      language === 'jp' ? "フィルターをリセット" : 
-                      "Reset filters"}
+                title={resetFiltersText}
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -586,17 +604,13 @@ const Services: React.FC = () => {
                 <TabsTrigger value="list" className="flex items-center gap-1">
                   <List className="h-4 w-4" />
                   <span>
-                    {language === 'ko' ? '목록 보기' : 
-                     language === 'jp' ? 'リスト表示' : 
-                     'List view'}
+                    {listViewText}
                   </span>
                 </TabsTrigger>
                 <TabsTrigger value="map" className="flex items-center gap-1">
                   <Map className="h-4 w-4" />
                   <span>
-                    {language === 'ko' ? '지도 보기' : 
-                     language === 'jp' ? '地図表示' : 
-                     'Map view'}
+                    {mapViewText}
                   </span>
                 </TabsTrigger>
               </TabsList>
