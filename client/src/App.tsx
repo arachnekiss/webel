@@ -9,42 +9,30 @@ import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
 import { Loader2 } from 'lucide-react';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import { useTranslation } from 'react-i18next';
-import { SUPPORTED_LANGUAGES, LanguageCode } from '@/i18n';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 
-// Helper function to check if a language code is supported
-const isValidLanguage = (lang: string): boolean => {
-  return SUPPORTED_LANGUAGES.includes(lang as LanguageCode);
-};
-
 // 로딩 스피너 인라인 구현
 const LoadingSpinner = ({ 
   size = 'md', 
-  message
+  message = '로딩 중...'
 }: { 
   size?: 'sm' | 'md' | 'lg'; 
   message?: string;
 }) => {
-  const { t } = useTranslation();
   const sizeClass = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
     lg: 'h-12 w-12',
   }[size];
 
-  // 메시지가 제공되지 않으면 기본 로딩 메시지 사용
-  const displayMessage = message || t('common.loading');
-
   return (
     <div className="flex flex-col items-center justify-center w-full py-12">
       <Loader2 className={`${sizeClass} animate-spin text-primary mb-4`} />
-      <p className="text-muted-foreground text-center">{displayMessage}</p>
+      {message && <p className="text-muted-foreground text-center">{message}</p>}
     </div>
   );
 };
@@ -82,7 +70,6 @@ import { usePageScroll } from '@/hooks/use-page-scroll';
 
 function Router() {
   const { isMobile } = useDeviceDetect();
-  const { t } = useTranslation();
   
   // 성능 모니터링 적용
   useEffect(() => {
@@ -233,120 +220,8 @@ function Router() {
           
           {/* 메인 콘텐츠 영역 */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            <Suspense fallback={<LoadingSpinner size="lg" />}>
+            <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
               <Switch>
-                {/* Language-specific routes */}
-                <Route path="/:lang">
-                  {(params) => {
-                    const { lang } = params;
-                    // Check if this is a valid language code
-                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
-                      return <Home />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/services/type/:type">
-                  {(params) => {
-                    const { lang, type } = params;
-                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
-                      return <Services type={type} />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/services/:id">
-                  {(params) => {
-                    const { lang, id } = params;
-                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
-                      return <ServiceDetail id={id} />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/resources">
-                  {(params) => {
-                    const { lang } = params;
-                    if (SUPPORTED_LANGUAGES.includes(lang as LanguageCode)) {
-                      return <Resources />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/resources/type/:type">
-                  {(params) => {
-                    const { lang, type } = params;
-                    if (isValidLanguage(lang)) {
-                      return <Resources params={{ type }} />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/resources/:id">
-                  {(params) => {
-                    const { lang, id } = params;
-                    if (isValidLanguage(lang)) {
-                      return <ResourceDetail id={id} />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/auctions">
-                  {(params) => {
-                    const { lang } = params;
-                    if (isValidLanguage(lang)) {
-                      return <Auctions />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/auctions/:id">
-                  {(params) => {
-                    const { lang, id } = params;
-                    if (isValidLanguage(lang)) {
-                      return <AuctionDetail id={id} />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/sponsor">
-                  {(params) => {
-                    const { lang } = params;
-                    if (isValidLanguage(lang)) {
-                      return <Sponsor />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/about">
-                  {(params) => {
-                    const { lang } = params;
-                    if (isValidLanguage(lang)) {
-                      return <About />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/login">
-                  {(params) => {
-                    const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
-                      return <AuthPage initialTab="login" />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                <Route path="/:lang/register">
-                  {(params) => {
-                    const { lang } = params;
-                    if (['en', 'ko', 'ja'].includes(lang)) {
-                      return <AuthPage initialTab="register" />;
-                    }
-                    return <NotFound />;
-                  }}
-                </Route>
-                
-                {/* Default routes for the default language */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
@@ -589,10 +464,8 @@ function App() {
       <TooltipProvider>
         <LocationProvider>
           <AuthProvider>
-            <LanguageProvider>
-              <Toaster />
-              <Router />
-            </LanguageProvider>
+            <Toaster />
+            <Router />
           </AuthProvider>
         </LocationProvider>
       </TooltipProvider>

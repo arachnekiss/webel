@@ -1,15 +1,13 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CategoryNav from './CategoryNav';
 import { useAuth } from '@/hooks/use-auth';
-import { getServiceItems } from './Sidebar';
+import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
-import { useTranslation } from 'react-i18next';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 import { 
   Search, 
@@ -25,41 +23,41 @@ import {
   Gamepad2
 } from 'lucide-react';
 
-// 리소스 카테고리 아이템 (동적으로 생성)
-const getResourceCategories = (t: (key: string) => string) => [
+// 리소스 카테고리 아이템
+const resourceCategories = [
   {
     id: 'hardware_design',
-    label: t('resources.categories.hardwareDesign'),
+    label: '하드웨어 설계도',
     icon: <Upload className="h-4 w-4" />,
     href: '/resources/type/hardware_design'
   },
   {
     id: 'software',
-    label: t('resources.categories.software'),
+    label: '소프트웨어 오픈소스',
     icon: <Code2 className="h-4 w-4" />,
     href: '/resources/type/software'
   },
   {
     id: 'ai_model',
-    label: t('resources.categories.aiModel'),
+    label: 'AI 모델',
     icon: <Cpu className="h-4 w-4" />,
     href: '/resources/type/ai_model'
   },
   {
     id: '3d_model',
-    label: t('resources.categories.3dModel'),
+    label: '3D 모델링 파일',
     icon: <Box className="h-4 w-4" />,
     href: '/resources/type/3d_model'
   },
   {
     id: 'free_content',
-    label: t('resources.categories.freeContent'),
+    label: '프리 콘텐츠',
     icon: <FileText className="h-4 w-4" />,
     href: '/resources/type/free_content'
   },
   {
     id: 'flash_game',
-    label: t('resources.categories.flashGame'),
+    label: '플래시 게임',
     icon: <Gamepad2 className="h-4 w-4" />,
     href: '/flash-game'
   }
@@ -72,11 +70,6 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
-  const { t } = useTranslation();
-  
-  // 동적으로 카테고리 생성
-  const resourceCategories = useMemo(() => getResourceCategories(t), [t]);
-  const serviceItems = useMemo(() => getServiceItems(t), [t]);
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -128,7 +121,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder={t('search.placeholder')} 
+                    placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full bg-background/80 focus:bg-background" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -147,41 +140,38 @@ const Header: React.FC = () => {
             
             {/* 로그인/회원가입 또는 사용자 메뉴 */}
             <div className="hidden md:flex items-center space-x-4">
-              {/* 언어 선택기 */}
-              <LanguageSwitcher />
-              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-foreground font-medium">
-                    {user.fullName || user.username}{t('common.honorific')}
+                    {user.fullName || user.username}님
                   </div>
                   <Button 
                     variant="outline" 
                     className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
-                    {t('auth.logout')}
+                    로그아웃
                   </Button>
                   {isAdmin && (
                     <TopLink href="/admin/dashboard" className="inline-block">
-                      <Button variant="secondary">{t('admin.dashboard')}</Button>
+                      <Button variant="secondary">관리자 대시보드</Button>
                     </TopLink>
                   )}
                 </div>
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    {t('auth.login')}
+                    로그인
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    {t('auth.register')}
+                    회원가입
                   </TopLink>
                 </>
               )}
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  {t('sponsor.button')}
+                  Webel 후원하기
                 </Button>
               </TopLink>
             </div>
@@ -211,13 +201,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              {t('nav.home')}
+              홈
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                {t('nav.allResources')}
+                모든 리소스
               </div>
             </TopLink>
             
@@ -245,7 +235,7 @@ const Header: React.FC = () => {
             {/* 모바일 메뉴 닫기 버튼 */}
             <div className="flex justify-between items-center p-3 border-b border-border">
               <div className="text-foreground font-bold text-lg pl-2">
-                {t('nav.menu')}
+                메뉴
               </div>
               <Button 
                 variant="ghost" 
@@ -261,7 +251,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder={t('search.mobileSearchPlaceholder')} 
+                    placeholder="검색어를 입력하세요" 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -280,14 +270,14 @@ const Header: React.FC = () => {
               {/* 메뉴 아이템 */}
               <nav className="space-y-3">
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.mainMenu')}
+                  메인 메뉴
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/')}
                   className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
-                  {t('nav.home')}
+                  홈
                 </div>
                 
                 <div 
@@ -299,11 +289,11 @@ const Header: React.FC = () => {
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>{t('nav.allResources')}</span>
+                  <span>모든 리소스</span>
                 </div>
                 
                 <div className="mt-2 px-4 py-2 text-foreground font-semibold">
-                  {t('nav.resourceCategories')}
+                  리소스 카테고리
                 </div>
                 
                 {/* 모바일용 리소스 카테고리 메뉴 */}
@@ -325,11 +315,11 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('nav.services')}
+                  서비스
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
-                {serviceItems.map((item: { id: string; label: string; icon: React.ReactNode; href: string }) => (
+                {serviceItems.map(item => (
                   <div 
                     key={item.id} 
                     onClick={() => handleNavigate(item.href)}
@@ -344,24 +334,13 @@ const Header: React.FC = () => {
                   </div>
                 ))}
                 <div className="h-px bg-border my-3"></div>
-                
-                {/* 언어 설정 */}
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('language.title')}
-                </div>
-                <div className="px-4 py-2">
-                  <LanguageSwitcher isMobile={true} />
-                </div>
-                
-                <div className="h-px bg-border my-3"></div>
-                
-                <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  {t('account.title')}
+                  계정
                 </div>
                 {user ? (
                   <>
                     <div className="px-4 py-2 text-primary font-medium mb-1">
-                      <span className="ml-2">{user.fullName || user.username}{t('common.honorific')}</span>
+                      <span className="ml-2">{user.fullName || user.username}님</span>
                     </div>
                     <div 
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
@@ -370,14 +349,14 @@ const Header: React.FC = () => {
                         if (isMobile) setIsMobileMenuOpen(false);
                       }}
                     >
-                      {t('auth.logout')}
+                      로그아웃
                     </div>
                     {isAdmin && (
                       <div 
                         onClick={() => handleNavigate('/admin/dashboard')}
                         className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
                       >
-                        {t('admin.dashboard')}
+                        관리자 대시보드
                       </div>
                     )}
                   </>
@@ -387,13 +366,13 @@ const Header: React.FC = () => {
                       onClick={() => handleNavigate('/login')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      {t('auth.login')}
+                      로그인
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      {t('auth.register')}
+                      회원가입
                     </div>
                   </>
                 )}
@@ -402,7 +381,7 @@ const Header: React.FC = () => {
                   onClick={() => handleNavigate('/sponsor')}
                   className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
                 >
-                  {t('sponsor.button')}
+                  Webel 후원하기
                 </div>
               </nav>
             </div>

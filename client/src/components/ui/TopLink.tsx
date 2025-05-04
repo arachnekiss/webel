@@ -1,7 +1,5 @@
 import React from 'react';
 import { useLocation } from 'wouter';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { DEFAULT_LANGUAGE } from '@/i18n';
 
 /**
  * 전통적인 웹사이트 방식의 페이지 전환을 위한 링크 컴포넌트
@@ -34,19 +32,9 @@ const TopLink: React.FC<TopLinkProps> = ({
   ...props 
 }) => {
   const [location] = useLocation();
-  const { currentLanguage } = useLanguage();
   
-  // Construct language-specific href if needed
-  const languagePrefix = currentLanguage !== DEFAULT_LANGUAGE ? `/${currentLanguage}` : '';
-  const fullHref = !href.startsWith('http') && href !== '/' && !href.startsWith(`/${currentLanguage}/`) 
-    ? `${languagePrefix}${href}` 
-    : href;
-    
-  // Check if current location matches the link path (for active state)
-  const isActive = location === fullHref || 
-    (fullHref !== '/' && location.startsWith(fullHref)) ||
-    // Also check if we're comparing against a non-language path
-    (location.includes(`/${currentLanguage}/`) && location.substring(3).startsWith(href));
+  // 현재 위치와 링크 경로가 같은지 확인 (활성화 상태 표시용)
+  const isActive = location === href || (href !== '/' && location.startsWith(href));
   
   // 클릭 핸들러
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -81,7 +69,7 @@ const TopLink: React.FC<TopLinkProps> = ({
       
       // 짧은 딜레이 후 페이지 이동 (로딩 인디케이터가 표시될 수 있도록)
       setTimeout(() => {
-        window.location.href = fullHref;
+        window.location.href = href;
       }, 10);
       
       return false;
@@ -95,7 +83,7 @@ const TopLink: React.FC<TopLinkProps> = ({
   
   return (
     <a
-      href={fullHref}
+      href={href}
       className={`${className} ${isActive ? activeClassName : ''}`}
       onClick={handleClick}
       rel={prefetch ? "prefetch" : undefined}
