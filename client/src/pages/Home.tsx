@@ -6,6 +6,7 @@ import LocationBasedServices from '@/components/sections/LocationBasedServices';
 import FeaturedProduct from '@/components/sections/FeaturedProduct';
 import AIAssistant from '@/components/sections/AIAssistant';
 import CategoryNav from '@/components/layout/CategoryNav';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   ArrowRight, 
   Box, 
@@ -39,6 +40,8 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
   isLoading = false,
   bg = "bg-white"
 }) => {
+  const { language } = useLanguage();
+
   return (
     <section className={`rounded-3xl shadow-sm border border-slate-100 ${bg} overflow-hidden mb-20 w-full`}>
       <div className="px-6 py-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -55,7 +58,9 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
           <Link href={`/resources/type/${category}`}>
             <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
-              더 보기
+              {language === 'ko' ? '더 보기' : 
+               language === 'jp' ? 'もっと見る' : 
+               'View more'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </Link>
@@ -111,7 +116,11 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
                     className="w-full group/btn flex items-center justify-center gap-2 border-slate-200"
                   >
                     <Download className="h-4 w-4" />
-                    <span>다운로드</span>
+                    <span>
+                      {language === 'ko' ? '다운로드' : 
+                       language === 'jp' ? 'ダウンロード' : 
+                       'Download'}
+                    </span>
                   </Button>
                 </div>
               </div>
@@ -138,6 +147,8 @@ interface FlashGamesSectionProps {
 
 // 플래시 게임 섹션 컴포넌트
 const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false }) => {
+  const { language } = useLanguage();
+  
   // 플래시 게임 데이터 가져오기
   const { data: flashGames = [], isLoading: isGamesLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/flash_game'],
@@ -152,13 +163,23 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
             <Gamepad2 className="h-5 w-5 text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">플래시 게임</h2>
-            <p className="text-slate-500 text-sm mt-1">인기 플래시 게임을 Webel에서 바로 즐겨보세요</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+              {language === 'ko' ? '플래시 게임' : 
+               language === 'jp' ? 'フラッシュゲーム' : 
+               'Flash Games'}
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">
+              {language === 'ko' ? '인기 플래시 게임을 Webel에서 바로 즐겨보세요' : 
+               language === 'jp' ? '人気のフラッシュゲームをWebelで直接お楽しみください' : 
+               'Enjoy popular flash games directly on Webel'}
+            </p>
           </div>
         </div>
         <Link href="/resources/type/flash_game">
           <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
-            더 많은 게임
+            {language === 'ko' ? '더 많은 게임' : 
+             language === 'jp' ? 'もっと多くのゲーム' : 
+             'More games'}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
         </Link>
@@ -199,8 +220,16 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
         ) : (
           <div className="col-span-5 text-center py-10">
             <Gamepad2 className="h-12 w-12 mx-auto text-indigo-200 mb-4" />
-            <h3 className="text-lg font-bold mb-2">아직 등록된 게임이 없습니다</h3>
-            <p className="text-slate-500">곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!</p>
+            <h3 className="text-lg font-bold mb-2">
+              {language === 'ko' ? '아직 등록된 게임이 없습니다' : 
+               language === 'jp' ? 'まだ登録されたゲームがありません' : 
+               'No games registered yet'}
+            </h3>
+            <p className="text-slate-500">
+              {language === 'ko' ? '곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!' : 
+               language === 'jp' ? 'まもなく様々なHTML5ベースのゲームが追加される予定です！' : 
+               'Various HTML5-based games will be added soon!'}
+            </p>
           </div>
         )}
       </div>
@@ -209,6 +238,8 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
 };
 
 const Home: React.FC = () => {
+  const { language } = useLanguage();
+  
   // API 응답 타입 정의 (items와 meta 구조)
   interface ResourceResponse {
     items: any[];
@@ -262,8 +293,12 @@ const Home: React.FC = () => {
       {/* 하드웨어 설계도 섹션 */}
       <div className="pt-8">
         <ResourceCategorySection 
-          title="하드웨어 설계도" 
-          description="혁신적인 하드웨어 설계도를 살펴보세요" 
+          title={language === 'ko' ? '하드웨어 설계도' : 
+                 language === 'jp' ? 'ハードウェア設計図' : 
+                 'Hardware Designs'}
+          description={language === 'ko' ? '혁신적인 하드웨어 설계도를 살펴보세요' : 
+                       language === 'jp' ? '革新的なハードウェア設計図をご覧ください' : 
+                       'Browse innovative hardware blueprints'} 
           icon={<Upload className="h-5 w-5 text-slate-600" />}
           items={hardwareDesigns?.slice(0, 6)} 
           category="hardware_design"
@@ -272,8 +307,12 @@ const Home: React.FC = () => {
         
         {/* 소프트웨어 오픈소스 섹션 */}
         <ResourceCategorySection 
-          title="소프트웨어 오픈소스" 
-          description="다양한 오픈소스 소프트웨어 프로젝트" 
+          title={language === 'ko' ? '소프트웨어 오픈소스' : 
+                 language === 'jp' ? 'ソフトウェアオープンソース' : 
+                 'Open Source Software'}
+          description={language === 'ko' ? '다양한 오픈소스 소프트웨어 프로젝트' : 
+                       language === 'jp' ? '様々なオープンソースソフトウェアプロジェクト' : 
+                       'Various open source software projects'} 
           icon={<Code2 className="h-5 w-5 text-slate-600" />}
           items={softwareResources?.slice(0, 6)} 
           category="software"
@@ -283,8 +322,12 @@ const Home: React.FC = () => {
         
         {/* 인공지능 모델 섹션 */}
         <ResourceCategorySection 
-          title="인공지능 모델" 
-          description="최신 AI 모델과 학습 데이터셋" 
+          title={language === 'ko' ? '인공지능 모델' : 
+                 language === 'jp' ? '人工知能モデル' : 
+                 'AI Models'}
+          description={language === 'ko' ? '최신 AI 모델과 학습 데이터셋' : 
+                       language === 'jp' ? '最新のAIモデルと学習データセット' : 
+                       'Latest AI models and training datasets'} 
           icon={<Cpu className="h-5 w-5 text-slate-600" />}
           items={aiModels?.slice(0, 6)} 
           category="ai_model"
@@ -293,8 +336,12 @@ const Home: React.FC = () => {
         
         {/* 3D 모델링 파일 섹션 */}
         <ResourceCategorySection 
-          title="3D 모델링 파일" 
-          description="3D 프린팅용 모델 파일 라이브러리" 
+          title={language === 'ko' ? '3D 모델링 파일' : 
+                 language === 'jp' ? '3Dモデリングファイル' : 
+                 '3D Modeling Files'}
+          description={language === 'ko' ? '3D 프린팅용 모델 파일 라이브러리' : 
+                       language === 'jp' ? '3Dプリント用モデルファイルライブラリ' : 
+                       'Model file library for 3D printing'} 
           icon={<Box className="h-5 w-5 text-slate-600" />}
           items={modelingFiles?.slice(0, 6)} 
           category="3d_model"
@@ -304,8 +351,12 @@ const Home: React.FC = () => {
         
         {/* 프리 콘텐츠 섹션 */}
         <ResourceCategorySection 
-          title="프리 콘텐츠" 
-          description="자유롭게 이용 가능한 다양한 콘텐츠" 
+          title={language === 'ko' ? '프리 콘텐츠' : 
+                 language === 'jp' ? 'フリーコンテンツ' : 
+                 'Free Content'}
+          description={language === 'ko' ? '자유롭게 이용 가능한 다양한 콘텐츠' : 
+                       language === 'jp' ? '自由に利用可能な様々なコンテンツ' : 
+                       'Various freely available content'} 
           icon={<FileText className="h-5 w-5 text-slate-600" />}
           items={freeContents?.slice(0, 6)} 
           category="free_content"
