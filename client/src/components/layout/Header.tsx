@@ -200,7 +200,7 @@ const Header: React.FC = () => {
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  {t('sponsor.donate')}
+                  {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'スポンサー' : 'Donate'}
                 </Button>
               </TopLink>
             </div>
@@ -422,7 +422,7 @@ const Header: React.FC = () => {
                     className="bg-primary text-white w-full"
                     onClick={() => handleNavigate('/sponsor')}
                   >
-                    {t('sponsor.donate')}
+                    {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'スポンサー' : 'Donate'}
                   </Button>
                 </div>
               </nav>

@@ -885,7 +885,7 @@ export const translations: Record<Language, any> = {
         amount: '金額',
         custom: 'カスタム',
         currency: '円',
-        donate: '寄付する',
+        donate: 'スポンサー',
         thankYou: 'ご支援ありがとうございます',
         donationComplete: '寄付が完了しました',
         errorProcessing: '寄付処理中にエラーが発生しました',
