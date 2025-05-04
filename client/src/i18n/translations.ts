@@ -43,6 +43,8 @@ export const translations: Record<Language, any> = {
     privacyPolicy: '개인정보 처리방침',
     termsOfService: '이용약관',
     
+
+    
     // Navigation
     nav: {
       home: '홈',
@@ -323,6 +325,52 @@ export const translations: Record<Language, any> = {
     privacyPolicy: 'Privacy Policy',
     termsOfService: 'Terms of Service',
     
+    // Services page
+    services: {
+      nearby_3d_printers: 'Nearby 3D Printers',
+      electronic_circuit_service: 'Electronic Circuit Service',
+      woodworking_service: 'Woodworking Service',
+      metalworking_service: 'Metalworking Service',
+      find_manufacturer: 'Find Manufacturer',
+      find_engineer: 'Find Engineer',
+      all_services: 'All Services',
+      register_service: 'Register Service',
+      register_printer: 'Register Printer',
+      register_engineer: 'Register as Engineer',
+      register_manufacturer: 'Register as Manufacturer',
+      
+      // Location and filtering
+      current_location: 'Current Location',
+      location_loading: 'Checking location...',
+      location_unknown: 'Unknown',
+      location_unavailable: 'Location unavailable',
+      search_radius: 'Search Radius',
+      city_selection: 'Select City',
+      district_selection: 'District',
+      all: 'All',
+      filter_applied: 'Applied Filters',
+      reset_filters: 'Reset Filters',
+      
+      // Sorting options
+      sort_by: 'Sort by',
+      newest: 'Newest',
+      rating: 'Rating',
+      low_price: 'Lowest Price',
+      
+      // View modes
+      view_mode: 'View Mode',
+      list_view: 'List View',
+      map_view: 'Map View',
+      
+      // Empty states
+      no_printers_found: 'No nearby 3D printers match your search criteria.',
+      no_services_found: 'No services match your search criteria.',
+      try_different_filters: 'Try changing your search terms or filters.',
+      no_printers_in_area: 'No 3D printers available in this area.',
+      try_different_area: 'Try searching in a different area or adjusting your filters.',
+      no_matching_services: 'No services match your search criteria.'
+    },
+    
     // Navigation
     nav: {
       home: 'Home',
@@ -444,7 +492,6 @@ export const translations: Record<Language, any> = {
       manufacturing: 'Manufacturing'
     },
     
-    // Services page
     services: {
       nearby_3d_printers: 'Nearby 3D Printers',
       electronic_circuit_service: 'Electronic Circuit Service',
@@ -482,11 +529,12 @@ export const translations: Record<Language, any> = {
       map_view: 'Map View',
       
       // Empty states
-      no_printers_found: 'No 3D printers found matching your criteria.',
-      no_services_found: 'No services found matching your criteria.',
-      try_different_filters: 'Try different search terms or filters.',
-      no_printers_in_area: 'No available 3D printers in this area.',
-      try_different_area: 'Try searching in a different area or adjust your filters.'
+      no_printers_found: 'No nearby 3D printers match your search criteria.',
+      no_services_found: 'No services match your search criteria.',
+      try_different_filters: 'Try changing your search terms or filters.',
+      no_printers_in_area: 'No 3D printers available in this area.',
+      try_different_area: 'Try searching in a different area or adjusting your filters.',
+      no_matching_services: 'No services match your search criteria.'
     },
     
     // Home page
