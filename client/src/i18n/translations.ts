@@ -415,7 +415,7 @@ export const translations: Record<Language, any> = {
       freeServiceDescription: '이 서비스를 무료로 제공합니다',
       submitService: '서비스 등록',
       notLoggedInTitle: '로그인 없이 서비스 등록',
-      notLoggedInDesc: '비로그인 상태로 서비스를 등록하실 수 있습니다. 단, 유료 서비스를 등록하시려면 로그인이 필요합니다.',
+      notLoggedInDesc: '비로그인 상태로 서비스를 등록하실 수 있습니다.',
       login: '로그인'
     }
   },
@@ -688,7 +688,7 @@ export const translations: Record<Language, any> = {
       freeServiceDescription: 'This service is provided for free',
       submitService: 'Register Service',
       notLoggedInTitle: 'Register Service Without Login',
-      notLoggedInDesc: 'You can register a service without logging in. However, you need to login to register a paid service.',
+      notLoggedInDesc: 'You can register a service without logging in.',
       login: 'Login'
     },
     
@@ -1326,7 +1326,7 @@ export const translations: Record<Language, any> = {
       freeServiceDescription: 'このサービスを無料で提供します',
       submitService: 'サービスを登録',
       notLoggedInTitle: 'ログインなしでサービス登録',
-      notLoggedInDesc: 'ログインせずにサービスを登録できます。ただし、有料サービスを登録するにはログインが必要です。',
+      notLoggedInDesc: 'ログインせずにサービスを登録できます。',
       login: 'ログイン'
     }
   }
