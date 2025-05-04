@@ -3,9 +3,12 @@ import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { ArrowRight, Search, MapPin, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import TopLink from '@/components/ui/TopLink';
 
 const HeroSection: React.FC = () => {
   const { isMobile } = useDeviceDetect();
+  const { t } = useLanguage();
   
   return (
     <section className="relative overflow-hidden rounded-3xl hero-section w-full">
@@ -21,25 +24,24 @@ const HeroSection: React.FC = () => {
           <div className="inline-block px-3 py-1 mb-6 rounded-full bg-blue-400/20 backdrop-blur-sm border border-blue-300/20">
             <span className="text-xs font-medium text-white flex items-center">
               <Sparkles className="h-3 w-3 mr-1" />
-              하드웨어 설계도부터 소프트웨어, 3D 모델까지 한 곳에서
+              {t('home.tagline')}
             </span>
           </div>
           
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-            창작자와 엔지니어를 위한<br/>
-            <span className="text-cyan-300">오픈 리소스 플랫폼</span>
+            {t('home.mainTitle')}<br/>
+            <span className="text-cyan-300">{t('home.mainTitleHighlight')}</span>
           </h1>
           
           <p className="text-blue-50 text-lg md:text-xl mb-8 max-w-2xl">
-            Webel에서 다양한 리소스를 찾고 근처의 3D 프린터와 제작 서비스에 쉽게 연결하세요. 
-            만들고 싶은 모든 것을 가능하게 하는 커뮤니티에 참여하세요.
+            {t('home.mainDescription')}
           </p>
           
           <div className="flex flex-wrap gap-5">
             <Link href="/resources">
               <Button className="group px-6 py-6 bg-white text-blue-600 font-medium rounded-xl hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300 text-base">
                 <Search className="h-5 w-5 mr-2" />
-                리소스 찾기
+                {t('home.findResources')}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
             </Link>
