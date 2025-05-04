@@ -437,7 +437,7 @@ const Services: React.FC = () => {
                   getLocation();
                   resetFilters();
                 }}
-                title="필터 초기화"
+                title={getTranslation(language, 'services.reset_filters')}
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -447,7 +447,7 @@ const Services: React.FC = () => {
           {/* 적용된 필터 표시 영역 */}
           {(searchTerm || sortBy !== "newest" || manualLocation.city) && (
             <div className="px-4 py-2 flex flex-wrap gap-2 bg-slate-50 text-sm">
-              <span className="font-medium">적용 필터:</span>
+              <span className="font-medium">{getTranslation(language, 'services.applied_filters')}:</span>
               {searchTerm && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   <Search className="h-3 w-3" />
@@ -490,7 +490,7 @@ const Services: React.FC = () => {
                     <Clock className="h-3 w-3" />
                   )}
                   <span>
-                    {sortBy === "rating" ? "평점순" : sortBy === "lowPrice" ? "낮은가격순" : "최신순"}
+                    {sortBy === "rating" ? getTranslation(language, 'services.by_rating') : sortBy === "lowPrice" ? getTranslation(language, 'services.lowest_price') : getTranslation(language, 'services.newest')}
                   </span>
                   <button 
                     className="ml-1 hover:text-red-500"
@@ -510,17 +510,17 @@ const Services: React.FC = () => {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <SlidersHorizontal className="h-5 w-5 text-primary mr-2" />
-                <h3 className="text-lg font-medium">보기 모드</h3>
+                <h3 className="text-lg font-medium">{getTranslation(language, 'services.view_mode')}</h3>
               </div>
               
               <TabsList>
                 <TabsTrigger value="list" className="flex items-center gap-1">
                   <List className="h-4 w-4" />
-                  <span>목록 보기</span>
+                  <span>{getTranslation(language, 'services.list_view')}</span>
                 </TabsTrigger>
                 <TabsTrigger value="map" className="flex items-center gap-1">
                   <Map className="h-4 w-4" />
-                  <span>지도 보기</span>
+                  <span>{getTranslation(language, 'services.map_view')}</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -540,8 +540,8 @@ const Services: React.FC = () => {
                 </div>
               ) : (
                 <div className="bg-gray-50 p-8 rounded-lg text-center">
-                  <p className="text-gray-600 mb-4">검색 조건에 맞는 근처 3D 프린터가 없습니다.</p>
-                  <p className="text-sm text-gray-500 mb-6">검색어나 필터를 변경해보세요.</p>
+                  <p className="text-gray-600 mb-4">{getTranslation(language, 'services.no_nearby_printers')}</p>
+                  <p className="text-sm text-gray-500 mb-6">{getTranslation(language, 'services.try_different_search')}</p>
                   <Button 
                     className="bg-primary text-white hover:bg-blue-600"
                     onClick={resetFilters}
