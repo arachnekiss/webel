@@ -124,45 +124,62 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   // 특정 경로를 주어진 언어로 변환하는 함수
   const getPathInLanguage = useCallback((path: string, targetLang: Language): string => {
     console.log(`[LanguageContext] Converting path: ${path} to language: ${targetLang}`);
-    
-    // 입력 경로에서 현재 언어 코드 및 기본 경로 추출
+
+    // 먼저 언어 접두사 제거된 기본 경로 추출
     const { cleanPath } = extractLanguageFromPath(path);
+    console.log(`[LanguageContext] Clean path extracted: ${cleanPath}`);
     
-    // 특정 패턴 처리 (동적 URL 처리)
-    // 리소스 타입별 페이지
-    if (path.match(/^(?:\/(?:en|jp))?\/resources\/type\/([^\/]+)$/)) {
-      const type = path.match(/^(?:\/(?:en|jp))?\/resources\/type\/([^\/]+)$/)?.[1];
-      const basePath = `/resources/type/${type}`;
-      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
+    // 기본 URL 패턴 정의 (정규식 패턴: 매칭 함수)
+    const urlPatterns = [
+      // resources/type/:type 패턴 - 예: /resources/type/ai_model
+      {
+        regex: /^\/resources\/type\/([^\/]+)$/,
+        transform: (matches: RegExpMatchArray) => `/resources/type/${matches[1]}`
+      },
+      // services/type/:type 패턴 - 예: /services/type/3d_printing
+      {
+        regex: /^\/services\/type\/([^\/]+)$/,
+        transform: (matches: RegExpMatchArray) => `/services/type/${matches[1]}`
+      },
+      // resources/:id 패턴 - 예: /resources/123
+      {
+        regex: /^\/resources\/(\d+)$/,
+        transform: (matches: RegExpMatchArray) => `/resources/${matches[1]}`
+      },
+      // services/:id 패턴 - 예: /services/123
+      {
+        regex: /^\/services\/(\d+)$/,
+        transform: (matches: RegExpMatchArray) => `/services/${matches[1]}`
+      },
+      // auctions/:id 패턴 - 예: /auctions/123
+      {
+        regex: /^\/auctions\/(\d+)$/,
+        transform: (matches: RegExpMatchArray) => `/auctions/${matches[1]}`
+      },
+      // 경로 뒤 쿼리스트링 보존
+      {
+        regex: /^(.+?)(\?.+)$/,
+        transform: (matches: RegExpMatchArray, basePath: string) => 
+          `${basePath}${matches[2]}`
+      }
+    ];
+    
+    // 클린 패스가 어떤 패턴과 일치하는지 검사
+    for (const pattern of urlPatterns) {
+      const matches = cleanPath.match(pattern.regex);
+      if (matches) {
+        console.log(`[LanguageContext] Path matches pattern: ${pattern.regex}`, matches);
+        const transformedPath = pattern.transform(matches, cleanPath);
+        const finalPath = targetLang === 'ko' ? transformedPath : `/${targetLang}${transformedPath}`;
+        console.log(`[LanguageContext] Transformed to: ${finalPath}`);
+        return finalPath;
+      }
     }
     
-    // 서비스 타입별 페이지
-    if (path.match(/^(?:\/(?:en|jp))?\/services\/type\/([^\/]+)$/)) {
-      const type = path.match(/^(?:\/(?:en|jp))?\/services\/type\/([^\/]+)$/)?.[1];
-      const basePath = `/services/type/${type}`;
-      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-    }
-    
-    // 리소스 상세 페이지
-    if (path.match(/^(?:\/(?:en|jp))?\/resources\/(\d+)$/)) {
-      const id = path.match(/^(?:\/(?:en|jp))?\/resources\/(\d+)$/)?.[1];
-      const basePath = `/resources/${id}`;
-      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-    }
-    
-    // 서비스 상세 페이지
-    if (path.match(/^(?:\/(?:en|jp))?\/services\/(\d+)$/)) {
-      const id = path.match(/^(?:\/(?:en|jp))?\/services\/(\d+)$/)?.[1];
-      const basePath = `/services/${id}`;
-      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-    }
-    
-    // 기본 변환 로직
-    if (targetLang === 'ko') {
-      return cleanPath; 
-    } else {
-      return `/${targetLang}${cleanPath}`;
-    }
+    // 어떤 특별한 패턴과도 일치하지 않는 경우, 기본 경로 처리
+    const result = targetLang === 'ko' ? cleanPath : `/${targetLang}${cleanPath}`;
+    console.log(`[LanguageContext] No pattern match, using: ${result}`);
+    return result;
   }, []);
   
   // 언어 변경 함수 - 경로 처리 로직 개선

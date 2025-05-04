@@ -34,16 +34,14 @@ export const appRoutes: RouteConfig[] = [
   // 홈 페이지
   { path: '/', component: Home },
   
-  // 서비스 관련 페이지 - 동적 타입별 페이지 (URL 파라미터 사용)
-  { path: '/services/type/:type', component: Services },
-  { path: '/services/:id', component: ServiceDetail },
-  
-  // 리소스 관련 페이지 - 동적 타입별 및 ID별 페이지 (URL 파라미터 사용)
-  { path: '/resources/type/:type', component: Resources },
+  // 리소스 관련 페이지
   { path: '/resources', component: Resources },
   { path: '/resources/:id', component: ResourceDetail },
   
-  // 리소스 타입별 직접 경로 - 파라미터가 아닌 고정 경로로 정의
+  // 리소스 타입별 페이지 - 동적 URL 패턴
+  { path: '/resources/type/:type', component: Resources },
+  
+  // 리소스 타입별 직접 경로 - 이 고정 경로들이 "/resources/type/:type" 다이나믹 경로 대신 사용됨
   { path: '/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
   { path: '/resources/type/software', component: Resources, props: { type: 'software' } },
   { path: '/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
@@ -51,7 +49,13 @@ export const appRoutes: RouteConfig[] = [
   { path: '/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
   { path: '/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
   
-  // 서비스 타입별 직접 경로 - 파라미터가 아닌 고정 경로로 정의
+  // 서비스 관련 페이지
+  { path: '/services/:id', component: ServiceDetail },
+  
+  // 서비스 타입별 페이지 - 동적 URL 패턴
+  { path: '/services/type/:type', component: Services },
+  
+  // 서비스 타입별 직접 경로 - 이 고정 경로들이 "/services/type/:type" 다이나믹 경로 대신 사용됨
   { path: '/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
   { path: '/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
   { path: '/services/type/engineer', component: Services, props: { type: 'engineer' } },
