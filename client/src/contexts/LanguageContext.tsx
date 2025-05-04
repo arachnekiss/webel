@@ -1,97 +1,100 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useLocation, useRoute } from 'wouter';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { useLocation } from 'wouter';
 
 // 지원하는 언어 타입
 export type Language = 'ko' | 'en' | 'jp';
 
-// 언어 컨텍스트 인터페이스
+// 언어 컨텍스트 타입 정의
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   translateUrl: (path: string) => string;
 }
 
-// 기본값 설정
+// 기본 언어 컨텍스트 값
 const defaultLanguageContext: LanguageContextType = {
-  language: 'ko',
+  language: 'ko', // 기본 언어는 한국어
   setLanguage: () => {},
-  translateUrl: (path) => path,
+  translateUrl: (path: string) => path,
 };
 
-// 컨텍스트 생성
+// 언어 컨텍스트 생성
 const LanguageContext = createContext<LanguageContextType>(defaultLanguageContext);
 
 // 언어 컨텍스트 훅
 export const useLanguage = () => useContext(LanguageContext);
 
-// 언어 경로에서 언어 코드 추출 정규식
-const languagePathRegex = /^\/(en|jp)(\/.*)?$/;
-
-// 언어 경로 검사 함수
+// URL에서 언어 코드 추출
 function extractLanguageFromPath(path: string): { lang: Language | null; cleanPath: string } {
-  const match = path.match(languagePathRegex);
+  const langRegex = /^\/(en|jp)(\/|$)/;
+  const match = path.match(langRegex);
   
   if (match) {
-    return {
-      lang: match[1] as Language,
-      // 뒷부분이 없으면 루트로, 있으면 그 경로 사용
-      cleanPath: match[2] || '/',
-    };
+    const lang = match[1] as Language;
+    // 언어 접두사 제거
+    const cleanPath = path.replace(langRegex, '/');
+    return { lang, cleanPath };
   }
   
   return { lang: null, cleanPath: path };
 }
 
-// 언어 컨텍스트 프로바이더
+// LanguageProvider props 타입 정의
 interface LanguageProviderProps {
   children: ReactNode;
 }
 
+// 언어 제공자 컴포넌트
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [location, navigate] = useLocation();
   const [language, setLanguageState] = useState<Language>('ko');
-
+  
   // 초기 로드 시 URL에서 언어 감지
   useEffect(() => {
-    const { lang, cleanPath } = extractLanguageFromPath(location);
-    
+    const { lang } = extractLanguageFromPath(location);
     if (lang) {
       setLanguageState(lang);
     }
-  }, []);
-
+  }, [location]);
+  
   // 언어 변경 함수
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     
-    // 현재 경로에서 언어 부분을 제거하고 새 언어로 대체
+    // 현재 경로에서 언어 부분 제거
     const { cleanPath } = extractLanguageFromPath(location);
     
-    if (lang === 'ko') {
-      // 한국어는 기본값이므로 경로에 언어 코드를 넣지 않음
-      navigate(cleanPath);
+    // 새 언어로 URL 업데이트
+    if (lang !== 'ko') {
+      navigate(`/${lang}${cleanPath}`);
     } else {
-      // 다른 언어는 경로에 언어 코드 추가
-      navigate(`/${lang}${cleanPath === '/' ? '' : cleanPath}`);
+      // 한국어(기본)는 접두사 없음
+      navigate(cleanPath);
     }
   };
-
-  // URL 변환 함수
+  
+  // URL을 현재 언어로 번역
   const translateUrl = (path: string): string => {
-    // 이미 언어 코드가 있는지 확인
-    const { lang: existingLang, cleanPath } = extractLanguageFromPath(path);
+    // 이미 언어 접두사가 있는 경우 제거
+    const { cleanPath } = extractLanguageFromPath(path);
     
-    // 한국어이거나 이미 언어가 지정된 경우 그대로 반환
-    if (language === 'ko' || existingLang) {
-      return path;
+    // 한국어가 아닌 경우 언어 접두사 추가
+    if (language !== 'ko') {
+      return `/${language}${cleanPath}`;
     }
     
-    // 현재 언어로 경로 변환
-    return `/${language}${cleanPath === '/' ? '' : cleanPath}`;
+    return cleanPath;
   };
-
+  
+  // 컨텍스트 값
+  const contextValue: LanguageContextType = {
+    language,
+    setLanguage,
+    translateUrl,
+  };
+  
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, translateUrl }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   );

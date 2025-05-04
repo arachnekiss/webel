@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/use-auth';
 import { serviceItems } from './Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import TopLink from '@/components/ui/TopLink';
+import LanguageSelector from '@/components/ui/LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/translations';
 
 import { 
   Search, 
@@ -70,6 +73,8 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { language, setLanguage, translateUrl } = useLanguage();
+  const t = useTranslation(language);
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -140,6 +145,9 @@ const Header: React.FC = () => {
             
             {/* 로그인/회원가입 또는 사용자 메뉴 */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* 언어 선택기 */}
+              <LanguageSelector />
+              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-foreground font-medium">
@@ -150,28 +158,30 @@ const Header: React.FC = () => {
                     className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
-                    로그아웃
+                    {language === 'ko' ? '로그아웃' : language === 'jp' ? 'ログアウト' : 'Logout'}
                   </Button>
                   {isAdmin && (
                     <TopLink href="/admin/dashboard" className="inline-block">
-                      <Button variant="secondary">관리자 대시보드</Button>
+                      <Button variant="secondary">
+                        {language === 'ko' ? '관리자 대시보드' : language === 'jp' ? '管理者ダッシュボード' : 'Admin Dashboard'}
+                      </Button>
                     </TopLink>
                   )}
                 </div>
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    로그인
+                    {language === 'ko' ? '로그인' : language === 'jp' ? 'ログイン' : 'Login'}
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    회원가입
+                    {language === 'ko' ? '회원가입' : language === 'jp' ? '会員登録' : 'Register'}
                   </TopLink>
                 </>
               )}
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  Webel 후원하기
+                  {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'Webelを支援する' : 'Sponsor Webel'}
                 </Button>
               </TopLink>
             </div>
@@ -201,13 +211,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              홈
+              {language === 'ko' ? '홈' : language === 'jp' ? 'ホーム' : 'Home'}
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                모든 리소스
+                {language === 'ko' ? '모든 리소스' : language === 'jp' ? 'すべてのリソース' : 'All Resources'}
               </div>
             </TopLink>
             
@@ -270,14 +280,14 @@ const Header: React.FC = () => {
               {/* 메뉴 아이템 */}
               <nav className="space-y-3">
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  메인 메뉴
+                  {language === 'ko' ? '메인 메뉴' : language === 'jp' ? 'メインメニュー' : 'Main Menu'}
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/')}
                   className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
-                  홈
+                  {language === 'ko' ? '홈' : language === 'jp' ? 'ホーム' : 'Home'}
                 </div>
                 
                 <div 
@@ -289,11 +299,11 @@ const Header: React.FC = () => {
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>모든 리소스</span>
+                  <span>{language === 'ko' ? '모든 리소스' : language === 'jp' ? 'すべてのリソース' : 'All Resources'}</span>
                 </div>
                 
                 <div className="mt-2 px-4 py-2 text-foreground font-semibold">
-                  리소스 카테고리
+                  {language === 'ko' ? '리소스 카테고리' : language === 'jp' ? 'リソースカテゴリ' : 'Resource Categories'}
                 </div>
                 
                 {/* 모바일용 리소스 카테고리 메뉴 */}
@@ -315,7 +325,7 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  서비스
+                  {language === 'ko' ? '서비스' : language === 'jp' ? 'サービス' : 'Services'}
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
@@ -335,8 +345,34 @@ const Header: React.FC = () => {
                 ))}
                 <div className="h-px bg-border my-3"></div>
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  계정
+                  {language === 'ko' ? '계정' : language === 'jp' ? 'アカウント' : 'Account'}
                 </div>
+                
+                {/* 언어 선택 */}
+                <div className="px-4 py-2 text-foreground font-medium">
+                  {language === 'ko' ? '언어 선택' : language === 'jp' ? '言語選択' : 'Language'}
+                </div>
+                <div 
+                  onClick={() => setLanguage('ko')}
+                  className={`block px-4 py-2 ${language === 'ko' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
+                >
+                  한국어
+                </div>
+                <div 
+                  onClick={() => setLanguage('en')}
+                  className={`block px-4 py-2 ${language === 'en' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
+                >
+                  English
+                </div>
+                <div 
+                  onClick={() => setLanguage('jp')}
+                  className={`block px-4 py-2 ${language === 'jp' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer mb-2`}
+                >
+                  日本語
+                </div>
+                
+                <div className="h-px bg-border my-2"></div>
+                
                 {user ? (
                   <>
                     <div className="px-4 py-2 text-primary font-medium mb-1">
@@ -349,14 +385,14 @@ const Header: React.FC = () => {
                         if (isMobile) setIsMobileMenuOpen(false);
                       }}
                     >
-                      로그아웃
+                      {language === 'ko' ? '로그아웃' : language === 'jp' ? 'ログアウト' : 'Logout'}
                     </div>
                     {isAdmin && (
                       <div 
                         onClick={() => handleNavigate('/admin/dashboard')}
                         className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
                       >
-                        관리자 대시보드
+                        {language === 'ko' ? '관리자 대시보드' : language === 'jp' ? '管理者ダッシュボード' : 'Admin Dashboard'}
                       </div>
                     )}
                   </>
@@ -366,13 +402,13 @@ const Header: React.FC = () => {
                       onClick={() => handleNavigate('/login')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      로그인
+                      {language === 'ko' ? '로그인' : language === 'jp' ? 'ログイン' : 'Login'}
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      회원가입
+                      {language === 'ko' ? '회원가입' : language === 'jp' ? '会員登録' : 'Register'}
                     </div>
                   </>
                 )}
@@ -381,7 +417,7 @@ const Header: React.FC = () => {
                   onClick={() => handleNavigate('/sponsor')}
                   className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
                 >
-                  Webel 후원하기
+                  {language === 'ko' ? 'Webel 후원하기' : language === 'jp' ? 'Webelを支援する' : 'Sponsor Webel'}
                 </div>
               </nav>
             </div>
