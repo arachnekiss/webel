@@ -1355,6 +1355,32 @@ export const translations: Record<Language, any> = {
     },
     
     // Register Service form
+    // サービス提供者タイプ
+    providerType: {
+      title: 'サービス提供者タイプ',
+      description: 'サービス提供者のタイプを選択してください',
+      individual: '個人',
+      individualDesc: '個人メーカーとしてサービスを提供',
+      company: '法人/事業者',
+      companyDesc: '会社または事業者としてサービスを提供'
+    },
+    
+    // 位置情報
+    locationInfo: {
+      title: '位置情報',
+      description: 'サービスを提供する場所を登録してください',
+      addressPlaceholder: '住所を入力してください',
+      useCurrentLocation: '現在位置を使用',
+      serviceLocations: '登録されたサービス位置 {{count}}件',
+      addAtLeastOneLocation: '少なくとも1つの場所を追加してください',
+      errors: {
+        locationFailed: '位置情報の取得に失敗しました',
+        enterManually: '手動で住所を入力してください',
+        noAddress: '住所が入力されていません',
+        enterAddress: '住所を入力してから再試行してください'
+      }
+    },
+    
     registerService: {
       title: 'サービス登録',
       subtitle: 'あなたのサービスを登録して他のユーザーとつながりましょう',
