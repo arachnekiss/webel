@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useLocation, Link } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { Resource } from '@/types';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 import ResourceCard from '@/components/ui/ResourceCard';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,16 @@ interface ResourcesProps {
 const Resources: React.FC<ResourcesProps> = (props) => {
   const routeParams = useParams();
   const [location] = useLocation();
+  const { language } = useLanguage();
+  
+  // URL 파라미터 로깅 - 디버깅 목적
+  console.log(`[Resources] 파라미터 정보:`, { 
+    propsType: props.type, 
+    propsParamsType: props.params?.type, 
+    routeParamsType: routeParams.type,
+    location
+  });
+  
   // Use props.type if provided directly, or from params prop, or from route params
   const type = props.type || (props.params?.type) || routeParams.type;
   const [searchQuery, setSearchQuery] = useState<string>('');

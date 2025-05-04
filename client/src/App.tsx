@@ -1,20 +1,23 @@
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect, Suspense, lazy } from 'react';
 import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { usePageScroll } from '@/hooks/use-page-scroll';
+import { Switch, Route } from 'wouter';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
-import { LanguageRouter } from '@/components/LanguageRouter';
 import { appRoutes } from './lib/routes-config';
+
+// 404 페이지
+const NotFound = lazy(() => import('@/pages/not-found'));
 
 /**
  * Main Router Component
@@ -22,8 +25,16 @@ import { appRoutes } from './lib/routes-config';
  */
 function Router() {
   const { isMobile } = useDeviceDetect();
+  const { language } = useLanguage();
   
-  // Apply performance monitoring
+  // 로딩 상태 표시 메시지 - 다국어 지원
+  const loadingMessage = language === 'ko' 
+    ? '페이지를 불러오는 중입니다...' 
+    : language === 'jp' 
+      ? 'ページを読み込んでいます...' 
+      : 'Loading page...';
+  
+  // Apply performance monitoring 
   useEffect(() => {
     const initializePerformance = async () => {
       const { measureRendering } = await import('./lib/performance');
@@ -62,6 +73,17 @@ function Router() {
       window.removeEventListener('pushstate', handleRouteChange);
     };
   }, []);
+  
+  // 언어에 따른 경로 접두사 설정
+  const prefix = language === 'ko' ? '' : `/${language}`;
+  
+  // 로딩 스피너 표시 컴포넌트
+  const LoadingSpinner = () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      <span className="ml-3 text-lg">{loadingMessage}</span>
+    </div>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -77,10 +99,28 @@ function Router() {
             </div>
           )}
           
-          {/* Main content area */}
+          {/* Main content area with routes */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            {/* Using language-based router */}
-            <LanguageRouter routes={appRoutes} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Switch>
+                {/* 각 라우트에 대해 언어별 경로 생성 */}
+                {appRoutes.map((route) => (
+                  <Route 
+                    key={`${prefix}${route.path}`}
+                    path={`${prefix}${route.path}`}
+                  >
+                    {(params) => (
+                      <route.component {...params} {...route.props} />
+                    )}
+                  </Route>
+                ))}
+                
+                {/* 404 페이지 처리 */}
+                <Route path="*">
+                  <NotFound />
+                </Route>
+              </Switch>
+            </Suspense>
           </div>
         </div>
       </div>
