@@ -22,7 +22,7 @@ const languages: LanguageOption[] = [
     code: 'ko', 
     label: '한국어', 
     shortLabel: 'KO', 
-    color: '#CD2E3A'
+    color: '#000000'
   },
   { 
     code: 'en', 
