@@ -48,33 +48,36 @@ export const LanguageRouter: React.FC<LanguageRouterProps> = ({ routes }) => {
       ? 'ページを読み込んでいます...' 
       : 'Loading page...';
       
-  // 각 언어별 경로 생성
-  const getRoutePath = (basePath: string) => {
-    // 기본 언어(한국어)는 경로 앞에 접두사 없음
-    if (language === 'ko') return basePath;
-    
-    // 다른 언어는 /en/, /jp/ 같은 접두사 추가
-    return `/${language}${basePath}`;
+  // 현재 언어에 기반한 라우트 경로 생성
+  const getLanguagePath = (path: string): string => {
+    if (language === 'ko') return path;
+    return `/${language}${path}`;
   };
   
-  console.log(`[LanguageRouter] Current language: ${language}, location: ${location}, rendering routes`);
+  console.log(`[LanguageRouter] Current language: ${language}, location: ${location}`);
   
   return (
     <Suspense fallback={<LoadingSpinner size="lg" message={loadingMessage} />}>
       <Switch>
-        {/* 각 언어별 경로 생성 */}
+        {/* 각 라우트를 현재 언어에 맞는 경로로 렌더링 */}
         {routes.map((route) => (
           <Route 
             key={`${language}-${route.path}`}
-            path={getRoutePath(route.path)}
+            path={getLanguagePath(route.path)}
           >
-            {(params) => <route.component {...params} {...route.props} />}
+            {(params) => {
+              console.log(`[Route] Rendering ${getLanguagePath(route.path)} (${language})`);
+              return <route.component {...params} {...route.props} />;
+            }}
           </Route>
         ))}
         
         {/* 404 처리 */}
         <Route path="*">
-          {() => <NotFound />}
+          {() => {
+            console.log(`[NotFound] No route matched for path: ${location}`);
+            return <NotFound />;
+          }}
         </Route>
       </Switch>
     </Suspense>

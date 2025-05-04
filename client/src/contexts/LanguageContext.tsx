@@ -128,33 +128,36 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     // 입력 경로에서 현재 언어 코드 및 기본 경로 추출
     const { cleanPath } = extractLanguageFromPath(path);
     
-    // 특정 페이지 유형 처리
-    const type = extractTypeFromPath(path);
-    if (type) {
-      if (isResourceTypePath(path)) {
-        const basePath = `/resources/type/${type}`;
-        return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-      }
-      if (isServiceTypePath(path)) {
-        const basePath = `/services/type/${type}`;
-        return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-      }
+    // 특정 패턴 처리 (동적 URL 처리)
+    // 리소스 타입별 페이지
+    if (path.match(/^(?:\/(?:en|jp))?\/resources\/type\/([^\/]+)$/)) {
+      const type = path.match(/^(?:\/(?:en|jp))?\/resources\/type\/([^\/]+)$/)?.[1];
+      const basePath = `/resources/type/${type}`;
+      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
     }
     
-    // 상세 페이지 처리
-    const id = extractIdFromPath(path);
-    if (id) {
-      if (isResourceDetailPath(path)) {
-        const basePath = `/resources/${id}`;
-        return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-      }
-      if (isServiceDetailPath(path)) {
-        const basePath = `/services/${id}`;
-        return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
-      }
+    // 서비스 타입별 페이지
+    if (path.match(/^(?:\/(?:en|jp))?\/services\/type\/([^\/]+)$/)) {
+      const type = path.match(/^(?:\/(?:en|jp))?\/services\/type\/([^\/]+)$/)?.[1];
+      const basePath = `/services/type/${type}`;
+      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
     }
     
-    // 기본 변환
+    // 리소스 상세 페이지
+    if (path.match(/^(?:\/(?:en|jp))?\/resources\/(\d+)$/)) {
+      const id = path.match(/^(?:\/(?:en|jp))?\/resources\/(\d+)$/)?.[1];
+      const basePath = `/resources/${id}`;
+      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
+    }
+    
+    // 서비스 상세 페이지
+    if (path.match(/^(?:\/(?:en|jp))?\/services\/(\d+)$/)) {
+      const id = path.match(/^(?:\/(?:en|jp))?\/services\/(\d+)$/)?.[1];
+      const basePath = `/services/${id}`;
+      return targetLang === 'ko' ? basePath : `/${targetLang}${basePath}`;
+    }
+    
+    // 기본 변환 로직
     if (targetLang === 'ko') {
       return cleanPath; 
     } else {

@@ -34,51 +34,27 @@ export const appRoutes: RouteConfig[] = [
   // 홈 페이지
   { path: '/', component: Home },
   
-  // 서비스 관련 페이지
+  // 서비스 관련 페이지 - 동적 타입별 페이지 (URL 파라미터 사용)
   { path: '/services/type/:type', component: Services },
   { path: '/services/:id', component: ServiceDetail },
   
-  // 서비스 타입별 직접 경로 (추가)
-  // 기본 URL
-  { path: '/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
-  { path: '/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
-  { path: '/services/type/engineer', component: Services, props: { type: 'engineer' } },
-  // 영어 URL
-  { path: '/en/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
-  { path: '/en/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
-  { path: '/en/services/type/engineer', component: Services, props: { type: 'engineer' } },
-  // 일본어 URL
-  { path: '/jp/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
-  { path: '/jp/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
-  { path: '/jp/services/type/engineer', component: Services, props: { type: 'engineer' } },
-  
-  // 리소스 관련 페이지
+  // 리소스 관련 페이지 - 동적 타입별 및 ID별 페이지 (URL 파라미터 사용)
   { path: '/resources/type/:type', component: Resources },
   { path: '/resources', component: Resources },
   { path: '/resources/:id', component: ResourceDetail },
   
-  // 리소스 타입별 직접 경로 (추가)
-  // 기본 URL
+  // 리소스 타입별 직접 경로 - 파라미터가 아닌 고정 경로로 정의
   { path: '/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
   { path: '/resources/type/software', component: Resources, props: { type: 'software' } },
   { path: '/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
   { path: '/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
   { path: '/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
   { path: '/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
-  // 영어 URL
-  { path: '/en/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
-  { path: '/en/resources/type/software', component: Resources, props: { type: 'software' } },
-  { path: '/en/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
-  { path: '/en/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
-  { path: '/en/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
-  { path: '/en/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
-  // 일본어 URL
-  { path: '/jp/resources/type/hardware_design', component: Resources, props: { type: 'hardware_design' } },
-  { path: '/jp/resources/type/software', component: Resources, props: { type: 'software' } },
-  { path: '/jp/resources/type/3d_model', component: Resources, props: { type: '3d_model' } },
-  { path: '/jp/resources/type/ai_model', component: Resources, props: { type: 'ai_model' } },
-  { path: '/jp/resources/type/free_content', component: Resources, props: { type: 'free_content' } },
-  { path: '/jp/resources/type/flash_game', component: Resources, props: { type: 'flash_game' } },
+  
+  // 서비스 타입별 직접 경로 - 파라미터가 아닌 고정 경로로 정의
+  { path: '/services/type/3d_printing', component: Services, props: { type: '3d_printing' } },
+  { path: '/services/type/manufacturing', component: Services, props: { type: 'manufacturing' } },
+  { path: '/services/type/engineer', component: Services, props: { type: 'engineer' } },
   
   // 플래시 게임 페이지
   { path: '/flash-game', component: Resources, props: { type: 'flash_game' } },
@@ -130,6 +106,4 @@ export const appRoutes: RouteConfig[] = [
   { path: '/admin/resources', component: AdminResourceManagement },
   { path: '/admin/services', component: AdminServiceManagement },
   { path: '/admin/engineers', component: AdminServiceManagement },
-  
-  // Redirector 수정 - 현재는 직접 라우트 정의 방식 사용 중
 ];
