@@ -33,6 +33,10 @@ export const translations: Record<Language, any> = {
     submit: '제출',
     goToHome: '홈으로 이동',
     processing: '처리 중...',
+    ready: '준비되셨나요?',
+    startNow: '지금 바로 ',
+    easyAssembly: '와 함께 프로젝트를 시작해보세요. 어떤 복잡한 조립도 쉽고 빠르게 완성할 수 있습니다.',
+    start: '시작하기',
     
     // Error pages
     errorPages: {
@@ -367,6 +371,10 @@ export const translations: Record<Language, any> = {
     search: 'Search',
     send: 'Send',
     upload: 'Upload',
+    ready: 'Are you ready?',
+    startNow: 'Start your project now with ',
+    easyAssembly: '. Complete any complex assembly easily and quickly.',
+    start: 'Start',
     
     // Error pages
     errorPages: {
