@@ -176,11 +176,11 @@ export const translations: Record<Language, any> = {
     
     // Services page
     services: {
-      nearby_3d_printers: '3D 프린터',
+      nearby_3d_printers: '근처 3D 프린터',
       electronic_circuit_service: '전자 회로 제작 서비스',
       woodworking_service: '목공 서비스',
       metalworking_service: '금속 가공 서비스',
-      find_manufacturer: '제조사 찾기',
+      find_manufacturer: '생산업체 찾기',
       find_engineer: '엔지니어 찾기',
       all_services: '모든 서비스',
       register_service: '서비스 등록',
@@ -317,7 +317,7 @@ export const translations: Record<Language, any> = {
         amount: '금액',
         custom: '직접 입력',
         currency: '원',
-        donate: 'Webel 후원하기',
+        donate: '후원하기',
         thankYou: '후원해주셔서 감사합니다',
         donationComplete: '후원이 완료되었습니다',
         errorProcessing: '처리 중 오류가 발생했습니다',
@@ -1295,7 +1295,7 @@ export const translations: Record<Language, any> = {
         amount: '金額',
         custom: 'カスタム',
         currency: '円',
-        donate: 'スポンサー',
+        donate: '寄付する',
         thankYou: 'ご支援ありがとうございます',
         donationComplete: '寄付が完了しました',
         errorProcessing: '寄付処理中にエラーが発生しました',
