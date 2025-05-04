@@ -124,7 +124,7 @@ const Header: React.FC = () => {
                 <div className="relative flex-grow">
                   <Input 
                     type="text" 
-                    placeholder="하드웨어, 소프트웨어, 3D 프린터 등을 검색하세요" 
+                    placeholder={t('search.placeholder')} 
                     className="w-full py-2 pr-3 pl-4 border border-input rounded-l-full bg-background/80 focus:bg-background" 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -207,13 +207,13 @@ const Header: React.FC = () => {
         <div className="container">
           <nav className="flex items-center justify-center py-2">
             <TopLink href="/" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
-              홈
+              {t('nav.home')}
             </TopLink>
             
             <TopLink href="/resources" className={`px-4 py-2 font-medium rounded-md cursor-pointer transition-colors ${location === '/resources' ? 'text-primary' : 'text-foreground hover:text-primary'}`}>
               <div className="flex items-center">
                 <Layers className="h-4 w-4 mr-1" />
-                모든 리소스
+                {t('nav.all_resources')}
               </div>
             </TopLink>
             
@@ -241,7 +241,7 @@ const Header: React.FC = () => {
             {/* 모바일 메뉴 닫기 버튼 */}
             <div className="flex justify-between items-center p-3 border-b border-border">
               <div className="text-foreground font-bold text-lg pl-2">
-                메뉴
+                {t('nav.menu')}
               </div>
               <Button 
                 variant="ghost" 
@@ -276,14 +276,14 @@ const Header: React.FC = () => {
               {/* 메뉴 아이템 */}
               <nav className="space-y-3">
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  메인 메뉴
+                  {t('nav.main_menu')}
                 </div>
                 
                 <div 
                   onClick={() => handleNavigate('/')}
                   className={`block px-4 py-2 ${location === '/' ? 'bg-primary/10 text-primary' : 'text-foreground hover:bg-slate-50'} rounded cursor-pointer`}
                 >
-                  홈
+                  {t('nav.home')}
                 </div>
                 
                 <div 
@@ -295,11 +295,11 @@ const Header: React.FC = () => {
                   } rounded cursor-pointer`}
                 >
                   <span className="mr-2"><Layers className="h-4 w-4" /></span>
-                  <span>모든 리소스</span>
+                  <span>{t('nav.all_resources')}</span>
                 </div>
                 
                 <div className="mt-2 px-4 py-2 text-foreground font-semibold">
-                  리소스 카테고리
+                  {t('nav.resource_categories')}
                 </div>
                 
                 {/* 모바일용 리소스 카테고리 메뉴 */}
@@ -321,7 +321,7 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  서비스
+                  {t('nav.services')}
                 </div>
                 
                 {/* 모바일용 서비스 카테고리 메뉴 */}
@@ -342,7 +342,7 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  언어 설정
+                  {t('nav.language_settings')}
                 </div>
                 <div className="px-4 py-2">
                   <LanguageSelector />
@@ -351,7 +351,7 @@ const Header: React.FC = () => {
                 <div className="h-px bg-border my-3"></div>
                 
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
-                  계정
+                  {t('nav.account')}
                 </div>
                 {user ? (
                   <>
@@ -382,13 +382,13 @@ const Header: React.FC = () => {
                       onClick={() => handleNavigate('/login')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      로그인
+                      {t('auth.login')}
                     </div>
                     <div 
                       onClick={() => handleNavigate('/register')}
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
                     >
-                      회원가입
+                      {t('auth.register')}
                     </div>
                   </>
                 )}
@@ -397,7 +397,7 @@ const Header: React.FC = () => {
                   onClick={() => handleNavigate('/sponsor')}
                   className="block px-4 py-3 mt-2 bg-primary text-white rounded-md font-medium text-center shadow-sm cursor-pointer hover:bg-primary/90 transition-colors"
                 >
-                  Webel 후원하기
+                  {t('sponsor.donate')}
                 </div>
               </nav>
             </div>
