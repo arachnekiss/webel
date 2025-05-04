@@ -413,9 +413,9 @@ export default function UserVerification() {
                   <ShieldCheck className={`h-6 w-6 ${phoneVerified ? 'text-green-600' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
-                  <p className="font-medium">휴대폰 본인 인증</p>
+                  <p className="font-medium">{t('verification.phoneVerification')}</p>
                   <p className="text-sm text-muted-foreground">
-                    {phoneVerified ? '완료됨' : '필요함'}
+                    {phoneVerified ? t('verification.completed') : t('verification.required')}
                   </p>
                 </div>
               </div>
@@ -429,9 +429,9 @@ export default function UserVerification() {
                   <CreditCard className={`h-6 w-6 ${bankVerified ? 'text-green-600' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
-                  <p className="font-medium">계좌 등록</p>
+                  <p className="font-medium">{t('verification.bankRegistration')}</p>
                   <p className="text-sm text-muted-foreground">
-                    {bankVerified ? '완료됨' : '필요함'}
+                    {bankVerified ? t('verification.completed') : t('verification.required')}
                   </p>
                 </div>
               </div>
@@ -445,9 +445,9 @@ export default function UserVerification() {
                   <Check className={`h-6 w-6 ${(phoneVerified && bankVerified) ? 'text-green-600' : 'text-muted-foreground'}`} />
                 </div>
                 <div>
-                  <p className="font-medium">게시물 업로드</p>
+                  <p className="font-medium">{t('verification.postUpload')}</p>
                   <p className="text-sm text-muted-foreground">
-                    {(phoneVerified && bankVerified) ? '가능' : '인증 필요'}
+                    {(phoneVerified && bankVerified) ? t('verification.available') : t('verification.verificationNeeded')}
                   </p>
                 </div>
               </div>
@@ -460,12 +460,12 @@ export default function UserVerification() {
         <TabsList className="w-full grid grid-cols-2">
           <TabsTrigger value="phone" disabled={phoneVerified}>
             <Phone className="h-4 w-4 mr-2" />
-            휴대폰 본인 인증
+            {t('verification.phoneVerification')}
             {phoneVerified && <CheckCircle2 className="h-4 w-4 ml-2 text-green-600" />}
           </TabsTrigger>
           <TabsTrigger value="bank" disabled={!phoneVerified || bankVerified}>
             <CreditCard className="h-4 w-4 mr-2" />
-            계좌 등록
+            {t('verification.bankRegistration')}
             {bankVerified && <CheckCircle2 className="h-4 w-4 ml-2 text-green-600" />}
           </TabsTrigger>
         </TabsList>
@@ -474,9 +474,9 @@ export default function UserVerification() {
         <TabsContent value="phone">
           <Card>
             <CardHeader>
-              <CardTitle>휴대폰 본인 인증</CardTitle>
+              <CardTitle>{t('verification.phoneVerification')}</CardTitle>
               <CardDescription>
-                휴대폰 인증을 통해 본인 확인을 진행합니다.
+                {t('verification.phoneVerificationDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -484,10 +484,10 @@ export default function UserVerification() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-800">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <h3 className="font-medium">인증 완료</h3>
+                    <h3 className="font-medium">{t('verification.verificationCompleted')}</h3>
                   </div>
                   <p className="text-sm">
-                    휴대폰 본인 인증이 완료되었습니다. 계좌 등록을 진행해주세요.
+                    {t('verification.phoneVerificationCompletedMessage')}
                   </p>
                 </div>
               ) : (
@@ -498,11 +498,11 @@ export default function UserVerification() {
                       name="phoneNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>휴대폰 번호</FormLabel>
+                          <FormLabel>{t('verification.phoneNumber')}</FormLabel>
                           <div className="flex gap-2">
                             <FormControl>
                               <Input
-                                placeholder="010-1234-5678"
+                                placeholder={t('verification.phoneNumberPlaceholder')}
                                 {...field}
                                 value={formatPhoneNumber(field.value)}
                                 onChange={(e) => {
@@ -531,7 +531,7 @@ export default function UserVerification() {
                                   {Math.floor(countdown / 60)}:{String(countdown % 60).padStart(2, '0')}
                                 </>
                               ) : (
-                                "인증번호 요청"
+                                t('verification.requestVerificationCode')
                               )}
                             </Button>
                           </div>
@@ -585,9 +585,9 @@ export default function UserVerification() {
         <TabsContent value="bank">
           <Card>
             <CardHeader>
-              <CardTitle>계좌 등록</CardTitle>
+              <CardTitle>{t('verification.bankRegistration')}</CardTitle>
               <CardDescription>
-                서비스 수익금 정산을 위한 계좌 정보를 등록합니다.
+                {t('verification.bankRegistrationDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -595,10 +595,10 @@ export default function UserVerification() {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-green-800">
                   <div className="flex items-center gap-2 mb-2">
                     <CheckCircle2 className="h-5 w-5 text-green-600" />
-                    <h3 className="font-medium">등록 완료</h3>
+                    <h3 className="font-medium">{t('verification.registrationCompleted')}</h3>
                   </div>
                   <p className="text-sm">
-                    계좌 등록이 완료되었습니다. 이제 유료 서비스를 제공할 수 있습니다.
+                    {t('verification.bankRegistrationCompletedMessage')}
                   </p>
                 </div>
               ) : (
@@ -719,9 +719,9 @@ export default function UserVerification() {
                 <CheckCircle2 className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <h3 className="text-lg font-medium text-green-800">본인 인증 및 계좌 등록이 완료되었습니다</h3>
+                <h3 className="text-lg font-medium text-green-800">{t('verification.completionTitle')}</h3>
                 <p className="text-sm text-green-700 mt-1">
-                  이제 유료 서비스를 등록하고 제공할 수 있습니다. 서비스 수익금은 등록한 계좌로 정산됩니다.
+                  {t('verification.completionDescription')}
                 </p>
                 <div className="mt-4 flex gap-3">
                   <Button 
@@ -729,13 +729,13 @@ export default function UserVerification() {
                     className="bg-white border-green-300 text-green-700 hover:bg-green-50"
                     onClick={() => navigate("/")}
                   >
-                    홈으로 이동
+                    {t('common.goToHome')}
                   </Button>
                   <Button 
                     className="bg-green-600 hover:bg-green-700 text-white"
                     onClick={() => navigate("/register-service")}
                   >
-                    서비스 등록하기
+                    {t('verification.registerService')}
                     <ArrowRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
