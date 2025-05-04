@@ -460,6 +460,17 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       }
     },
   });
+  
+  // 서비스 유형 라벨 생성
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  
+  // 서비스 유형별 섹션 라벨 생성
+  const getServiceTypeSectionLabel = () => {
+    if (serviceType === "3d_printing") return t('registerService.serviceInfo') + ' - ' + t('serviceType.3d_printing');
+    if (serviceType === "engineer") return t('registerService.serviceInfo') + ' - ' + t('serviceType.engineer');
+    if (serviceType === "manufacturing") return t('registerService.serviceInfo') + ' - ' + t('serviceType.manufacturing');
+    return t('registerService.serviceInfo');
+  };
 
   // 폼 제출 처리
   const onSubmit = async (data: ServiceFormValues) => {
@@ -497,18 +508,17 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       return (
         <Alert className="mb-6">
           <InfoIcon className="h-4 w-4" />
-          <AlertTitle>로그인 없이 서비스 등록</AlertTitle>
+          <AlertTitle>{t('registerService.notLoggedIn.title')}</AlertTitle>
           <AlertDescription>
-            비로그인 상태로 서비스를 등록하실 수 있습니다.
-            단, 유료 서비스를 등록하시려면 
+            {t('registerService.notLoggedIn.description')}
             <Button
               variant="link"
               className="p-0 mx-1"
               onClick={() => navigate('/auth')}
             >
-              로그인
+              {t('common.login')}
             </Button>
-            이 필요합니다.
+            {t('registerService.notLoggedIn.postLogin')}
           </AlertDescription>
         </Alert>
       );
@@ -519,9 +529,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">서비스 등록</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('registerService.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요
+          {t('registerService.subtitle')}
         </p>
       </div>
 
@@ -532,14 +542,14 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle>서비스 정보</CardTitle>
+              <CardTitle>{t('registerService.serviceInfo')}</CardTitle>
               <CardDescription>
-                귀하의 서비스 정보와 조건을 입력해주세요
+                {t('registerService.serviceInfoDesc')}
               </CardDescription>
 
               {/* 서비스 유형 선택 */}
               <div className="pt-4">
-                <div className="text-sm font-medium mb-2">서비스 유형 선택</div>
+                <div className="text-sm font-medium mb-2">{t('registerService.selectServiceType')}</div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {serviceTypeLabels.map(({ value, label, icon: Icon }) => (
                     <div
@@ -571,13 +581,13 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                 >
                   {/* 서비스 이미지 */}
                   <div className="space-y-3">
-                    <FormLabel>서비스 대표 이미지</FormLabel>
+                    <FormLabel>{t('registerService.serviceImage')}</FormLabel>
                     <div className="border rounded-md p-4 text-center flex flex-col items-center justify-center min-h-[200px]">
                       {imagePreview ? (
                         <div className="relative w-full h-full">
                           <img
                             src={imagePreview}
-                            alt="미리보기"
+                            alt={t('common.preview')}
                             className="max-h-[180px] max-w-full object-contain mx-auto"
                           />
                           <Button
@@ -594,7 +604,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             }}
                           >
                             <X className="h-4 w-4 mr-1" />
-                            제거
+                            {t('common.remove')}
                           </Button>
                         </div>
                       ) : (
@@ -603,8 +613,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-                          <p className="text-sm text-muted-foreground mb-1">클릭하여 이미지 업로드</p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG, GIF (최대 5MB)</p>
+                          <p className="text-sm text-muted-foreground mb-1">{t('registerService.clickToUploadImage')}</p>
+                          <p className="text-xs text-muted-foreground">{t('registerService.imageFormatAndSize')}</p>
                         </div>
                       )}
                       <input
@@ -622,17 +632,17 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>서비스 제목</FormLabel>
+                        <FormLabel>{t('registerService.serviceTitle')}</FormLabel>
                         <FormControl>
                           <Input
                             placeholder={serviceType === "3d_printing" 
-                              ? "예: 강남 프로페셔널 3D 프린팅 서비스" 
-                              : "예: 전자회로 설계 및 PCB 제작 서비스"}
+                              ? t('registerService.placeholders.3dPrintingTitle') 
+                              : t('registerService.placeholders.engineerTitle')}
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          지역명과 특징을 포함하면 검색에 유리합니다
+                          {t('registerService.titleDescription')}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -644,10 +654,10 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>서비스 설명</FormLabel>
+                        <FormLabel>{t('registerService.serviceDescription')}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="제공하는 서비스, 특장점, 재료 등에 대해 상세히 작성해주세요"
+                            placeholder={t('registerService.placeholders.description')}
                             className="min-h-[120px]"
                             {...field}
                           />
@@ -665,15 +675,15 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         name="printerModel"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>3D 프린터 모델</FormLabel>
+                            <FormLabel>{t('registerService.3dPrinter.modelName')}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="예: Prusa i3 MK3S+"
+                                placeholder={t('registerService.3dPrinter.modelNamePlaceholder')}
                                 {...field}
                               />
                             </FormControl>
                             <FormDescription>
-                              사용 중인 3D 프린터 모델명을 입력해주세요 (선택사항)
+                              {t('registerService.3dPrinter.modelNameDesc')}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
