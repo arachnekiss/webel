@@ -5,6 +5,7 @@ import type { Service } from '@shared/schema';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { MapPin, AlertTriangle, List, Map, Search, SlidersHorizontal, RefreshCw, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ const Services: React.FC = () => {
   const { type } = useParams();
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
   const [_, navigate] = useWouterLocation();
+  const { language } = useLanguage();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest"); // newest, rating, lowPrice
@@ -177,19 +179,33 @@ const Services: React.FC = () => {
   const getServiceTypeName = () => {
     switch (type) {
       case '3d_printing':
-        return '근처 3D 프린터';
+        return language === 'ko' ? '근처 3D 프린터' : 
+               language === 'jp' ? '近くの3Dプリンター' :
+               'Nearby 3D Printers';
       case 'electronics':
-        return '전자 회로 제작 서비스';
+        return language === 'ko' ? '전자 회로 제작 서비스' : 
+               language === 'jp' ? '電子回路製作サービス' :
+               'Electronics Circuit Making Service';
       case 'woodworking':
-        return '목공 서비스';
+        return language === 'ko' ? '목공 서비스' : 
+               language === 'jp' ? '木工サービス' :
+               'Woodworking Service';
       case 'metalworking':
-        return '금속 가공 서비스';
+        return language === 'ko' ? '금속 가공 서비스' : 
+               language === 'jp' ? '金属加工サービス' :
+               'Metal Processing Service';
       case 'manufacturing':
-        return '생산업체 찾기';
+        return language === 'ko' ? '생산업체 찾기' : 
+               language === 'jp' ? '製造業者を探す' :
+               'Find Manufacturers';
       case 'engineer':
-        return '엔지니어 찾기';
+        return language === 'ko' ? '엔지니어 찾기' : 
+               language === 'jp' ? 'エンジニアを探す' :
+               'Find Engineers';
       default:
-        return '모든 서비스';
+        return language === 'ko' ? '모든 서비스' : 
+               language === 'jp' ? 'すべてのサービス' :
+               'All Services';
     }
   };
 
@@ -214,7 +230,9 @@ const Services: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">{getServiceTypeName()}</h1>
             <p className="text-gray-600">
-              필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.
+              {language === 'ko' ? '필요한 서비스를 제공하는 가까운 파트너를 찾아보세요.' : 
+               language === 'jp' ? '必要なサービスを提供する近くのパートナーを探してください。' :
+               'Find nearby partners who provide the services you need.'}
             </p>
           </div>
           <Button 
