@@ -692,7 +692,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                       {/* 지원 파일 형식 */}
                       <div className="space-y-3">
-                        <FormLabel>지원 파일 형식</FormLabel>
+                        <FormLabel>{t('registerService.3dPrinter.supportedFileFormats')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {fileFormatOptions.map(format => (
                             <div key={format} className="flex items-center space-x-2">
@@ -714,7 +714,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                       {/* 사용 가능한 재료 */}
                       <div className="space-y-3">
-                        <FormLabel>사용 가능한 재료</FormLabel>
+                        <FormLabel>{t('registerService.3dPrinter.availableMaterials')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {materialOptions.map(material => (
                             <div key={material} className="flex items-center space-x-2">
@@ -746,13 +746,13 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                       {/* 샘플 이미지 */}
                       <div className="space-y-3">
-                        <FormLabel>결과물 샘플 이미지</FormLabel>
+                        <FormLabel>{t('registerService.3dPrinter.sampleImages')}</FormLabel>
                         <div className="flex flex-wrap gap-4">
                           {sampleImages.map((sample, index) => (
                             <div key={index} className="relative w-24 h-24 border rounded-md overflow-hidden">
                               <img 
                                 src={sample.preview} 
-                                alt={`샘플 ${index+1}`} 
+                                alt={`${t('registerService.3dPrinter.sampleNumber')} ${index+1}`} 
                                 className="w-full h-full object-cover"
                               />
                               <Button
@@ -770,7 +770,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             onClick={() => sampleInputsRef.current?.click()}
                           >
                             <Plus className="h-6 w-6 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground mt-1">추가</span>
+                            <span className="text-xs text-muted-foreground mt-1">{t('common.add')}</span>
                             <input
                               type="file"
                               ref={sampleInputsRef}
@@ -782,7 +782,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          샘플 이미지는 이전에 진행한 프로젝트나 결과물을 보여주는 이미지입니다.
+                          {t('registerService.3dPrinter.sampleImagesDesc')}
                         </p>
                       </div>
                     </>
@@ -796,15 +796,15 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         name="hourlyRate"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>시간당 요금</FormLabel>
+                            <FormLabel>{t('registerService.engineer.hourlyRate')}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="예: 50,000원/시간"
+                                placeholder={t('registerService.engineer.hourlyRatePlaceholder')}
                                 {...field}
                               />
                             </FormControl>
                             <FormDescription>
-                              서비스 제공에 대한 시간당 요금을 입력해주세요
+                              {t('registerService.engineer.hourlyRateDesc')}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -813,7 +813,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                       {/* 전문 분야 */}
                       <div className="space-y-3">
-                        <FormLabel>전문 분야</FormLabel>
+                        <FormLabel>{t('registerService.engineer.specialization')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {specializationOptions.map(specialization => (
                             <div key={specialization} className="flex items-center space-x-2">
@@ -850,7 +850,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     <>
                       {/* 생산 품목 */}
                       <div className="space-y-3">
-                        <FormLabel>생산 품목</FormLabel>
+                        <FormLabel>{t('registerService.manufacturing.products')}</FormLabel>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                           {productionItemOptions.map(item => (
                             <div key={item} className="flex items-center space-x-2">
@@ -887,17 +887,17 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="tags"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>태그</FormLabel>
+                        <FormLabel>{t('common.tags')}</FormLabel>
                         <FormControl>
                           <Input
                             placeholder={serviceType === "3d_printing" 
-                              ? "예: PLA,ABS,시제품,소량생산 (쉼표로 구분)" 
-                              : "예: PCB설계,하드웨어,프로토타입 (쉼표로 구분)"}
+                              ? t('registerService.placeholders.3dPrintingTags') 
+                              : t('registerService.placeholders.engineerTags')}
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          검색 최적화를 위해 관련 키워드를 태그로 추가하세요
+                          {t('registerService.tagsDescription')}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -910,10 +910,10 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       name="contactPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>연락처</FormLabel>
+                          <FormLabel>{t('common.contactPhone')}</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="예: 010-1234-5678"
+                              placeholder={t('registerService.placeholders.contactPhone')}
                               {...field}
                             />
                           </FormControl>
@@ -927,11 +927,11 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       name="contactEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>이메일</FormLabel>
+                          <FormLabel>{t('common.email')}</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
-                              placeholder="예: your@email.com"
+                              placeholder={t('registerService.placeholders.email')}
                               {...field}
                             />
                           </FormControl>
