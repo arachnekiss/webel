@@ -17,13 +17,13 @@ import { LanguageRouter } from '@/components/LanguageRouter';
 import { appRoutes } from './lib/routes-config';
 
 /**
- * 메인 라우터 컴포넌트
- * 앱의 레이아웃과 언어별 라우팅을 처리
+ * Main Router Component
+ * Handles app layout and language-specific routing
  */
 function Router() {
   const { isMobile } = useDeviceDetect();
   
-  // 성능 모니터링 적용
+  // Apply performance monitoring
   useEffect(() => {
     const initializePerformance = async () => {
       const { measureRendering } = await import('./lib/performance');
@@ -38,10 +38,10 @@ function Router() {
     return () => cleanup();
   }, []);
   
-  // 스크롤 관리 훅 적용
+  // Apply scroll management hook
   usePageScroll();
   
-  // 추가 스크롤 리셋 처리
+  // Additional scroll reset handling
   useEffect(() => {
     const resetScroll = () => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -65,21 +65,21 @@ function Router() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* 헤더 영역 */}
+      {/* Header area */}
       <Header />
       
       <div className="flex-1 container mx-auto pt-6 px-4 md:px-6">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* 왼쪽 사이드바 영역 - 모바일에서는 숨김 */}
+          {/* Left sidebar area - hidden on mobile */}
           {!isMobile && (
             <div className="w-64 shrink-0">
               <Sidebar />
             </div>
           )}
           
-          {/* 메인 콘텐츠 영역 */}
+          {/* Main content area */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            {/* 언어 기반 라우터 사용 */}
+            {/* Using language-based router */}
             <LanguageRouter routes={appRoutes} />
           </div>
         </div>
@@ -91,11 +91,11 @@ function Router() {
 }
 
 /**
- * 앱 메인 컴포넌트
- * 모든 주요 컨텍스트 프로바이더와 초기화 로직 포함
+ * App Main Component
+ * Contains all major context providers and initialization logic
  */
 function App() {
-  // 앱 성능 모니터링
+  // App performance monitoring
   useEffect(() => {
     const initializePerformance = async () => {
       const { measureRendering } = await import('./lib/performance');
@@ -110,40 +110,40 @@ function App() {
     return () => cleanup();
   }, []);
   
-  // 앱 초기화 시 중요 데이터 프리페치
+  // Prefetch important data during app initialization
   useEffect(() => {
     const initializeDataAndCaches = async () => {
       try {
-        // 성능 측정 시작
+        // Start performance measurement
         const { startMeasure, endMeasure } = await import('./lib/performance');
         const initEventId = startMeasure('rendering', 'App Initialization');
         
-        // 앱 구동에 필요한 핵심 데이터 먼저 로드
+        // Load core data required for app operation
         const { prefetchInitialData, prefetchCategories, preloadHeavyData } = await import('./lib/queryClient');
         
-        // 1. 필수 초기 데이터 먼저 프리페치 (사용자 데이터 등)
+        // 1. First prefetch essential initial data (user data, etc.)
         await prefetchInitialData();
         
-        // 2. 메인 카테고리 데이터 프리페치 (홈 화면에 필요)
+        // 2. Prefetch main category data (needed for home screen)
         prefetchCategories().catch(err => {
-          console.warn('카테고리 데이터 프리페치 중 오류:', err);
+          console.warn('Error prefetching category data:', err);
         });
         
-        // 3. 백그라운드에서 무거운 데이터 로드 (낮은 우선순위)
+        // 3. Load heavy data in background (low priority)
         setTimeout(() => {
           preloadHeavyData().catch(err => {
-            console.warn('백그라운드 데이터 로드 중 오류:', err);
+            console.warn('Error loading background data:', err);
           });
-        }, 3000); // 앱 초기화 후 3초 뒤 시작
+        }, 3000); // Start 3 seconds after app initialization
         
-        // 성능 측정 종료
+        // End performance measurement
         endMeasure(initEventId);
       } catch (error) {
-        console.error('데이터 초기화 중 오류:', error);
+        console.error('Error during data initialization:', error);
       }
     };
 
-    // 데이터 초기화 실행
+    // Execute data initialization
     initializeDataAndCaches();
   }, []);
 
