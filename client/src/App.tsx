@@ -5,7 +5,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
+import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
 import { AuthProvider } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { ProtectedRoute, AdminRoute } from './lib/protected-route';
@@ -205,6 +205,15 @@ function Router() {
     };
   }, []);
 
+  const { language } = useLanguage();
+  
+  // 로드 중 메시지 다국어 지원
+  const loadingMessage = language === 'ko' 
+    ? '페이지를 불러오는 중입니다...' 
+    : language === 'jp' 
+      ? 'ページを読み込んでいます...' 
+      : 'Loading page...';
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* 헤더 영역 */}
@@ -221,8 +230,19 @@ function Router() {
           
           {/* 메인 콘텐츠 영역 */}
           <div className="flex-1 flex flex-col overflow-x-hidden">
-            <Suspense fallback={<LoadingSpinner size="lg" message="페이지를 불러오는 중입니다..." />}>
+            <Suspense fallback={<LoadingSpinner size="lg" message={loadingMessage} />}>
               <Switch>
+                {/* 언어 기반 라우팅 - 영어 */}
+                <Route path="/en">
+                  {() => <Home />}
+                </Route>
+                
+                {/* 언어 기반 라우팅 - 일본어 */}
+                <Route path="/jp">
+                  {() => <Home />}
+                </Route>
+                
+                {/* 기본 홈 경로 (한국어) */}
                 <Route path="/">
                   {() => <Home />}
                 </Route>
