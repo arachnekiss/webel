@@ -5,7 +5,7 @@ import type { Service } from '@shared/schema';
 import LocationCard from '@/components/ui/LocationCard';
 import ServiceMap from '@/components/map/ServiceMap';
 import { useLocation } from '@/contexts/LocationContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { MapPin, AlertTriangle, List, Map, Search, SlidersHorizontal, RefreshCw, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 
-const Services: React.FC = () => {
-  const { type } = useParams();
+// 서비스 페이지 속성 정의
+interface ServicesProps {
+  type?: string;
+  lang?: Language;
+}
+
+const Services: React.FC<ServicesProps> = (props) => {
+  // URL 파라미터 또는 props에서 타입 정보 가져오기
+  const params = useParams();
+  const typeFromParams = params.type;
+  const typeFromProps = props.type;
+  
+  // props, URL 파라미터 순으로 타입 정보 확인 (우선순위 적용)
+  const type = typeFromProps || typeFromParams;
+  
+  console.log(`[Services] type from props: ${typeFromProps}, type from params: ${typeFromParams}, using: ${type}`);
+  
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
   const [_, navigate] = useWouterLocation();
   const { language } = useLanguage();

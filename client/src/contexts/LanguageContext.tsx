@@ -38,10 +38,36 @@ function extractLanguageFromPath(path: string): { lang: Language | null; cleanPa
     const lang = match[1] as Language;
     // 언어 접두사 제거
     const cleanPath = path.replace(langRegex, '/');
+    console.log(`[LanguageContext] Extracted language: ${lang}, cleanPath: ${cleanPath} from path: ${path}`);
     return { lang, cleanPath };
   }
   
+  console.log(`[LanguageContext] No language prefix in path: ${path}`);
   return { lang: null, cleanPath: path };
+}
+
+// 경로 유형 확인을 위한 유틸리티 함수들
+function isResourceTypePath(path: string): boolean {
+  return /^\/resources\/type\/[^\/]+$/.test(path);
+}
+
+function isServiceTypePath(path: string): boolean {
+  return /^\/services\/type\/[^\/]+$/.test(path);
+}
+
+// 타입 정보 추출
+function extractTypeFromPath(path: string): string | null {
+  const resourceMatch = path.match(/^(?:\/(?:en|jp))?\/resources\/type\/([^\/]+)$/);
+  if (resourceMatch) {
+    return resourceMatch[1];
+  }
+  
+  const serviceMatch = path.match(/^(?:\/(?:en|jp))?\/services\/type\/([^\/]+)$/);
+  if (serviceMatch) {
+    return serviceMatch[1];
+  }
+  
+  return null;
 }
 
 // LanguageProvider props 타입 정의
