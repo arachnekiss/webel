@@ -946,9 +946,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="isFreeService"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base mb-2">서비스 유형</FormLabel>
+                        <FormLabel className="text-base mb-2">{t('registerService.serviceType')}</FormLabel>
                         <FormDescription className="mb-3">
-                          무료 서비스는 인증 요구사항이 없으나, 유료 서비스는 본인 인증 및 계좌 등록이 필요합니다.
+                          {t('registerService.serviceTypeDescription')}
                         </FormDescription>
                         <FormControl>
                           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -962,12 +962,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <Gift className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">무료 서비스</h3>
+                                  <h3 className="font-medium">{t('registerService.freeService')}</h3>
                                 </div>
                                 {field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                무료로 제공하는 서비스입니다
+                                {t('registerService.freeServiceDesc')}
                               </p>
                             </div>
                             
@@ -988,12 +988,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <CreditCard className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">유료 서비스</h3>
+                                  <h3 className="font-medium">{t('registerService.paidService')}</h3>
                                 </div>
                                 {!field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                유료로 제공하는 서비스입니다
+                                {t('registerService.paidServiceDesc')}
                               </p>
                             </div>
                           </div>
@@ -1006,14 +1006,14 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     <>
                       <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
                         <h3 className="text-sm font-medium text-amber-800 mb-2 flex items-center">
-                          <InfoIcon className="h-4 w-4 mr-1" /> 유료 서비스 인증 요구사항
+                          <InfoIcon className="h-4 w-4 mr-1" /> {t('registerService.paidServiceRequirements.title')}
                         </h3>
                         <p className="text-sm text-amber-700 mb-2">
-                          유료 서비스를 제공하기 위해서는 다음 절차를 완료해야 합니다:
+                          {t('registerService.paidServiceRequirements.description')}
                         </p>
                         <ul className="text-xs text-amber-700 list-disc pl-5 space-y-1">
-                          <li>휴대폰 본인 인증</li>
-                          <li>계좌 정보 등록 및 인증</li>
+                          <li>{t('registerService.paidServiceRequirements.phoneVerification')}</li>
+                          <li>{t('registerService.paidServiceRequirements.bankAccount')}</li>
                         </ul>
                       </div>
 
@@ -1022,15 +1022,15 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         name="pricing"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>가격 정책</FormLabel>
+                            <FormLabel>{t('registerService.pricing.title')}</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="예: 10g당 1,000원, 기본 출력비 5,000원 + 재료비"
+                                placeholder={t('registerService.pricing.placeholder')}
                                 {...field}
                               />
                             </FormControl>
                             <FormDescription>
-                              가격 책정 방식을 명확하게 작성해주세요
+                              {t('registerService.pricing.description')}
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1044,10 +1044,10 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="availableHours"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>이용 가능 시간</FormLabel>
+                        <FormLabel>{t('registerService.availableHours.title')}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="예: 평일 10:00-18:00, 주말 예약제"
+                            placeholder={t('registerService.availableHours.placeholder')}
                             {...field}
                           />
                         </FormControl>
@@ -1061,9 +1061,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="isIndividual"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base">서비스 제공자 유형</FormLabel>
+                        <FormLabel className="text-base">{t('registerService.providerType.title')}</FormLabel>
                         <FormDescription>
-                          개인이 제공하는 서비스인지, 업체에서 제공하는 서비스인지 선택해주세요
+                          {t('registerService.providerType.description')}
                         </FormDescription>
                         <FormControl>
                           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -1074,12 +1074,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <User className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">개인 서비스</h3>
+                                  <h3 className="font-medium">{t('registerService.providerType.individual')}</h3>
                                 </div>
                                 {field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                개인이 제공하는 서비스입니다
+                                {t('registerService.providerType.individualDesc')}
                               </p>
                             </div>
                             
@@ -1090,12 +1090,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <Building className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">업체 서비스</h3>
+                                  <h3 className="font-medium">{t('registerService.providerType.company')}</h3>
                                 </div>
                                 {!field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                회사 또는 업체에서 제공하는 서비스입니다
+                                {t('registerService.providerType.companyDesc')}
                               </p>
                             </div>
                           </div>
@@ -1107,9 +1107,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                   <div className="border rounded-lg p-4 space-y-4">
                     <div>
-                      <h3 className="font-medium">위치 정보</h3>
+                      <h3 className="font-medium">{t('registerService.location.title')}</h3>
                       <p className="text-sm text-muted-foreground mb-3">
-                        서비스 제공 위치를 입력해주세요
+                        {t('registerService.location.description')}
                       </p>
                     </div>
 
