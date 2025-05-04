@@ -1,8 +1,10 @@
 import React from 'react';
 import TopLink from '@/components/ui/TopLink';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Footer: React.FC = () => {
-  // TopLink를 사용하므로 별도의 scrollToTop 함수가 필요 없음
+  // Using TopLink so no separate scrollToTop function is needed
+  const { language } = useLanguage();
 
   return (
     <footer className="bg-gray-800 text-white py-12">
@@ -15,7 +17,11 @@ const Footer: React.FC = () => {
               </svg>
               <h2 className="text-xl font-bold">Webel</h2>
             </div>
-            <p className="text-gray-400 mb-4">창작자와 엔지니어를 위한 오픈 리소스 플랫폼</p>
+            <p className="text-gray-400 mb-4">
+              {language === 'ko' ? '창작자와 엔지니어를 위한 오픈 리소스 플랫폼' : 
+               language === 'jp' ? '創作者とエンジニアのためのオープンリソースプラットフォーム' : 
+               'Open resource platform for creators and engineers'}
+            </p>
             <div className="flex space-x-4">
               <TopLink href="https://twitter.com" forceReload={true}>
                 <span className="text-gray-400 hover:text-white transition-colors">
@@ -38,7 +44,7 @@ const Footer: React.FC = () => {
                   </svg>
                 </span>
               </TopLink>
-              {/* 유튜브 아이콘 */}
+              {/* YouTube icon */}
               <TopLink href="https://youtube.com" forceReload={true}>
                 <span className="text-gray-400 hover:text-white transition-colors">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -46,7 +52,7 @@ const Footer: React.FC = () => {
                   </svg>
                 </span>
               </TopLink>
-              {/* 디스코드 아이콘 */}
+              {/* Discord icon */}
               <TopLink href="https://discord.com" forceReload={true}>
                 <span className="text-gray-400 hover:text-white transition-colors">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -58,98 +64,174 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">서비스</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {language === 'ko' ? '서비스' : 
+               language === 'jp' ? 'サービス' : 
+               'Services'}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <TopLink href="/services/type/3d_printing" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">근처 3D 프린터 찾기</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '근처 3D 프린터 찾기' : 
+                     language === 'jp' ? '近くの3Dプリンターを探す' : 
+                     'Find Nearby 3D Printers'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/ai-assembly" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">AI 조립 비서</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? 'AI 조립 비서' : 
+                     language === 'jp' ? 'AI組立アシスタント' : 
+                     'AI Assembly Assistant'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/remote-support" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">조립 원격 지원</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '조립 원격 지원' : 
+                     language === 'jp' ? '組立リモートサポート' : 
+                     'Remote Assembly Support'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/services/type/engineer" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">엔지니어 찾기</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '엔지니어 찾기' : 
+                     language === 'jp' ? 'エンジニアを探す' : 
+                     'Find Engineers'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/services/type/manufacturing" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">생산업체 찾기</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '생산업체 찾기' : 
+                     language === 'jp' ? '製造業者を探す' : 
+                     'Find Manufacturers'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/sponsor" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 후원하기</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? 'Webel 후원하기' : 
+                     language === 'jp' ? 'Webelを支援する' : 
+                     'Support Webel'}
+                  </span>
                 </TopLink>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">리소스</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {language === 'ko' ? '리소스' : 
+               language === 'jp' ? 'リソース' : 
+               'Resources'}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <TopLink href="/resources/type/hardware_design" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">하드웨어 설계도</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '하드웨어 설계도' : 
+                     language === 'jp' ? 'ハードウェア設計図' : 
+                     'Hardware Designs'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/resources/type/software" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">소프트웨어 오픈소스</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '소프트웨어 오픈소스' : 
+                     language === 'jp' ? 'ソフトウェアオープンソース' : 
+                     'Open Source Software'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/resources/type/3d_model" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">3D 모델링 파일</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '3D 모델링 파일' : 
+                     language === 'jp' ? '3Dモデリングファイル' : 
+                     '3D Model Files'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/resources/type/free_content" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">프리 콘텐츠</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '프리 콘텐츠' : 
+                     language === 'jp' ? 'フリーコンテンツ' : 
+                     'Free Content'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/resources/type/flash_game" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">플래시 게임</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '플래시 게임' : 
+                     language === 'jp' ? 'フラッシュゲーム' : 
+                     'Flash Games'}
+                  </span>
                 </TopLink>
               </li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">회사 정보</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {language === 'ko' ? '회사 정보' : 
+               language === 'jp' ? '会社情報' : 
+               'Company Info'}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <TopLink href="/about" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">Webel 소개</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? 'Webel 소개' : 
+                     language === 'jp' ? 'Webelについて' : 
+                     'About Webel'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/blog" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">블로그</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '블로그' : 
+                     language === 'jp' ? 'ブログ' : 
+                     'Blog'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/api-docs" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">API 문서</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? 'API 문서' : 
+                     language === 'jp' ? 'APIドキュメント' : 
+                     'API Documentation'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/privacy" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">개인정보 처리방침</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '개인정보 처리방침' : 
+                     language === 'jp' ? 'プライバシーポリシー' : 
+                     'Privacy Policy'}
+                  </span>
                 </TopLink>
               </li>
               <li>
                 <TopLink href="/terms" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">이용약관</span>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '이용약관' : 
+                     language === 'jp' ? '利用規約' : 
+                     'Terms of Service'}
+                  </span>
                 </TopLink>
               </li>
             </ul>
