@@ -13,13 +13,29 @@ import { Language } from '@/i18n/translations';
 interface LanguageOption {
   code: Language;
   label: string;
-  flag: string;
+  shortLabel: string;
+  color: string;
 }
 
 const languages: LanguageOption[] = [
-  { code: 'ko', label: '한국어', flag: '🇰🇷' },
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'jp', label: '日本語', flag: '🇯🇵' },
+  { 
+    code: 'ko', 
+    label: '한국어', 
+    shortLabel: 'KO', 
+    color: '#CD2E3A'
+  },
+  { 
+    code: 'en', 
+    label: 'English', 
+    shortLabel: 'EN', 
+    color: '#0A3161'
+  },
+  { 
+    code: 'jp', 
+    label: '日本語', 
+    shortLabel: 'JP', 
+    color: '#BC002D'
+  },
 ];
 
 export function LanguageSelector() {
@@ -31,9 +47,14 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 gap-1 px-2">
+        <Button variant="outline" size="sm" className="h-8 gap-1 px-2 border-none shadow-none">
           <Globe className="h-4 w-4" />
-          <span className="hidden sm:inline-block">{currentLanguage.flag}</span>
+          <span 
+            className="hidden sm:inline-block font-semibold" 
+            style={{ color: currentLanguage.color }}
+          >
+            {currentLanguage.shortLabel}
+          </span>
           <span className="sr-only">Select language</span>
         </Button>
       </DropdownMenuTrigger>
@@ -44,7 +65,12 @@ export function LanguageSelector() {
             onClick={() => setLanguage(lang.code)}
             className={`flex items-center gap-2 ${language === lang.code ? 'bg-accent text-accent-foreground' : ''}`}
           >
-            <span className="text-base">{lang.flag}</span>
+            <span 
+              className="font-semibold w-7 text-center text-sm"
+              style={{ color: lang.color }}
+            >
+              {lang.shortLabel}
+            </span>
             <span>{lang.label}</span>
           </DropdownMenuItem>
         ))}
