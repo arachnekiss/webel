@@ -8,9 +8,11 @@ import { Video, Users, Monitor, Clock, Calendar, ArrowRight, CheckCircle, Messag
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const RemoteSupport: React.FC = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   return (
     <main className="container mx-auto px-4 py-6">
@@ -19,22 +21,21 @@ const RemoteSupport: React.FC = () => {
         <div className="md:flex">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              전문가와 함께하는 원격 조립 지원
+              {t('features.remoteSupport.title')}
             </h1>
             <p className="text-indigo-100 mb-6">
-              어려운 하드웨어 조립, 복잡한 설정 과정을 실시간 원격 지원으로 해결해드립니다.
-              언제 어디서나 전문 엔지니어의 도움을 받아보세요.
+              {t('features.remoteSupport.description')}
             </p>
             <a href="https://discord.gg/webel-community" target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
               <Button className="px-6 py-3 bg-white text-indigo-600 font-medium rounded-lg hover:bg-indigo-50 transition-colors w-full text-center">
-                디스코드 참여하기
+                {t('features.remoteSupport.joinDiscord')}
               </Button>
             </a>
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
             <img 
               src="/images/remote-support-hero.png" 
-              alt="엔지니어와 함께하는 원격 조립 지원" 
+              alt={t('features.remoteSupport.title')} 
               className="rounded-lg shadow-lg max-h-96 object-cover" 
             />
           </div>
