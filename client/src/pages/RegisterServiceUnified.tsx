@@ -1060,9 +1060,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     name="isIndividual"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-base">{t('registerService.providerType.title')}</FormLabel>
+                        <FormLabel className="text-base">{t('providerType.title')}</FormLabel>
                         <FormDescription>
-                          {t('registerService.providerType.description')}
+                          {t('providerType.description')}
                         </FormDescription>
                         <FormControl>
                           <div className="grid grid-cols-2 gap-4 mt-2">
@@ -1073,12 +1073,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <User className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">{t('registerService.providerType.individual')}</h3>
+                                  <h3 className="font-medium">{t('providerType.individual')}</h3>
                                 </div>
                                 {field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                {t('registerService.providerType.individualDesc')}
+                                {t('providerType.individualDesc')}
                               </p>
                             </div>
                             
@@ -1089,12 +1089,12 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               <div className="flex justify-between items-center mb-2">
                                 <div className="flex items-center">
                                   <Building className="mr-2 h-5 w-5 text-primary" />
-                                  <h3 className="font-medium">{t('registerService.providerType.company')}</h3>
+                                  <h3 className="font-medium">{t('providerType.company')}</h3>
                                 </div>
                                 {!field.value && <Check className="h-5 w-5 text-primary" />}
                               </div>
                               <p className="text-sm text-muted-foreground">
-                                {t('registerService.providerType.companyDesc')}
+                                {t('providerType.companyDesc')}
                               </p>
                             </div>
                           </div>
@@ -1106,9 +1106,9 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
                   <div className="border rounded-lg p-4 space-y-4">
                     <div>
-                      <h3 className="font-medium">{t('registerService.location.title')}</h3>
+                      <h3 className="font-medium">{t('locationInfo.title')}</h3>
                       <p className="text-sm text-muted-foreground mb-3">
-                        {t('registerService.location.description')}
+                        {t('locationInfo.description')}
                       </p>
                     </div>
 
@@ -1117,7 +1117,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                         <div className="mb-2">
                           <Input
                             id="address-input"
-                            placeholder={t('registerService.location.addressPlaceholder')}
+                            placeholder={t('locationInfo.addressPlaceholder')}
                             value={addressInput}
                             onChange={handleAddressChange}
                           />
@@ -1134,8 +1134,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                                 setAddressInput(currentLocation.address);
                               } else {
                                 toast({
-                                  title: t('registerService.location.errors.locationFailed'),
-                                  description: t('registerService.location.errors.enterManually'),
+                                  title: t('locationInfo.errors.locationFailed'),
+                                  description: t('locationInfo.errors.enterManually'),
                                   variant: "destructive",
                                 });
                               }
@@ -1143,7 +1143,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             className="flex-1"
                           >
                             <MapPin className="h-4 w-4 mr-1" />
-                            {t('registerService.location.useCurrentLocation')}
+                            {t('locationInfo.useCurrentLocation')}
                           </Button>
                           <Button
                             type="button"
@@ -1152,8 +1152,8 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                             onClick={() => {
                               if (!addressInput.trim()) {
                                 toast({
-                                  title: t('registerService.location.errors.noAddress'),
-                                  description: t('registerService.location.errors.enterAddress'),
+                                  title: t('locationInfo.errors.noAddress'),
+                                  description: t('locationInfo.errors.enterAddress'),
                                   variant: "destructive",
                                 });
                                 return;
@@ -1197,7 +1197,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     {locationList.length > 0 ? (
                       <div className="bg-muted rounded-md overflow-hidden mt-2">
                         <div className="px-3 py-2 bg-muted-foreground/10 border-b font-medium text-sm">
-                          {t('registerService.location.serviceLocations', { count: locationList.length })}
+                          {t('locationInfo.serviceLocations', { count: locationList.length })}
                         </div>
                         <div className="p-3 space-y-2">
                           {locationList.map((loc, index) => (
@@ -1239,7 +1239,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                     ) : (
                       <div className="text-center py-3 text-muted-foreground text-sm bg-muted/50 rounded-md border border-dashed">
                         <MapPin className="h-4 w-4 mx-auto mb-1" />
-                        {t('registerService.location.addAtLeastOneLocation')}
+                        {t('locationInfo.addAtLeastOneLocation')}
                       </div>
                     )}
                   </div>

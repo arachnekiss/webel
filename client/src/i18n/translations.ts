@@ -435,6 +435,32 @@ export const translations: Record<Language, any> = {
         profileVisibilityDesc: '귀하의 기술과 서비스가 더 많은 사람들에게 노출됩니다.'
       },
       
+      // 서비스 제공자 유형
+      providerType: {
+        title: '서비스 제공자 유형',
+        description: '서비스를 제공하는 주체 유형을 선택하세요',
+        individual: '개인',
+        individualDesc: '개인 메이커로 서비스 제공',
+        company: '법인/사업자',
+        companyDesc: '회사 또는 사업자로 서비스 제공'
+      },
+      
+      // 위치 정보
+      locationInfo: {
+        title: '위치 정보',
+        description: '서비스를 제공할 위치를 등록하세요',
+        addressPlaceholder: '주소를 입력하세요',
+        useCurrentLocation: '현재 위치 사용',
+        serviceLocations: '등록된 서비스 위치 {{count}}개',
+        addAtLeastOneLocation: '최소 한 개의 위치를 추가하세요',
+        errors: {
+          locationFailed: '위치 정보를 가져오지 못했습니다',
+          enterManually: '주소를 직접 입력하세요',
+          noAddress: '주소가 입력되지 않았습니다',
+          enterAddress: '주소를 입력한 후 다시 시도하세요'
+        }
+      },
+      
       imageUploadText: '이미지를 업로드하려면 클릭하세요',
       imageFormatAndSize: 'PNG, JPG, GIF (최대 5MB)'
     }
@@ -648,6 +674,32 @@ export const translations: Record<Language, any> = {
     },
     
     // Register Service form
+    // Service provider type
+    providerType: {
+      title: 'Service Provider Type',
+      description: 'Select the type of service provider',
+      individual: 'Individual',
+      individualDesc: 'Provide service as an individual maker',
+      company: 'Company/Business',
+      companyDesc: 'Provide service as a company or business'
+    },
+    
+    // Location information
+    locationInfo: {
+      title: 'Location Information',
+      description: 'Register the location where you will provide the service',
+      addressPlaceholder: 'Enter address',
+      useCurrentLocation: 'Use Current Location',
+      serviceLocations: '{{count}} registered service locations',
+      addAtLeastOneLocation: 'Add at least one location',
+      errors: {
+        locationFailed: 'Failed to get location information',
+        enterManually: 'Please enter the address manually',
+        noAddress: 'No address entered',
+        enterAddress: 'Please enter an address and try again'
+      }
+    },
+    
     registerService: {
       title: 'Register Service',
       subtitle: 'Register your service and connect with other users',
