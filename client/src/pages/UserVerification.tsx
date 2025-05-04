@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   AlertCircle,
   CheckCircle2,
@@ -103,6 +104,7 @@ export default function UserVerification() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const { user, isLoading: isAuthLoading } = useAuth();
+  const { t } = useLanguage();
   
   const [verificationSent, setVerificationSent] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
@@ -379,14 +381,14 @@ export default function UserVerification() {
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>로그인이 필요합니다</CardTitle>
+            <CardTitle>{t('verification.loginRequired')}</CardTitle>
             <CardDescription>
-              본인 인증을 진행하려면 먼저 로그인해주세요.
+              {t('verification.loginRequiredDescription')}
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button className="w-full" onClick={() => navigate("/auth")}>
-              로그인 페이지로 이동
+              {t('verification.goToLoginPage')}
             </Button>
           </CardFooter>
         </Card>
@@ -397,9 +399,9 @@ export default function UserVerification() {
   return (
     <div className="container max-w-4xl py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">본인 인증 및 계좌 등록</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('verification.title')}</h1>
         <p className="text-muted-foreground">
-          유료 서비스를 제공하기 위해서는 본인 인증과 계좌 등록이 필요합니다.
+          {t('verification.description')}
         </p>
         
         {/* 인증 진행 상태 카드 */}

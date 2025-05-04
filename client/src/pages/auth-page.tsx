@@ -45,8 +45,19 @@ const createRegisterSchema = (t: (key: string) => string) => z.object({
   password: z.string().min(6, t('auth.errors.passwordMin'))
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+// 스키마 타입 정의
+type LoginSchema = ReturnType<typeof createLoginSchema>;
+type RegisterSchema = ReturnType<typeof createRegisterSchema>;
+type LoginFormValues = {
+  username: string;
+  password: string;
+};
+type RegisterFormValues = {
+  fullName: string;
+  email: string;
+  username: string;
+  password: string;
+};
 
 interface AuthPageProps {
   initialTab?: 'login' | 'register';
@@ -61,6 +72,10 @@ const AuthPage: React.FC<AuthPageProps> = ({ initialTab = 'login' }) => {
   const [matchRegister] = useRoute('/register');
   const { user, isLoading, loginMutation, registerMutation } = useAuth();
   const { t } = useLanguage();
+
+  // 현재 언어에 맞는 유효성 검사 스키마 생성
+  const loginSchema = createLoginSchema(t);
+  const registerSchema = createRegisterSchema(t);
 
   // 로그인 상태라면 메인 페이지로 리디렉션
   useEffect(() => {
