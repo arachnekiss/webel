@@ -16,6 +16,9 @@ import Footer from '@/components/layout/Footer';
 import Sidebar from '@/components/layout/Sidebar';
 import { appRoutes } from './lib/routes-config';
 
+// 서비스 타입 정의
+import { ServiceType } from '@shared/schema';
+
 // 페이지 컴포넌트 직접 가져오기 (하드코딩된 라우트에서 사용)
 import Home from './pages/Home';
 import Resources from './pages/Resources';
@@ -80,9 +83,43 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner />}>
               <Switch>
-                {/* 특수 라우트 먼저 정의 - 홈 페이지 */}
+                {/* 홈 페이지 경로 */}
                 <Route path={`${prefix}/`}>
                   <Home />
+                </Route>
+                
+                {/* ============= RESOURCES ROUTES ============= */}
+                {/* 리소스 기본 페이지 */}
+                <Route path={`${prefix}/resources`}>
+                  <Resources />
+                </Route>
+                
+                {/* 리소스 업로드 및 관리 고정 경로 (순서 중요) */}
+                <Route path={`${prefix}/resources/create`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
+                      return <ResourceManagementPage />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/resources/upload`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const ResourceUploadPage = lazy(() => import('./pages/ResourceUploadPage'));
+                      return <ResourceUploadPage />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/resources/upload-v2`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
+                      return <ResourceUploadPageV2 />;
+                    }}
+                  </Suspense>
                 </Route>
                 
                 {/* 리소스 타입별 페이지 - 하드코딩 경로 */}
@@ -105,6 +142,89 @@ function Router() {
                   <Resources type="flash_game" />
                 </Route>
                 
+                {/* 리소스 타입 동적 경로 */}
+                <Route path={`${prefix}/resources/type/:type`}>
+                  {params => <Resources type={params.type} />}
+                </Route>
+                
+                {/* 리소스 관리 동적 경로 */}
+                <Route path={`${prefix}/resources/manage/:id`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {params => {
+                      const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
+                      return <ResourceManagementPage id={params.id} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                {/* 리소스 세부 정보 동적 경로 */}
+                <Route path={`${prefix}/resources/:id`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {params => {
+                      const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
+                      return <ResourceDetail id={params.id} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                {/* ============= SERVICES ROUTES ============= */}
+                {/* 서비스 기본 페이지 */}
+                <Route path={`${prefix}/services`}>
+                  <Services />
+                </Route>
+                
+                {/* 서비스 등록 관련 경로 (별도로 처리) - 순서 유의! */}
+                <Route path={`${prefix}/register-printer`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      const defaultType: ServiceType = "3d_printing";
+                      return <RegisterServiceUnified defaultType={defaultType} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                {/* 서비스 등록 고정 경로 */}
+                <Route path={`${prefix}/services/register/3d_printing`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      const defaultType: ServiceType = "3d_printing";
+                      return <RegisterServiceUnified defaultType={defaultType} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/services/register/engineer`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      const defaultType: ServiceType = "engineer";
+                      return <RegisterServiceUnified defaultType={defaultType} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/services/register/manufacturing`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      const defaultType: ServiceType = "manufacturing";
+                      return <RegisterServiceUnified defaultType={defaultType} />;
+                    }}
+                  </Suspense>
+                </Route>
+                
+                {/* 서비스 등록 베이스 경로 */}
+                <Route path={`${prefix}/services/register`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {() => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      return <RegisterServiceUnified />;
+                    }}
+                  </Suspense>
+                </Route>
+                
                 {/* 서비스 타입별 페이지 - 하드코딩 경로 */}
                 <Route path={`${prefix}/services/type/3d_printing`}>
                   <Services type="3d_printing" />
@@ -116,98 +236,35 @@ function Router() {
                   <Services type="engineer" />
                 </Route>
                 
-                {/* 리소스 기본 페이지 */}
-                <Route path={`${prefix}/resources`}>
-                  <Resources />
-                </Route>
-                
-                {/* 서비스 기본 페이지 */}
-                <Route path={`${prefix}/services`}>
-                  <Services />
-                </Route>
-                
-                {/* 동적 ID 페이지 */}
-                <Route path={`${prefix}/resources/:id`}>
-                  {params => {
-                    const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
-                    // 타입 캐스팅을 사용하여 타입 문제 해결
-                    const resourceId = params.id as any;
-                    return <ResourceDetail id={resourceId} />;
-                  }}
-                </Route>
-                
-                <Route path={`${prefix}/services/:id`}>
-                  {params => {
-                    const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
-                    // 타입 캐스팅을 사용하여 타입 문제 해결
-                    const serviceId = params.id as any;
-                    return <ServiceDetail id={serviceId} />;
-                  }}
-                </Route>
-                
-                {/* 다른 동적 타입 페이지 - 일반화된 패턴 */}
-                <Route path={`${prefix}/resources/type/:type`}>
-                  {params => <Resources type={params.type} />}
-                </Route>
-                
+                {/* 서비스 타입 동적 경로 */}
                 <Route path={`${prefix}/services/type/:type`}>
                   {params => <Services type={params.type} />}
                 </Route>
                 
-                {/* 서비스 등록 관련 경로 (별도로 처리) */}
-                <Route path={`${prefix}/register-printer`}>
-                  {() => {
-                    const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                    return <RegisterServiceUnified defaultType="3d_printing" />;
-                  }}
-                </Route>
-                <Route path={`${prefix}/services/register`}>
-                  {() => {
-                    const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                    return <RegisterServiceUnified />;
-                  }}
-                </Route>
-                <Route path={`${prefix}/services/register/3d_printing`}>
-                  {() => {
-                    const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                    return <RegisterServiceUnified defaultType="3d_printing" />;
-                  }}
-                </Route>
+                {/* 서비스 등록 동적 경로 (맨 마지막에) */}
                 <Route path={`${prefix}/services/register/:type`}>
-                  {(params) => {
-                    const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                    // 타입 캐스팅을 사용하여 타입 문제 해결
-                    const serviceType = params.type as any;
-                    return <RegisterServiceUnified defaultType={serviceType} />;
-                  }}
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {params => {
+                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+                      // 지원되는 서비스 타입인지 확인
+                      let validType: ServiceType = "3d_printing"; // 기본값
+                      const typeParam = params.type as string;
+                      if (["3d_printing", "engineer", "manufacturing"].includes(typeParam)) {
+                        validType = typeParam as ServiceType;
+                      }
+                      return <RegisterServiceUnified defaultType={validType} />;
+                    }}
+                  </Suspense>
                 </Route>
                 
-                {/* 리소스 업로드 및 관리 경로 */}
-                <Route path={`${prefix}/resources/create`}>
-                  {() => {
-                    const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
-                    return <ResourceManagementPage />;
-                  }}
-                </Route>
-                <Route path={`${prefix}/resources/manage/:id`}>
-                  {(params) => {
-                    const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
-                    // 타입 캐스팅을 사용하여 타입 문제 해결
-                    const resourceId = params.id as any;
-                    return <ResourceManagementPage id={resourceId} />;
-                  }}
-                </Route>
-                <Route path={`${prefix}/resources/upload`}>
-                  {() => {
-                    const ResourceUploadPage = lazy(() => import('./pages/ResourceUploadPage'));
-                    return <ResourceUploadPage />;
-                  }}
-                </Route>
-                <Route path={`${prefix}/resources/upload-v2`}>
-                  {() => {
-                    const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
-                    return <ResourceUploadPageV2 />;
-                  }}
+                {/* 서비스 세부 정보 동적 경로 */}
+                <Route path={`${prefix}/services/:id`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    {params => {
+                      const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+                      return <ServiceDetail id={params.id} />;
+                    }}
+                  </Suspense>
                 </Route>
                 
                 {/* 다른 일반 페이지는 appRoutes에서 가져온 정적 경로로 처리 */}
