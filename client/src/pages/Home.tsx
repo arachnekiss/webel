@@ -17,6 +17,7 @@ import {
   Download 
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // 리소스 카테고리 섹션 타입 정의
 interface ResourceCategorySectionProps {
@@ -39,6 +40,8 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
   isLoading = false,
   bg = "bg-white"
 }) => {
+  const { t } = useLanguage();
+  
   return (
     <section className={`rounded-3xl shadow-sm border border-slate-100 ${bg} overflow-hidden mb-20 w-full`}>
       <div className="px-6 py-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -55,7 +58,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
           <Link href={`/resources/type/${category}`}>
             <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
-              더 보기
+              {t('common.viewMore')}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </Link>
@@ -111,7 +114,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
                     className="w-full group/btn flex items-center justify-center gap-2 border-slate-200"
                   >
                     <Download className="h-4 w-4" />
-                    <span>다운로드</span>
+                    <span>{t('common.download')}</span>
                   </Button>
                 </div>
               </div>
@@ -138,6 +141,8 @@ interface FlashGamesSectionProps {
 
 // 플래시 게임 섹션 컴포넌트
 const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false }) => {
+  const { t } = useLanguage();
+  
   // 플래시 게임 데이터 가져오기
   const { data: flashGames = [], isLoading: isGamesLoading } = useQuery<any[]>({
     queryKey: ['/api/resources/type/flash_game'],
@@ -152,13 +157,13 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
             <Gamepad2 className="h-5 w-5 text-indigo-600" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">플래시 게임</h2>
-            <p className="text-slate-500 text-sm mt-1">인기 플래시 게임을 Webel에서 바로 즐겨보세요</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-800">{t('resourceType.flash_game')}</h2>
+            <p className="text-slate-500 text-sm mt-1">{t('home.flashGamesSubtitle')}</p>
           </div>
         </div>
         <Link href="/resources/type/flash_game">
           <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
-            더 많은 게임
+            {t('home.moreGames')}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
         </Link>
@@ -199,8 +204,8 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
         ) : (
           <div className="col-span-5 text-center py-10">
             <Gamepad2 className="h-12 w-12 mx-auto text-indigo-200 mb-4" />
-            <h3 className="text-lg font-bold mb-2">아직 등록된 게임이 없습니다</h3>
-            <p className="text-slate-500">곧 다양한 HTML5 기반 게임들이 추가될 예정입니다!</p>
+            <h3 className="text-lg font-bold mb-2">{t('home.noGamesYet')}</h3>
+            <p className="text-slate-500">{t('home.gamesComingSoon')}</p>
           </div>
         )}
       </div>
@@ -209,6 +214,8 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
 };
 
 const Home: React.FC = () => {
+  const { t } = useLanguage();
+  
   // API 응답 타입 정의 (items와 meta 구조)
   interface ResourceResponse {
     items: any[];
@@ -262,8 +269,8 @@ const Home: React.FC = () => {
       {/* 하드웨어 설계도 섹션 */}
       <div className="pt-8">
         <ResourceCategorySection 
-          title="하드웨어 설계도" 
-          description="혁신적인 하드웨어 설계도를 살펴보세요" 
+          title={t('resourceType.hardware_design')} 
+          description={t('home.hardwareDescription')} 
           icon={<Upload className="h-5 w-5 text-slate-600" />}
           items={hardwareDesigns?.slice(0, 6)} 
           category="hardware_design"
@@ -272,8 +279,8 @@ const Home: React.FC = () => {
         
         {/* 소프트웨어 오픈소스 섹션 */}
         <ResourceCategorySection 
-          title="소프트웨어 오픈소스" 
-          description="다양한 오픈소스 소프트웨어 프로젝트" 
+          title={t('resourceType.software')} 
+          description={t('home.softwareDescription')} 
           icon={<Code2 className="h-5 w-5 text-slate-600" />}
           items={softwareResources?.slice(0, 6)} 
           category="software"
@@ -283,8 +290,8 @@ const Home: React.FC = () => {
         
         {/* 인공지능 모델 섹션 */}
         <ResourceCategorySection 
-          title="인공지능 모델" 
-          description="최신 AI 모델과 학습 데이터셋" 
+          title={t('resourceType.ai_model')} 
+          description={t('home.aiModelDescription')} 
           icon={<Cpu className="h-5 w-5 text-slate-600" />}
           items={aiModels?.slice(0, 6)} 
           category="ai_model"
@@ -293,8 +300,8 @@ const Home: React.FC = () => {
         
         {/* 3D 모델링 파일 섹션 */}
         <ResourceCategorySection 
-          title="3D 모델링 파일" 
-          description="3D 프린팅용 모델 파일 라이브러리" 
+          title={t('resourceType.3d_model')} 
+          description={t('home.modelingDescription')} 
           icon={<Box className="h-5 w-5 text-slate-600" />}
           items={modelingFiles?.slice(0, 6)} 
           category="3d_model"
@@ -304,8 +311,8 @@ const Home: React.FC = () => {
         
         {/* 프리 콘텐츠 섹션 */}
         <ResourceCategorySection 
-          title="프리 콘텐츠" 
-          description="자유롭게 이용 가능한 다양한 콘텐츠" 
+          title={t('resourceType.free_content')} 
+          description={t('home.freeContentDescription')} 
           icon={<FileText className="h-5 w-5 text-slate-600" />}
           items={freeContents?.slice(0, 6)} 
           category="free_content"
