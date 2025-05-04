@@ -27,8 +27,8 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  // 항상 기본 언어를 한국어로 설정하고, URL이나 localStorage에서 변경된 경우에만 다른 언어로 변경
-  const [language, setLanguageState] = useState<Language>('ko');
+  // 항상 기본 언어를 한국어('ko')로 설정
+  const [language, setLanguageState] = useState<Language>(defaultLanguage);
   const [, navigate] = useLocation();
 
   // Check URL for language on first load

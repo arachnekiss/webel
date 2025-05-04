@@ -25,10 +25,12 @@ declare global {
  * @returns 언어 코드 또는 null
  */
 function extractLanguageFromPath(path: string): ServerLanguage | null {
-  if (path.startsWith('/en/') || path === '/en') {
-    return 'en';
-  } else if (path.startsWith('/jp/') || path === '/jp') {
-    return 'jp';
+  // 보다 정확한 경로 매칭 - URL의 첫 부분만 체크하도록 수정
+  const pathParts = path.split('/').filter(Boolean);
+  if (pathParts.length > 0) {
+    const firstPart = pathParts[0];
+    if (firstPart === 'en') return 'en';
+    if (firstPart === 'jp') return 'jp';
   }
   return null;
 }
