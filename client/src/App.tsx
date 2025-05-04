@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Switch, Route } from 'wouter';
 import { queryClient } from './lib/queryClient';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -214,6 +214,30 @@ function Router() {
       ? 'ページを読み込んでいます...' 
       : 'Loading page...';
 
+  // 라우터 컴포넌트에서는 dynamic import 사용
+  const [routingComponents, setRoutingComponents] = useState<{
+    renderRoutesWithLanguage: any;
+    appRoutes: any;
+  } | null>(null);
+
+  // 라우팅 컴포넌트 동적 로드
+  useEffect(() => {
+    const loadRoutingComponents = async () => {
+      const languageRoutesModule = await import('./lib/language-routes');
+      const routesConfigModule = await import('./lib/routes-config');
+      
+      setRoutingComponents({
+        renderRoutesWithLanguage: languageRoutesModule.renderRoutesWithLanguage,
+        appRoutes: routesConfigModule.appRoutes
+      });
+    };
+    
+    loadRoutingComponents();
+  }, []);
+  
+  // 404 페이지는 이미 lazy로 로드됨
+  const NotFound = lazy(() => import('@/pages/not-found'));
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* 헤더 영역 */}
@@ -232,19 +256,14 @@ function Router() {
           <div className="flex-1 flex flex-col overflow-x-hidden">
             <Suspense fallback={<LoadingSpinner size="lg" message={loadingMessage} />}>
               <Switch>
-                {/* 언어 기반 라우팅 - 영어 */}
-                <Route path="/en">
-                  {() => <Home />}
-                </Route>
+                {/* 언어 기반 라우팅 사용 - 동적 로드 후 표시 */}
+                {routingComponents ? 
+                  routingComponents.renderRoutesWithLanguage(routingComponents.appRoutes, language) 
+                  : null}
                 
-                {/* 언어 기반 라우팅 - 일본어 */}
-                <Route path="/jp">
-                  {() => <Home />}
-                </Route>
-                
-                {/* 기본 홈 경로 (한국어) */}
-                <Route path="/">
-                  {() => <Home />}
+                {/* 404 페이지 처리 */}
+                <Route path="*">
+                  {() => <NotFound />}
                 </Route>
                 
                 {/* Services routes - 카테고리별 서비스 목록 */}
