@@ -176,7 +176,7 @@ export const translations: Record<Language, any> = {
     
     // Services page
     services: {
-      nearby_3d_printers: '근처 3D 프린터',
+      nearby_3d_printers: '3D 프린터',
       electronic_circuit_service: '전자 회로 제작 서비스',
       woodworking_service: '목공 서비스',
       metalworking_service: '금속 가공 서비스',
@@ -237,8 +237,8 @@ export const translations: Record<Language, any> = {
       latestResources: '최신 리소스',
       popularResources: '인기 리소스',
       featuredContent: '추천 콘텐츠',
-      hardwareTitle: '하드웨어 설계도',
-      hardwareDescription: '전자 제품과 하드웨어 설계도를 위한 리소스',
+      hardwareTitle: '하드웨어 설계',
+      hardwareDescription: '전자 제품과 하드웨어 설계를 위한 리소스',
       softwareTitle: '소프트웨어',
       softwareDescription: '펌웨어, 드라이버 및 소프트웨어 솔루션',
       aiModelTitle: 'AI 모델',
