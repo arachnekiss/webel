@@ -72,6 +72,7 @@ const Header: React.FC = () => {
   const { user, logoutMutation, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
@@ -142,38 +143,41 @@ const Header: React.FC = () => {
             
             {/* 로그인/회원가입 또는 사용자 메뉴 */}
             <div className="hidden md:flex items-center space-x-4">
+              {/* 언어 선택기 추가 */}
+              <LanguageSelector />
+              
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="text-foreground font-medium">
-                    {user.fullName || user.username}님
+                    {user.fullName || user.username}{t('common.honorific')}
                   </div>
                   <Button 
                     variant="outline" 
                     className="border-border text-foreground"
                     onClick={() => logoutMutation.mutate()}
                   >
-                    로그아웃
+                    {t('auth.logout')}
                   </Button>
                   {isAdmin && (
                     <TopLink href="/admin/dashboard" className="inline-block">
-                      <Button variant="secondary">관리자 대시보드</Button>
+                      <Button variant="secondary">{t('admin.dashboard')}</Button>
                     </TopLink>
                   )}
                 </div>
               ) : (
                 <>
                   <TopLink href="/login" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    로그인
+                    {t('auth.login')}
                   </TopLink>
                   <TopLink href="/register" className="text-foreground hover:text-primary transition-colors cursor-pointer text-sm">
-                    회원가입
+                    {t('auth.register')}
                   </TopLink>
                 </>
               )}
 
               <TopLink href="/sponsor" className="inline-block">
                 <Button className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm">
-                  Webel 후원하기
+                  {t('sponsor.donate')}
                 </Button>
               </TopLink>
             </div>
@@ -336,13 +340,23 @@ const Header: React.FC = () => {
                   </div>
                 ))}
                 <div className="h-px bg-border my-3"></div>
+                
+                <div className="px-4 py-2 text-foreground font-semibold text-lg">
+                  언어 설정
+                </div>
+                <div className="px-4 py-2">
+                  <LanguageSelector />
+                </div>
+                
+                <div className="h-px bg-border my-3"></div>
+                
                 <div className="px-4 py-2 text-foreground font-semibold text-lg">
                   계정
                 </div>
                 {user ? (
                   <>
                     <div className="px-4 py-2 text-primary font-medium mb-1">
-                      <span className="ml-2">{user.fullName || user.username}님</span>
+                      <span className="ml-2">{user.fullName || user.username}{t('common.honorific')}</span>
                     </div>
                     <div 
                       className="block px-4 py-2 text-foreground hover:bg-slate-50 rounded cursor-pointer"
@@ -351,14 +365,14 @@ const Header: React.FC = () => {
                         if (isMobile) setIsMobileMenuOpen(false);
                       }}
                     >
-                      로그아웃
+                      {t('auth.logout')}
                     </div>
                     {isAdmin && (
                       <div 
                         onClick={() => handleNavigate('/admin/dashboard')}
                         className="block px-4 py-2 bg-secondary/20 text-foreground rounded cursor-pointer"
                       >
-                        관리자 대시보드
+                        {t('admin.dashboard')}
                       </div>
                     )}
                   </>
