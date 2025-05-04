@@ -24,6 +24,14 @@ import Home from './pages/Home';
 import Resources from './pages/Resources';
 import Services from './pages/Services';
 
+// 동적으로 로드되는 컴포넌트들
+const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
+const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
+const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
+const ResourceUploadPage = lazy(() => import('./pages/ResourceUploadPage'));
+const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
+const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
+
 // 404 페이지
 const NotFound = lazy(() => import('./pages/not-found'));
 
@@ -97,28 +105,19 @@ function Router() {
                 {/* 리소스 업로드 및 관리 고정 경로 (순서 중요) */}
                 <Route path={`${prefix}/resources/create`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
-                      return <ResourceManagementPage />;
-                    }}
+                    <ResourceManagementPage />
                   </Suspense>
                 </Route>
                 
                 <Route path={`${prefix}/resources/upload`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const ResourceUploadPage = lazy(() => import('./pages/ResourceUploadPage'));
-                      return <ResourceUploadPage />;
-                    }}
+                    <ResourceUploadPage />
                   </Suspense>
                 </Route>
                 
                 <Route path={`${prefix}/resources/upload-v2`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
-                      return <ResourceUploadPageV2 />;
-                    }}
+                    <ResourceUploadPageV2 />
                   </Suspense>
                 </Route>
                 
@@ -150,20 +149,14 @@ function Router() {
                 {/* 리소스 관리 동적 경로 */}
                 <Route path={`${prefix}/resources/manage/:id`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {params => {
-                      const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
-                      return <ResourceManagementPage id={params.id} />;
-                    }}
+                    <ResourceManagementPage />
                   </Suspense>
                 </Route>
                 
                 {/* 리소스 세부 정보 동적 경로 */}
                 <Route path={`${prefix}/resources/:id`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {params => {
-                      const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
-                      return <ResourceDetail id={params.id} />;
-                    }}
+                    <ResourceDetail />
                   </Suspense>
                 </Route>
                 
@@ -176,52 +169,33 @@ function Router() {
                 {/* 서비스 등록 관련 경로 (별도로 처리) - 순서 유의! */}
                 <Route path={`${prefix}/register-printer`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      const defaultType: ServiceType = "3d_printing";
-                      return <RegisterServiceUnified defaultType={defaultType} />;
-                    }}
+                    <RegisterServiceUnified defaultType="3d_printing" />
                   </Suspense>
                 </Route>
                 
                 {/* 서비스 등록 고정 경로 */}
                 <Route path={`${prefix}/services/register/3d_printing`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      const defaultType: ServiceType = "3d_printing";
-                      return <RegisterServiceUnified defaultType={defaultType} />;
-                    }}
+                    <RegisterServiceUnified defaultType="3d_printing" />
                   </Suspense>
                 </Route>
                 
                 <Route path={`${prefix}/services/register/engineer`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      const defaultType: ServiceType = "engineer";
-                      return <RegisterServiceUnified defaultType={defaultType} />;
-                    }}
+                    <RegisterServiceUnified defaultType="engineer" />
                   </Suspense>
                 </Route>
                 
                 <Route path={`${prefix}/services/register/manufacturing`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      const defaultType: ServiceType = "manufacturing";
-                      return <RegisterServiceUnified defaultType={defaultType} />;
-                    }}
+                    <RegisterServiceUnified defaultType="manufacturing" />
                   </Suspense>
                 </Route>
                 
                 {/* 서비스 등록 베이스 경로 */}
                 <Route path={`${prefix}/services/register`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {() => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      return <RegisterServiceUnified />;
-                    }}
+                    <RegisterServiceUnified />
                   </Suspense>
                 </Route>
                 
@@ -244,26 +218,14 @@ function Router() {
                 {/* 서비스 등록 동적 경로 (맨 마지막에) */}
                 <Route path={`${prefix}/services/register/:type`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {params => {
-                      const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
-                      // 지원되는 서비스 타입인지 확인
-                      let validType: ServiceType = "3d_printing"; // 기본값
-                      const typeParam = params.type as string;
-                      if (["3d_printing", "engineer", "manufacturing"].includes(typeParam)) {
-                        validType = typeParam as ServiceType;
-                      }
-                      return <RegisterServiceUnified defaultType={validType} />;
-                    }}
+                    <RegisterServiceUnified />
                   </Suspense>
                 </Route>
                 
                 {/* 서비스 세부 정보 동적 경로 */}
                 <Route path={`${prefix}/services/:id`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    {params => {
-                      const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
-                      return <ServiceDetail id={params.id} />;
-                    }}
+                    <ServiceDetail />
                   </Suspense>
                 </Route>
                 
@@ -281,17 +243,16 @@ function Router() {
                       key={`static-${prefix}${route.path}`}
                       path={`${prefix}${route.path}`}
                     >
-                      {() => <route.component {...route.props} />}
+                      <route.component {...route.props} />
                     </Route>
                   ))
                 }
                 
                 {/* 404 페이지 처리 */}
                 <Route path="*">
-                  {() => {
-                    console.log(`[NotFound] No route matched for path: ${location}`);
-                    return <NotFound />;
-                  }}
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <NotFound />
+                  </Suspense>
                 </Route>
               </Switch>
             </Suspense>
