@@ -222,7 +222,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // 필수 필드가 비어있는지 확인 및 기본값 설정
       if (!serviceData.title) serviceData.title = '제목 없음';
-      if (!serviceData.description) serviceData.description = '설명 없음'; 
+      if (!serviceData.description) serviceData.description = '설명 없음';
+      
+      // 무료 서비스인 경우 추가 필드에 기본값 설정
+      if (serviceData.isFreeService === true) {
+        if (!serviceData.availableHours) serviceData.availableHours = '평일 9:00-18:00';
+        if (!serviceData.pricing) serviceData.pricing = '무료';
+        
+        // 서비스 타입별 기본 태그 설정 (비어있는 경우만)
+        if (!serviceData.tags || serviceData.tags.length === 0) {
+          if (serviceData.serviceType === '3d_printing') {
+            serviceData.tags = ['PLA', 'ABS', '시제품'];
+          } else if (serviceData.serviceType === 'engineer') {
+            serviceData.tags = ['설계', 'PCB', '전자기기'];
+          } else if (serviceData.serviceType === 'manufacturing') {
+            serviceData.tags = ['시제품', '소량생산', '3D프린팅'];
+          }
+        }
+      }
       
       console.log('서비스 데이터 처리:', {
         ...serviceData,

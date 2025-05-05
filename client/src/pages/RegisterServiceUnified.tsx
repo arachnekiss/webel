@@ -105,7 +105,7 @@ const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
 ];
 
 // 서비스 등록 폼 스키마
-const serviceFormSchema = z.object({
+const baseServiceFormSchema = z.object({
   title: z.string().min(1, {
     message: '제목을 입력해주세요',
   }).optional().or(z.literal("")),
@@ -119,7 +119,7 @@ const serviceFormSchema = z.object({
   pricing: z.string().optional().or(z.literal("")),
   availableHours: z.string().optional().or(z.literal("")),
   isIndividual: z.boolean().default(true),
-  isFreeService: z.boolean().default(false),
+  isFreeService: z.boolean().default(true), // 기본값을 true로 변경
   tags: z.union([
     z.string().transform(val => val ? val.split(',').map(tag => tag.trim()) : []),
     z.array(z.string()),
@@ -133,6 +133,22 @@ const serviceFormSchema = z.object({
   portfolioUrl: z.string().url("유효한 URL을 입력하세요").optional().or(z.literal("")),
   experience: z.number().optional().or(z.literal(0)),
 });
+
+// 무료 서비스와 유료 서비스에 따른 검증 로직을 refinement로 추가
+const serviceFormSchema = baseServiceFormSchema.refine(
+  (data) => {
+    // 유료 서비스인 경우에만 필수 필드 검증
+    if (!data.isFreeService) {
+      return !!data.title && !!data.description;
+    }
+    // 무료 서비스는 모든 필드가 선택사항
+    return true;
+  },
+  {
+    message: "유료 서비스는 제목과 설명이 필수입니다",
+    path: ["title"], // 에러를 표시할 필드
+  }
+);
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
@@ -1335,19 +1351,20 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                       type="submit"
                       disabled={
                         registerServiceMutation.isPending ||
-                        !form.formState.isValid ||
-                        !user
+                        (!form.formState.isValid && !form.watch("isFreeService")) ||
+                        (!user && !form.watch("isFreeService"))
                       }
                       onClick={(e) => {
-                        if (!user) {
+                        // 유료 서비스일 때만 로그인 체크
+                        if (!user && !form.watch("isFreeService")) {
                           e.preventDefault();
                           toast({
-                            title: language === 'ko' ? '로그인 필요' : 
-                                   language === 'jp' ? 'ログインが必要です' : 
-                                   'Login Required',
-                            description: language === 'ko' ? '서비스 등록을 위해 로그인이 필요합니다.' : 
-                                        language === 'jp' ? 'サービスを登録するにはログインが必要です。' : 
-                                        'You need to login to register a service.',
+                            title: language === 'ko' ? '유료 서비스 제한' : 
+                                   language === 'jp' ? '有料サービスの制限' : 
+                                   'Premium Service Restriction',
+                            description: language === 'ko' ? '유료 서비스 등록을 위해 로그인이 필요합니다.' : 
+                                        language === 'jp' ? '有料サービスを登録するにはログインが必要です。' : 
+                                        'You need to login to register a premium service.',
                             variant: "destructive",
                           });
                         }
