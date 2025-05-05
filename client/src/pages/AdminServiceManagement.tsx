@@ -81,10 +81,7 @@ interface Service {
 const serviceTypeLabels: Record<string, string> = {
   // 하드웨어 관련 서비스
   '3d_printing': '3D 프린팅',
-  'electronics': '전자기기',
-  'woodworking': '목공',
-  'metalworking': '금속가공',
-  'manufacturing': '제조',
+  'manufacturing': '생산업체',
   // 인적 자원 서비스
   'engineer': '엔지니어'
 };

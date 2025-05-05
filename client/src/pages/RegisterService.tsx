@@ -92,17 +92,14 @@ const manufacturingCapabilityOptions = [
 const serviceTypeLabels: { value: ServiceType; label: string; icon: any }[] = [
   { value: "3d_printing", label: "3D 프린팅 서비스", icon: Printer },
   { value: "engineer", label: "엔지니어 서비스", icon: User },
-  { value: "manufacturing", label: "제조 서비스", icon: Building },
-  { value: "electronics", label: "전자기기 서비스", icon: Hexagon },
-  { value: "woodworking", label: "목공 서비스", icon: Wrench },
-  { value: "metalworking", label: "금속가공 서비스", icon: Wrench },
+  { value: "manufacturing", label: "생산업체 서비스", icon: Building },
 ];
 
 // 서비스 등록 폼 스키마
 const serviceFormSchema = z.object({
   title: z.string().min(2, "제목은 최소 2자 이상이어야 합니다").max(100, "제목은 최대 100자까지 가능합니다"),
   description: z.string().min(10, "설명은 최소 10자 이상이어야 합니다").max(2000, "설명은 최대 2000자까지 가능합니다"),
-  serviceType: z.enum(["3d_printing", "electronics", "woodworking", "metalworking", "manufacturing", "engineer"]),
+  serviceType: z.enum(["3d_printing", "manufacturing", "engineer"]),
   contactEmail: z.string().email("유효한 이메일을 입력하세요").optional().or(z.literal("")),
   contactPhone: z.string().optional(),
   printerModel: z.string().optional(),
@@ -156,7 +153,7 @@ export default function RegisterService() {
     // URL에서 타입 파라미터 추출 시도
     if (params && typeof params === 'string') {
       const paramType = params as ServiceType;
-      if (["3d_printing", "engineer", "manufacturing", "electronics", "woodworking", "metalworking"].includes(paramType)) {
+      if (["3d_printing", "engineer", "manufacturing"].includes(paramType)) {
         setServiceType(paramType);
         form.setValue("serviceType", paramType);
       }
