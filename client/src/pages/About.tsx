@@ -63,7 +63,7 @@ const About: React.FC = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <LayoutGrid className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
