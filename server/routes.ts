@@ -920,7 +920,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/sponsor/comments', async (_req: Request, res: Response) => {
     try {
       // 코멘트 목록을 최신순으로 가져오기
-      const comments = await db.select().from(sponsorComments).orderBy(sponsorComments.createdAt, 'desc');
+      const comments = await db.select().from(sponsorComments);
       res.json(comments);
     } catch (error) {
       console.error('후원 코멘트 조회 오류:', error);

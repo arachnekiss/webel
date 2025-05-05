@@ -49,12 +49,40 @@ const Sponsor: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('bank');
   
-  // 코멘트 데이터 초기화
+  // 코멘트 데이터 가져오기
   useEffect(() => {
-    // 실제 서비스에서는 API에서 데이터를 가져와야 함
-    // 일단 빈 배열로 초기화하여 사용자 입력으로만 코멘트가 추가됨
-    setComments([]);
-  }, []);
+    // API에서 실제 후원 코멘트 데이터 가져오기
+    const fetchComments = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/sponsor/comments');
+        if (!response.ok) {
+          throw new Error('코멘트를 불러오는데 실패했습니다.');
+        }
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        console.error('코멘트 불러오기 오류:', error);
+        toast({
+          title: language === 'ko' 
+            ? "오류 발생" 
+            : language === 'jp' 
+              ? "エラーが発生しました" 
+              : "Error Occurred",
+          description: language === 'ko' 
+            ? "코멘트를 불러오는데 실패했습니다." 
+            : language === 'jp' 
+              ? "コメントを読み込むことができませんでした。" 
+              : "Failed to load comments.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [language, toast]);
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -77,31 +105,45 @@ const Sponsor: React.FC = () => {
   const [activationTimer, setActivationTimer] = useState<NodeJS.Timeout | null>(null);
   
   // 결제 완료 처리
-  const handlePaymentComplete = () => {
-    // 실제로는 여기서 서버에 결제 정보와 코멘트를 전송
+  const handlePaymentComplete = async () => {
+    // 실제로 서버에 결제 정보와 코멘트를 전송
     setIsLoading(true);
     
-    // 결제 처리 시뮬레이션 (실제로는 API 호출)
-    setTimeout(() => {
-      setIsLoading(false);
-      setShowPaymentDialog(false);
-      
-      // 새 코멘트를 목록에 추가 (실제로는 서버에서 받아와야 함)
+    try {
       if (comment.trim()) {
-        const newComment: SponsorComment = {
-          id: comments.length + 1,
+        // 새 코멘트 데이터 생성
+        const commentData = {
           userId: user?.id || 0,
           username: user?.username || '익명',
           amount: selectedAmount,
           tier: selectedTier,
-          message: comment,
-          createdAt: new Date().toISOString(),
+          message: comment
         };
         
-        setComments(prev => [newComment, ...prev]);
+        // API 요청으로 코멘트 저장
+        const response = await fetch('/api/sponsor/comments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(commentData)
+        });
+        
+        if (!response.ok) {
+          throw new Error('코멘트 저장에 실패했습니다.');
+        }
+        
+        // 저장된 코멘트 데이터 받기
+        const savedComment = await response.json();
+        
+        // 코멘트 목록에 새 코멘트 추가
+        setComments(prev => [savedComment, ...prev]);
       }
       
-      // 결제 완료 알림 (토스트는 제거하고 캐릭터 애니메이션으로 대체)
+      // 결제 대화상자 닫기
+      setShowPaymentDialog(false);
+      
+      // 결제 완료 애니메이션 효과
       setActivatedAmount(selectedAmount);
       
       // 5초 후에 활성화된 캐릭터 상태 초기화
@@ -118,7 +160,38 @@ const Sponsor: React.FC = () => {
       // 폼 초기화
       setComment('');
       setCustomAmount('');
-    }, 1500);
+      
+      // 성공 메시지
+      toast({
+        title: language === 'ko' 
+          ? "후원 완료" 
+          : language === 'jp' 
+            ? "サポート完了" 
+            : "Support Complete",
+        description: language === 'ko' 
+          ? "소중한 후원에 감사드립니다." 
+          : language === 'jp' 
+            ? "貴重なサポートありがとうございます。" 
+            : "Thank you for your valuable support.",
+      });
+    } catch (error) {
+      console.error('후원 처리 중 오류 발생:', error);
+      toast({
+        title: language === 'ko' 
+          ? "오류 발생" 
+          : language === 'jp' 
+            ? "エラーが発生しました" 
+            : "Error Occurred",
+        description: language === 'ko' 
+          ? "후원 처리 중 오류가 발생했습니다. 다시 시도해주세요." 
+          : language === 'jp' 
+            ? "サポート処理中にエラーが発生しました。もう一度お試しください。" 
+            : "An error occurred during the support process. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   // 결제 수단 선택 핸들러
