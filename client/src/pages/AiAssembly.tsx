@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   CheckCircle, 
   Camera, 
@@ -675,6 +676,8 @@ const AiAssembly = () => {
     );
   }
 
+  const { language } = useLanguage();
+
   return (
     <main className="container mx-auto px-4 py-6">
       {/* Hero section */}
@@ -682,23 +685,38 @@ const AiAssembly = () => {
         <div className="md:flex">
           <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              AI 조립 비서가 도와드립니다
+              {language === 'ko' 
+                ? 'AI 조립 비서가 도와드립니다' 
+                : language === 'jp' 
+                  ? 'AI組立アシスタントがお手伝いします' 
+                  : 'AI Assembly Assistant at Your Service'}
             </h1>
             <p className="text-blue-100 mb-6">
-              복잡한 조립 과정을 AI가 단계별로 안내해드립니다. 실시간으로 진행 상황을 분석하고 
-              피드백을 제공하여 실수 없이 완성할 수 있습니다.
+              {language === 'ko' 
+                ? '복잡한 조립 과정을 AI가 단계별로 안내해드립니다. 실시간으로 진행 상황을 분석하고 피드백을 제공하여 실수 없이 완성할 수 있습니다.' 
+                : language === 'jp' 
+                  ? '複雑な組立プロセスをAIがステップバイステップでご案内します。リアルタイムで進行状況を分析し、フィードバックを提供することでミスなく完成させることができます。' 
+                  : 'AI guides you through complex assembly processes step by step. It analyzes your progress in real-time and provides feedback to help you complete without mistakes.'}
             </p>
             <Button 
               onClick={handleStartChat}
               className="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors w-full md:w-auto text-center"
             >
-              지금 시작하기
+              {language === 'ko' 
+                ? '지금 시작하기' 
+                : language === 'jp' 
+                  ? '今すぐ始める' 
+                  : 'Start Now'}
             </Button>
           </div>
           <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
             <img 
               src="/images/ai-assembly-hero.png" 
-              alt="AI 조립 비서와 함께 3D 프린터 부품 조립하기" 
+              alt={language === 'ko' 
+                ? 'AI 조립 비서와 함께 3D 프린터 부품 조립하기' 
+                : language === 'jp' 
+                  ? 'AIアシスタントと一緒に3Dプリンタのパーツを組み立てる' 
+                  : 'Assembling 3D printer parts with AI assistant'}
               className="rounded-lg shadow-lg max-h-96 object-cover" 
             />
           </div>
@@ -707,17 +725,33 @@ const AiAssembly = () => {
       
       {/* Features */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">주요 기능</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          {language === 'ko' 
+            ? '주요 기능' 
+            : language === 'jp' 
+              ? '主な機能' 
+              : 'Key Features'}
+        </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="pb-2">
               <Camera className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>실시간 진행 상황 분석</CardTitle>
+              <CardTitle>
+                {language === 'ko' 
+                  ? '실시간 진행 상황 분석' 
+                  : language === 'jp' 
+                    ? 'リアルタイム進行状況分析' 
+                    : 'Real-time Progress Analysis'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                카메라를 통해 현재 조립 상태를 인식하고 다음 단계를 실시간으로 안내해드립니다.
+                {language === 'ko' 
+                  ? '카메라를 통해 현재 조립 상태를 인식하고 다음 단계를 실시간으로 안내해드립니다.' 
+                  : language === 'jp' 
+                    ? 'カメラを通じて現在の組立状態を認識し、次のステップをリアルタイムでご案内します。' 
+                    : 'Recognizes your current assembly state through the camera and guides you to the next step in real-time.'}
               </p>
             </CardContent>
           </Card>
@@ -725,11 +759,21 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <Lightbulb className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>3D 시각화 가이드</CardTitle>
+              <CardTitle>
+                {language === 'ko' 
+                  ? '3D 시각화 가이드' 
+                  : language === 'jp' 
+                    ? '3D可視化ガイド' 
+                    : '3D Visualization Guide'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                복잡한 부품과 조립 방법을 3D로 시각화하여 직관적으로 이해할 수 있습니다.
+                {language === 'ko' 
+                  ? '복잡한 부품과 조립 방법을 3D로 시각화하여 직관적으로 이해할 수 있습니다.' 
+                  : language === 'jp' 
+                    ? '複雑なパーツと組立方法を3Dで可視化し、直感的に理解することができます。' 
+                    : 'Visualizes complex parts and assembly methods in 3D for intuitive understanding.'}
               </p>
             </CardContent>
           </Card>
@@ -737,11 +781,21 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <Mic className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>음성 안내 지원</CardTitle>
+              <CardTitle>
+                {language === 'ko' 
+                  ? '음성 안내 지원' 
+                  : language === 'jp' 
+                    ? '音声ガイド対応' 
+                    : 'Voice Guidance Support'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                양손으로 작업 중에도 음성 안내를 통해 다음 단계를 확인할 수 있습니다.
+                {language === 'ko' 
+                  ? '양손으로 작업 중에도 음성 안내를 통해 다음 단계를 확인할 수 있습니다.' 
+                  : language === 'jp' 
+                    ? '両手で作業中でも音声ガイドを通じて次のステップを確認できます。' 
+                    : 'Allows you to check the next step through voice guidance even while working with both hands.'}
               </p>
             </CardContent>
           </Card>
@@ -749,11 +803,21 @@ const AiAssembly = () => {
           <Card>
             <CardHeader className="pb-2">
               <HelpCircle className="h-12 w-12 text-blue-500 mb-2" />
-              <CardTitle>실시간 문제 해결</CardTitle>
+              <CardTitle>
+                {language === 'ko' 
+                  ? '실시간 문제 해결' 
+                  : language === 'jp' 
+                    ? 'リアルタイム問題解決' 
+                    : 'Real-time Troubleshooting'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600">
-                문제가 발생할 경우 즉시 감지하고 해결 방법을 제안해 드립니다.
+                {language === 'ko' 
+                  ? '문제가 발생할 경우 즉시 감지하고 해결 방법을 제안해 드립니다.' 
+                  : language === 'jp' 
+                    ? '問題が発生した場合、即時に検知し、解決方法を提案します。' 
+                    : 'Immediately detects any issues and suggests solutions when problems occur.'}
               </p>
             </CardContent>
           </Card>
@@ -764,10 +828,19 @@ const AiAssembly = () => {
       <section className="mb-12">
         <div className="bg-gray-50 rounded-xl p-8 md:flex items-center justify-between">
           <div className="md:w-2/3 mb-6 md:mb-0">
-            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">준비되셨나요?</h3>
+            <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-3">
+              {language === 'ko' 
+                ? '준비되셨나요?' 
+                : language === 'jp' 
+                  ? '準備はできましたか？' 
+                  : 'Ready to Start?'}
+            </h3>
             <p className="text-gray-600">
-              지금 바로 AI 조립 비서와 함께 프로젝트를 시작해보세요.
-              어떤 복잡한 조립도 쉽고 빠르게 완성할 수 있습니다.
+              {language === 'ko' 
+                ? '지금 바로 AI 조립 비서와 함께 프로젝트를 시작해보세요. 어떤 복잡한 조립도 쉽고 빠르게 완성할 수 있습니다.' 
+                : language === 'jp' 
+                  ? '今すぐAI組立アシスタントと一緒にプロジェクトを始めましょう。どんな複雑な組立も簡単かつ迅速に完成させることができます。' 
+                  : 'Start your project with the AI Assembly Assistant right now. You can complete any complex assembly easily and quickly.'}
             </p>
           </div>
           <div>
@@ -775,7 +848,13 @@ const AiAssembly = () => {
               className="px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-md w-full md:w-auto flex items-center justify-center gap-2"
               onClick={handleStartChat}
             >
-              <span>시작하기</span>
+              <span>
+                {language === 'ko' 
+                  ? '시작하기' 
+                  : language === 'jp' 
+                    ? '始める' 
+                    : 'Start'}
+              </span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
