@@ -244,17 +244,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                   <LayoutGrid className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">리소스 열람 및 다운로드</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '리소스 열람 및 다운로드'
+                    : language === 'jp' 
+                      ? 'リソースの閲覧とダウンロード'
+                      : 'Browse and Download Resources'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  하드웨어 설계도, 소프트웨어, 3D 모델링, AI 모델 등 다양한 디지털 자료를 분야별로 체계적으로 제공합니다.
-                  회원가입 없이도 모든 리소스를 즉시 열람하고 다운로드할 수 있습니다.
+                  {language === 'ko' 
+                    ? '하드웨어 설계도, 소프트웨어, 3D 모델링, AI 모델 등 다양한 디지털 자료를 분야별로 체계적으로 제공합니다. 회원가입 없이도 모든 리소스를 즉시 열람하고 다운로드할 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'ハードウェア設計図、ソフトウェア、3Dモデリング、AIモデルなど、さまざまなデジタル資料を分野別に体系的に提供します。会員登録なしでもすべてのリソースをすぐに閲覧してダウンロードできます。'
+                      : 'We systematically provide various digital materials such as hardware designs, software, 3D modeling, and AI models by field. You can immediately view and download all resources without signing up.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/resources" className="text-blue-600 font-medium inline-flex items-center text-sm hover:text-blue-700">
-                  리소스 살펴보기
+                  {language === 'ko' 
+                    ? '리소스 살펴보기'
+                    : language === 'jp' 
+                      ? 'リソースを見る'
+                      : 'Explore Resources'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -265,17 +278,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                   <CircleUser className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">엔지니어에게 제작 요청</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '엔지니어에게 제작 요청'
+                    : language === 'jp' 
+                      ? 'エンジニアへの制作依頼'
+                      : 'Request Engineering Services'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  맞춤형 제작이 필요할 경우, 전문 엔지니어에게 제작을 요청할 수 있습니다. 
-                  무료로 도움을 주는 엔지니어부터 유료로 정밀한 작업을 진행하는 전문가까지 폭넓은 협력 방식이 가능합니다.
+                  {language === 'ko' 
+                    ? '맞춤형 제작이 필요할 경우, 전문 엔지니어에게 제작을 요청할 수 있습니다. 무료로 도움을 주는 엔지니어부터 유료로 정밀한 작업을 진행하는 전문가까지 폭넓은 협력 방식이 가능합니다.'
+                    : language === 'jp' 
+                      ? 'カスタム制作が必要な場合、専門エンジニアに制作を依頼できます。無料でサポートするエンジニアから有料で精密な作業を行う専門家まで、幅広い協力方式が可能です。'
+                      : 'If you need custom production, you can request it from professional engineers. A wide range of collaboration options are available, from engineers who help for free to experts who perform precise work for a fee.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/services/type/engineer" className="text-indigo-600 font-medium inline-flex items-center text-sm hover:text-indigo-700">
-                  엔지니어 찾기
+                  {language === 'ko' 
+                    ? '엔지니어 찾기'
+                    : language === 'jp' 
+                      ? 'エンジニアを探す'
+                      : 'Find Engineers'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -286,17 +312,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-cyan-100 text-cyan-600 flex items-center justify-center mb-4 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
                   <Layers className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">조립 과정 지원</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '조립 과정 지원'
+                    : language === 'jp' 
+                      ? '組立過程サポート'
+                      : 'Assembly Support'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  직접 조립을 시도하는 과정에서 어려움을 겪을 경우, Webel에 등록된 엔지니어에게 도움을 요청할 수 있습니다. 
-                  복잡한 부품이나 장치의 조립 방법에 대해 안내를 받고 원격 지원을 받을 수 있습니다.
+                  {language === 'ko' 
+                    ? '직접 조립을 시도하는 과정에서 어려움을 겪을 경우, Webel에 등록된 엔지니어에게 도움을 요청할 수 있습니다. 복잡한 부품이나 장치의 조립 방법에 대해 안내를 받고 원격 지원을 받을 수 있습니다.'
+                    : language === 'jp' 
+                      ? '直接組み立てを試みる過程で困難を経験する場合、Webelに登録されたエンジニアに助けを求めることができます。複雑な部品や装置の組み立て方法についてガイダンスを受け、リモートサポートを受けることができます。'
+                      : 'If you encounter difficulties during the assembly process, you can request help from engineers registered with Webel. You can receive guidance on how to assemble complex parts or devices and get remote support.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/remote-support" className="text-cyan-600 font-medium inline-flex items-center text-sm hover:text-cyan-700">
-                  원격 지원 알아보기
+                  {language === 'ko' 
+                    ? '원격 지원 알아보기'
+                    : language === 'jp' 
+                      ? 'リモートサポートを見る'
+                      : 'Learn About Remote Support'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -307,17 +346,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
                   <Factory className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">제조업체 연결</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '제조업체 연결'
+                    : language === 'jp' 
+                      ? 'メーカーとの連携'
+                      : 'Manufacturer Connections'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  프로토타입 완성 후 제품을 대량으로 생산하고자 할 때, Webel에 등록된 다양한 제조업체를 통해 쉽게 연결할 수 있습니다. 
-                  조건에 맞는 업체를 찾아 견적을 비교하고, 최적의 파트너를 선택할 수 있습니다.
+                  {language === 'ko' 
+                    ? '프로토타입 완성 후 제품을 대량으로 생산하고자 할 때, Webel에 등록된 다양한 제조업체를 통해 쉽게 연결할 수 있습니다. 조건에 맞는 업체를 찾아 견적을 비교하고, 최적의 파트너를 선택할 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'プロトタイプ完成後に製品を大量生産したい場合、Webelに登録された様々なメーカーを通じて簡単に連携できます。条件に合う企業を探して見積もりを比較し、最適なパートナーを選択できます。'
+                      : 'When you want to mass-produce products after completing a prototype, you can easily connect with various manufacturers registered with Webel. You can find companies that meet your conditions, compare quotes, and select the optimal partner.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/services/type/manufacturing" className="text-amber-600 font-medium inline-flex items-center text-sm hover:text-amber-700">
-                  제조업체 찾기
+                  {language === 'ko' 
+                    ? '제조업체 찾기'
+                    : language === 'jp' 
+                      ? 'メーカーを探す'
+                      : 'Find Manufacturers'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -328,17 +380,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
                   <Briefcase className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">서비스 등록</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '서비스 등록'
+                    : language === 'jp' 
+                      ? 'サービス登録'
+                      : 'Register Services'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  엔지니어와 제조업체는 누구나 Webel에 자신의 기술 서비스를 등록할 수 있습니다. 
-                  무료로 지식을 나누거나 전문적인 유료 서비스를 제공하는 등 다양한 방식으로 참여할 수 있습니다.
+                  {language === 'ko' 
+                    ? '엔지니어와 제조업체는 누구나 Webel에 자신의 기술 서비스를 등록할 수 있습니다. 무료로 지식을 나누거나 전문적인 유료 서비스를 제공하는 등 다양한 방식으로 참여할 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'エンジニアとメーカーは誰でもWebelに自分の技術サービスを登録できます。無料で知識を共有したり、専門的な有料サービスを提供するなど、様々な方法で参加できます。'
+                      : 'Engineers and manufacturers can register their technical services on Webel. You can participate in various ways, such as sharing knowledge for free or providing professional paid services.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/services/register" className="text-emerald-600 font-medium inline-flex items-center text-sm hover:text-emerald-700">
-                  서비스 등록하기
+                  {language === 'ko' 
+                    ? '서비스 등록하기'
+                    : language === 'jp' 
+                      ? 'サービスを登録する'
+                      : 'Register Service'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -349,17 +414,30 @@ const About: React.FC = () => {
                 <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                   <ShieldCheck className="h-8 w-8" />
                 </div>
-                <CardTitle className="text-xl">본인 인증 시스템</CardTitle>
+                <CardTitle className="text-xl">
+                  {language === 'ko' 
+                    ? '본인 인증 시스템'
+                    : language === 'jp' 
+                      ? '本人認証システム'
+                      : 'Identity Verification System'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-slate-600">
-                  Webel은 유료 서비스 제공 및 금전적 거래의 안전성을 보장하기 위해 체계적인 본인 인증 시스템을 운영합니다. 
-                  휴대폰 본인 인증과 계좌 등록 과정을 통해 사용자의 신원을 확인하고 안전한 환경을 구축합니다.
+                  {language === 'ko' 
+                    ? 'Webel은 유료 서비스 제공 및 금전적 거래의 안전성을 보장하기 위해 체계적인 본인 인증 시스템을 운영합니다. 휴대폰 본인 인증과 계좌 등록 과정을 통해 사용자의 신원을 확인하고 안전한 환경을 구축합니다.'
+                    : language === 'jp' 
+                      ? 'Webelは有料サービス提供および金銭的取引の安全性を保証するため、体系的な本人認証システムを運営しています。携帯電話本人認証と口座登録過程を通じてユーザーの身元を確認し、安全な環境を構築します。'
+                      : 'Webel operates a systematic identity verification system to ensure the safety of paid services and financial transactions. We verify user identities through mobile phone verification and account registration processes to build a secure environment.'}
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
                 <Link href="/my/verification" className="text-purple-600 font-medium inline-flex items-center text-sm hover:text-purple-700">
-                  인증 방법 알아보기
+                  {language === 'ko' 
+                    ? '인증 방법 알아보기'
+                    : language === 'jp' 
+                      ? '認証方法を見る'
+                      : 'Learn About Verification'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
@@ -376,11 +454,21 @@ const About: React.FC = () => {
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-8">
                 <ShieldCheck className="h-8 w-8" />
-                <h2 className="text-3xl md:text-4xl font-bold">본인 인증 시스템</h2>
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  {language === 'ko' 
+                    ? '본인 인증 시스템'
+                    : language === 'jp' 
+                      ? '本人認証システム'
+                      : 'Identity Verification System'}
+                </h2>
               </div>
               
               <p className="text-indigo-100 text-lg max-w-3xl mb-10">
-                Webel은 높은 보안 수준과 안전한 거래 보장을 위해 강력한 인증 시스템을 구축했습니다. 이러한 인증 절차는 오픈 메이커 플랫폼의 신뢰성을 높이고 사용자 간의 원활한 거래를 가능하게 합니다.
+                {language === 'ko' 
+                  ? 'Webel은 높은 보안 수준과 안전한 거래 보장을 위해 강력한 인증 시스템을 구축했습니다. 이러한 인증 절차는 오픈 메이커 플랫폼의 신뢰성을 높이고 사용자 간의 원활한 거래를 가능하게 합니다.'
+                  : language === 'jp' 
+                    ? 'Webelは高いセキュリティレベルと安全な取引保証のために強力な認証システムを構築しました。この認証プロセスはオープンメーカープラットフォームの信頼性を高め、ユーザー間のスムーズな取引を可能にします。'
+                    : 'Webel has built a robust authentication system to ensure high security levels and secure transaction guarantees. These verification procedures enhance the reliability of the open maker platform and enable smooth transactions between users.'}
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -390,15 +478,35 @@ const About: React.FC = () => {
                       <Phone className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold">휴대폰 본인 인증</h3>
-                      <p className="text-indigo-200 text-sm">첫 번째 인증 단계</p>
+                      <h3 className="text-xl font-semibold">
+                        {language === 'ko' 
+                          ? '휴대폰 본인 인증'
+                          : language === 'jp' 
+                            ? '携帯電話本人認証'
+                            : 'Mobile Phone Verification'}
+                      </h3>
+                      <p className="text-indigo-200 text-sm">
+                        {language === 'ko' 
+                          ? '첫 번째 인증 단계'
+                          : language === 'jp' 
+                            ? '最初の認証ステップ'
+                            : 'First verification step'}
+                      </p>
                     </div>
                   </div>
                   <p className="text-indigo-100">
-                    Webel은 유료 서비스 제공을 위해 휴대폰 본인 인증을 필수 절차로 도입했습니다. 
-                    사용자의 실제 휴대폰 번호로 SMS 인증번호를 발송하고 이를 검증함으로써, 
-                    가입자의 신원을 확인하고 서비스의 신뢰성을 높입니다. 
-                    <span className="block mt-2 text-white font-medium">본인 인증은 3분 이내에 간편하게 완료할 수 있습니다.</span>
+                    {language === 'ko' 
+                      ? 'Webel은 유료 서비스 제공을 위해 휴대폰 본인 인증을 필수 절차로 도입했습니다. 사용자의 실제 휴대폰 번호로 SMS 인증번호를 발송하고 이를 검증함으로써, 가입자의 신원을 확인하고 서비스의 신뢰성을 높입니다.'
+                      : language === 'jp' 
+                        ? 'Webelは有料サービスを提供するために、携帯電話認証を必須プロセスとして導入しました。ユーザーの実際の携帯電話番号にSMS認証番号を送信し、これを検証することで、登録者の身元を確認し、サービスの信頼性を高めます。'
+                        : 'Webel has introduced mobile phone verification as a mandatory procedure for providing paid services. By sending SMS verification codes to users\' actual mobile phone numbers and verifying them, we confirm the identity of subscribers and increase the reliability of the service.'}
+                    <span className="block mt-2 text-white font-medium">
+                      {language === 'ko' 
+                        ? '본인 인증은 3분 이내에 간편하게 완료할 수 있습니다.'
+                        : language === 'jp' 
+                          ? '本人認証は3分以内に簡単に完了できます。'
+                          : 'Identity verification can be easily completed within 3 minutes.'}
+                    </span>
                   </p>
                 </div>
 
@@ -408,15 +516,35 @@ const About: React.FC = () => {
                       <CreditCard className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold">계좌 등록 인증</h3>
-                      <p className="text-indigo-200 text-sm">두 번째 인증 단계</p>
+                      <h3 className="text-xl font-semibold">
+                        {language === 'ko' 
+                          ? '계좌 등록 인증'
+                          : language === 'jp' 
+                            ? '口座登録認証'
+                            : 'Bank Account Registration'}
+                      </h3>
+                      <p className="text-indigo-200 text-sm">
+                        {language === 'ko' 
+                          ? '두 번째 인증 단계'
+                          : language === 'jp' 
+                            ? '二番目の認証ステップ'
+                            : 'Second verification step'}
+                      </p>
                     </div>
                   </div>
                   <p className="text-indigo-100">
-                    휴대폰 인증 이후, 유료 서비스를 제공하고자 하는 사용자는 계좌 등록 과정을 거쳐야 합니다. 
-                    계좌 정보는 정산과 금융 거래의 안전성을 위해 필수적이며, 
-                    Webel의 서비스 제공자와 이용자 간의 원활한 거래를 보장합니다. 
-                    <span className="block mt-2 text-white font-medium">등록된 계좌 정보는 철저하게 보호됩니다.</span>
+                    {language === 'ko' 
+                      ? '휴대폰 인증 이후, 유료 서비스를 제공하고자 하는 사용자는 계좌 등록 과정을 거쳐야 합니다. 계좌 정보는 정산과 금융 거래의 안전성을 위해 필수적이며, Webel의 서비스 제공자와 이용자 간의 원활한 거래를 보장합니다.'
+                      : language === 'jp' 
+                        ? '携帯電話認証の後、有料サービスを提供したいユーザーは口座登録プロセスを経る必要があります。口座情報は決済と金融取引の安全性のために不可欠であり、Webelのサービス提供者と利用者間のスムーズな取引を保証します。'
+                        : 'After mobile phone verification, users who want to provide paid services must go through an account registration process. Account information is essential for the safety of settlements and financial transactions, and guarantees smooth transactions between Webel\'s service providers and users.'}
+                    <span className="block mt-2 text-white font-medium">
+                      {language === 'ko' 
+                        ? '등록된 계좌 정보는 철저하게 보호됩니다.'
+                        : language === 'jp' 
+                          ? '登録された口座情報は徹底的に保護されます。'
+                          : 'Registered account information is thoroughly protected.'}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -427,10 +555,26 @@ const About: React.FC = () => {
         {/* 기술의 선순환 섹션 */}
         <section className="mb-24">
           <div className="text-center mb-14">
-            <Badge className="mb-4 px-3 py-1.5 text-sm">플랫폼 철학</Badge>
-            <h2 className="text-4xl font-bold mb-4">Webel이 만드는 기술의 선순환</h2>
+            <Badge className="mb-4 px-3 py-1.5 text-sm">
+              {language === 'ko' 
+                ? '플랫폼 철학'
+                : language === 'jp' 
+                  ? 'プラットフォーム哲学'
+                  : 'Platform Philosophy'}
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">
+              {language === 'ko' 
+                ? 'Webel이 만드는 기술의 선순환'
+                : language === 'jp' 
+                  ? 'Webelが作る技術の好循環'
+                  : 'Virtuous Cycle of Technology Created by Webel'}
+            </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              자원의 공유와 협력을 기반으로 한 지속가능한 기술 생태계를 통해 모두가 함께 성장합니다.
+              {language === 'ko' 
+                ? '자원의 공유와 협력을 기반으로 한 지속가능한 기술 생태계를 통해 모두가 함께 성장합니다.'
+                : language === 'jp' 
+                  ? '資源の共有と協力に基づいた持続可能な技術エコシステムを通じて、皆が共に成長します。'
+                  : 'Everyone grows together through a sustainable technology ecosystem based on resource sharing and collaboration.'}
             </p>
           </div>
           
