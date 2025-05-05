@@ -50,7 +50,7 @@ const LocationBasedServices: React.FC = () => {
             </p>
           </div>
           
-          <TopLink href="/services" forceReload={false}>
+          <TopLink href="/services">
             <Button variant="outline" className="group md:self-start rounded-lg border-slate-200 hover:border-primary hover:bg-primary/5 transition-all">
               {language === 'ko' ? '모든 서비스 보기' : 
                language === 'jp' ? 'すべてのサービスを見る' : 
@@ -125,7 +125,7 @@ const LocationBasedServices: React.FC = () => {
                language === 'jp' ? '他のエリアのサービスを探すか、新しい場所で試してみてください' : 
                'Try looking for services in other areas or try from a different location'}
             </p>
-            <TopLink href="/services" forceReload={false}>
+            <TopLink href="/services">
               <Button className="bg-primary hover:bg-primary/90 text-white">
                 {language === 'ko' ? '모든 서비스 보기' : 
                  language === 'jp' ? 'すべてのサービスを見る' : 
