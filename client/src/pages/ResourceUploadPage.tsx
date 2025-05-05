@@ -16,6 +16,8 @@ interface MediaPreviewProps {
 const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
 
+  const contentRef = useRef<HTMLDivElement>(null);
+  
   // 마크다운 이미지 패턴 감지 (![alt](url) 형식)
   const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
   
@@ -516,7 +518,7 @@ export default function ResourceUploadPage() {
     setTimeout(() => urlInputRef.current?.focus(), 100);
   };
   
-  // 미디어 버튼 렌더링 함수 - 이미지 버튼만 표시
+  // 미디어 버튼 렌더링 함수 - 모든 미디어 버튼 표시
   const renderMediaButtons = (fieldName: string) => (
     <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
       <Button 
@@ -527,6 +529,42 @@ export default function ResourceUploadPage() {
         onClick={() => handleMediaImageSelect(fieldName)}
       >
         <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaGifSelect(fieldName)}
+      >
+        <Smile className="h-4 w-4 mr-1" /> GIF
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaVideoSelect(fieldName)}
+      >
+        <Video className="h-4 w-4 mr-1" /> 동영상
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaFileSelect(fieldName)}
+      >
+        <FolderOpen className="h-4 w-4 mr-1" /> 파일
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleUrlButtonClick(fieldName)}
+      >
+        <Link2 className="h-4 w-4 mr-1" /> URL
       </Button>
     </div>
   );
@@ -539,15 +577,8 @@ export default function ResourceUploadPage() {
 
     const file = files[0];
     
-    // 파일을 FormData에 추가하고 서버에 업로드
-    const formData = new FormData();
-    formData.append('image', file);
-    
-    // 로딩 상태 표시
-    toast({
-      title: "이미지 업로드 중",
-      description: "이미지를 처리 중입니다...",
-    });
+    // 파일을 FormData에 추가하고 서버에 업로드하는 대신 
+    // 바로 미리보기 이미지를 삽입합니다
     
     // 로컬 URL 생성 (즉시 미리보기용)
     const fileUrl = URL.createObjectURL(file);
@@ -555,46 +586,218 @@ export default function ResourceUploadPage() {
     // 현재 필드의 값 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
     
-    // 파일 유형에 따라 HTML 콘텐츠 생성 (마크다운 대신 실제 이미지/미디어 렌더링)
-    let htmlContent = '';
+    // 현재 에디터 참조 요소 가져오기
+    const textAreaElement = document.querySelector(`[name="${currentEditor}"]`) as HTMLTextAreaElement;
+    if (!textAreaElement) return;
+    
+    // 에디터 영역의 부모 요소 찾기
+    const editorContainer = textAreaElement.closest('.form-item') as HTMLElement;
+    if (!editorContainer) return;
+    
+    // 미리보기 컨테이너 생성 또는 찾기
+    let previewContainer = editorContainer.querySelector('.media-preview-container') as HTMLElement;
+    
+    if (!previewContainer) {
+      // 미리보기 컨테이너가 없으면 새로 생성
+      previewContainer = document.createElement('div');
+      previewContainer.className = 'media-preview-container';
+      previewContainer.style.cssText = 'margin-top: 10px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; background-color: #f9fafb; overflow-y: auto;';
+      
+      // 미리보기 헤더 추가
+      const previewHeader = document.createElement('div');
+      previewHeader.className = 'media-preview-header';
+      previewHeader.style.cssText = 'margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500;';
+      previewHeader.textContent = '에디터 미리보기 (실제 이미지와 미디어가 표시됩니다)';
+      
+      previewContainer.appendChild(previewHeader);
+      
+      // 미리보기 내용 영역 추가
+      const previewContent = document.createElement('div');
+      previewContent.className = 'media-preview-content';
+      previewContainer.appendChild(previewContent);
+      
+      // 에디터 아래에 미리보기 컨테이너 삽입
+      editorContainer.appendChild(previewContainer);
+    }
+    
+    // 미리보기 내용 영역 찾기
+    const previewContent = previewContainer.querySelector('.media-preview-content') as HTMLElement;
+    if (!previewContent) return;
+    
+    // 미디어 요소 생성
+    const mediaElement = document.createElement('div');
+    mediaElement.className = 'media-element';
+    mediaElement.setAttribute('draggable', 'true');
+    mediaElement.style.cssText = 'margin: 10px 0; position: relative;';
+    
+    // 미디어 타입에 따라 다른 내용 추가
+    let mediaContent = '';
+    let markdownContent = '';
     
     switch (type) {
       case 'image':
-        // 실제 이미지를 에디터에 삽입 (마크다운 대신 HTML 사용)
-        htmlContent = `\n<div class="media-content">
-          <img src="${fileUrl}" alt="이미지" style="max-width: 100%; margin: 10px 0;" />
-        </div>\n`;
-        break;
       case 'gif':
-        htmlContent = `\n<div class="media-content">
-          <img src="${fileUrl}" alt="GIF" style="max-width: 100%; margin: 10px 0;" />
-        </div>\n`;
+        // 실제 이미지 삽입
+        mediaContent = `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" style="max-width: 100%; border-radius: 6px;" />`;
+        markdownContent = `\n![${type === 'image' ? '이미지' : 'GIF'}](${fileUrl})\n`;
         break;
       case 'video':
-        htmlContent = `\n<div class="media-content">
-          <video controls width="100%" style="margin: 10px 0;">
-            <source src="${fileUrl}" type="${file.type}">
-            브라우저가 비디오를 지원하지 않습니다.
-          </video>
-        </div>\n`;
+        // 비디오 삽입
+        mediaContent = `<video controls width="100%" style="border-radius: 6px;">
+          <source src="${fileUrl}" type="${file.type}">
+          브라우저가 비디오를 지원하지 않습니다.
+        </video>`;
+        markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
         break;
       case 'file':
-        htmlContent = `\n<div class="media-content">
-          <a href="${fileUrl}" download="${file.name}" style="display: block; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;">
-            <span style="display: flex; align-items: center;">
-              <span style="margin-right: 8px;">📎</span>
-              <span>파일 다운로드: ${file.name}</span>
-            </span>
-          </a>
-        </div>\n`;
+        // 파일 다운로드 링크 삽입
+        mediaContent = `<a href="${fileUrl}" download="${file.name}" style="display: block; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8f9fa; text-decoration: none;">
+          <span style="display: flex; align-items: center;">
+            <span style="margin-right: 8px; font-size: 1.2em;">📎</span>
+            <span>${file.name}</span>
+          </span>
+        </a>`;
+        markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
         break;
     }
-
-    // 생성된 HTML 콘텐츠를 텍스트 끝에 추가
-    form.setValue(currentEditor as any, currentValue + htmlContent, { shouldValidate: true });
-
+    
+    // 미디어 요소 내용 설정
+    mediaElement.innerHTML = mediaContent;
+    
+    // 드래그 핸들러 추가
+    mediaElement.addEventListener('dragstart', (e) => {
+      const dragImage = new Image();
+      dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
+      e.dataTransfer.setDragImage(dragImage, 0, 0);
+      e.dataTransfer.setData('text/plain', mediaElement.id);
+      mediaElement.style.opacity = '0.5';
+    });
+    
+    mediaElement.addEventListener('dragend', () => {
+      mediaElement.style.opacity = '1';
+    });
+    
+    // 미디어 요소 고유 ID 설정
+    const mediaId = `media-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    mediaElement.id = mediaId;
+    
+    // 미리보기 영역에 미디어 요소 추가
+    previewContent.appendChild(mediaElement);
+    
+    // 드롭 영역 설정
+    previewContent.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const target = e.target as HTMLElement;
+      const closestMediaElement = target.closest('.media-element');
+      
+      if (closestMediaElement && closestMediaElement !== mediaElement) {
+        const rect = closestMediaElement.getBoundingClientRect();
+        const midY = rect.y + rect.height / 2;
+        
+        if (e.clientY < midY) {
+          // 위에 놓기
+          closestMediaElement.style.borderTop = '2px solid #3b82f6';
+          closestMediaElement.style.borderBottom = '';
+        } else {
+          // 아래에 놓기
+          closestMediaElement.style.borderBottom = '2px solid #3b82f6';
+          closestMediaElement.style.borderTop = '';
+        }
+      }
+    });
+    
+    previewContent.addEventListener('dragleave', (e) => {
+      const target = e.target as HTMLElement;
+      const closestMediaElement = target.closest('.media-element');
+      
+      if (closestMediaElement) {
+        closestMediaElement.style.borderTop = '';
+        closestMediaElement.style.borderBottom = '';
+      }
+    });
+    
+    previewContent.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const target = e.target as HTMLElement;
+      const closestMediaElement = target.closest('.media-element');
+      
+      document.querySelectorAll('.media-element').forEach(elem => {
+        (elem as HTMLElement).style.borderTop = '';
+        (elem as HTMLElement).style.borderBottom = '';
+      });
+      
+      if (closestMediaElement && closestMediaElement !== mediaElement) {
+        const rect = closestMediaElement.getBoundingClientRect();
+        const midY = rect.y + rect.height / 2;
+        
+        if (e.clientY < midY) {
+          // 위에 놓기
+          previewContent.insertBefore(mediaElement, closestMediaElement);
+        } else {
+          // 아래에 놓기
+          previewContent.insertBefore(mediaElement, closestMediaElement.nextSibling);
+        }
+        
+        // 미리보기 영역의 내용을 기반으로 마크다운 재생성
+        updateTextareaFromPreview(previewContent, textAreaElement);
+      }
+    });
+    
+    // 원래 마크다운 방식으로도 에디터에 콘텐츠 추가
+    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    
     // 입력창 초기화
     if (e.target) e.target.value = '';
+    
+    // 성공 토스트 표시
+    toast({
+      title: "미디어 추가 완료",
+      description: "미디어가 성공적으로 추가되었습니다.",
+    });
+  };
+  
+  // 미리보기 영역의 내용을 기반으로 마크다운으로 변환하는 함수
+  const updateTextareaFromPreview = (previewContent: HTMLElement, textAreaElement: HTMLTextAreaElement) => {
+    // 현재 모든 미디어 요소를 순회하며 마크다운 생성
+    const mediaElements = previewContent.querySelectorAll('.media-element');
+    let markdownContent = '';
+    
+    mediaElements.forEach(mediaElement => {
+      // 이미지인 경우
+      const imgElement = mediaElement.querySelector('img');
+      if (imgElement) {
+        const src = imgElement.getAttribute('src') || '';
+        const alt = imgElement.getAttribute('alt') || '이미지';
+        markdownContent += `\n![${alt}](${src})\n`;
+        return;
+      }
+      
+      // 비디오인 경우
+      const videoElement = mediaElement.querySelector('video');
+      if (videoElement) {
+        const sourceElement = videoElement.querySelector('source');
+        if (sourceElement) {
+          const src = sourceElement.getAttribute('src') || '';
+          const type = sourceElement.getAttribute('type') || '';
+          markdownContent += `\n<video controls width="100%"><source src="${src}" type="${type}"></video>\n`;
+        }
+        return;
+      }
+      
+      // 파일인 경우
+      const linkElement = mediaElement.querySelector('a');
+      if (linkElement) {
+        const href = linkElement.getAttribute('href') || '';
+        const fileName = linkElement.textContent?.trim() || '파일';
+        markdownContent += `\n[파일 다운로드: ${fileName}](${href})\n`;
+      }
+    });
+    
+    // 생성된 마크다운으로 텍스트 영역 업데이트
+    const fieldName = textAreaElement.getAttribute('name');
+    if (fieldName) {
+      form.setValue(fieldName as any, markdownContent, { shouldValidate: true });
+    }
   };
 
   // YouTube 링크 처리 함수 - 텍스트를 그대로 반환하고, MediaPreview 컴포넌트에서 미리보기 처리
