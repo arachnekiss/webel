@@ -538,9 +538,19 @@
   /* 기존 스타일 끝 */
 
   /* 통합 에디터 스타일 */
-  .rich-editor-content {
+  .editor-container {
     position: relative;
     width: 100%;
+    height: auto;
+  }
+  
+  .rich-editor-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
   }
 
   .rich-editor-overlay {
@@ -551,43 +561,44 @@
     height: 100%;
     pointer-events: none;
     padding: 0.75rem;
-    z-index: 10;
-    overflow: hidden;
+    z-index: 15;
+    overflow: visible;
+    background: transparent;
   }
 
   /* 텍스트 미디어 혼합 편집기 */
-  textarea {
+  .editor-container textarea {
     /* 텍스트 포인터 이벤트 활성화 */
     pointer-events: auto;
     background: transparent;
-    color: transparent;
-    caret-color: black; /* 커서만 보이도록 설정 */
+    color: #333;
+    caret-color: black;
     white-space: pre-wrap;
     word-break: break-word;
     overflow-wrap: break-word;
     font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.5;
+    z-index: 5;
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    margin: 0;
+    padding: 0.75rem;
   }
 
-  /* 마크다운 구문 숨기기 */
-  textarea::selection {
-    background-color: rgba(0, 0, 0, 0.1);
-    color: transparent;
+  /* 이미지 텍스트가 있을 때 마크다운 구문 처리 */
+  .editor-container textarea[value*="!["] {
+    color: #666;
   }
 
   /* 편집기 오버레이 텍스트 스타일 */
   .rich-editor-overlay {
-    color: black;
+    color: transparent;
     white-space: pre-wrap;
     word-break: break-word;
     overflow-wrap: break-word;
     font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.5;
-  }
-
-  /* 이미지를 제외한 모든 텍스트는 pointer-events: none */
-  .rich-editor-overlay > *:not(img) {
-    pointer-events: none;
   }
 
   /* 이미지는 클릭 가능하게 */
@@ -598,12 +609,23 @@
     border-radius: 0.375rem;
     margin: 0.5rem 0;
     border: 1px solid #e5e7eb;
+    display: block;
+    z-index: 20;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   /* 드래그 중인 이미지 스타일 */
   .rich-editor-overlay img.dragging-media {
     opacity: 0.5;
     border: 2px dashed #3b82f6 !important;
+  }
+  
+  /* 마크다운 이미지 구문을 감춰주는 스타일 */
+  .markdown-image-syntax {
+    color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
   }
 
   /* 마크다운 미리보기 스타일 */
