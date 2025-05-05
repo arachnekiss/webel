@@ -153,20 +153,20 @@ const Footer: React.FC = () => {
                 </TopLink>
               </li>
               <li>
-                <TopLink href="/resources/type/3d_model" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                    {language === 'ko' ? '3D 모델링 파일' : 
-                     language === 'jp' ? '3Dモデリングファイル' : 
-                     '3D Model Files'}
-                  </span>
-                </TopLink>
-              </li>
-              <li>
                 <TopLink href="/resources/type/ai_model" showLoadingIndicator={true} forceReload={true}>
                   <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
                     {language === 'ko' ? 'AI 모델' : 
                      language === 'jp' ? 'AIモデル' : 
                      'AI Models'}
+                  </span>
+                </TopLink>
+              </li>
+              <li>
+                <TopLink href="/resources/type/3d_model" showLoadingIndicator={true} forceReload={true}>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? '3D 모델링 파일' : 
+                     language === 'jp' ? '3Dモデリングファイル' : 
+                     '3D Model Files'}
                   </span>
                 </TopLink>
               </li>
