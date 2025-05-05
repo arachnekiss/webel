@@ -169,6 +169,21 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         regex: /^\/auctions\/(\d+)$/,
         transform: (matches: RegExpMatchArray) => `/auctions/${matches[1]}`
       },
+      // register-printer 특수 경로
+      {
+        regex: /^\/register-printer$/,
+        transform: () => `/register-printer`
+      },
+      // services/register/:type 패턴 - 예: /services/register/3d_printing
+      {
+        regex: /^\/services\/register\/([^\/]+)$/,
+        transform: (matches: RegExpMatchArray) => `/services/register/${matches[1]}`
+      },
+      // services/register 기본 경로
+      {
+        regex: /^\/services\/register$/,
+        transform: () => `/services/register`
+      },
       // 경로 뒤 쿼리스트링 보존
       {
         regex: /^(.+?)(\?.+)$/,
