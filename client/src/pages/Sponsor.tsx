@@ -348,18 +348,18 @@ const Sponsor: React.FC = () => {
                 <div className="flex items-center gap-1">
                   <span className="text-gray-600">
                     {language === 'ko' 
-                      ? '신한은행' 
+                      ? 'KB국민은행' 
                       : language === 'jp' 
-                        ? '新韓銀行' 
-                        : 'Shinhan Bank'}
+                        ? 'KB国民銀行' 
+                        : 'KB Kookmin Bank'}
                   </span>
-                  <span className="font-medium">110-123-456789</span>
+                  <span className="font-medium">089501-04-288396</span>
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     className="p-0 h-6 w-6 ml-1"
                     onClick={() => {
-                      navigator.clipboard.writeText('110-123-456789');
+                      navigator.clipboard.writeText('089501-04-288396');
                       toast({
                         title: language === 'ko' 
                           ? "복사됨" 
@@ -387,8 +387,8 @@ const Sponsor: React.FC = () => {
                   </span>
                   <span className="font-medium">
                     {language === 'ko' || language === 'en'
-                      ? '홍길동' 
-                      : 'ホン・ギルドン'}
+                      ? '허무' 
+                      : 'ホ・ム'}
                   </span>
                 </div>
               </div>
@@ -899,18 +899,18 @@ const Sponsor: React.FC = () => {
                     <p className="font-medium mb-2">계좌 정보</p>
                     <div className="flex justify-between mb-1">
                       <span className="text-gray-600">은행:</span>
-                      <span>신한은행</span>
+                      <span>KB국민은행</span>
                     </div>
                     <div className="flex justify-between mb-1">
                       <span className="text-gray-600">계좌번호:</span>
                       <div className="flex items-center">
-                        <span>110-123-456789</span>
+                        <span>089501-04-288396</span>
                         <Button 
                           variant="ghost" 
                           size="sm" 
                           className="p-0 h-4 w-4 ml-1"
                           onClick={() => {
-                            navigator.clipboard.writeText('110-123-456789');
+                            navigator.clipboard.writeText('089501-04-288396');
                             toast({
                               title: "복사됨",
                               description: "계좌번호가 클립보드에 복사되었습니다.",
@@ -923,7 +923,7 @@ const Sponsor: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">예금주:</span>
-                      <span>홍길동</span>
+                      <span>허무</span>
                     </div>
                   </div>
                 </div>
