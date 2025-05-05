@@ -106,7 +106,22 @@ const Sponsor: React.FC = () => {
   
   // 결제 완료 처리
   const handlePaymentComplete = () => {
-    // 실제로는 여기서 서버에 결제 정보와 코멘트를 전송
+    // PayPal 결제 방식인 경우 PayPal 버튼 클릭
+    if (selectedPaymentMethod === 'paypal') {
+      const paypalDialogElement = document.getElementById('paypal-dialog-element');
+      if (paypalDialogElement) {
+        const hiddenPayPalDiv = paypalDialogElement.closest('.mt-4.hidden') as HTMLElement;
+        if (hiddenPayPalDiv) {
+          hiddenPayPalDiv.classList.remove('hidden');
+          hiddenPayPalDiv.classList.add('block');
+          
+          // PayPal 결제는 별도 처리되므로 로딩 상태는 종료
+          return;
+        }
+      }
+    }
+    
+    // 다른 결제 방식의 경우 기존 처리 로직 실행
     setIsLoading(true);
     
     // 결제 처리 시뮬레이션 (실제로는 API 호출)
@@ -480,15 +495,24 @@ const Sponsor: React.FC = () => {
                       className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center"
                       onClick={(e) => {
                         e.stopPropagation();
-                        // PayPal 버튼 클릭 시 결제 모달 표시
-                        setSelectedPaymentMethod('paypal');
-                        setSelectedTier((language === 'jp') 
-                          ? 'サポート' 
-                          : (language === 'en')
-                            ? 'Support'
-                            : '후원');
-                        setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
-                        setShowPaymentDialog(true);
+                        // PayPal SDK 직접 호출
+                        const hiddenPayPalDiv = document.querySelector('.mt-4.hidden') as HTMLElement;
+                        if (hiddenPayPalDiv) {
+                          hiddenPayPalDiv.classList.remove('hidden');
+                          hiddenPayPalDiv.classList.add('block');
+                          
+                          // PayPal 버튼 요소를 찾아 클릭 이벤트 시뮬레이션
+                          const paypalElement = document.getElementById('paypal-element');
+                          if (paypalElement && typeof (paypalElement as any).click === 'function') {
+                            (paypalElement as any).click();
+                          }
+                          
+                          // 3초 후 다시 숨김 처리 (PayPal UI가 이미 표시되었으므로)
+                          setTimeout(() => {
+                            hiddenPayPalDiv.classList.remove('block');
+                            hiddenPayPalDiv.classList.add('hidden');
+                          }, 3000);
+                        }
                       }}
                     >
                       <Globe className="h-5 w-5 mr-2 text-blue-600" />
@@ -499,11 +523,13 @@ const Sponsor: React.FC = () => {
                       </span>
                     </div>
                     <div className="mt-4 hidden">
-                      <PayPalButton
-                        amount={(customAmount || 5000 * currency.rate).toString()}
-                        currency={currency.code}
-                        intent="CAPTURE"
-                      />
+                      <div id="paypal-element">
+                        <PayPalButton
+                          amount={(customAmount || 5000 * currency.rate).toString()}
+                          currency={currency.code}
+                          intent="CAPTURE"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -947,6 +973,15 @@ const Sponsor: React.FC = () => {
               {selectedPaymentMethod === 'paypal' && (
                 <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm text-blue-700">
                   PayPal을 통해 안전하게 국제 결제를 진행할 수 있습니다. 결제하기 버튼을 클릭하면 PayPal 결제 페이지로 연결됩니다.
+                  <div className="mt-4 hidden">
+                    <div id="paypal-dialog-element">
+                      <PayPalButton
+                        amount={(selectedAmount * currency.rate).toString()}
+                        currency={currency.code}
+                        intent="CAPTURE"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
