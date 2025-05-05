@@ -49,40 +49,24 @@ const Sponsor: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('bank');
   
-  // 샘플 코멘트 데이터
+  // 실제 코멘트 데이터 로드
   useEffect(() => {
-    // 실제로는 API에서 데이터를 가져와야 함
-    const sampleComments: SponsorComment[] = [
-      {
-        id: 1,
-        userId: 1,
-        username: '엔지니어1',
-        amount: 15000,
-        tier: '파트너',
-        message: 'Webel 팀의 노고에 감사드립니다. 앞으로도 좋은 서비스 기대할게요!',
-        createdAt: '2025-04-20T12:00:00Z',
-      },
-      {
-        id: 2,
-        userId: 2,
-        username: '메이커1',
-        amount: 30000,
-        tier: '혁신가',
-        message: '3D 프린팅 커뮤니티를 위한 여러분의 노력이 정말 대단합니다. 앞으로도 응원합니다!',
-        createdAt: '2025-04-19T10:30:00Z',
-      },
-      {
-        id: 3,
-        userId: 3,
-        username: 'JohnDoe',
-        amount: 5000,
-        tier: '서포터',
-        message: '리소스 공유 기능이 매우 유용하게 사용하고 있습니다. 감사합니다!',
-        createdAt: '2025-04-18T15:45:00Z',
+    const fetchComments = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiRequest('GET', '/api/sponsor/comments');
+        const data = await response.json();
+        setComments(data);
+      } catch (error) {
+        console.error('후원 코멘트 로드 오류:', error);
+        // 오류 발생 시 빈 배열로 설정
+        setComments([]);
+      } finally {
+        setIsLoading(false);
       }
-    ];
+    };
     
-    setComments(sampleComments);
+    fetchComments();
   }, []);
   
   const formatDate = (dateString: string) => {
@@ -105,49 +89,83 @@ const Sponsor: React.FC = () => {
   const [activatedAmount, setActivatedAmount] = useState<number | null>(null);
   const [activationTimer, setActivationTimer] = useState<NodeJS.Timeout | null>(null);
   
-  // 결제 완료 처리
-  const handlePaymentComplete = () => {
-    // 실제로는 여기서 서버에 결제 정보와 코멘트를 전송
+  // 결제 완료 처리 (실제 API와 연동)
+  const handlePaymentComplete = async () => {
+    // 결제 정보와 코멘트를 서버에 전송
     setIsLoading(true);
     
-    // 결제 처리 시뮬레이션 (실제로는 API 호출)
-    setTimeout(() => {
+    try {
+      // 코멘트 데이터 구성
+      const commentData = {
+        username: user?.username || '익명 후원자',
+        amount: selectedAmount,
+        tier: selectedTier,
+        message: comment.trim() || null,
+        paymentMethod: selectedPaymentMethod,
+        // 실제 결제 처리 후 트랜잭션 ID가 있다면 추가
+        transactionId: `simulated_${Date.now()}`
+      };
+      
+      // API 호출하여 코멘트 저장
+      const response = await apiRequest('POST', '/api/sponsor/comments', commentData);
+      
+      if (response.ok) {
+        const savedComment = await response.json();
+        
+        // 새 코멘트를 목록에 추가
+        setComments(prev => [savedComment, ...prev]);
+        
+        // 결제 완료 알림 애니메이션
+        setActivatedAmount(selectedAmount);
+        
+        // 5초 후에 활성화된 캐릭터 상태 초기화
+        if (activationTimer) {
+          clearTimeout(activationTimer);
+        }
+        
+        const timer = setTimeout(() => {
+          setActivatedAmount(null);
+        }, 5000);
+        
+        setActivationTimer(timer);
+        
+        // 성공 메시지 표시
+        toast({
+          title: language === 'ko' 
+            ? '후원 완료' 
+            : language === 'jp' 
+              ? 'サポート完了' 
+              : 'Support Complete',
+          description: language === 'ko' 
+            ? '소중한 후원에 진심으로 감사드립니다.' 
+            : language === 'jp' 
+              ? '貴重なサポートに心より感謝申し上げます。' 
+              : 'Thank you for your valuable support.',
+        });
+      } else {
+        // 오류 발생 시 메시지 표시
+        const errorData = await response.json();
+        throw new Error(errorData.message || '후원 처리 중 오류가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('후원 코멘트 저장 오류:', error);
+      toast({
+        title: language === 'ko' 
+          ? '오류 발생' 
+          : language === 'jp' 
+            ? 'エラーが発生しました' 
+            : 'Error Occurred',
+        description: error instanceof Error ? error.message : '후원 처리 중 오류가 발생했습니다.',
+        variant: 'destructive'
+      });
+    } finally {
       setIsLoading(false);
       setShowPaymentDialog(false);
-      
-      // 새 코멘트를 목록에 추가 (실제로는 서버에서 받아와야 함)
-      if (comment.trim()) {
-        const newComment: SponsorComment = {
-          id: comments.length + 1,
-          userId: user?.id || 0,
-          username: user?.username || '익명',
-          amount: selectedAmount,
-          tier: selectedTier,
-          message: comment,
-          createdAt: new Date().toISOString(),
-        };
-        
-        setComments(prev => [newComment, ...prev]);
-      }
-      
-      // 결제 완료 알림 (토스트는 제거하고 캐릭터 애니메이션으로 대체)
-      setActivatedAmount(selectedAmount);
-      
-      // 5초 후에 활성화된 캐릭터 상태 초기화
-      if (activationTimer) {
-        clearTimeout(activationTimer);
-      }
-      
-      const timer = setTimeout(() => {
-        setActivatedAmount(null);
-      }, 5000);
-      
-      setActivationTimer(timer);
       
       // 폼 초기화
       setComment('');
       setCustomAmount('');
-    }, 1500);
+    }
   };
   
   // 결제 수단 선택 핸들러
@@ -791,8 +809,43 @@ const Sponsor: React.FC = () => {
               : 'Supporter Comments'}
         </h2>
         
-        <div className="space-y-6">
-          {comments.map((comment) => (
+        {isLoading ? (
+          <div className="flex justify-center py-10">
+            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" aria-label="Loading"/>
+          </div>
+        ) : comments.length === 0 ? (
+          <Card className="overflow-hidden bg-amber-50/50">
+            <CardContent className="p-10 text-center">
+              <MessageSquare className="h-12 w-12 text-amber-300 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {language === 'ko' 
+                  ? '아직 후원 코멘트가 없습니다' 
+                  : language === 'jp' 
+                    ? 'まだサポートコメントがありません' 
+                    : 'No support comments yet'}
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {language === 'ko' 
+                  ? '첫 번째 후원자가 되어 Webel을 응원해주세요!' 
+                  : language === 'jp' 
+                    ? '最初のサポーターになってWebelを応援してください！' 
+                    : 'Be the first to support Webel with your comment!'}
+              </p>
+              <Button
+                className="bg-gradient-to-r from-amber-500 to-pink-500 hover:from-amber-600 hover:to-pink-600"
+                onClick={() => handleSponsorAmount(5000)}
+              >
+                {language === 'ko' 
+                  ? '첫 후원자 되기' 
+                  : language === 'jp' 
+                    ? '最初のサポーターになる' 
+                    : 'Become first supporter'}
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {comments.map((comment) => (
             <Card key={comment.id} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
