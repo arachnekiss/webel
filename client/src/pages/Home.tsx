@@ -265,7 +265,7 @@ const Home: React.FC = () => {
   });
   const softwareResources = softwareResourcesData?.items || [];
 
-  // 인공지능 모델 데이터 가져오기
+  // AI 모델 데이터 가져오기
   const { data: aiModelsData, isLoading: isAILoading } = useQuery<ResourceResponse>({
     queryKey: ['/api/resources/type/ai_model'],
     enabled: true,
@@ -320,10 +320,10 @@ const Home: React.FC = () => {
           bg="bg-gradient-to-br from-slate-50 to-slate-100"
         />
         
-        {/* 인공지능 모델 섹션 */}
+        {/* AI 모델 섹션 */}
         <ResourceCategorySection 
-          title={language === 'ko' ? '인공지능 모델' : 
-                 language === 'jp' ? '人工知能モデル' : 
+          title={language === 'ko' ? 'AI 모델' : 
+                 language === 'jp' ? 'AIモデル' : 
                  'AI Models'}
           description={language === 'ko' ? '최신 AI 모델과 학습 데이터셋' : 
                        language === 'jp' ? '最新のAIモデルと学習データセット' : 
