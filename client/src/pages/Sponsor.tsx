@@ -459,7 +459,7 @@ const Sponsor: React.FC = () => {
           <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100/30 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center">
-                <div className="flex-shrink-0 bg-blue-500 rounded-md px-3 py-2 flex items-center">
+                <div className="flex-shrink-0 bg-blue-500 rounded-md px-3 py-2 flex items-center cursor-pointer" onClick={() => handlePaymentMethodChange('paypal')}>
                   <Globe className="h-5 w-5 mr-2 text-white" />
                   <span className="font-bold text-white">PayPal</span>
                 </div>
@@ -475,7 +475,7 @@ const Sponsor: React.FC = () => {
                       : 'Support Webel with PayPal for easy international payments!'}
                   </p>
                   <div className="mt-2">
-                    <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center">
+                    <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center" onClick={() => handlePaymentMethodChange('paypal')}>
                       <Globe className="h-5 w-5 mr-2 text-blue-600" />
                       <span className="font-bold text-blue-600">
                         {language === 'jp' 
