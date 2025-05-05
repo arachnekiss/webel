@@ -138,24 +138,7 @@ export default function AdminResourceManagement() {
   // 리소스 목록 추출
   const resources = resourcesData?.items || [];
 
-  // 리소스 변경 뮤테이션 (featured 상태 변경)
-  const updateResourceMutation = useMutation({
-    mutationFn: async ({ resourceId, data }: { resourceId: number; data: any }) => {
-      const res = await apiRequest("PUT", `/api/resources/${resourceId}`, data);
-      return await res.json();
-    },
-    onSuccess: () => {
-      toast({ title: "리소스 업데이트 완료" });
-      queryClient.invalidateQueries({ queryKey: ['/api/admin/resources'] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "리소스 업데이트 실패",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  // 업데이트 뮤테이션 (추천 기능 제거로 현재 사용 X)
 
   // 리소스 삭제 뮤테이션
   const deleteResourceMutation = useMutation({
@@ -192,13 +175,7 @@ export default function AdminResourceManagement() {
     }
   };
 
-  // 리소스 피처링 상태 변경 핸들러
-  const handleToggleFeatured = (resource: Resource) => {
-    updateResourceMutation.mutate({
-      resourceId: resource.id,
-      data: { isFeatured: !resource.isFeatured }
-    });
-  };
+  // 추천 기능 제거로 관련 핸들러 제거됨
 
   // 타입 필터 토글 핸들러
   const toggleTypeFilter = (type: string) => {
@@ -301,7 +278,6 @@ export default function AdminResourceManagement() {
         <ResourceTable 
           resources={filteredResources || []} 
           onDelete={openDeleteDialog}
-          onToggleFeatured={handleToggleFeatured}
         />
       </div>
 
@@ -338,12 +314,10 @@ export default function AdminResourceManagement() {
 // 리소스 테이블 컴포넌트
 function ResourceTable({ 
   resources, 
-  onDelete,
-  onToggleFeatured
+  onDelete
 }: { 
   resources: Resource[]; 
   onDelete: (resource: Resource) => void;
-  onToggleFeatured: (resource: Resource) => void;
 }) {
   return (
     <div className="rounded-md border">
@@ -354,7 +328,6 @@ function ResourceTable({
             <TableHead>제목</TableHead>
             <TableHead>카테고리</TableHead>
             <TableHead>다운로드</TableHead>
-            <TableHead>추천</TableHead>
             <TableHead>날짜</TableHead>
             <TableHead>액션</TableHead>
           </TableRow>
@@ -379,13 +352,6 @@ function ResourceTable({
                   </Badge>
                 </TableCell>
                 <TableCell>{resource.downloadCount || 0}</TableCell>
-                <TableCell>
-                  {resource.isFeatured ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-200">추천</Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-muted-foreground">일반</Badge>
-                  )}
-                </TableCell>
                 <TableCell>{new Date(resource.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -418,20 +384,6 @@ function ResourceTable({
                       
                       <DropdownMenuSeparator />
                       
-                      <DropdownMenuItem onClick={() => onToggleFeatured(resource)}>
-                        {resource.isFeatured ? (
-                          <>
-                            <XCircle className="h-4 w-4 mr-2" />
-                            추천 해제
-                          </>
-                        ) : (
-                          <>
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            추천으로 표시
-                          </>
-                        )}
-                      </DropdownMenuItem>
-                      
                       <DropdownMenuItem asChild>
                         <Link href={`/admin/resources/edit/${resource.id}`}>
                           <Edit className="h-4 w-4 mr-2" />
@@ -453,7 +405,7 @@ function ResourceTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                 리소스가 없습니다.
               </TableCell>
             </TableRow>
