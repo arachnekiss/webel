@@ -11,9 +11,10 @@ import { v4 as uuidv4 } from "uuid";
 // 멀티미디어 미리보기 컴포넌트 - 텍스트 에디터 내에 직접 렌더링
 interface MediaPreviewProps {
   content: string;
+  compact?: boolean; // 요약 모드 (미디어 썸네일만 표시)
 }
 
-const MediaPreview = ({ content }: MediaPreviewProps) => {
+const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
   if (!content.trim()) return null;
   
   // 정규식 패턴
@@ -63,10 +64,73 @@ const MediaPreview = ({ content }: MediaPreviewProps) => {
     };
   }, [content]);
   
-  // 마크다운 이미지를 HTML 이미지로 변환
+  // 정규식 패턴 - UUID 패턴 추가
+  const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
+  const uuidImageRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi; // UUID 패턴 감지
+  const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+  const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
+  const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
+  
+  // 이미지 드래그 기능 추가 (요약 모드가 아닐 때만)
+  useEffect(() => {
+    if (compact) return; // 요약 모드에서는 드래그 비활성화
+    
+    const enableDragAndDrop = () => {
+      const container = document.querySelector('.media-preview');
+      if (!container) return;
+      
+      // 모든 이미지에 드래그 속성 추가
+      const images = container.querySelectorAll('img');
+      images.forEach(img => {
+        img.setAttribute('draggable', 'true');
+        img.classList.add('editor-img');
+        
+        // 드래그 시작 이벤트
+        img.addEventListener('dragstart', (e) => {
+          if (!e.dataTransfer) return;
+          img.classList.add('dragging-media');
+          e.dataTransfer.setData('text/plain', 'dragging-image');
+        });
+        
+        // 드래그 종료 이벤트
+        img.addEventListener('dragend', () => {
+          img.classList.remove('dragging-media');
+        });
+      });
+    };
+    
+    // 컴포넌트 마운트 후 이미지 드래그 기능 추가
+    setTimeout(enableDragAndDrop, 100);
+    
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      const container = document.querySelector('.media-preview');
+      if (!container) return;
+      
+      const images = container.querySelectorAll('img');
+      images.forEach(img => {
+        img.removeAttribute('draggable');
+      });
+    };
+  }, [content, compact]);
+  
+  // 마크다운 이미지와 UUID 포맷 URL을 HTML 이미지로 변환
   const renderImages = (text: string) => {
-    return text.replace(markdownImageRegex, (match, alt, url) => {
-      return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
+    // 서버에서 직접 이미지 URL로 임베딩 케이스 처리
+    let processedText = text.replace(uuidImageRegex, (match) => {
+      const completeUrl = `/api/resources/media/${match}`;
+      return `![이미지](${completeUrl})`;
+    });
+    
+    // 마크다운 이미지 형식 변환
+    return processedText.replace(markdownImageRegex, (match, alt, url) => {
+      if (compact) {
+        // 요약 모드: 더 작은 썸네일 스타일
+        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img inline-block h-8 w-8 object-cover rounded-md shadow-sm border border-border mx-1" />`;
+      } else {
+        // 일반 모드: 전체 크기 이미지
+        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
+      }
     });
   };
   
