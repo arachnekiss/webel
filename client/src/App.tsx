@@ -232,7 +232,7 @@ function Router() {
                   </Suspense>
                 </Route>
                 
-                {/* 관리자 경로 별도 처리 - AdminRoute 래퍼로 보호 */}
+                {/* 관리자 경로 별도 처리 */}
                 {appRoutes
                   .filter(route => 
                     route.path.startsWith('/admin/')
@@ -243,12 +243,10 @@ function Router() {
                       path={`${prefix}${route.path}`}
                     >
                       <Suspense fallback={<div className="flex flex-col items-center justify-center min-h-screen">
-                          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
                           <p className="text-center text-muted-foreground">관리자 페이지 로딩 중...</p>
                         </div>}>
-                        <AdminRoute>
-                          <route.component {...route.props} />
-                        </AdminRoute>
+                        <route.component {...route.props} />
                       </Suspense>
                     </Route>
                   ))
