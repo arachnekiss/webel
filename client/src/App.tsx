@@ -232,12 +232,30 @@ function Router() {
                   </Suspense>
                 </Route>
                 
+                {/* 관리자 경로 별도 처리 */}
+                {appRoutes
+                  .filter(route => 
+                    route.path.startsWith('/admin/')
+                  )
+                  .map(route => (
+                    <Route 
+                      key={`admin-${prefix}${route.path}`}
+                      path={`${prefix}${route.path}`}
+                    >
+                      <Suspense fallback={<div>Loading admin page...</div>}>
+                        <route.component {...route.props} />
+                      </Suspense>
+                    </Route>
+                  ))
+                }
+                
                 {/* 다른 일반 페이지는 appRoutes에서 가져온 정적 경로로 처리 */}
                 {appRoutes
                   .filter(route => 
                     !route.path.includes(':') && 
                     !route.path.startsWith('/resources') && 
                     !route.path.startsWith('/services') && 
+                    !route.path.startsWith('/admin/') && 
                     route.path !== '/' &&
                     route.path !== '/register-printer'
                   )
