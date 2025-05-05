@@ -214,17 +214,23 @@ export default function AdminServiceManagement() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => selectTypeFilter("all")}
-                className={typeFilter.length === 0 ? "bg-accent" : ""}
+                className={typeFilter.length === 0 ? "bg-accent text-accent-foreground font-medium" : ""}
               >
                 모든 서비스
+                {typeFilter.length === 0 && (
+                  <Check className="h-4 w-4 ml-auto text-green-600" />
+                )}
               </DropdownMenuItem>
               {Object.entries(serviceTypeLabels).map(([type, label]) => (
                 <DropdownMenuItem
                   key={type}
                   onClick={() => selectTypeFilter(type)}
-                  className={typeFilter.includes(type) ? "bg-accent" : ""}
+                  className={typeFilter.includes(type) ? "bg-accent text-accent-foreground font-medium" : ""}
                 >
                   {label}
+                  {typeFilter.includes(type) && (
+                    <Check className="h-4 w-4 ml-auto text-green-600" />
+                  )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
