@@ -226,30 +226,3 @@ export type Location = {
 export type ServiceType = '3d_printing' | 'electronics' | 'woodworking' | 'metalworking' | 'manufacturing' | 'engineer';
 // 카테고리로 통합, 한글명: 하드웨어 설계도, 소프트웨어 오픈소스, 3D 모델링 파일, 프리 콘텐츠, AI 모델, 플래시 게임
 export type ResourceType = 'hardware_design' | 'software' | '3d_model' | 'free_content' | 'ai_model' | 'flash_game';
-
-// 후원 코멘트 테이블
-export const sponsorComments = pgTable("sponsor_comments", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id), // 작성자 (null인 경우 익명)
-  username: text("username").notNull(), // 표시될 이름
-  amount: integer("amount").notNull(), // 후원 금액
-  tier: text("tier").notNull(), // 후원 티어 (1,000원, 5,000원, 후원 코멘트 등)
-  message: text("message"), // 코멘트 내용
-  avatarUrl: text("avatar_url"), // 아바타 이미지 URL (null인 경우 기본 이미지)
-  paymentMethod: text("payment_method"), // 결제 수단
-  transactionId: text("transaction_id"), // 결제 트랜잭션 ID
-  status: text("status").default("completed"), // pending, completed
-  isHidden: boolean("is_hidden").default(false), // 관리자에 의해 숨겨짐
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Insert schema for sponsor comments
-export const insertSponsorCommentSchema = createInsertSchema(sponsorComments).omit({ 
-  id: true, 
-  createdAt: true, 
-  status: true,
-  isHidden: true
-});
-
-export type SponsorComment = typeof sponsorComments.$inferSelect;
-export type InsertSponsorComment = z.infer<typeof insertSponsorCommentSchema>;

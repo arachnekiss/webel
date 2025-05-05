@@ -12,7 +12,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { db } from './db';
-import { users, services, resources, auctions, bids, sponsorComments, InsertSponsorComment } from '@shared/schema';
+import { users, services, resources, auctions, bids } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import multer from 'multer';
 import { 
@@ -913,58 +913,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayPal 주문 확정
   app.post('/paypal/order/:orderID/capture', async (req, res) => {
     await capturePaypalOrder(req, res);
-  });
-
-  // 후원 코멘트 API 엔드포인트
-  // 후원 코멘트 목록 조회
-  app.get('/api/sponsor/comments', async (_req: Request, res: Response) => {
-    try {
-      const comments = await db.select().from(sponsorComments)
-        .where(eq(sponsorComments.isHidden, false))
-        .orderBy(sponsorComments.createdAt, 'desc')
-        .limit(50);
-      
-      res.json(comments);
-    } catch (error) {
-      console.error('후원 코멘트 조회 오류:', error);
-      res.status(500).json({ message: '후원 코멘트를 불러오는데 실패했습니다.' });
-    }
-  });
-
-  // 후원 코멘트 등록
-  app.post('/api/sponsor/comments', async (req: Request, res: Response) => {
-    try {
-      const { username, amount, message, paymentMethod, tier } = req.body;
-      
-      if (!username || !amount || !tier) {
-        return res.status(400).json({ 
-          message: '필수 필드가 누락되었습니다. (username, amount, tier)' 
-        });
-      }
-      
-      // 코멘트 데이터 구성
-      const commentData: InsertSponsorComment = {
-        userId: req.user?.id || null,
-        username: username,
-        amount: parseInt(amount),
-        message: message || null,
-        tier: tier,
-        paymentMethod: paymentMethod || 'direct',
-        avatarUrl: req.user?.id ? `/avatar/${req.user.id}.png` : null, // 기본 아바타 URL 설정
-        transactionId: req.body.transactionId || null
-      };
-      
-      // 후원 코멘트 저장
-      const [comment] = await db
-        .insert(sponsorComments)
-        .values(commentData)
-        .returning();
-      
-      res.status(201).json(comment);
-    } catch (error) {
-      console.error('후원 코멘트 등록 오류:', error);
-      res.status(500).json({ message: '후원 코멘트 등록에 실패했습니다.' });
-    }
   });
 
   const httpServer = createServer(app);
