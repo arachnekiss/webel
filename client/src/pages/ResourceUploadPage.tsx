@@ -118,8 +118,11 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
   
   // 마크다운 이미지와 UUID 포맷 URL을 HTML 이미지로 변환
   const renderImages = (text: string) => {
+    // UUID 패턴 직접 정의 (변수 충돌 방지)
+    const uuidRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
+    
     // 서버에서 직접 이미지 URL로 임베딩 케이스 처리
-    let processedText = text.replace(uuidImageRegex, (match) => {
+    let processedText = text.replace(uuidRegex, (match) => {
       const completeUrl = `/api/resources/media/${match}`;
       return `![이미지](${completeUrl})`;
     });
