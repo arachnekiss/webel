@@ -694,18 +694,24 @@ export default function ResourceUploadPage() {
       ></iframe>
       </div>\n`;
     } else {
-      // 일반 URL - 카드 형태로 표시
-      markdownContent = `\n<div class="url-card">
-      <a href="${urlInput}" target="_blank" rel="noopener noreferrer">
-        <div class="url-preview">
-          <div class="url-icon">🔗</div>
-          <div class="url-content">
-            <div class="url-title">${urlInput}</div>
-            <div class="url-link">${urlInput}</div>
-          </div>
-        </div>
-      </a>
-      </div>\n`;
+      // 이미지 URL 감지
+      const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+      if (imageRegex.test(urlInput)) {
+        // 이미지 URL이면 마크다운 이미지 형식으로 추가
+        markdownContent = `\n![이미지](${urlInput})\n`;
+      } else {
+        try {
+          // URL 정보 추출
+          const domainMatch = urlInput.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
+          const domain = domainMatch ? domainMatch[1] : urlInput;
+          
+          // 일반 URL - 카드 형태로 표시 (MediaPreview에서 처리됨)
+          markdownContent = `\n${urlInput}\n`;
+        } catch (e) {
+          // URL 파싱 오류 시 기본 링크 형태로 추가
+          markdownContent = `\n[${urlInput}](${urlInput})\n`;
+        }
+      }
     }
 
     const currentValue = form.getValues(currentEditor as any) || '';
