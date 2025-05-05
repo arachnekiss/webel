@@ -57,7 +57,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
         </div>
         <div className="flex gap-3">
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
-          <TopLink href={`/resources/type/${category}`} forceReload={false}>
+          <TopLink href={`/resources/type/${category}`}>
             <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
               {language === 'ko' ? '더 보기' : 
                language === 'jp' ? 'もっと見る' : 
@@ -87,7 +87,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
           ))
         ) : (
           items && items.map((item, idx) => (
-            <TopLink key={idx} href={`/resources/${item.id}`} forceReload={false}>
+            <TopLink key={idx} href={`/resources/${item.id}`}>
               <div className="group bg-white hover:bg-slate-50 rounded-xl p-5 border border-slate-200 hover:border-slate-300 flex flex-col h-full cursor-pointer transition-all hover:shadow-md">
                 <div className="w-full aspect-[4/3] bg-slate-100 rounded-lg mb-4 overflow-hidden">
                   {item.imageUrl ? (
@@ -176,7 +176,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
             </p>
           </div>
         </div>
-        <TopLink href="/resources/type/flash_game" forceReload={false}>
+        <TopLink href="/resources/type/flash_game">
           <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
             {language === 'ko' ? '더 많은 게임' : 
              language === 'jp' ? 'もっと多くのゲーム' : 
@@ -198,7 +198,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
           ))
         ) : flashGames.length > 0 ? (
           flashGames.slice(0, 5).map((game, idx) => (
-            <TopLink key={idx} href={`/resources/${game.id}`} forceReload={false}>
+            <TopLink key={idx} href={`/resources/${game.id}`}>
               <div className="group bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl p-4 border border-indigo-100 hover:border-indigo-300 flex flex-col cursor-pointer transition-all hover:shadow-md">
                 <div className="w-full aspect-square bg-indigo-50 rounded mb-3 overflow-hidden">
                   {game.imageUrl ? (
