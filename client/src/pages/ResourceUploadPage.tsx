@@ -8,6 +8,94 @@ import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 
+// 마크다운 미리보기 컴포넌트
+interface MarkdownPreviewProps {
+  content: string;
+}
+
+const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
+  if (!content.trim()) return null;
+
+  // 줄바꿈을 <br /> 태그로 변환
+  const processLineBreaks = (text: string) => {
+    return text.replace(/\n/g, '<br />');
+  };
+
+  // 이미지 마크다운 구문 ([img:URL]) 처리
+  const processImageMarkdown = (text: string) => {
+    return text.replace(/\[img:(.*?)\]/g, '<img src="$1" alt="이미지" class="max-w-full rounded-md my-2" />');
+  };
+  
+  // YouTube 임베드 패턴 처리
+  const processYouTubeEmbeds = (text: string) => {
+    return text.replace(
+      /\[youtube:(.*?)\]/g, 
+      '<div class="youtube-embed aspect-video my-4"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>'
+    );
+  };
+
+  // URL 패턴 처리
+  const processURLs = (text: string) => {
+    return text.replace(
+      /\[url:(.*?)\|(.*?)\]/g,
+      '<div class="url-card"><div class="url-preview"><div class="url-icon">🔗</div><div class="url-content"><div class="url-title">$2</div><a href="$1" target="_blank" rel="noopener noreferrer" class="url-link">$1</a></div></div></div>'
+    );
+  };
+
+  // 마크다운 강조 구문 처리
+  const processMarkdownEmphasis = (text: string) => {
+    // 볼드 처리
+    let processed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // 이탤릭 처리
+    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // 취소선 처리
+    processed = processed.replace(/~~(.*?)~~/g, '<del>$1</del>');
+    return processed;
+  };
+
+  // 마크다운 헤더 처리
+  const processMarkdownHeaders = (text: string) => {
+    // h1 ~ h6 처리
+    let processed = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+    processed = processed.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+    processed = processed.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+    processed = processed.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
+    processed = processed.replace(/^##### (.*?)$/gm, '<h5>$1</h5>');
+    processed = processed.replace(/^###### (.*?)$/gm, '<h6>$1</h6>');
+    return processed;
+  };
+
+  // 마크다운 리스트 처리
+  const processMarkdownLists = (text: string) => {
+    // 순서 없는 리스트
+    let processed = text.replace(/^- (.*?)$/gm, '<li>$1</li>');
+    processed = processed.replace(/<li>(.*?)<\/li>(\n<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+    
+    // 순서 있는 리스트
+    processed = processed.replace(/^\d+\. (.*?)$/gm, '<li>$1</li>');
+    processed = processed.replace(/<li>(.*?)<\/li>(\n<li>.*?<\/li>)+/g, '<ol>$&</ol>');
+    
+    return processed;
+  };
+
+  // 모든 마크다운 처리 적용
+  let processedContent = content;
+  processedContent = processMarkdownHeaders(processedContent);
+  processedContent = processMarkdownEmphasis(processedContent);
+  processedContent = processMarkdownLists(processedContent);
+  processedContent = processImageMarkdown(processedContent);
+  processedContent = processYouTubeEmbeds(processedContent);
+  processedContent = processURLs(processedContent);
+  processedContent = processLineBreaks(processedContent);
+
+  return (
+    <div 
+      className="markdown-preview"
+      dangerouslySetInnerHTML={{ __html: processedContent }}
+    />
+  );
+};
+
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -1109,17 +1197,20 @@ export default function ResourceUploadPage() {
                                       </div>
                                     </div>
                                   )}
-                                  <Textarea
-                                    placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
-                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={async (e) => {
-                                      // YouTube URL 감지 및 변환
-                                      const newValue = await processYouTubeLinks(e.target.value);
-                                      field.onChange(newValue);
-                                    }}
-                                  />
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        // YouTube URL 감지 및 변환
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MarkdownPreview content={field.value || ""} />
+                                  </div>
                                 </div>
                               </FormControl>
                               <FormDescription>
