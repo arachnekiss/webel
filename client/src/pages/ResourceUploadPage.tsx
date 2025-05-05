@@ -8,31 +8,72 @@ import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 
-// 멀티미디어 미리보기 컴포넌트
+// 멀티미디어 미리보기 컴포넌트 - 텍스트 에디터 내에 직접 렌더링
 interface MediaPreviewProps {
   content: string;
 }
 
 const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
-
-  const contentRef = useRef<HTMLDivElement>(null);
   
-  // 마크다운 이미지 패턴 감지 (![alt](url) 형식)
+  // 정규식 패턴
   const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
+  const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+  const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
+  const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
   
-  // YouTube 링크 추출하여 임베드로 변환
-  const extractYouTubeEmbeds = (text: string) => {
-    // YouTube URL 패턴(일반 링크, 공유 링크, 모바일 링크 등)
-    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
-    const matches = Array.from(text.matchAll(youtubeRegex));
+  // 이미지 드래그 기능 추가
+  useEffect(() => {
+    const enableDragAndDrop = () => {
+      const container = document.querySelector('.media-preview');
+      if (!container) return;
+      
+      // 모든 이미지에 드래그 속성 추가
+      const images = container.querySelectorAll('img');
+      images.forEach(img => {
+        img.setAttribute('draggable', 'true');
+        img.classList.add('editor-img');
+        
+        // 드래그 시작 이벤트
+        img.addEventListener('dragstart', (e) => {
+          if (!e.dataTransfer) return;
+          img.classList.add('dragging-media');
+          e.dataTransfer.setData('text/plain', 'dragging-image');
+        });
+        
+        // 드래그 종료 이벤트
+        img.addEventListener('dragend', () => {
+          img.classList.remove('dragging-media');
+        });
+      });
+    };
     
-    if (matches.length === 0) return [];
+    // 컴포넌트 마운트 후 이미지 드래그 기능 추가
+    setTimeout(enableDragAndDrop, 100);
     
-    return matches.map(match => {
-      const videoId = match[1];
-      const originalUrl = match[0];
-      const embedCode = `
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      const container = document.querySelector('.media-preview');
+      if (!container) return;
+      
+      const images = container.querySelectorAll('img');
+      images.forEach(img => {
+        img.removeAttribute('draggable');
+      });
+    };
+  }, [content]);
+  
+  // 마크다운 이미지를 HTML 이미지로 변환
+  const renderImages = (text: string) => {
+    return text.replace(markdownImageRegex, (match, alt, url) => {
+      return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
+    });
+  };
+  
+  // YouTube 임베드 변환
+  const renderYouTube = (text: string) => {
+    return text.replace(youtubeRegex, (match, videoId) => {
+      return `
         <div class="youtube-embed my-3">
           <div class="aspect-video rounded-lg overflow-hidden shadow-md">
             <iframe 
@@ -44,144 +85,76 @@ const MediaPreview = ({ content }: MediaPreviewProps) => {
               allowfullscreen
             ></iframe>
           </div>
-          <div class="text-xs text-gray-500 mt-1">
-            <a href="${originalUrl}" target="_blank" rel="noopener noreferrer">${originalUrl}</a>
-          </div>
         </div>
       `;
-      return { originalUrl, embedCode };
     });
   };
-
-  // 이미지 URL 추출 (일반 URL과 마크다운 형식 모두 처리)
-  const extractImages = (text: string) => {
-    // 일반 이미지 URL 패턴 (jpg, jpeg, png, gif, webp)
-    const imageRegex = /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)(\?\S+)?/gi;
-    const matches = Array.from(text.matchAll(imageRegex));
-    
-    // 마크다운 이미지 패턴 매칭
-    const markdownMatches = Array.from(text.matchAll(markdownImageRegex));
-    
-    // 마크다운 이미지 태그를 변환
-    const markdownImages = markdownMatches.map(match => {
-      const alt = match[1] || '이미지';
-      const url = match[2];
-      return {
-        originalUrl: url,
-        embedCode: `
-          <div class="image-preview my-3">
-            <img 
-              src="${url}" 
-              alt="${alt}" 
-              class="max-w-full rounded-lg shadow-sm"
-            />
-          </div>
-        `
-      };
-    });
-    
-    // 일반 URL 이미지 태그로 변환
-    const urlImages = matches.map(match => {
-      const imageUrl = match[0];
-      // 마크다운 이미지 태그 안에 포함된 URL은 제외 (중복 방지)
-      if (markdownMatches.some(mdMatch => mdMatch[2] === imageUrl)) {
-        return null;
-      }
-      
-      return {
-        originalUrl: imageUrl,
-        embedCode: `
-          <div class="image-preview my-3">
-            <img 
-              src="${imageUrl}" 
-              alt="이미지" 
-              class="max-w-full rounded-lg shadow-sm"
-            />
-            <div class="text-xs text-gray-500 mt-1">
-              <a href="${imageUrl}" target="_blank" rel="noopener noreferrer">${imageUrl}</a>
-            </div>
-          </div>
-        `
-      };
-    }).filter(item => item !== null);
-    
-    return [...markdownImages, ...urlImages];
+  
+  // 비디오 태그 유지
+  const renderVideos = (text: string) => {
+    return text;
   };
-
-  // 비디오 태그 감지
-  const extractVideos = (text: string) => {
-    const videoRegex = /<video[^>]*>(.*?)<\/video>/gs;
-    const matches = Array.from(text.matchAll(videoRegex));
-    
-    if (matches.length === 0) return [];
-    
-    return matches.map(match => {
-      const videoTag = match[0];
-      return {
-        originalUrl: "", // 원본 URL은 없음
-        embedCode: videoTag // 이미 HTML 태그이므로 그대로 사용
-      };
+  
+  // 파일 다운로드 링크 스타일링
+  const renderFileLinks = (text: string) => {
+    return text.replace(fileRegex, (match, fileName, url) => {
+      return `
+        <a href="${url}" download="${fileName}" class="inline-flex items-center px-3 py-2 border border-input rounded-md bg-background hover:bg-accent transition-colors text-sm my-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          ${fileName}
+        </a>
+      `;
     });
   };
-
-  // 일반 URL 추출하여 카드로 변환
-  const extractUrlCards = (text: string) => {
-    // URL 패턴 - 이미지와 YouTube URL 제외
+  
+  // URL 링크 카드로 변환
+  const renderUrlCards = (text: string) => {
+    // 이미지와 YouTube URL 제외한 URL 패턴
     const urlRegex = /https?:\/\/(?!.*\.(jpg|jpeg|png|gif|webp)(?:\?\S+)?$)(?!(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/))[^\s]+/gi;
-    const matches = Array.from(text.matchAll(urlRegex));
     
-    if (matches.length === 0) return [];
-    
-    return matches.map(match => {
-      const url = match[0];
-      // 마크다운 이미지 태그 내부의 URL은 제외
-      if (text.match(markdownImageRegex)?.some(imgMatch => imgMatch.includes(url))) {
-        return null;
-      }
-      
-      const domain = new URL(url).hostname.replace('www.', '');
-      const embedCode = `
-        <div class="url-card my-3">
-          <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
-            <div class="flex items-center">
-              <div class="url-icon mr-3 text-xl">🔗</div>
-              <div class="url-content overflow-hidden">
-                <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
-                <div class="url-link text-sm text-blue-600 truncate">
-                  <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+    return text.replace(urlRegex, (url) => {
+      try {
+        const domain = new URL(url).hostname.replace('www.', '');
+        return `
+          <div class="url-card my-3">
+            <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
+              <div class="flex items-center">
+                <div class="url-icon mr-3 text-xl">🔗</div>
+                <div class="url-content overflow-hidden">
+                  <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
+                  <div class="url-link text-sm text-blue-600 truncate">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      `;
-      return { originalUrl: url, embedCode };
-    }).filter(item => item !== null);
+        `;
+      } catch (e) {
+        return url;
+      }
+    });
   };
-
-  // 모든 미디어 요소 추출 및 변환
-  const youtubeEmbeds = extractYouTubeEmbeds(content);
-  const imageEmbeds = extractImages(content);
-  const videoEmbeds = extractVideos(content);
-  const urlCards = extractUrlCards(content);
   
-  // 모든 미디어 요소를 HTML로 모아서 렌더링
-  const mediaElements = [...imageEmbeds, ...videoEmbeds, ...youtubeEmbeds, ...urlCards];
+  // 모든 변환 적용 - 최종 HTML 생성
+  let processedContent = content;
+  processedContent = renderImages(processedContent);
+  processedContent = renderYouTube(processedContent);
+  processedContent = renderVideos(processedContent);
+  processedContent = renderFileLinks(processedContent);
+  processedContent = renderUrlCards(processedContent);
   
-  // 추출된 미디어가 없으면 렌더링하지 않음
-  if (mediaElements.length === 0) {
-    return null;
-  }
-  
-  const mediaHtml = mediaElements.map(media => media.embedCode).join('');
-
   return (
     <div 
-      className="media-preview border-t mt-2 pt-2 px-2"
-      dangerouslySetInnerHTML={{ __html: mediaHtml }}
+      className="media-preview"
+      dangerouslySetInnerHTML={{ __html: processedContent }}
     />
   );
-};
+}
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
