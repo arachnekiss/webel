@@ -284,151 +284,37 @@ const Sponsor: React.FC = () => {
   };
   
   return (
-    <main className="container mx-auto px-4 py-6">
-      {/* Hero section */}
-      <section className="bg-gradient-to-r from-amber-500 to-pink-500 rounded-2xl overflow-hidden shadow-lg mb-12">
-        <div className="md:flex">
-          <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              {language === 'ko' 
-                ? 'Webel을 후원해주세요' 
-                : language === 'jp' 
-                  ? 'Webelをサポートしてください' 
-                  : 'Support Webel'}
-            </h1>
-            <p className="text-amber-50 mb-6">
-              {language === 'ko' 
-                ? '여러분의 후원은 더 많은 무료 리소스와 혁신적인 서비스를 제공하는 데 큰 도움이 됩니다. Webel과 함께 생산 생태계의 혁신을 만들어가세요.' 
-                : language === 'jp' 
-                  ? 'あなたのサポートは、より多くの無料リソースと革新的なサービスを提供するのに大きな助けとなります。Webelと一緒に生産エコシステムのイノベーションを作りましょう。' 
-                  : 'Your support helps us provide more free resources and innovative services. Join Webel in creating innovations for the production ecosystem.'}
-            </p>
-            <div className="flex items-center gap-3">
-              <Heart className="h-6 w-6 text-white" />
-              <span className="text-white font-medium">
-                {language === 'ko' 
-                  ? '여러분의 후원으로 더 나은 서비스를 만들어갑니다' 
-                  : language === 'jp' 
-                    ? 'あなたのサポートでより良いサービスを作ります' 
-                    : 'We create better services with your support'}
-              </span>
-            </div>
-          </div>
-          <div className="md:w-1/2 p-6 hidden md:flex items-center justify-center">
-            <img 
-              src="/images/sponsor-donation.png" 
-              alt={language === 'ko' 
-                ? '후원과 기부' 
-                : language === 'jp' 
-                  ? 'サポートと寄付' 
-                  : 'Support and Donation'} 
-              className="rounded-lg shadow-lg max-h-96 object-cover" 
-            />
-          </div>
-        </div>
-      </section>
-      
-      {/* 후원 의미 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-8">
           {language === 'ko' 
-            ? '후원의 의미' 
+            ? 'Webel 후원하기' 
             : language === 'jp' 
-              ? 'サポートの意味' 
-              : 'Meaning of Support'}
-        </h2>
+              ? 'Webelをサポートする' 
+              : 'Support Webel'}
+        </h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <Star className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>
-                {language === 'ko' 
-                  ? '오픈 소스 지원' 
-                  : language === 'jp' 
-                    ? 'オープンソースのサポート' 
-                    : 'Open Source Support'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                {language === 'ko' 
-                  ? '여러분의 후원은 Webel이 더 많은 오픈 소스 하드웨어 및 소프트웨어 프로젝트를 지원하는 데 사용됩니다.' 
-                  : language === 'jp' 
-                    ? 'あなたのサポートは、Webelがより多くのオープンソースハードウェアやソフトウェアプロジェクトをサポートするために使用されます。' 
-                    : 'Your support will be used to help Webel support more open source hardware and software projects.'}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <Zap className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>
-                {language === 'ko' 
-                  ? '커뮤니티 성장' 
-                  : language === 'jp' 
-                    ? 'コミュニティの成長' 
-                    : 'Community Growth'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                {language === 'ko' 
-                  ? '더 많은 사용자와 메이커들이 참여하고 교류할 수 있는 커뮤니티를 만들어 갑니다.' 
-                  : language === 'jp' 
-                    ? 'より多くのユーザーやメーカーが参加し、交流できるコミュニティを作ります。' 
-                    : 'We are building a community where more users and makers can participate and interact.'}
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-2">
-              <Shield className="h-12 w-12 text-amber-500 mb-2" />
-              <CardTitle>
-                {language === 'ko' 
-                  ? '서비스 안정성' 
-                  : language === 'jp' 
-                    ? 'サービスの安定性' 
-                    : 'Service Stability'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">
-                {language === 'ko' 
-                  ? '더 안정적이고 지속 가능한 서비스를 제공하기 위한 인프라를 구축합니다.' 
-                  : language === 'jp' 
-                    ? 'より安定的で持続可能なサービスを提供するためのインフラを構築します。' 
-                    : 'We build infrastructure to provide more stable and sustainable services.'}
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-      
-      {/* 후원하기 섹션 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          {language === 'ko' 
-            ? '후원하기' 
-            : language === 'jp' 
-              ? 'サポートする' 
-              : 'Become a Supporter'}
-        </h2>
-        
-        <Card>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          {/* 후원 섹션 */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>
                   {language === 'ko' 
-                    ? '금액 선택' 
+                    ? '후원 금액 선택' 
                     : language === 'jp' 
-                      ? '金額の選択' 
+                      ? 'サポート金額の選択' 
                       : 'Select Amount'}
-                </h3>
-                
+                </CardTitle>
+                <CardDescription>
+                  {language === 'ko' 
+                    ? '원하시는 금액을 선택하거나 직접 입력해주세요.' 
+                    : language === 'jp' 
+                      ? 'ご希望の金額を選択するか、直接入力してください。' 
+                      : 'Choose an amount or enter your own.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   {[500, 1000, 5000, 10000, 50000, 100000].map((amt) => (
                     <Button
@@ -502,85 +388,79 @@ const Sponsor: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium text-gray-800 mb-4">
-                  {language === 'ko' 
-                    ? '후원 코멘트 (선택사항)' 
-                    : language === 'jp' 
-                      ? 'サポートコメント (任意)' 
-                      : 'Comment (Optional)'}
-                </h3>
                 
-                <Textarea
-                  placeholder={language === 'ko' 
-                    ? '응원 메시지를 남겨주세요 (선택사항)' 
-                    : language === 'jp' 
-                      ? '応援メッセージを残してください (任意)' 
-                      : 'Leave a message of support (optional)'}
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  className="mb-6 min-h-[120px]"
-                />
+                <div className="flex flex-col gap-4 mb-6">
+                  <label htmlFor="comment" className="text-sm font-medium text-gray-700">
+                    {language === 'ko' 
+                      ? '코멘트 (선택사항)' 
+                      : language === 'jp' 
+                        ? 'コメント (任意)' 
+                        : 'Comment (Optional)'}
+                  </label>
+                  <Textarea
+                    id="comment"
+                    placeholder={language === 'ko' 
+                      ? '응원 메시지를 남겨주세요 (선택사항)' 
+                      : language === 'jp' 
+                        ? '応援メッセージを残してください (任意)' 
+                        : 'Leave a message of support (optional)'}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="min-h-[120px]"
+                  />
+                </div>
                 
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <h4 className="text-base font-medium text-gray-800">
-                      {language === 'ko' 
-                        ? '📝 후원계좌 정보' 
-                        : language === 'jp' 
-                          ? '📝 サポート口座情報' 
-                          : '📝 Support Account Info'}
-                    </h4>
-                    <div className="bg-amber-50 p-3 rounded-md text-amber-900 text-sm">
-                      <p className="mb-1">KB 국민은행 089501-04-288396 예금주: 허무</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="h-8 text-xs"
-                          onClick={() => {
-                            navigator.clipboard.writeText('089501-04-288396');
-                            toast({
-                              title: language === 'ko' 
-                                ? '계좌번호 복사됨' 
-                                : language === 'jp' 
-                                  ? '口座番号がコピーされました' 
-                                  : 'Account Number Copied',
-                              description: language === 'ko' 
-                                ? '계좌번호가 클립보드에 복사되었습니다.' 
-                                : language === 'jp' 
-                                  ? '口座番号がクリップボードにコピーされました。' 
-                                  : 'Account number has been copied to clipboard.',
-                            });
-                          }}
-                        >
-                          <Copy className="h-3 w-3 mr-1" />
-                          {language === 'ko' 
-                            ? '복사' 
+                <div className="bg-amber-50 p-4 rounded-md text-amber-900 mb-6">
+                  <p className="font-medium mb-2">
+                    {language === 'ko' 
+                      ? '📝 후원계좌 정보' 
+                      : language === 'jp' 
+                        ? '📝 サポート口座情報' 
+                        : '📝 Support Account Info'}
+                  </p>
+                  <p className="mb-1">KB 국민은행 089501-04-288396 예금주: 허무</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-8 text-xs"
+                      onClick={() => {
+                        navigator.clipboard.writeText('089501-04-288396');
+                        toast({
+                          title: language === 'ko' 
+                            ? '계좌번호 복사됨' 
                             : language === 'jp' 
-                              ? 'コピー' 
-                              : 'Copy'}
-                        </Button>
-                      </div>
-                    </div>
+                              ? '口座番号がコピーされました' 
+                              : 'Account Number Copied',
+                          description: language === 'ko' 
+                            ? '계좌번호가 클립보드에 복사되었습니다.' 
+                            : language === 'jp' 
+                              ? '口座番号がクリップボードにコピーされました。' 
+                              : 'Account number has been copied to clipboard.',
+                        });
+                      }}
+                    >
+                      <Copy className="h-3 w-3 mr-1" />
+                      {language === 'ko' 
+                        ? '복사' 
+                        : language === 'jp' 
+                          ? 'コピー' 
+                          : 'Copy'}
+                    </Button>
                   </div>
                 </div>
                 
-                <div className="flex flex-wrap gap-2 mt-4">
+                <div className="flex flex-wrap gap-2">
                   {language === 'ko' ? (
-                    <>
-                      <Button 
-                        className="bg-yellow-400 hover:bg-yellow-500 text-black"
-                        onClick={() => {
-                          window.open('https://qr.kakaopay.com/Ej9mw91ku', '_blank');
-                        }}
-                      >
-                        <img src="/images/kakaopay-icon.png" className="h-4 w-4 mr-2" alt="KakaoPay" />
-                        카카오페이로 후원하기
-                      </Button>
-                    </>
+                    <Button 
+                      className="bg-yellow-400 hover:bg-yellow-500 text-black"
+                      onClick={() => {
+                        window.open('https://qr.kakaopay.com/Ej9mw91ku', '_blank');
+                      }}
+                    >
+                      <img src="/images/kakaopay-icon.png" className="h-4 w-4 mr-2" alt="KakaoPay" />
+                      카카오페이로 후원하기
+                    </Button>
                   ) : (
                     <Button 
                       className="bg-[#003087] hover:bg-[#001e53] text-white" 
@@ -614,97 +494,193 @@ const Sponsor: React.FC = () => {
                         : 'Pay'}
                   </Button>
                 </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* 후원자 코멘트 목록 */}
-      <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          {language === 'ko' 
-            ? '후원자 코멘트' 
-            : language === 'jp' 
-              ? 'サポーターのコメント' 
-              : 'Supporter Comments'}
-        </h2>
-        
-        {isLoading ? (
-          <div className="flex justify-center py-10">
-            <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" aria-label="Loading"/>
+              </CardContent>
+            </Card>
           </div>
-        ) : comments.length === 0 ? (
-          <Card className="overflow-hidden bg-amber-50/50">
-            <CardContent className="p-10 text-center">
-              <MessageSquare className="h-12 w-12 text-amber-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {language === 'ko' 
-                  ? '아직 후원 코멘트가 없습니다' 
-                  : language === 'jp' 
-                    ? 'まだサポートコメントがありません' 
-                    : 'No support comments yet'}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {language === 'ko' 
-                  ? '첫 번째 후원자가 되어 Webel을 응원해주세요!' 
-                  : language === 'jp' 
-                    ? '最初のサポーターになってWebelを応援してください！' 
-                    : 'Be the first to support Webel with your comment!'}
-              </p>
-              <Button
-                className="bg-gradient-to-r from-amber-500 to-pink-500 hover:from-amber-600 hover:to-pink-600"
-                onClick={() => handleSponsorAmount(5000)}
-              >
-                {language === 'ko' 
-                  ? '첫 후원자 되기' 
-                  : language === 'jp' 
-                    ? '最初のサポーターになる' 
-                    : 'Become first supporter'}
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-6">
-            {comments.map((comment) => (
-              <Card key={comment.id} className="overflow-hidden">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12 border-2 border-amber-300">
-                      {comment.avatarUrl ? (
-                        <AvatarImage src={comment.avatarUrl} alt={comment.username} />
-                      ) : (
-                        <AvatarFallback className="bg-amber-100 text-amber-600">
-                          {comment.username.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    
-                    <div className="flex-1">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2">
-                        <div className="font-semibold text-gray-900">{comment.username}</div>
-                        <div className="text-sm text-gray-500 flex items-center gap-1">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {formatDate(comment.createdAt)}
-                        </div>
-                        <div className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                          {comment.tier}
-                        </div>
-                        <div className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                          {formatAmount(comment.amount)}
-                        </div>
-                      </div>
-                      
-                      <p className="text-gray-700">{comment.message}</p>
-                    </div>
+          
+          {/* 후원 의미 섹션 */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {language === 'ko' 
+                    ? '후원의 의미' 
+                    : language === 'jp' 
+                      ? 'サポートの意味' 
+                      : 'Meaning of Support'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'ko' 
+                    ? '여러분의 후원은 이렇게 사용됩니다' 
+                    : language === 'jp' 
+                      ? 'あなたのサポートはこのように使われます' 
+                      : 'Your support will be used like this'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <Star className="h-6 w-6 text-amber-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium">
+                      {language === 'ko' 
+                        ? '오픈 소스 지원' 
+                        : language === 'jp' 
+                          ? 'オープンソースのサポート' 
+                          : 'Open Source Support'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {language === 'ko' 
+                        ? '여러분의 후원은 Webel이 더 많은 오픈 소스 하드웨어 및 소프트웨어 프로젝트를 지원하는 데 사용됩니다.' 
+                        : language === 'jp' 
+                          ? 'あなたのサポートは、Webelがより多くのオープンソースハードウェアやソフトウェアプロジェクトをサポートするために使用されます。' 
+                          : 'Your support will be used to help Webel support more open source hardware and software projects.'}
+                    </p>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Zap className="h-6 w-6 text-amber-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium">
+                      {language === 'ko' 
+                        ? '커뮤니티 성장' 
+                        : language === 'jp' 
+                          ? 'コミュニティの成長' 
+                          : 'Community Growth'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {language === 'ko' 
+                        ? '더 많은 사용자와 메이커들이 참여하고 교류할 수 있는 커뮤니티를 만들어 갑니다.' 
+                        : language === 'jp' 
+                          ? 'より多くのユーザーやメーカーが参加し、交流できるコミュニティを作ります。' 
+                          : 'We are building a community where more users and makers can participate and interact.'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <Shield className="h-6 w-6 text-amber-500 mt-0.5" />
+                  <div>
+                    <h3 className="font-medium">
+                      {language === 'ko' 
+                        ? '서비스 안정성' 
+                        : language === 'jp' 
+                          ? 'サービスの安定性' 
+                          : 'Service Stability'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {language === 'ko' 
+                        ? '더 안정적이고 지속 가능한 서비스를 제공하기 위한 인프라를 구축합니다.' 
+                        : language === 'jp' 
+                          ? 'より安定的で持続可能なサービスを提供するためのインフラを構築します。' 
+                          : 'We build infrastructure to provide more stable and sustainable services.'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="mt-6 p-4 bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-700 italic">
+                    {language === 'ko' 
+                      ? '"여러분의 소중한 후원은 Webel이 더 나은 서비스를 제공하는 데 큰 힘이 됩니다. 함께 만들어가는 오픈 소스 생태계를 응원해주세요."' 
+                      : language === 'jp' 
+                        ? '"あなたの貴重なサポートは、Webelがより良いサービスを提供するための大きな力になります。共に作るオープンソースエコシステムを応援してください。"' 
+                        : '"Your valuable support is a great help for Webel to provide better services. Please support the open source ecosystem we create together."'}
+                  </p>
+                  <p className="text-sm text-right font-medium mt-2">
+                    - Webel {language === 'ko' ? '팀' : language === 'jp' ? 'チーム' : 'Team'}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </section>
-
+        </div>
+        
+        {/* 후원자 코멘트 섹션 */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold mb-6">
+            {language === 'ko' 
+              ? '후원자 코멘트' 
+              : language === 'jp' 
+                ? 'サポーターのコメント' 
+                : 'Supporter Comments'}
+          </h2>
+          
+          {isLoading ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" aria-label="Loading"/>
+            </div>
+          ) : comments.length === 0 ? (
+            <Card className="overflow-hidden bg-amber-50/50">
+              <CardContent className="p-10 text-center">
+                <MessageSquare className="h-12 w-12 text-amber-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {language === 'ko' 
+                    ? '아직 후원 코멘트가 없습니다' 
+                    : language === 'jp' 
+                      ? 'まだサポートコメントがありません' 
+                      : 'No support comments yet'}
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  {language === 'ko' 
+                    ? '첫 번째 후원자가 되어 Webel을 응원해주세요!' 
+                    : language === 'jp' 
+                      ? '最初のサポーターになってWebelを応援してください！' 
+                      : 'Be the first to support Webel with your comment!'}
+                </p>
+                <Button
+                  className="bg-gradient-to-r from-amber-500 to-pink-500 hover:from-amber-600 hover:to-pink-600"
+                  onClick={() => handleSponsorAmount(5000)}
+                >
+                  {language === 'ko' 
+                    ? '첫 후원자 되기' 
+                    : language === 'jp' 
+                      ? '最初のサポーターになる' 
+                      : 'Become first supporter'}
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((comment) => (
+                <Card key={comment.id} className="overflow-hidden">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-12 w-12 border-2 border-amber-300">
+                        {comment.avatarUrl ? (
+                          <AvatarImage src={comment.avatarUrl} alt={comment.username} />
+                        ) : (
+                          <AvatarFallback className="bg-amber-100 text-amber-600">
+                            {comment.username.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      
+                      <div className="flex-1">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2">
+                          <div className="font-semibold text-gray-900">{comment.username}</div>
+                          <div className="text-sm text-gray-500 flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {formatDate(comment.createdAt)}
+                          </div>
+                          <div className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                            {comment.tier}
+                          </div>
+                          <div className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                            {formatAmount(comment.amount)}
+                          </div>
+                        </div>
+                        
+                        <p className="text-gray-700">{comment.message}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      
       {/* 결제 모달 */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -878,7 +854,7 @@ const Sponsor: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </main>
+    </div>
   );
 };
 
