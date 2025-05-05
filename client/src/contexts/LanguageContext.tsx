@@ -159,6 +159,21 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         regex: /^\/resources\/(\d+)$/,
         transform: (matches: RegExpMatchArray) => `/resources/${matches[1]}`
       },
+      // resources/create 경로
+      {
+        regex: /^\/resources\/create$/,
+        transform: () => `/resources/create`
+      },
+      // resources/upload 경로
+      {
+        regex: /^\/resources\/upload$/,
+        transform: () => `/resources/upload`
+      },
+      // resources/upload-v2 경로
+      {
+        regex: /^\/resources\/upload-v2$/,
+        transform: () => `/resources/upload-v2`
+      },
       // services/:id 패턴 - 예: /services/123
       {
         regex: /^\/services\/(\d+)$/,
@@ -174,6 +189,11 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
         regex: /^\/register-printer$/,
         transform: () => `/register-printer`
       },
+      // admin 경로들
+      {
+        regex: /^\/admin\/([^\/]+)$/,
+        transform: (matches: RegExpMatchArray) => `/admin/${matches[1]}`
+      },
       // services/register/:type 패턴 - 예: /services/register/3d_printing
       {
         regex: /^\/services\/register\/([^\/]+)$/,
@@ -183,6 +203,19 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       {
         regex: /^\/services\/register$/,
         transform: () => `/services/register`
+      },
+      // ai-assembly, remote-support 등 특수 페이지
+      {
+        regex: /^\/ai-assembly$/,
+        transform: () => `/ai-assembly`
+      },
+      {
+        regex: /^\/remote-support$/,
+        transform: () => `/remote-support`
+      },
+      {
+        regex: /^\/sponsor$/,
+        transform: () => `/sponsor`
       },
       // 경로 뒤 쿼리스트링 보존
       {
@@ -210,7 +243,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return result;
   }, []);
   
-  // 언어 변경 함수 - 모바일 환경을 위한 강화된 방식
+  // 언어 변경 함수 - SPA 방식으로 개선
   const setLanguage = useCallback((lang: Language) => {
     console.log(`[LanguageContext] Changing language to: ${lang}, current path: ${location}`);
     
@@ -225,30 +258,40 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
       
       // 현재 경로를 새 언어로 변환
       const newPath = getPathInLanguage(location, lang);
-      console.log(`[LanguageContext] Redirecting to: ${newPath} with full page reload`);
+      console.log(`[LanguageContext] Redirecting to: ${newPath} using SPA navigation`);
       
-      // 모바일 환경을 위한 안전한 페이지 전환 - 짧은 딜레이로 UI 업데이트가 적용될 시간 제공
-      setTimeout(() => {
-        try {
-          // 새 경로로 전체 페이지 리로드 - 모든 컴포넌트가 새 언어로 완전히 렌더링됨
-          window.location.href = newPath;
-        } catch (error) {
-          console.error('[LanguageContext] Navigation error:', error);
-          
-          // 에러 발생 시 기본 페이지로 리다이렉션 (마지막 수단)
-          if (lang === 'ko') {
-            window.location.href = '/';
-          } else {
-            window.location.href = `/${lang}`;
-          }
-        }
-      }, 50);
+      // SPA 방식으로 페이지 이동 (wouter의 navigate 사용)
+      navigate(newPath, { replace: true });
+      
+      // 추가적인 URL 관련 컴포넌트들이 새 언어를 인식할 수 있도록 이벤트 발생
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('languageChanged', { detail: { language: lang, path: newPath } });
+        window.dispatchEvent(event);
+      }
     } catch (error) {
       console.error('[LanguageContext] Language change error:', error);
+      
+      // 에러 발생 시 기본 페이지로 SPA 방식 이동 시도
+      try {
+        if (lang === 'ko') {
+          navigate('/', { replace: true });
+        } else {
+          navigate(`/${lang}`, { replace: true });
+        }
+      } catch (navError) {
+        console.error('[LanguageContext] Navigation fallback error:', navError);
+        // 마지막 수단: 전체 페이지 리로드
+        if (lang === 'ko') {
+          window.location.href = '/';
+        } else {
+          window.location.href = `/${lang}`;
+        }
+      }
+      
       // 에러가 발생해도 최소한 상태 업데이트는 시도
       setLanguageState(lang);
     }
-  }, [location, getPathInLanguage]);
+  }, [location, getPathInLanguage, navigate]);
   
   // URL을 현재 언어로 번역
   const translateUrl = useCallback((path: string): string => {
