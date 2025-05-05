@@ -1,16 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FileIcon, ImageIcon, Link2 } from 'lucide-react';
 
 interface MediaPreviewProps {
   content: string;
   className?: string;
+  onImageClick?: (src: string) => void;
+  onImageMove?: (draggedImageSrc: string, targetImageSrc: string, direction: 'before' | 'after') => void;
+  editable?: boolean;
 }
 
 /**
  * 다양한 미디어 컨텐츠(이미지, 비디오, URL, 파일)를 인라인으로 렌더링하는 컴포넌트
  */
-const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) => {
+const MediaPreview: React.FC<MediaPreviewProps> = ({ 
+  content, 
+  className = '', 
+  onImageClick, 
+  onImageMove,
+  editable = false 
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [draggedImage, setDraggedImage] = useState<string | null>(null);
 
   // 마운트 시 및 content 변경 시 미디어를 처리합니다
   useEffect(() => {
@@ -29,32 +39,94 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
     
     containerRef.current.innerHTML = processedContent;
     
-    // 드래그앤드롭 이벤트 설정
-    setupDragAndDrop(containerRef.current);
-  }, [content]);
+    // 이미지 이벤트 설정
+    setupImageEvents(containerRef.current);
+  }, [content, onImageClick, onImageMove, editable]);
 
-  // 드래그 앤 드롭 기능 설정
-  const setupDragAndDrop = (container: HTMLElement) => {
+  // 이미지 클릭 및 드래그 앤 드롭 기능 설정
+  const setupImageEvents = useCallback((container: HTMLElement) => {
     const images = container.querySelectorAll('img');
-    console.log(`${images.length}개의 이미지에 드래그앤드롭 설정`);
+    console.log(`${images.length}개의 이미지에 이벤트 설정`);
+    
+    // 컨테이너에 드래그 오버 이벤트 추가
+    if (editable && onImageMove) {
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const draggingEl = container.querySelector('.dragging-media');
+        if (!draggingEl) return;
+      });
+
+      container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (!draggedImage) return;
+        
+        // 드롭 위치 계산
+        const dropTarget = document.elementFromPoint(e.clientX, e.clientY);
+        if (dropTarget && (dropTarget.tagName === 'IMG' || dropTarget.closest('img'))) {
+          const targetImg = dropTarget.tagName === 'IMG' ? dropTarget as HTMLImageElement : dropTarget.closest('img') as HTMLImageElement;
+          const targetSrc = targetImg.src;
+          
+          // 이미지 위치 이동 콜백 호출
+          const rect = targetImg.getBoundingClientRect();
+          const middle = rect.top + rect.height / 2;
+          const direction = e.clientY < middle ? 'before' : 'after';
+          
+          console.log(`이미지 이동: ${draggedImage} -> ${targetSrc} (${direction})`);
+          onImageMove(draggedImage, targetSrc, direction);
+        }
+        
+        setDraggedImage(null);
+      });
+    }
     
     images.forEach(img => {
+      // 이미지 스타일 및 드래그 설정
       img.classList.add('editor-img');
-      img.draggable = true;
       
-      img.addEventListener('dragstart', (e) => {
-        if (e.target instanceof HTMLElement) {
-          e.target.classList.add('dragging-media');
+      if (editable) {
+        img.draggable = true;
+        
+        // 클릭 이벤트
+        if (onImageClick) {
+          img.addEventListener('click', () => {
+            console.log("이미지 클릭:", img.src);
+            onImageClick(img.src);
+          });
         }
-      });
-      
-      img.addEventListener('dragend', (e) => {
-        if (e.target instanceof HTMLElement) {
-          e.target.classList.remove('dragging-media');
-        }
-      });
+        
+        // 드래그 이벤트
+        img.addEventListener('dragstart', (e) => {
+          if (e.target instanceof HTMLImageElement) {
+            e.target.classList.add('dragging-media');
+            setDraggedImage(e.target.src);
+            
+            // 드래그 이미지 설정 (조금 투명하게)
+            const dragImage = new Image();
+            dragImage.src = e.target.src;
+            dragImage.style.opacity = '0.7';
+            dragImage.style.position = 'absolute';
+            dragImage.style.top = '-1000px';
+            document.body.appendChild(dragImage);
+            e.dataTransfer?.setDragImage(dragImage, 0, 0);
+            
+            // 이미지 URL을 데이터로 설정
+            e.dataTransfer?.setData('text/plain', e.target.src);
+            
+            // 1ms 후 제거
+            setTimeout(() => {
+              document.body.removeChild(dragImage);
+            }, 1);
+          }
+        });
+        
+        img.addEventListener('dragend', (e) => {
+          if (e.target instanceof HTMLElement) {
+            e.target.classList.remove('dragging-media');
+          }
+        });
+      }
     });
-  };
+  }, [onImageClick, onImageMove, editable, draggedImage]);
 
   // 컨텐츠 처리
   const processContent = (text: string): string => {

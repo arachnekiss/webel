@@ -508,18 +508,22 @@ export default function ResourceUploadPage() {
   };
 
   // URL 제출 핸들러 - URL 입력 시 텍스트 에디터에 삽입
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim() || !currentEditor) {
       setUrlInputActive(false);
       return;
     }
 
+    // 텍스트 영역 엘리먼트 찾기
+    const textareaElement = document.querySelector(`textarea[name="${currentEditor}"]`) as HTMLTextAreaElement;
+    
     // YouTube URL 감지 및 처리
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = urlInput.match(youtubeRegex);
 
     let markdownContent = '';
+    let mediaType = 'url';
 
     if (match && match[1]) {
       // YouTube 비디오 임베드
@@ -534,12 +538,32 @@ export default function ResourceUploadPage() {
         allowfullscreen
       ></iframe>
       </div>\n`;
+      mediaType = 'youtube';
     } else {
       // 이미지 URL 감지
       const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
       if (imageRegex.test(urlInput)) {
         // 이미지 URL이면 마크다운 이미지 형식으로 추가
         markdownContent = `\n![이미지](${urlInput})\n`;
+        mediaType = 'image';
+        
+        // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
+        const imageFile = new File([], "url-image.jpg") as FileWithPreview;
+        imageFile.preview = urlInput;
+        
+        setUploadedMediaFiles(prev => {
+          const fieldFiles = prev[currentEditor] || [];
+          return {
+            ...prev,
+            [currentEditor]: [...fieldFiles, imageFile]
+          };
+        });
+        
+        // 성공 토스트 표시
+        toast({
+          title: "이미지 추가 완료",
+          description: "이미지가 에디터에 삽입되었습니다.",
+        });
       } else {
         try {
           // URL 정보 추출
@@ -555,12 +579,36 @@ export default function ResourceUploadPage() {
       }
     }
 
+    // 현재 값과 선택 위치 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
-    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    
+    // 텍스트 영역이 포커스 상태이고 선택 범위가 있으면 커서 위치에 삽입
+    if (textareaElement && document.activeElement === textareaElement) {
+      const start = textareaElement.selectionStart || 0;
+      const end = textareaElement.selectionEnd || 0;
+      
+      // 선택된 텍스트를 미디어로 대체하거나, 커서 위치에 미디어 삽입
+      const newValue = currentValue.substring(0, start) + markdownContent + currentValue.substring(end);
+      
+      // 필드 값 업데이트
+      form.setValue(currentEditor as any, newValue, { shouldValidate: true });
+      
+      // 커서 위치 업데이트
+      setTimeout(() => {
+        if (textareaElement) {
+          const newPosition = start + markdownContent.length;
+          textareaElement.focus();
+          textareaElement.setSelectionRange(newPosition, newPosition);
+        }
+      }, 0);
+    } else {
+      // 텍스트 영역이 포커스되어 있지 않거나 선택 범위가 없는 경우 끝에 추가
+      form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    }
 
     setUrlInput('');
     setUrlInputActive(false);
-  };
+  }, [urlInput, currentEditor, form, toast, setUploadedMediaFiles]);
 
   // 진행률 표시 컴포넌트
   const ProgressStatus = () => (
