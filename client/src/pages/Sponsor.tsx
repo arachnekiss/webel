@@ -400,12 +400,14 @@ const Sponsor: React.FC = () => {
       {/* Buy Me a Coffee 후원 */}
       <section className="mb-8">
         <Card 
-          className="border-2 border-amber-200 bg-gradient-to-r from-[#ffdd00]/10 to-[#ffdd00]/30 hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+          className="border-2 border-amber-200 bg-gradient-to-r from-[#ffdd00]/10 to-[#ffdd00]/30 hover:shadow-lg transition-shadow"
         >
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-shrink-0 cursor-pointer bg-[#ffdd00] rounded-md px-3 py-2 flex items-center" onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}>
+              <div className="flex-shrink-0 cursor-pointer bg-[#ffdd00] rounded-md px-3 py-2 flex items-center" onClick={(e) => {
+                e.stopPropagation();
+                window.open('https://buymeacoffee.com/webel', '_blank');
+              }}>
                 <Coffee className="h-5 w-5 mr-2 text-black" />
                 <span className="font-bold text-black">Buy Me a Coffee</span>
               </div>
@@ -426,7 +428,10 @@ const Sponsor: React.FC = () => {
                 </p>
                 <Button 
                   className="bg-[#ffdd00] hover:bg-[#ffdd00]/80 text-black font-bold"
-                  onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open('https://buymeacoffee.com/webel', '_blank');
+                  }}
                 >
                   <Coffee className="h-5 w-5 mr-2" />
                   Buy Me a Coffee
@@ -434,7 +439,10 @@ const Sponsor: React.FC = () => {
               </div>
               <div 
                 className="flex-shrink-0 hidden md:block cursor-pointer" 
-                onClick={() => window.open('https://buymeacoffee.com/webel', '_blank')}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open('https://buymeacoffee.com/webel', '_blank');
+                }}
               >
                 <div className="h-24 w-24 bg-[#ffdd00] rounded-full flex items-center justify-center hover:shadow-lg transition-shadow">
                   <Coffee className="h-12 w-12 text-amber-900" />
