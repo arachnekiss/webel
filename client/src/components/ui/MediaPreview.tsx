@@ -21,8 +21,12 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
     
     if (!content.trim()) return;
     
+    console.log("MediaPreview 컨텐츠 처리 중:", content);
+    
     // 콘텐츠 처리
     const processedContent = processContent(content);
+    console.log("처리된 컨텐츠:", processedContent);
+    
     containerRef.current.innerHTML = processedContent;
     
     // 드래그앤드롭 이벤트 설정
@@ -32,6 +36,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
   // 드래그 앤 드롭 기능 설정
   const setupDragAndDrop = (container: HTMLElement) => {
     const images = container.querySelectorAll('img');
+    console.log(`${images.length}개의 이미지에 드래그앤드롭 설정`);
     
     images.forEach(img => {
       img.classList.add('editor-img');
@@ -47,24 +52,27 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
         if (e.target instanceof HTMLElement) {
           e.target.classList.remove('dragging-media');
         }
-        
-        // 순서 변경 처리 로직은 여기에 추가할 수 있습니다
       });
     });
   };
 
   // 컨텐츠 처리
   const processContent = (text: string): string => {
+    // 디버깅을 위한 로그
+    console.log("원본 텍스트:", text);
+    
     // 마크다운 이미지 변환 - ![]()
-    const processedText = text.replace(
+    let processedText = text.replace(
       /!\[(.*?)\]\((.*?)\)/g, 
       '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
     );
     
+    console.log("이미지 마크다운 변환 후:", processedText);
+    
     // YouTube 임베드 처리
     const youtubePattern = /<div class="youtube-embed">\s*<iframe\s+width="(.*?)"\s+height="(.*?)"\s+src="https:\/\/www\.youtube\.com\/embed\/(.*?)"\s+frameborder="(.*?)"\s+allow="(.*?)"\s+allowfullscreen\s*>\s*<\/iframe>\s*<\/div>/gi;
     
-    const processedWithYoutube = processedText.replace(
+    let processedWithYoutube = processedText.replace(
       youtubePattern,
       (match, width, height, videoId, frameborder, allow) => {
         return `<div class="youtube-embed">
@@ -85,7 +93,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
     
     // 비디오 태그 처리
     const videoPattern = /<video\s+controls\s+width="(.*?)">\s*<source\s+src="(.*?)"\s+type="(.*?)"><\/video>/gi;
-    const processedWithVideos = processedWithYoutube.replace(
+    let processedWithVideos = processedWithYoutube.replace(
       videoPattern,
       (match, width, src, type) => {
         return `<div class="video-container">
@@ -96,18 +104,9 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
       }
     );
     
-    // URL 카드 링크 처리
-    const urlCardPattern = /<div class="url-card">[\s\S]*?<\/div>/g;
-    const processedWithUrlCards = processedWithVideos.replace(
-      urlCardPattern,
-      (match) => {
-        return match; // 이미 HTML로 구성된 URL 카드는 그대로 유지
-      }
-    );
-    
     // 파일 다운로드 링크 처리
     const filePattern = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
-    const processedWithFiles = processedWithUrlCards.replace(
+    let processedWithFiles = processedWithVideos.replace(
       filePattern,
       (match, fileName, url) => {
         return `<div class="file-link">
@@ -119,42 +118,38 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
       }
     );
     
-    // 일반 URL 변환 (URL 카드로)
-    const urlPattern = /https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+    // 독립적인 URL 패턴 처리 (URL만 단독으로 있는 경우)
+    const standaloneUrlPattern = /^(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&//=]*))$/gm;
     
-    // 이미 처리된 URL(img src, iframe src 등)은 제외하고 독립적인 URL만 처리
-    const processedWithUrls = processedWithFiles.replace(
-      urlPattern,
+    let processedWithUrls = processedWithFiles.replace(
+      standaloneUrlPattern,
       (url) => {
-        // 이미 HTML 태그 내에 있는 URL인지 확인
-        const dummyDiv = document.createElement('div');
-        dummyDiv.innerHTML = processedWithFiles;
+        console.log("URL 감지됨:", url);
         
         // YouTube URL인지 확인
         const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-        const isYoutubeUrl = youtubeRegex.test(url);
+        const match = url.match(youtubeRegex);
         
         // 이미지 URL인지 확인
         const imageRegex = /\.(jpg|jpeg|png|gif|bmp|webp)(\?.*)?$/i;
         const isImageUrl = imageRegex.test(url);
         
-        if (isYoutubeUrl) {
-          const match = url.match(youtubeRegex);
-          if (match && match[1]) {
-            return `<div class="youtube-embed">
-              <div class="aspect-video">
-                <iframe 
-                  width="100%" 
-                  height="100%"
-                  src="https://www.youtube.com/embed/${match[1]}" 
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowfullscreen
-                ></iframe>
-              </div>
-            </div>`;
-          }
+        if (match && match[1]) {
+          console.log("YouTube URL 감지:", match[1]);
+          return `<div class="youtube-embed">
+            <div class="aspect-video">
+              <iframe 
+                width="100%" 
+                height="100%"
+                src="https://www.youtube.com/embed/${match[1]}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+              ></iframe>
+            </div>
+          </div>`;
         } else if (isImageUrl) {
+          console.log("이미지 URL 감지");
           return `<img src="${url}" alt="이미지" class="editor-img" draggable="true" />`;
         } else {
           try {
@@ -165,7 +160,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
             return `<div class="url-card">
               <a href="${url}" target="_blank" rel="noopener noreferrer">
                 <div class="url-preview">
-                  <div class="url-icon"><span class="w-4 h-4">🔗</span></div>
+                  <div class="url-icon">🔗</div>
                   <div class="url-content">
                     <div class="url-title">${title}</div>
                     <div class="url-link">${url}</div>
@@ -174,11 +169,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
               </a>
             </div>`;
           } catch (e) {
+            console.error("URL 파싱 오류:", e);
             return url;
           }
         }
-        
-        return url;
       }
     );
     
@@ -189,6 +183,8 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
     <div 
       ref={containerRef} 
       className={`media-preview editor-preview ${className}`}
+      data-testid="media-preview"
+      data-content-length={content?.length || 0}
     ></div>
   );
 };
