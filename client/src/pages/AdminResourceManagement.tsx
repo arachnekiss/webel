@@ -181,13 +181,13 @@ export default function AdminResourceManagement() {
 
   // 추천 기능 제거로 관련 핸들러 제거됨
 
-  // 타입 필터 토글 핸들러
-  const toggleTypeFilter = (type: string) => {
-    setTypeFilter(prev => 
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
+  // 타입 필터 선택 핸들러 - 라디오 버튼 형태로 동작
+  const selectTypeFilter = (type: string) => {
+    if (type === "all") {
+      setTypeFilter([]);
+    } else {
+      setTypeFilter([type]);
+    }
   };
 
   // 검색어와 필터로 리소스 필터링
@@ -258,14 +258,20 @@ export default function AdminResourceManagement() {
             <DropdownMenuContent align="start">
               <DropdownMenuLabel>카테고리 선택</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => selectTypeFilter("all")}
+                className={typeFilter.length === 0 ? "bg-accent" : ""}
+              >
+                모든 리소스
+              </DropdownMenuItem>
               {Object.entries(resourceTypeLabels).map(([type, label]) => (
-                <DropdownMenuCheckboxItem
+                <DropdownMenuItem
                   key={type}
-                  checked={typeFilter.includes(type)}
-                  onCheckedChange={() => toggleTypeFilter(type)}
+                  onClick={() => selectTypeFilter(type)}
+                  className={typeFilter.includes(type) ? "bg-accent" : ""}
                 >
                   {label}
-                </DropdownMenuCheckboxItem>
+                </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>

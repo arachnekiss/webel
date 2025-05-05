@@ -46,7 +46,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // 서비스 타입 인터페이스
 interface Service {
@@ -91,8 +90,6 @@ export default function AdminServiceManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  // 모든 서비스를 표시하는 단일 탭만 사용
-  const [activeTab] = useState("all");
   const [typeFilter, setTypeFilter] = useState<string[]>([]);
 
   // 모든 서비스 목록 가져오기
@@ -141,13 +138,13 @@ export default function AdminServiceManagement() {
 
   // 유료/무료 변경 기능 제거
 
-  // 타입 필터 토글 핸들러
-  const toggleTypeFilter = (type: string) => {
-    setTypeFilter(prev => 
-      prev.includes(type)
-        ? prev.filter(t => t !== type)
-        : [...prev, type]
-    );
+  // 타입 필터 선택 핸들러 - 라디오 버튼 형태로 동작
+  const selectTypeFilter = (type: string) => {
+    if (type === "all") {
+      setTypeFilter([]);
+    } else {
+      setTypeFilter([type]);
+    }
   };
 
   // 검색어와 필터로 서비스 필터링
@@ -201,54 +198,50 @@ export default function AdminServiceManagement() {
         <h1 className="text-3xl font-bold">서비스 관리</h1>
       </div>
 
-      {/* 탭 및 필터링 */}
+      {/* 필터링 및 검색 */}
       <div className="mb-6">
-        <Tabs defaultValue="all" value={activeTab}>
-          <div className="flex justify-between items-center mb-4">
-            <TabsList>
-              <TabsTrigger value="all">모든 서비스</TabsTrigger>
-            </TabsList>
-            
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Filter className="h-4 w-4 mr-1" />
-                    서비스 타입
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>서비스 타입 선택</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {Object.entries(serviceTypeLabels).map(([type, label]) => (
-                    <DropdownMenuCheckboxItem
-                      key={type}
-                      checked={typeFilter.includes(type)}
-                      onCheckedChange={() => toggleTypeFilter(type)}
-                    >
-                      {label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              
-              <Input
-                type="text"
-                placeholder="서비스 검색..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-xs"
-              />
-            </div>
-          </div>
+        <div className="flex items-center gap-4 mb-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-1" />
+                서비스 타입
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuLabel>서비스 타입 선택</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => selectTypeFilter("all")}
+                className={typeFilter.length === 0 ? "bg-accent" : ""}
+              >
+                모든 서비스
+              </DropdownMenuItem>
+              {Object.entries(serviceTypeLabels).map(([type, label]) => (
+                <DropdownMenuItem
+                  key={type}
+                  onClick={() => selectTypeFilter(type)}
+                  className={typeFilter.includes(type) ? "bg-accent" : ""}
+                >
+                  {label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <Input
+            type="text"
+            placeholder="서비스 검색..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-grow"
+          />
+        </div>
 
-          <TabsContent value="all">
-            <ServiceTable 
-              services={filteredServices || []} 
-              onDelete={openDeleteDialog}
-            />
-          </TabsContent>
-        </Tabs>
+        <ServiceTable 
+          services={filteredServices || []} 
+          onDelete={openDeleteDialog}
+        />
       </div>
 
       {/* 서비스 삭제 확인 다이얼로그 */}
