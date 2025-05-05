@@ -152,7 +152,36 @@ const Sponsor: React.FC = () => {
   // 결제 수단 선택 핸들러
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     setSelectedPaymentMethod(method);
+    
+    // PayPal이 선택되면 결제 다이얼로그 열기
+    if (method === 'paypal') {
+      setSelectedTier(language === 'ko' 
+        ? 'PayPal 후원' 
+        : language === 'jp' 
+          ? 'PayPalサポート' 
+          : 'PayPal Support');
+      setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
+      setShowPaymentDialog(true);
+    }
   };
+  
+  // PayPal 버튼 초기화
+  useEffect(() => {
+    const handleClick = () => {
+      handlePaymentMethodChange('paypal');
+    };
+    
+    const paypalButton = document.getElementById('paypal-button');
+    if (paypalButton) {
+      paypalButton.addEventListener('click', handleClick);
+    }
+    
+    return () => {
+      if (paypalButton) {
+        paypalButton.removeEventListener('click', handleClick);
+      }
+    };
+  }, [language, customAmount]);
   
   // 금액에 따라 캐릭터 배경색 결정
   const getCharacterColor = (amount: number, isActivated = false): string => {
@@ -475,7 +504,7 @@ const Sponsor: React.FC = () => {
                       : 'Support Webel with PayPal for easy international payments!'}
                   </p>
                   <div className="mt-2">
-                    <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center" onClick={() => handlePaymentMethodChange('paypal')}>
+                    <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center">
                       <Globe className="h-5 w-5 mr-2 text-blue-600" />
                       <span className="font-bold text-blue-600">
                         {language === 'jp' 
