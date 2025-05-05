@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -658,7 +658,163 @@ export default function ResourceUploadPage() {
     </>
   );
 
-  // 자동 크기 조절 텍스트 영역 컴포넌트
+  // 리치 미디어 에디터 컴포넌트
+  const RichMediaEditor = ({ 
+    value, 
+    onChange, 
+    placeholder,
+    name,
+    onImageClick,
+  }: { 
+    value: string; 
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void | Promise<void>;
+    placeholder: string;
+    name: string;
+    onImageClick?: (src: string) => void;
+  }) => {
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    
+    // 마크다운 이미지 링크를 HTML 이미지로 변환
+    const processContent = useCallback((text: string): string => {
+      if (!text) return "";
+      
+      // 마크다운 이미지 변환 - ![]() 
+      let processedText = text.replace(
+        /!\[(.*?)\]\((.*?)\)/g, 
+        '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+      );
+      
+      // URL 처리 (단독 라인에 있는 경우만)
+      const urlPattern = /^(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&//=]*))$/gm;
+      processedText = processedText.replace(
+        urlPattern,
+        (match) => {
+          // 이미지 URL인지 확인
+          if (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i.test(match)) {
+            return `<img src="${match}" alt="이미지" class="editor-img" draggable="true" />`;
+          }
+          
+          // YouTube URL인지 확인
+          const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+          const youtubeMatch = match.match(youtubeRegex);
+          
+          if (youtubeMatch && youtubeMatch[1]) {
+            return `<div class="media-card youtube-embed">
+              <iframe 
+                width="100%" 
+                height="200"
+                src="https://www.youtube.com/embed/${youtubeMatch[1]}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+              ></iframe>
+              <div class="p-2 text-sm text-muted-foreground">${match}</div>
+            </div>`;
+          }
+          
+          // 일반 URL
+          return `<div class="media-card url-card">
+            <div class="p-2 flex items-center">
+              <div class="mr-2">🔗</div>
+              <div class="flex-1 overflow-hidden">
+                <div class="font-medium">${new URL(match).hostname.replace('www.', '')}</div>
+                <div class="text-sm text-muted-foreground truncate">${match}</div>
+              </div>
+            </div>
+          </div>`;
+        }
+      );
+      
+      return processedText;
+    }, []);
+    
+    // 텍스트 영역 크기 자동 조절 및 내용 설정
+    useEffect(() => {
+      const textarea = textareaRef.current;
+      const overlay = overlayRef.current;
+      if (!textarea || !overlay) return;
+      
+      // 오버레이에 처리된 내용 표시
+      overlay.innerHTML = processContent(value || "");
+      
+      // 이미지 클릭 이벤트 설정
+      overlay.querySelectorAll('img').forEach(img => {
+        img.addEventListener('click', () => {
+          if (onImageClick) {
+            onImageClick(img.getAttribute('src') || "");
+          }
+        });
+        
+        // 드래그 이벤트 설정
+        img.addEventListener('dragstart', (e) => {
+          img.classList.add('dragging-media');
+        });
+        
+        img.addEventListener('dragend', (e) => {
+          img.classList.remove('dragging-media');
+        });
+      });
+      
+      // 텍스트 영역 크기 자동 조절
+      const adjustHeight = () => {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
+        
+        // 오버레이 높이도 같이 조절 (스크롤 포함)
+        if (containerRef.current) {
+          containerRef.current.style.height = `${textarea.scrollHeight}px`;
+        }
+      };
+      
+      adjustHeight();
+      textarea.addEventListener('input', adjustHeight);
+      
+      return () => {
+        textarea.removeEventListener('input', adjustHeight);
+      };
+    }, [value, processContent, onImageClick]);
+    
+    // 스크롤 동기화
+    useEffect(() => {
+      const textarea = textareaRef.current;
+      const overlay = overlayRef.current;
+      if (!textarea || !overlay) return;
+      
+      const syncScroll = () => {
+        if (overlay) {
+          overlay.scrollTop = textarea.scrollTop;
+          overlay.scrollLeft = textarea.scrollLeft;
+        }
+      };
+      
+      textarea.addEventListener('scroll', syncScroll);
+      return () => {
+        textarea.removeEventListener('scroll', syncScroll);
+      };
+    }, []);
+    
+    return (
+      <div className="rich-editor-content" ref={containerRef}>
+        <textarea
+          ref={textareaRef}
+          name={name}
+          className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+        />
+        <div 
+          ref={overlayRef} 
+          className="rich-editor-overlay"
+          data-testid={`${name}-overlay`}
+        />
+      </div>
+    );
+  };
+  
+  // 간단한 텍스트 영역 컴포넌트 (기존 호환성 유지)
   const AutoResizeTextarea = ({ 
     value, 
     onChange, 
@@ -670,40 +826,13 @@ export default function ResourceUploadPage() {
     placeholder: string;
     name: string;
   }) => {
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    
-    useEffect(() => {
-      // 디버깅을 위한 로그
-      console.log(`AutoResizeTextarea 마운트됨: ${name}`, textareaRef.current);
-    }, []);
-    
-    // 텍스트 영역 크기 자동 조절
-    useEffect(() => {
-      const textarea = textareaRef.current;
-      if (!textarea) return;
-      
-      const adjustHeight = () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
-      };
-      
-      // 초기 높이 설정 및 리사이즈 이벤트 리스너 등록
-      adjustHeight();
-      textarea.addEventListener('input', adjustHeight);
-      
-      return () => {
-        textarea.removeEventListener('input', adjustHeight);
-      };
-    }, [value]);
-    
+    // 리치 미디어 에디터로 전환
     return (
-      <textarea
-        ref={textareaRef}
-        name={name}
-        className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-3"
-        placeholder={placeholder}
+      <RichMediaEditor 
         value={value}
         onChange={onChange}
+        placeholder={placeholder}
+        name={name}
       />
     );
   };

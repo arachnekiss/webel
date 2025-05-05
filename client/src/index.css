@@ -541,6 +541,7 @@
   .rich-editor-content {
     position: relative;
     width: 100%;
+    min-height: 200px;
   }
 
   .rich-editor-overlay {
@@ -549,17 +550,17 @@
     left: 0;
     width: 100%;
     height: 100%;
-    pointer-events: none;
     padding: 0.75rem;
-    z-index: 10;
-    overflow: hidden;
+    z-index: 5;
+    overflow: auto;
   }
 
   /* 텍스트 미디어 혼합 편집기 */
-  textarea {
-    /* 텍스트 포인터 이벤트 활성화 */
+  .rich-editor-content textarea {
+    position: relative;
+    z-index: 10;
     pointer-events: auto;
-    background: transparent;
+    background: transparent !important;
     color: transparent;
     caret-color: black; /* 커서만 보이도록 설정 */
     white-space: pre-wrap;
@@ -567,10 +568,15 @@
     overflow-wrap: break-word;
     font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.5;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 200px;
+    width: 100%;
+    padding: 0.75rem;
   }
 
   /* 마크다운 구문 숨기기 */
-  textarea::selection {
+  .rich-editor-content textarea::selection {
     background-color: rgba(0, 0, 0, 0.1);
     color: transparent;
   }
@@ -583,27 +589,76 @@
     overflow-wrap: break-word;
     font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.5;
-  }
-
-  /* 이미지를 제외한 모든 텍스트는 pointer-events: none */
-  .rich-editor-overlay > *:not(img) {
     pointer-events: none;
   }
 
-  /* 이미지는 클릭 가능하게 */
-  .rich-editor-overlay img {
+  /* 에디터 컨테이너가 포커스 상태일 때 */
+  .rich-editor-content:focus-within {
+    box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2);
+  }
+
+  /* 이미지, 비디오, iframe 등 미디어 요소만 pointer-events 활성화 */
+  .rich-editor-overlay img,
+  .rich-editor-overlay video,
+  .rich-editor-overlay iframe,
+  .rich-editor-overlay .media-card {
     pointer-events: auto;
-    cursor: move;
+    cursor: grab;
     max-width: 100%;
     border-radius: 0.375rem;
     margin: 0.5rem 0;
     border: 1px solid #e5e7eb;
+    display: inline-block;
   }
 
-  /* 드래그 중인 이미지 스타일 */
-  .rich-editor-overlay img.dragging-media {
+  /* 이미지 호버 및 드래그 효과 */
+  .rich-editor-overlay img:hover,
+  .rich-editor-overlay video:hover,
+  .rich-editor-overlay .media-card:hover {
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+
+  /* 드래그 중인 미디어 스타일 */
+  .rich-editor-overlay .dragging-media {
     opacity: 0.5;
+    cursor: grabbing;
     border: 2px dashed #3b82f6 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 미디어 컨테이너 */
+  .media-card {
+    display: inline-block;
+    margin: 0.5rem;
+    max-width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    overflow: hidden;
+    background-color: #f9fafb;
+  }
+
+  /* 이미지 및 URL 카드 인라인 스타일 */
+  .rich-editor-overlay .editor-img-inline {
+    display: inline-block;
+    vertical-align: middle;
+    max-height: 150px;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* 텍스트 처리 중 마크다운 스타일 바로 적용 */
+  .rich-editor-overlay strong {
+    font-weight: bold;
+  }
+
+  .rich-editor-overlay em {
+    font-style: italic;
+  }
+
+  .rich-editor-overlay a {
+    color: #2563eb;
+    text-decoration: underline;
   }
 
   /* 마크다운 미리보기 스타일 */
