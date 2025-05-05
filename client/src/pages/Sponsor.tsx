@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   Heart, Star, Zap, Shield, CheckCircle, Gift, 
-  MessageSquare, User, Calendar, Copy, ExternalLink,
+  MessageSquare, MessageCircle, User, Calendar, Copy, ExternalLink,
   CreditCard, Building, Smartphone, DollarSign, Globe, Coffee
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -840,52 +840,69 @@ const Sponsor: React.FC = () => {
         </h2>
         
         <div className="space-y-6">
-          {comments.map((comment) => (
-            <Card key={comment.id} className="overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12 border-2 border-amber-300">
-                    {comment.avatarUrl ? (
-                      <AvatarImage src={comment.avatarUrl} alt={comment.username} />
-                    ) : (
-                      <AvatarFallback className="bg-amber-100 text-amber-600">
-                        {comment.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-                  
-                  <div className="flex-1">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2">
-                      <div className="font-semibold text-gray-900">{comment.username}</div>
-                      <div className="text-sm text-gray-500 flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {formatDate(comment.createdAt)}
-                      </div>
-                      <div className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                        {comment.tier}
-                      </div>
-                      <div className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-                        {formatAmount(comment.amount)}
-                      </div>
-                    </div>
+          {comments.length > 0 ? (
+            comments.map((comment) => (
+              <Card key={comment.id} className="overflow-hidden">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <Avatar className="h-12 w-12 border-2 border-amber-300">
+                      {comment.avatarUrl ? (
+                        <AvatarImage src={comment.avatarUrl} alt={comment.username} />
+                      ) : (
+                        <AvatarFallback className="bg-amber-100 text-amber-600">
+                          {comment.username.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
                     
-                    <p className="text-gray-700">{comment.message}</p>
-                    
-                    <div className="flex justify-end mt-2">
-                      <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
-                        <MessageSquare className="h-4 w-4 mr-1" />
-                        {language === 'ko' 
-                          ? '답글' 
-                          : language === 'jp' 
-                            ? '返信' 
-                            : 'Reply'}
-                      </Button>
+                    <div className="flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-2">
+                        <div className="font-semibold text-gray-900">{comment.username}</div>
+                        <div className="text-sm text-gray-500 flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {formatDate(comment.createdAt)}
+                        </div>
+                        <div className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+                          {comment.tier}
+                        </div>
+                        <div className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                          {formatAmount(comment.amount)}
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-700">{comment.message}</p>
+                      
+                      <div className="flex justify-end mt-2">
+                        <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
+                          <MessageSquare className="h-4 w-4 mr-1" />
+                          {language === 'ko' 
+                            ? '답글' 
+                            : language === 'jp' 
+                              ? '返信' 
+                              : 'Reply'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card className="overflow-hidden">
+              <CardContent className="p-6 text-center">
+                <div className="flex flex-col items-center justify-center py-10">
+                  <MessageCircle className="h-12 w-12 text-gray-300 mb-4" />
+                  <p className="text-gray-500 text-lg">
+                    {language === 'ko' 
+                      ? '아직 코멘트가 없습니다. 첫 번째 후원자가 되어 코멘트를 남겨보세요!' 
+                      : language === 'jp' 
+                        ? 'まだコメントがありません。最初のサポーターになってコメントを残してみましょう！' 
+                        : 'No comments yet. Be the first supporter to leave a comment!'}
+                  </p>
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )}
         </div>
       </section>
 
