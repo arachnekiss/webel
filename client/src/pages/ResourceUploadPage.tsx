@@ -16,6 +16,9 @@ interface MediaPreviewProps {
 const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
 
+  // 마크다운 이미지 패턴 감지 (![alt](url) 형식)
+  const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
+  
   // YouTube 링크 추출하여 임베드로 변환
   const extractYouTubeEmbeds = (text: string) => {
     // YouTube URL 패턴(일반 링크, 공유 링크, 모바일 링크 등)
@@ -48,29 +51,74 @@ const MediaPreview = ({ content }: MediaPreviewProps) => {
     });
   };
 
-  // 이미지 URL 추출
+  // 이미지 URL 추출 (일반 URL과 마크다운 형식 모두 처리)
   const extractImages = (text: string) => {
     // 일반 이미지 URL 패턴 (jpg, jpeg, png, gif, webp)
     const imageRegex = /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)(\?\S+)?/gi;
     const matches = Array.from(text.matchAll(imageRegex));
     
+    // 마크다운 이미지 패턴 매칭
+    const markdownMatches = Array.from(text.matchAll(markdownImageRegex));
+    
+    // 마크다운 이미지 태그를 변환
+    const markdownImages = markdownMatches.map(match => {
+      const alt = match[1] || '이미지';
+      const url = match[2];
+      return {
+        originalUrl: url,
+        embedCode: `
+          <div class="image-preview my-3">
+            <img 
+              src="${url}" 
+              alt="${alt}" 
+              class="max-w-full rounded-lg shadow-sm"
+            />
+          </div>
+        `
+      };
+    });
+    
+    // 일반 URL 이미지 태그로 변환
+    const urlImages = matches.map(match => {
+      const imageUrl = match[0];
+      // 마크다운 이미지 태그 안에 포함된 URL은 제외 (중복 방지)
+      if (markdownMatches.some(mdMatch => mdMatch[2] === imageUrl)) {
+        return null;
+      }
+      
+      return {
+        originalUrl: imageUrl,
+        embedCode: `
+          <div class="image-preview my-3">
+            <img 
+              src="${imageUrl}" 
+              alt="이미지" 
+              class="max-w-full rounded-lg shadow-sm"
+            />
+            <div class="text-xs text-gray-500 mt-1">
+              <a href="${imageUrl}" target="_blank" rel="noopener noreferrer">${imageUrl}</a>
+            </div>
+          </div>
+        `
+      };
+    }).filter(item => item !== null);
+    
+    return [...markdownImages, ...urlImages];
+  };
+
+  // 비디오 태그 감지
+  const extractVideos = (text: string) => {
+    const videoRegex = /<video[^>]*>(.*?)<\/video>/gs;
+    const matches = Array.from(text.matchAll(videoRegex));
+    
     if (matches.length === 0) return [];
     
     return matches.map(match => {
-      const imageUrl = match[0];
-      const embedCode = `
-        <div class="image-preview my-3">
-          <img 
-            src="${imageUrl}" 
-            alt="이미지" 
-            class="max-w-full rounded-lg shadow-sm"
-          />
-          <div class="text-xs text-gray-500 mt-1">
-            <a href="${imageUrl}" target="_blank" rel="noopener noreferrer">${imageUrl}</a>
-          </div>
-        </div>
-      `;
-      return { originalUrl: imageUrl, embedCode };
+      const videoTag = match[0];
+      return {
+        originalUrl: "", // 원본 URL은 없음
+        embedCode: videoTag // 이미 HTML 태그이므로 그대로 사용
+      };
     });
   };
 
@@ -84,6 +132,11 @@ const MediaPreview = ({ content }: MediaPreviewProps) => {
     
     return matches.map(match => {
       const url = match[0];
+      // 마크다운 이미지 태그 내부의 URL은 제외
+      if (text.match(markdownImageRegex)?.some(imgMatch => imgMatch.includes(url))) {
+        return null;
+      }
+      
       const domain = new URL(url).hostname.replace('www.', '');
       const embedCode = `
         <div class="url-card my-3">
@@ -101,21 +154,23 @@ const MediaPreview = ({ content }: MediaPreviewProps) => {
         </div>
       `;
       return { originalUrl: url, embedCode };
-    });
+    }).filter(item => item !== null);
   };
 
   // 모든 미디어 요소 추출 및 변환
   const youtubeEmbeds = extractYouTubeEmbeds(content);
   const imageEmbeds = extractImages(content);
+  const videoEmbeds = extractVideos(content);
   const urlCards = extractUrlCards(content);
   
+  // 모든 미디어 요소를 HTML로 모아서 렌더링
+  const mediaElements = [...imageEmbeds, ...videoEmbeds, ...youtubeEmbeds, ...urlCards];
+  
   // 추출된 미디어가 없으면 렌더링하지 않음
-  if (youtubeEmbeds.length === 0 && imageEmbeds.length === 0 && urlCards.length === 0) {
+  if (mediaElements.length === 0) {
     return null;
   }
-
-  // 모든 미디어 요소를 HTML로 모아서 렌더링
-  const mediaElements = [...youtubeEmbeds, ...imageEmbeds, ...urlCards];
+  
   const mediaHtml = mediaElements.map(media => media.embedCode).join('');
 
   return (
@@ -468,6 +523,18 @@ export default function ResourceUploadPage() {
     }
 
     const file = files[0];
+    
+    // 파일을 FormData에 추가하고 서버에 업로드
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    // 로딩 상태 표시
+    toast({
+      title: "이미지 업로드 중",
+      description: "이미지를 처리 중입니다...",
+    });
+    
+    // 로컬 URL 생성 (즉시 미리보기용)
     const fileUrl = URL.createObjectURL(file);
     let markdownContent = '';
 
@@ -489,7 +556,7 @@ export default function ResourceUploadPage() {
     // 현재 필드의 값 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
 
-    // 커서 위치에 삽입하는 대신 텍스트 끝에 추가
+    // 즉시 미리보기를 위해 텍스트 끝에 추가
     form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
 
     // 입력창 초기화
