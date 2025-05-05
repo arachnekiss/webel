@@ -12,7 +12,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { db } from './db';
-import { users, services, resources, auctions, bids } from '@shared/schema';
+import { users, services, resources, auctions, bids, sponsorComments, insertSponsorCommentSchema } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import multer from 'multer';
 import { 
@@ -99,6 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await db.delete(auctions);
       await db.delete(resources);
       await db.delete(services);
+      await db.delete(sponsorComments);
       await db.delete(users);
       
       res.status(200).json({ message: "데이터베이스가 초기화되었습니다." });
@@ -913,6 +914,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PayPal 주문 확정
   app.post('/paypal/order/:orderID/capture', async (req, res) => {
     await capturePaypalOrder(req, res);
+  });
+
+  // 후원 코멘트 관련 라우트
+  app.get('/api/sponsor/comments', async (_req: Request, res: Response) => {
+    try {
+      // 코멘트 목록을 최신순으로 가져오기
+      const comments = await db.select().from(sponsorComments).orderBy(sponsorComments.createdAt, 'desc');
+      res.json(comments);
+    } catch (error) {
+      console.error('후원 코멘트 조회 오류:', error);
+      res.status(500).json({ message: '후원 코멘트를 불러오는 중 오류가 발생했습니다.' });
+    }
+  });
+
+  app.post('/api/sponsor/comments', async (req: Request, res: Response) => {
+    try {
+      // 요청 데이터 유효성 검사
+      const commentData = insertSponsorCommentSchema.parse(req.body);
+      
+      // 코멘트 생성
+      const [comment] = await db.insert(sponsorComments)
+        .values(commentData)
+        .returning();
+      
+      res.status(201).json(comment);
+    } catch (error) {
+      console.error('후원 코멘트 생성 오류:', error);
+      res.status(400).json({ 
+        message: '후원 코멘트 생성에 실패했습니다.',
+        error: error instanceof Error ? error.message : '알 수 없는 오류'
+      });
+    }
   });
 
   const httpServer = createServer(app);

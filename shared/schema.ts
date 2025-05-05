@@ -210,6 +210,22 @@ export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Transaction = typeof transactions.$inferSelect;
 export type InsertTransaction = z.infer<typeof insertTransactionSchema>;
 
+// 후원 코멘트 테이블
+export const sponsorComments = pgTable("sponsor_comments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  username: text("username").notNull(),
+  amount: integer("amount").notNull(),
+  tier: text("tier").notNull(),
+  message: text("message").notNull(),
+  avatarUrl: text("avatar_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSponsorCommentSchema = createInsertSchema(sponsorComments).omit({ id: true, createdAt: true });
+export type SponsorComment = typeof sponsorComments.$inferSelect;
+export type InsertSponsorComment = z.infer<typeof insertSponsorCommentSchema>;
+
 // 결제 방법 타입 정의
 export type PaymentMethod = 'paypal' | 'kakao_pay' | 'toss' | 'credit_card' | 'bank_transfer';
 
