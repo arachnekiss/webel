@@ -619,13 +619,38 @@
   /* 기존 스타일 끝 */
 
   /* 통합 에디터 스타일 */
+  .rich-editor-wrapper {
+    position: relative;
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    overflow: hidden;
+  }
+
   .rich-editor-content {
     position: relative;
     width: 100%;
     min-height: 200px;
   }
 
-  .rich-editor-overlay {
+  .rich-editor-textarea {
+    position: relative;
+    width: 100%;
+    min-height: 200px;
+    padding: 0.75rem;
+    border: none;
+    font-family: system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
+    resize: vertical;
+    background-color: transparent;
+    color: black;
+    z-index: 10;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .rich-editor-preview {
     position: absolute;
     top: 0;
     left: 0;
@@ -633,56 +658,21 @@
     height: 100%;
     padding: 0.75rem;
     z-index: 5;
+    pointer-events: none;
     overflow: auto;
   }
 
-  /* 텍스트 미디어 혼합 편집기 */
-  .rich-editor-content textarea {
-    position: relative;
-    z-index: 10;
-    pointer-events: auto;
-    background: transparent !important;
-    color: transparent;
-    caret-color: black; /* 커서만 보이도록 설정 */
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.5;
-    box-sizing: border-box;
-    resize: vertical;
-    min-height: 200px;
-    width: 100%;
-    padding: 0.75rem;
-  }
-
-  /* 마크다운 구문 숨기기 */
-  .rich-editor-content textarea::selection {
-    background-color: rgba(0, 0, 0, 0.1);
-    color: transparent;
-  }
-
-  /* 편집기 오버레이 텍스트 스타일 */
-  .rich-editor-overlay {
-    color: black;
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.5;
-    pointer-events: none;
-  }
-
-  /* 에디터 컨테이너가 포커스 상태일 때 */
-  .rich-editor-content:focus-within {
+  /* 에디터가 포커스 상태일 때 */
+  .rich-editor-content.focused {
     box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.2);
   }
 
   /* 이미지, 비디오, iframe 등 미디어 요소만 pointer-events 활성화 */
-  .rich-editor-overlay img,
-  .rich-editor-overlay video,
-  .rich-editor-overlay iframe,
-  .rich-editor-overlay .media-card {
+  .rich-editor-preview img,
+  .rich-editor-preview video,
+  .rich-editor-preview iframe,
+  .rich-editor-preview .media-card,
+  .rich-editor-preview .youtube-embed {
     pointer-events: auto;
     cursor: grab;
     max-width: 100%;
@@ -693,14 +683,14 @@
   }
 
   /* 이미지 호버 및 드래그 효과 */
-  .rich-editor-overlay img:hover,
-  .rich-editor-overlay video:hover,
-  .rich-editor-overlay .media-card:hover {
+  .rich-editor-preview img:hover,
+  .rich-editor-preview video:hover,
+  .rich-editor-preview .media-card:hover {
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
   }
 
   /* 드래그 중인 미디어 스타일 */
-  .rich-editor-overlay .dragging-media {
+  .rich-editor-preview .dragging-media {
     opacity: 0.5;
     cursor: grabbing;
     border: 2px dashed #3b82f6 !important;

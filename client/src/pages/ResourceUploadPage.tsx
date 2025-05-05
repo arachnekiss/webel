@@ -7,7 +7,8 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import MediaPreview from "@/components/ui/MediaPreview";
+import { MediaPreview } from "@/components/ui/MediaPreview";
+import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
@@ -1036,6 +1037,66 @@ export default function ResourceUploadPage() {
     name: string;
     onImageClick?: (src: string) => void;
   }) => {
+    // 이미지 이동 핸들러
+    const handleImageMove = (draggedSrc: string, targetSrc: string, direction: 'before' | 'after') => {
+      if (!currentEditor) return;
+      
+      // 현재 에디터 내용 가져오기
+      const content = form.getValues(currentEditor as any);
+      if (!content) return;
+      
+      // 이미지 마크다운 추출
+      const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
+      const images: {alt: string, src: string, full: string}[] = [];
+      let match;
+      while ((match = imageRegex.exec(content)) !== null) {
+        images.push({
+          alt: match[1],
+          src: match[2],
+          full: match[0]
+        });
+      }
+      
+      // 드래그한 이미지와 타겟 이미지 찾기
+      const draggedImage = images.find(img => img.src === draggedSrc);
+      const targetImage = images.find(img => img.src === targetSrc);
+      
+      if (!draggedImage || !targetImage) {
+        console.error("이미지를 찾을 수 없음");
+        return;
+      }
+      
+      // 기존 이미지 제거
+      let newContent = content.replace(draggedImage.full, '');
+      
+      // 타겟 이미지 위치 찾기
+      const targetIndex = newContent.indexOf(targetImage.full);
+      if (targetIndex === -1) {
+        console.error("타겟 이미지 위치를 찾을 수 없음");
+        return;
+      }
+      
+      // 새로운 위치에 드래그한 이미지 삽입
+      if (direction === 'before') {
+        newContent = newContent.substring(0, targetIndex) + 
+                     draggedImage.full + '\n\n' + 
+                     newContent.substring(targetIndex);
+      } else {
+        const insertIndex = targetIndex + targetImage.full.length;
+        newContent = newContent.substring(0, insertIndex) + 
+                     '\n\n' + draggedImage.full + 
+                     newContent.substring(insertIndex);
+      }
+      
+      // 폼 업데이트
+      form.setValue(currentEditor as any, newContent, { shouldValidate: true });
+      
+      toast({
+        title: "이미지 위치 변경됨",
+        description: "이미지 순서가 업데이트되었습니다.",
+      });
+    };
+    
     // 리치 미디어 에디터로 전환
     return (
       <RichMediaEditor 
@@ -1050,6 +1111,7 @@ export default function ResourceUploadPage() {
             description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
           });
         })}
+        onImageMove={handleImageMove}
       />
     );
   };
