@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
+import TopLink from '@/components/ui/TopLink';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { CheckCircle, Sparkles, ArrowRight, Brain, Bot, Cpu, Camera, Zap } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -23,14 +23,14 @@ const AIAssistant: React.FC = () => {
                'AI Assembly Assistant'}
             </h2>
           </div>
-          <Link href="/ai-assembly">
+          <TopLink href="/ai-assembly">
             <Button variant="outline" className="group md:self-start rounded-lg border-violet-200 bg-white/80 hover:border-violet-400 hover:bg-violet-50 text-violet-700 transition-all">
               {language === 'ko' ? '더 알아보기' : 
                language === 'jp' ? '詳細を見る' : 
                'Learn More'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
-          </Link>
+          </TopLink>
         </div>
       </div>
       
@@ -136,7 +136,7 @@ const AIAssistant: React.FC = () => {
             </div>
           </div>
           
-          <Link href="/ai-assembly">
+          <TopLink href="/ai-assembly">
             <Button className="group px-6 py-6 bg-violet-600 text-white font-medium rounded-xl hover:bg-violet-700 shadow-lg hover:shadow-xl transition-all duration-300 text-base w-full md:w-auto">
               <Bot className="h-5 w-5 mr-2" />
               {language === 'ko' ? 'AI 비서 시작하기' : 
@@ -144,7 +144,7 @@ const AIAssistant: React.FC = () => {
                'Start AI Assistant'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
-          </Link>
+          </TopLink>
         </div>
         
         {!isMobile && (
