@@ -1186,7 +1186,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1301,7 +1301,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1419,7 +1419,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -1558,7 +1558,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1673,7 +1673,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1791,7 +1791,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -1908,7 +1908,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -2025,7 +2025,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
