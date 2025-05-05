@@ -464,18 +464,18 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
   // 폼 제출 처리
   const onSubmit = async (data: ServiceFormValues) => {
-    if (!user) {
+    // 유료 서비스인데 로그인하지 않은 경우에만 로그인 필요
+    if (!data.isFreeService && !user) {
       toast({
-        title: '로그인이 필요합니다',
-        description: '서비스를 등록하려면 로그인이 필요합니다',
+        title: '유료 서비스 등록 제한',
+        description: '유료 서비스를 등록하려면 본인인증과 계좌등록이 필요합니다. 로그인 후 진행해주세요.',
         variant: 'destructive',
       });
-      navigate('/auth');
+      navigate('/login');
       return;
     }
-
-    // 유료 서비스인 경우 서버 측에서 인증 상태 검증
-    // 클라이언트에서는 사전 검증 없이 바로 서버로 요청
+    
+    // 무료 서비스는 비회원도 등록 가능
 
     // 위치 정보가 없으면 기본값을 설정 (서울 중심부로 설정)
     if (data.latitude === 0 || data.longitude === 0) {

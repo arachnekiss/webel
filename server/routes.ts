@@ -131,14 +131,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json(services);
   });
   
-  app.post('/api/services', isAuthenticated, async (req: Request, res: Response) => {
+  // IP별 서비스 등록 제한을 위한 메모리 저장소
+  const ipRegistrationMap = new Map<string, { count: number, timestamp: number }>();
+  const MAX_REGISTRATIONS_PER_IP = 5; // 한 IP당 최대 등록 건수
+  const TIME_WINDOW_MS = 60 * 60 * 1000; // 시간 창 (1시간)
+  
+  app.post('/api/services', async (req: Request, res: Response) => {
     try {
-      if (!req.user) {
-        return res.status(401).json({ message: '로그인이 필요합니다.' });
+      // IP 제한 로직 (DDoS 방지)
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      const now = Date.now();
+      
+      // IP별 등록 정보 가져오기
+      const ipData = ipRegistrationMap.get(clientIp) || { count: 0, timestamp: now };
+      
+      // 시간 창이 지났으면 카운트 리셋
+      if (now - ipData.timestamp > TIME_WINDOW_MS) {
+        ipData.count = 0;
+        ipData.timestamp = now;
       }
       
-      // 유료 서비스인 경우 본인 인증이 필요한지 확인
-      if (req.body.isFreeService === false || req.body.basePrice > 0) {
+      // 등록 제한 확인
+      if (ipData.count >= MAX_REGISTRATIONS_PER_IP) {
+        return res.status(429).json({ 
+          message: '너무 많은 서비스를 등록했습니다. 잠시 후 다시 시도해주세요.',
+          timeRemaining: Math.ceil((ipData.timestamp + TIME_WINDOW_MS - now) / 60000) // 남은 시간(분)
+        });
+      }
+      
+      // 서비스 타입이 무료 서비스인지 확인
+      const isFreeService = req.body.isFreeService === true;
+      
+      // 유료 서비스인 경우에만 로그인 체크 및 인증 검사
+      if (!isFreeService) {
+        if (!req.user) {
+          return res.status(401).json({ 
+            message: '유료 서비스 등록은 로그인이 필요합니다.',
+            verificationType: 'required'
+          });
+        }
+        
         // 인증 상태 확인
         const verificationStatus = await storage.getVerificationStatus(req.user.id);
         
@@ -166,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 데이터 정제
       const serviceData = {
         ...req.body,
-        userId: req.user.id
+        userId: req.user?.id || null  // 로그인하지 않은 경우 null로 설정
       };
       
       // tags 배열 처리
