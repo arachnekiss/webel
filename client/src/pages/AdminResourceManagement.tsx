@@ -148,7 +148,11 @@ export default function AdminResourceManagement() {
     },
     onSuccess: () => {
       toast({ title: "리소스 삭제 완료" });
+      // 모든 리소스 관련 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ['/api/admin/resources'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/resources'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard'] });
+      // 모달 닫기
       setIsDeleteDialogOpen(false);
     },
     onError: (error: Error) => {
