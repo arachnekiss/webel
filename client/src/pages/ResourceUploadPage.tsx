@@ -551,28 +551,47 @@ export default function ResourceUploadPage() {
     
     // 로컬 URL 생성 (즉시 미리보기용)
     const fileUrl = URL.createObjectURL(file);
-    let markdownContent = '';
-
+    
+    // 현재 필드의 값 가져오기
+    const currentValue = form.getValues(currentEditor as any) || '';
+    
+    // 파일 유형에 따라 HTML 콘텐츠 생성 (마크다운 대신 실제 이미지/미디어 렌더링)
+    let htmlContent = '';
+    
     switch (type) {
       case 'image':
-        markdownContent = `\n![이미지](${fileUrl})\n`;
+        // 실제 이미지를 에디터에 삽입 (마크다운 대신 HTML 사용)
+        htmlContent = `\n<div class="media-content">
+          <img src="${fileUrl}" alt="이미지" style="max-width: 100%; margin: 10px 0;" />
+        </div>\n`;
         break;
       case 'gif':
-        markdownContent = `\n![GIF](${fileUrl})\n`;
+        htmlContent = `\n<div class="media-content">
+          <img src="${fileUrl}" alt="GIF" style="max-width: 100%; margin: 10px 0;" />
+        </div>\n`;
         break;
       case 'video':
-        markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
+        htmlContent = `\n<div class="media-content">
+          <video controls width="100%" style="margin: 10px 0;">
+            <source src="${fileUrl}" type="${file.type}">
+            브라우저가 비디오를 지원하지 않습니다.
+          </video>
+        </div>\n`;
         break;
       case 'file':
-        markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
+        htmlContent = `\n<div class="media-content">
+          <a href="${fileUrl}" download="${file.name}" style="display: block; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none;">
+            <span style="display: flex; align-items: center;">
+              <span style="margin-right: 8px;">📎</span>
+              <span>파일 다운로드: ${file.name}</span>
+            </span>
+          </a>
+        </div>\n`;
         break;
     }
 
-    // 현재 필드의 값 가져오기
-    const currentValue = form.getValues(currentEditor as any) || '';
-
-    // 즉시 미리보기를 위해 텍스트 끝에 추가
-    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+    // 생성된 HTML 콘텐츠를 텍스트 끝에 추가
+    form.setValue(currentEditor as any, currentValue + htmlContent, { shouldValidate: true });
 
     // 입력창 초기화
     if (e.target) e.target.value = '';
@@ -1172,7 +1191,17 @@ export default function ResourceUploadPage() {
                               <FormLabel>조립 방법</FormLabel>
                               <FormControl>
                                 <div className="border rounded-md">
-                                  {renderMediaButtons("assemblyInstructions")}
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("assemblyInstructions")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                  </div>
                                   {urlInputActive && currentEditor === "assemblyInstructions" && (
                                     <div className="p-2 border-b bg-muted/5">
                                       <div className="flex gap-2">
@@ -1227,7 +1256,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                조립에 필요한 단계와 방법을 순서대로 설명해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                                조립에 필요한 단계와 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -1242,7 +1271,53 @@ export default function ResourceUploadPage() {
                               <FormLabel>사용법</FormLabel>
                               <FormControl>
                                 <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("howToUse")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("howToUse")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("howToUse")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("howToUse")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("howToUse")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
                                   {urlInputActive && currentEditor === "howToUse" && (
                                     <div className="p-2 border-b bg-muted/5">
                                       <div className="flex gap-2">
@@ -1296,7 +1371,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                하드웨어 제품의 사용법, 주의사항, 팁 등을 상세히 설명해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                                하드웨어 제품의 사용법, 주의사항, 팁 등을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -1314,7 +1389,53 @@ export default function ResourceUploadPage() {
                             <FormLabel>사용 방법</FormLabel>
                             <FormControl>
                               <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
                                 {urlInputActive && currentEditor === "howToUse" && (
                                   <div className="p-2 border-b bg-muted/5">
                                     <div className="flex gap-2">
@@ -1368,7 +1489,7 @@ export default function ResourceUploadPage() {
                               </div>
                             </FormControl>
                             <FormDescription>
-                              소프트웨어 설치 및 사용 방법을 단계별로 설명해주세요. 코드 예제도 포함하면 좋습니다. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                              소프트웨어 설치 및 사용 방법을 단계별로 설명해주세요. 코드 예제도 포함하면 좋습니다. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1407,7 +1528,53 @@ export default function ResourceUploadPage() {
                               <FormLabel>조립 방법</FormLabel>
                               <FormControl>
                                 <div className="border rounded-md">
-                                  {renderMediaButtons("assemblyInstructions")}
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("assemblyInstructions")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
                                   {urlInputActive && currentEditor === "assemblyInstructions" && (
                                     <div className="p-2 border-b bg-muted/5">
                                       <div className="flex gap-2">
@@ -1461,7 +1628,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                모델의 조립 과정과 방법을 순서대로 설명해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                                모델의 조립 과정과 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -1476,7 +1643,53 @@ export default function ResourceUploadPage() {
                               <FormLabel>사용법</FormLabel>
                               <FormControl>
                                 <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("howToUse")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("howToUse")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("howToUse")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("howToUse")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("howToUse")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
                                   {urlInputActive && currentEditor === "howToUse" && (
                                     <div className="p-2 border-b bg-muted/5">
                                       <div className="flex gap-2">
@@ -1530,7 +1743,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </FormControl>
                               <FormDescription>
-                                3D 모델 사용 방법, 최적의 프린팅 설정(층 높이, 충전률, 서포트 등)을 상세히 설명해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                                3D 모델 사용 방법, 최적의 프린팅 설정(층 높이, 충전률, 서포트 등)을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                               </FormDescription>
                               <FormMessage />
                             </FormItem>
@@ -1548,7 +1761,53 @@ export default function ResourceUploadPage() {
                             <FormLabel>사용 방법 및 모델 설명</FormLabel>
                             <FormControl>
                               <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
                                 {urlInputActive && currentEditor === "howToUse" && (
                                   <div className="p-2 border-b bg-muted/5">
                                     <div className="flex gap-2">
@@ -1602,7 +1861,7 @@ export default function ResourceUploadPage() {
                               </div>
                             </FormControl>
                             <FormDescription>
-                              모델 구조, 파라미터, 성능지표, 사용 예제 등을 포함해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                              모델 구조, 파라미터, 성능지표, 사용 예제 등을 포함해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1619,7 +1878,53 @@ export default function ResourceUploadPage() {
                             <FormLabel>콘텐츠 설명 및 라이센스</FormLabel>
                             <FormControl>
                               <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
                                 {urlInputActive && currentEditor === "howToUse" && (
                                   <div className="p-2 border-b bg-muted/5">
                                     <div className="flex gap-2">
@@ -1673,7 +1978,7 @@ export default function ResourceUploadPage() {
                               </div>
                             </FormControl>
                             <FormDescription>
-                              콘텐츠 이용 조건, 출처, 라이센스 정보를 명확히 기재해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                              콘텐츠 이용 조건, 출처, 라이센스 정보를 명확히 기재해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -1690,7 +1995,53 @@ export default function ResourceUploadPage() {
                             <FormLabel>게임 설명 및 조작법</FormLabel>
                             <FormControl>
                               <div className="border rounded-md">
-                                  {renderMediaButtons("howToUse")}
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
                                 {urlInputActive && currentEditor === "howToUse" && (
                                   <div className="p-2 border-b bg-muted/5">
                                     <div className="flex gap-2">
@@ -1744,7 +2095,7 @@ export default function ResourceUploadPage() {
                               </div>
                             </FormControl>
                             <FormDescription>
-                              게임 목표, 조작키, 게임 플레이 방법을 자세히 설명해주세요. 이미지를 추가하여 더 명확하게 설명할 수 있습니다.
+                              게임 목표, 조작키, 게임 플레이 방법을 자세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
