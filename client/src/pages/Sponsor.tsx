@@ -49,40 +49,11 @@ const Sponsor: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number>(0);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>('bank');
   
-  // 샘플 코멘트 데이터
+  // 코멘트 데이터 초기화
   useEffect(() => {
-    // 실제로는 API에서 데이터를 가져와야 함
-    const sampleComments: SponsorComment[] = [
-      {
-        id: 1,
-        userId: 1,
-        username: '엔지니어1',
-        amount: 15000,
-        tier: '파트너',
-        message: 'Webel 팀의 노고에 감사드립니다. 앞으로도 좋은 서비스 기대할게요!',
-        createdAt: '2025-04-20T12:00:00Z',
-      },
-      {
-        id: 2,
-        userId: 2,
-        username: '메이커1',
-        amount: 30000,
-        tier: '혁신가',
-        message: '3D 프린팅 커뮤니티를 위한 여러분의 노력이 정말 대단합니다. 앞으로도 응원합니다!',
-        createdAt: '2025-04-19T10:30:00Z',
-      },
-      {
-        id: 3,
-        userId: 3,
-        username: 'JohnDoe',
-        amount: 5000,
-        tier: '서포터',
-        message: '리소스 공유 기능이 매우 유용하게 사용하고 있습니다. 감사합니다!',
-        createdAt: '2025-04-18T15:45:00Z',
-      }
-    ];
-    
-    setComments(sampleComments);
+    // 실제 서비스에서는 API에서 데이터를 가져와야 함
+    // 일단 빈 배열로 초기화하여 사용자 입력으로만 코멘트가 추가됨
+    setComments([]);
   }, []);
   
   const formatDate = (dateString: string) => {
@@ -161,7 +132,8 @@ const Sponsor: React.FC = () => {
         : language === 'jp' 
           ? 'PayPalサポート' 
           : 'PayPal Support');
-      setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
+      // 코멘트 후원금 설정: 한국어-1000원, 영어-1달러, 일본어-100엔
+      setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 1000);
       setShowPaymentDialog(true);
     }
   };
@@ -176,8 +148,8 @@ const Sponsor: React.FC = () => {
       const clickHandler = () => {
         // 티어 이름 설정
         const tierName = language === 'jp' ? 'PayPalサポート' : 'PayPal Support';
-        // 금액 설정 (customAmount가 있으면 그 값, 없으면 5000)
-        const amount = customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000;
+        // 금액 설정 (customAmount가 있으면 그 값, 없으면 언어별 표준 금액)
+        const amount = customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 1000;
         
         // 결제 정보 설정 및 다이얼로그 열기
         setSelectedPaymentMethod('paypal');
@@ -766,7 +738,10 @@ const Sponsor: React.FC = () => {
                     : language === 'jp' 
                       ? 'サポートコメント' 
                       : 'Support Comment');
-                  setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
+                  // 코멘트 후원금 설정: 한국어-1000원, 영어-1달러, 일본어-100엔
+                  setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 
+                    ? customAmount 
+                    : 1000);
                   setShowPaymentDialog(true);
                 }}
               >
