@@ -228,9 +228,9 @@ const Sponsor: React.FC = () => {
   // 통화 단위 설정
   const getCurrency = () => {
     switch(language) {
-      case 'jp': return { symbol: '¥', code: 'JPY', rate: 100 }; // 환율 적용 (예: 1원 = 0.1엔)
-      case 'en': return { symbol: '$', code: 'USD', rate: 0.00075 }; // 환율 적용 (예: 1원 = 0.00075달러)
-      default: return { symbol: '₩', code: 'KRW', rate: 1 };
+      case 'jp': return { symbol: '¥', code: 'JPY', standard: true };
+      case 'en': return { symbol: '$', code: 'USD', standard: true };
+      default: return { symbol: '₩', code: 'KRW', standard: false };
     }
   };
   
@@ -238,10 +238,21 @@ const Sponsor: React.FC = () => {
   
   // 금액 표시 포맷
   const formatAmount = (amount: number) => {
-    const convertedAmount = amount * currency.rate;
-    return `${currency.symbol}${convertedAmount.toLocaleString(
+    // 외화는 환율로 환산하지 않고 1, 10, 100, 1000 단위로 표시
+    let displayAmount = amount;
+    if (currency.standard) {
+      // 한국 원화 기준 금액을 외화 표준 금액으로 변환
+      if (amount <= 1000) displayAmount = 1;
+      else if (amount <= 5000) displayAmount = 5;
+      else if (amount <= 10000) displayAmount = 10;
+      else if (amount <= 50000) displayAmount = 50;
+      else if (amount <= 100000) displayAmount = 100;
+      else displayAmount = 1000;
+    }
+    
+    return `${currency.symbol}${displayAmount.toLocaleString(
       language === 'jp' ? 'ja-JP' : language === 'en' ? 'en-US' : 'ko-KR',
-      { maximumFractionDigits: currency.code === 'KRW' ? 0 : 2 }
+      { maximumFractionDigits: 0 }
     )}`;
   };
   
@@ -542,7 +553,16 @@ const Sponsor: React.FC = () => {
                     </div>
                     <div className="mt-4 hidden">
                       <PayPalButton
-                        amount={(customAmount || 5000 * currency.rate).toString()}
+                        amount={customAmount 
+                          ? (currency.standard 
+                              ? (customAmount <= 1000 ? "1" : 
+                                 customAmount <= 5000 ? "5" : 
+                                 customAmount <= 10000 ? "10" : 
+                                 customAmount <= 50000 ? "50" : 
+                                 customAmount <= 100000 ? "100" : "1000")
+                              : customAmount.toString())
+                          : (currency.standard ? "5" : "5000")
+                        }
                         currency={currency.code}
                         intent="CAPTURE"
                       />
