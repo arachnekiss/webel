@@ -18,6 +18,76 @@
   animation: float 2s ease-in-out infinite;
 }
 
+/* 에디터 내 이미지 및 미디어 스타일 */
+.editor-preview img,
+.media-preview img {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0.5rem 0;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  object-fit: contain;
+  cursor: grab;
+}
+
+.editor-preview video,
+.media-preview video {
+  display: block;
+  max-width: 100%;
+  margin: 0.5rem 0;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.editor-preview iframe,
+.media-preview iframe {
+  display: block;
+  max-width: 100%;
+  margin: 0.5rem 0;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.url-card {
+  display: block;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.url-preview {
+  display: flex;
+  align-items: center;
+}
+
+.url-icon {
+  margin-right: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.url-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.url-title {
+  font-weight: 500;
+}
+
+.url-link {
+  font-size: 0.875rem;
+  color: #6b7280;
+  word-break: break-all;
+}
+
+/* 드래그 중인 이미지 스타일 */
+.dragging-media {
+  opacity: 0.5;
+  border: 2px dashed #3b82f6 !important;
+}
+
 /* 페이지 전환 애니메이션 */
 @keyframes fadeIn {
   from { opacity: 0; }

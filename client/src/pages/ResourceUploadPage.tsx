@@ -581,6 +581,7 @@ export default function ResourceUploadPage() {
     </div>
   );
 
+  // 미디어 파일 업로드 및 직접 에디터에 렌더링
   const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
     const files = e.target.files;
     if (!files || files.length === 0 || !currentEditor) {
@@ -589,182 +590,58 @@ export default function ResourceUploadPage() {
 
     const file = files[0];
     
-    // 파일을 FormData에 추가하고 서버에 업로드하는 대신 
-    // 바로 미리보기 이미지를 삽입합니다
-    
     // 로컬 URL 생성 (즉시 미리보기용)
     const fileUrl = URL.createObjectURL(file);
     
-    // 현재 필드의 값 가져오기
-    const currentValue = form.getValues(currentEditor as any) || '';
-    
-    // 현재 에디터 참조 요소 가져오기
+    // 현재 필드의 값과 커서 위치 가져오기
     const textAreaElement = document.querySelector(`[name="${currentEditor}"]`) as HTMLTextAreaElement;
     if (!textAreaElement) return;
     
-    // 에디터 영역의 부모 요소 찾기
-    const editorContainer = textAreaElement.closest('.form-item') as HTMLElement;
-    if (!editorContainer) return;
+    const currentValue = textAreaElement.value || '';
+    const selectionStart = textAreaElement.selectionStart || currentValue.length;
+    const selectionEnd = textAreaElement.selectionEnd || currentValue.length;
     
-    // 미리보기 컨테이너 생성 또는 찾기
-    let previewContainer = editorContainer.querySelector('.media-preview-container') as HTMLElement;
-    
-    if (!previewContainer) {
-      // 미리보기 컨테이너가 없으면 새로 생성
-      previewContainer = document.createElement('div');
-      previewContainer.className = 'media-preview-container';
-      previewContainer.style.cssText = 'margin-top: 10px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 15px; background-color: #f9fafb; overflow-y: auto;';
-      
-      // 미리보기 헤더 추가
-      const previewHeader = document.createElement('div');
-      previewHeader.className = 'media-preview-header';
-      previewHeader.style.cssText = 'margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; font-weight: 500;';
-      previewHeader.textContent = '에디터 미리보기 (실제 이미지와 미디어가 표시됩니다)';
-      
-      previewContainer.appendChild(previewHeader);
-      
-      // 미리보기 내용 영역 추가
-      const previewContent = document.createElement('div');
-      previewContent.className = 'media-preview-content';
-      previewContainer.appendChild(previewContent);
-      
-      // 에디터 아래에 미리보기 컨테이너 삽입
-      editorContainer.appendChild(previewContainer);
-    }
-    
-    // 미리보기 내용 영역 찾기
-    const previewContent = previewContainer.querySelector('.media-preview-content') as HTMLElement;
-    if (!previewContent) return;
-    
-    // 미디어 요소 생성
-    const mediaElement = document.createElement('div');
-    mediaElement.className = 'media-element';
-    mediaElement.setAttribute('draggable', 'true');
-    mediaElement.style.cssText = 'margin: 10px 0; position: relative;';
-    
-    // 미디어 타입에 따라 다른 내용 추가
-    let mediaContent = '';
+    // 미디어 타입에 따라 다른 마크다운 콘텐츠 생성
     let markdownContent = '';
     
     switch (type) {
       case 'image':
       case 'gif':
-        // 실제 이미지 삽입
-        mediaContent = `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" style="max-width: 100%; border-radius: 6px;" />`;
+        // 이미지 마크다운 생성 (실제 렌더링될 형태)
         markdownContent = `\n![${type === 'image' ? '이미지' : 'GIF'}](${fileUrl})\n`;
         break;
       case 'video':
-        // 비디오 삽입
-        mediaContent = `<video controls width="100%" style="border-radius: 6px;">
-          <source src="${fileUrl}" type="${file.type}">
-          브라우저가 비디오를 지원하지 않습니다.
-        </video>`;
+        // 비디오 HTML 태그 생성
         markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
         break;
       case 'file':
-        // 파일 다운로드 링크 삽입
-        mediaContent = `<a href="${fileUrl}" download="${file.name}" style="display: block; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8f9fa; text-decoration: none;">
-          <span style="display: flex; align-items: center;">
-            <span style="margin-right: 8px; font-size: 1.2em;">📎</span>
-            <span>${file.name}</span>
-          </span>
-        </a>`;
+        // 파일 다운로드 링크 생성
         markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
         break;
     }
     
-    // 미디어 요소 내용 설정
-    mediaElement.innerHTML = mediaContent;
+    // 마크다운을 커서 위치에 삽입
+    const newValue = currentValue.substring(0, selectionStart) + markdownContent + currentValue.substring(selectionEnd);
     
-    // 드래그 핸들러 추가
-    mediaElement.addEventListener('dragstart', (e) => {
-      const dragImage = new Image();
-      dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=';
-      e.dataTransfer.setDragImage(dragImage, 0, 0);
-      e.dataTransfer.setData('text/plain', mediaElement.id);
-      mediaElement.style.opacity = '0.5';
-    });
+    // 폼 값 업데이트 및 캐럿 위치 조정
+    form.setValue(currentEditor as any, newValue, { shouldValidate: true });
     
-    mediaElement.addEventListener('dragend', () => {
-      mediaElement.style.opacity = '1';
-    });
-    
-    // 미디어 요소 고유 ID 설정
-    const mediaId = `media-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    mediaElement.id = mediaId;
-    
-    // 미리보기 영역에 미디어 요소 추가
-    previewContent.appendChild(mediaElement);
-    
-    // 드롭 영역 설정
-    previewContent.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
-      const closestMediaElement = target.closest('.media-element');
-      
-      if (closestMediaElement && closestMediaElement !== mediaElement) {
-        const rect = closestMediaElement.getBoundingClientRect();
-        const midY = rect.y + rect.height / 2;
-        
-        if (e.clientY < midY) {
-          // 위에 놓기
-          closestMediaElement.style.borderTop = '2px solid #3b82f6';
-          closestMediaElement.style.borderBottom = '';
-        } else {
-          // 아래에 놓기
-          closestMediaElement.style.borderBottom = '2px solid #3b82f6';
-          closestMediaElement.style.borderTop = '';
-        }
+    // 에디터에 포커스 복원 및 커서 위치 조정
+    setTimeout(() => {
+      if (textAreaElement) {
+        textAreaElement.focus();
+        const newCursorPosition = selectionStart + markdownContent.length;
+        textAreaElement.setSelectionRange(newCursorPosition, newCursorPosition);
       }
-    });
+    }, 10);
     
-    previewContent.addEventListener('dragleave', (e) => {
-      const target = e.target as HTMLElement;
-      const closestMediaElement = target.closest('.media-element');
-      
-      if (closestMediaElement) {
-        closestMediaElement.style.borderTop = '';
-        closestMediaElement.style.borderBottom = '';
-      }
-    });
-    
-    previewContent.addEventListener('drop', (e) => {
-      e.preventDefault();
-      const target = e.target as HTMLElement;
-      const closestMediaElement = target.closest('.media-element');
-      
-      document.querySelectorAll('.media-element').forEach(elem => {
-        (elem as HTMLElement).style.borderTop = '';
-        (elem as HTMLElement).style.borderBottom = '';
-      });
-      
-      if (closestMediaElement && closestMediaElement !== mediaElement) {
-        const rect = closestMediaElement.getBoundingClientRect();
-        const midY = rect.y + rect.height / 2;
-        
-        if (e.clientY < midY) {
-          // 위에 놓기
-          previewContent.insertBefore(mediaElement, closestMediaElement);
-        } else {
-          // 아래에 놓기
-          previewContent.insertBefore(mediaElement, closestMediaElement.nextSibling);
-        }
-        
-        // 미리보기 영역의 내용을 기반으로 마크다운 재생성
-        updateTextareaFromPreview(previewContent, textAreaElement);
-      }
-    });
-    
-    // 원래 마크다운 방식으로도 에디터에 콘텐츠 추가
-    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
-    
-    // 입력창 초기화
+    // 파일 입력 초기화
     if (e.target) e.target.value = '';
     
     // 성공 토스트 표시
     toast({
       title: "미디어 추가 완료",
-      description: "미디어가 성공적으로 추가되었습니다.",
+      description: `${type === 'image' ? '이미지' : type === 'gif' ? 'GIF' : type === 'video' ? '동영상' : '파일'}가 에디터에 삽입되었습니다.`,
     });
   };
   
@@ -1415,6 +1292,42 @@ export default function ResourceUploadPage() {
                                       onClick={() => handleMediaImageSelect("assemblyInstructions")}
                                     >
                                       <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
                                     </Button>
                                   </div>
                                   {urlInputActive && currentEditor === "assemblyInstructions" && (
