@@ -1779,16 +1779,6 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <div className="rich-editor-content">
-                                  <div className="rich-editor-overlay" 
-                                       dangerouslySetInnerHTML={{ 
-                                          __html: field.value?.replace(
-                                            /!\[(.*?)\]\((.*?)\)/g, 
-                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                          ) || "" 
-                                       }} 
-                                  />
-                                </div>
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
@@ -1856,16 +1846,6 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <div className="rich-editor-content">
-                                  <div className="rich-editor-overlay" 
-                                       dangerouslySetInnerHTML={{ 
-                                          __html: field.value?.replace(
-                                            /!\[(.*?)\]\((.*?)\)/g, 
-                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                          ) || "" 
-                                       }} 
-                                  />
-                                </div>
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
                             </div>
@@ -1936,16 +1916,6 @@ export default function ResourceUploadPage() {
                                   field.onChange(e.target.value);
                                 }}
                               />
-                              <div className="rich-editor-content">
-                                <div className="rich-editor-overlay" 
-                                     dangerouslySetInnerHTML={{ 
-                                        __html: field.value?.replace(
-                                          /!\[(.*?)\]\((.*?)\)/g, 
-                                          '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                        ) || "" 
-                                     }} 
-                                />
-                              </div>
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
                           </div>
