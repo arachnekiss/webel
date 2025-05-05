@@ -432,12 +432,12 @@ const About: React.FC = () => {
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
-                <Link href="/my/verification" className="text-purple-600 font-medium inline-flex items-center text-sm hover:text-purple-700">
+                <Link href="/services" className="text-purple-600 font-medium inline-flex items-center text-sm hover:text-purple-700">
                   {language === 'ko' 
-                    ? '인증 방법 알아보기'
+                    ? '서비스 둘러보기'
                     : language === 'jp' 
-                      ? '認証方法を見る'
-                      : 'Learn About Verification'}
+                      ? 'サービスを見る'
+                      : 'Browse Services'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
