@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
+import TopLink from '@/components/ui/TopLink';
 import { Button } from '@/components/ui/button';
 import HeroSection from '@/components/sections/HeroSection';
 import LocationBasedServices from '@/components/sections/LocationBasedServices';
@@ -56,14 +57,14 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
         </div>
         <div className="flex gap-3">
           {/* 업로드 버튼 제거 - 관리자 대시보드로 통합 */}
-          <Link href={`/resources/type/${category}`}>
+          <TopLink href={`/resources/type/${category}`} forceReload={false}>
             <Button variant="outline" className="group rounded-lg border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700 transition-all">
               {language === 'ko' ? '더 보기' : 
                language === 'jp' ? 'もっと見る' : 
                'View more'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
-          </Link>
+          </TopLink>
         </div>
       </div>
       
@@ -86,7 +87,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
           ))
         ) : (
           items && items.map((item, idx) => (
-            <Link key={idx} href={`/resources/${item.id}`}>
+            <TopLink key={idx} href={`/resources/${item.id}`} forceReload={false}>
               <div className="group bg-white hover:bg-slate-50 rounded-xl p-5 border border-slate-200 hover:border-slate-300 flex flex-col h-full cursor-pointer transition-all hover:shadow-md">
                 <div className="w-full aspect-[4/3] bg-slate-100 rounded-lg mb-4 overflow-hidden">
                   {item.imageUrl ? (
@@ -124,7 +125,7 @@ const ResourceCategorySection: React.FC<ResourceCategorySectionProps> = ({
                   </Button>
                 </div>
               </div>
-            </Link>
+            </TopLink>
           ))
         )}
       </div>
@@ -175,14 +176,14 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
             </p>
           </div>
         </div>
-        <Link href="/resources/type/flash_game">
+        <TopLink href="/resources/type/flash_game" forceReload={false}>
           <Button variant="outline" className="group md:self-start rounded-lg border-indigo-200 bg-white/80 hover:border-indigo-400 hover:bg-indigo-50 text-indigo-700 transition-all">
             {language === 'ko' ? '더 많은 게임' : 
              language === 'jp' ? 'もっと多くのゲーム' : 
              'More games'}
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
-        </Link>
+        </TopLink>
       </div>
       
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 p-6">
@@ -197,7 +198,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
           ))
         ) : flashGames.length > 0 ? (
           flashGames.slice(0, 5).map((game, idx) => (
-            <Link key={idx} href={`/resources/${game.id}`}>
+            <TopLink key={idx} href={`/resources/${game.id}`} forceReload={false}>
               <div className="group bg-white/80 backdrop-blur-sm hover:bg-white rounded-xl p-4 border border-indigo-100 hover:border-indigo-300 flex flex-col cursor-pointer transition-all hover:shadow-md">
                 <div className="w-full aspect-square bg-indigo-50 rounded mb-3 overflow-hidden">
                   {game.imageUrl ? (
@@ -215,7 +216,7 @@ const FlashGamesSection: React.FC<FlashGamesSectionProps> = ({ isLoading = false
                 <h3 className="font-bold text-slate-800 mb-1 group-hover:text-indigo-600 transition-colors">{game.title}</h3>
                 <p className="text-slate-500 text-xs">{game.description}</p>
               </div>
-            </Link>
+            </TopLink>
           ))
         ) : (
           <div className="col-span-5 text-center py-10">
