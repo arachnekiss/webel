@@ -12,7 +12,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { db } from './db';
-import { users, services, resources, auctions, bids } from '@shared/schema';
+import { users, services, resources, auctions, bids, sponsorComments, InsertSponsorComment } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import multer from 'multer';
 import { 
