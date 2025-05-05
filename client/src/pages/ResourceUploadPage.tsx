@@ -1167,42 +1167,6 @@ export default function ResourceUploadPage() {
                                     >
                                       <ImageIcon className="h-4 w-4 mr-1" /> 이미지
                                     </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      type="button" 
-                                      className="h-8"
-                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
-                                    >
-                                      <Video className="h-4 w-4 mr-1" /> 동영상
-                                    </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      type="button" 
-                                      className="h-8"
-                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
-                                    >
-                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
-                                    </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      type="button" 
-                                      className="h-8"
-                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
-                                    >
-                                      <Link2 className="h-4 w-4 mr-1" /> URL
-                                    </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      type="button" 
-                                      className="h-8"
-                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
-                                    >
-                                      <Smile className="h-4 w-4 mr-1" /> GIF
-                                    </Button>
                                   </div>
                                   {urlInputActive && currentEditor === "assemblyInstructions" && (
                                     <div className="p-2 border-b bg-muted/5">
@@ -1243,7 +1207,7 @@ export default function ResourceUploadPage() {
                                   )}
                                   <div className="flex flex-col">
                                     <Textarea
-                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
+                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
                                       className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                       {...field}
                                       value={field.value || ""}
