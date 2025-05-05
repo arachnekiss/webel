@@ -477,13 +477,17 @@ const AiAssembly = () => {
   };
 
   if (showChatInterface) {
+    const { language } = useLanguage();
+    
     return (
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col h-[calc(100vh-120px)]">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold flex items-center">
               <Lightbulb className="h-6 w-6 text-primary mr-2" />
-              AI 조립 비서
+              {language === 'ko' ? 'AI 조립 비서' :
+               language === 'jp' ? 'AI組立アシスタント' :
+               'AI Assembly Assistant'}
             </h1>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="bg-blue-50 text-blue-700 flex items-center gap-1">
@@ -497,7 +501,9 @@ const AiAssembly = () => {
                 className="text-gray-500"
               >
                 <ArrowRight className="h-4 w-4 mr-1" />
-                종료
+                {language === 'ko' ? '종료' :
+                 language === 'jp' ? '終了' :
+                 'Exit'}
               </Button>
             </div>
           </div>
@@ -543,7 +549,11 @@ const AiAssembly = () => {
                     <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
                   </div>
-                  <span className="text-sm text-slate-500 ml-2">AI가 응답 준비 중...</span>
+                  <span className="text-sm text-slate-500 ml-2">
+                    {language === 'ko' ? 'AI가 응답 준비 중...' :
+                     language === 'jp' ? 'AIが応答を準備中...' :
+                     'AI is preparing a response...'}
+                  </span>
                 </div>
               </div>
             )}
@@ -554,7 +564,11 @@ const AiAssembly = () => {
             {/* 이미지 업로드 진행 상태 표시 */}
             {isUploadingImage && (
               <div className="mb-3">
-                <p className="text-sm text-slate-500 mb-1">이미지 업로드 중... {uploadProgress}%</p>
+                <p className="text-sm text-slate-500 mb-1">
+                  {language === 'ko' ? `이미지 업로드 중... ${uploadProgress}%` :
+                   language === 'jp' ? `画像アップロード中... ${uploadProgress}%` :
+                   `Uploading image... ${uploadProgress}%`}
+                </p>
                 <Progress value={uploadProgress} className="h-2" />
               </div>
             )}
@@ -574,7 +588,9 @@ const AiAssembly = () => {
                     onClick={() => setSelectedFile(null)}
                   >
                     <XCircle className="h-3.5 w-3.5 mr-1" />
-                    취소
+                    {language === 'ko' ? '취소' :
+                     language === 'jp' ? 'キャンセル' :
+                     'Cancel'}
                   </Button>
                   <Button
                     size="sm"
@@ -583,7 +599,9 @@ const AiAssembly = () => {
                     disabled={isLoading}
                   >
                     <UploadCloud className="h-3.5 w-3.5 mr-1" />
-                    업로드
+                    {language === 'ko' ? '업로드' :
+                     language === 'jp' ? 'アップロード' :
+                     'Upload'}
                   </Button>
                 </div>
               </div>
@@ -606,7 +624,9 @@ const AiAssembly = () => {
                     size="icon"
                     className="h-10 w-10 rounded-full"
                     disabled={isLoading || isRecording || !!selectedFile}
-                    aria-label="Upload image"
+                    aria-label={language === 'ko' ? '이미지 업로드' :
+                                language === 'jp' ? '画像アップロード' :
+                                'Upload image'}
                     asChild
                   >
                     <div>
@@ -623,7 +643,13 @@ const AiAssembly = () => {
                   className={`h-10 w-10 rounded-full ${isRecording ? 'bg-red-50 border-red-200' : ''}`}
                   onClick={isRecording ? stopRecording : startRecording}
                   disabled={isLoading || !!selectedFile}
-                  aria-label={isRecording ? "Stop recording" : "Start recording"}
+                  aria-label={isRecording ? 
+                    (language === 'ko' ? '녹음 중지' : 
+                     language === 'jp' ? '録音停止' : 
+                     'Stop recording') : 
+                    (language === 'ko' ? '녹음 시작' : 
+                     language === 'jp' ? '録音開始' : 
+                     'Start recording')}
                 >
                   <Mic className={`h-5 w-5 ${isRecording ? 'text-red-500 animate-pulse' : 'text-slate-500'}`} />
                 </Button>
@@ -636,8 +662,12 @@ const AiAssembly = () => {
                   className={`h-10 w-10 rounded-full ${isGeneratingImage ? 'bg-purple-50 border-purple-200' : ''}`}
                   onClick={handleGenerateImage}
                   disabled={isLoading || isRecording || !!selectedFile || messages.length === 0}
-                  aria-label="Generate image"
-                  title="AI 조립 이미지 생성"
+                  aria-label={language === 'ko' ? '이미지 생성' :
+                              language === 'jp' ? '画像生成' :
+                              'Generate image'}
+                  title={language === 'ko' ? 'AI 조립 이미지 생성' :
+                         language === 'jp' ? 'AI組立画像生成' :
+                         'Generate AI assembly image'}
                 >
                   <Wand2 className={`h-5 w-5 ${isGeneratingImage ? 'text-purple-500 animate-pulse' : 'text-slate-500'}`} />
                 </Button>
@@ -645,7 +675,9 @@ const AiAssembly = () => {
               
               <div className="relative flex-1">
                 <Textarea
-                  placeholder="메시지를 입력하세요..."
+                  placeholder={language === 'ko' ? '메시지를 입력하세요...' :
+                               language === 'jp' ? 'メッセージを入力してください...' :
+                               'Type your message...'}
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => {
@@ -665,7 +697,9 @@ const AiAssembly = () => {
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputValue.trim() || isRecording}
                 className="h-10 w-10 rounded-full p-2"
-                aria-label="Send message"
+                aria-label={language === 'ko' ? '메시지 보내기' :
+                            language === 'jp' ? 'メッセージを送信' :
+                            'Send message'}
               >
                 <Send className="h-5 w-5" />
               </Button>
