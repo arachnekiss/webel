@@ -5,10 +5,11 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { LocationProvider } from '@/contexts/LocationContext';
 import { LanguageProvider, useLanguage } from '@/contexts/LanguageContext';
-import { AuthProvider } from '@/hooks/use-auth';
+import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { useDeviceDetect } from './lib/useDeviceDetect';
 import { usePageScroll } from '@/hooks/use-page-scroll';
 import { Switch, Route, useLocation } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
 // 컴포넌트
 import Header from '@/components/layout/Header';
@@ -232,24 +233,63 @@ function Router() {
                   </Suspense>
                 </Route>
                 
-                {/* 관리자 경로 별도 처리 */}
+                {/* 관리자 경로 별도 처리 - 관리자 권한 검사를 라우터 수준에서 처리 */}
                 {appRoutes
                   .filter(route => 
                     route.path.startsWith('/admin/')
                   )
-                  .map(route => (
-                    <Route 
-                      key={`admin-${prefix}${route.path}`}
-                      path={`${prefix}${route.path}`}
-                    >
-                      <Suspense fallback={<div className="flex flex-col items-center justify-center min-h-screen">
-                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
-                          <p className="text-center text-muted-foreground">관리자 페이지 로딩 중...</p>
-                        </div>}>
-                        <route.component {...route.props} />
-                      </Suspense>
-                    </Route>
-                  ))
+                  .map(route => {
+                    // 관리자 페이지 컴포넌트를 래핑하는 함수
+                    const AdminPageWrapper = () => {
+                      const { user, isAdmin, isLoading } = useAuth();
+                      const { toast } = useToast();
+                      const [, setLocation] = useLocation();
+                      
+                      // 디버깅용 로그 추가
+                      console.log("[AdminRoute] 상태:", { isLoading, user, isAdmin });
+                      
+                      // 로딩 중일 때는 로딩 인디케이터 표시
+                      if (isLoading) {
+                        return (
+                          <div className="flex flex-col items-center justify-center min-h-screen">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
+                            <p className="text-center text-muted-foreground">관리자 권한 확인 중...</p>
+                          </div>
+                        );
+                      }
+                      
+                      // 사용자가 로그인하지 않았거나 관리자가 아닌 경우
+                      if (!user || !isAdmin) {
+                        // 접근 제한 메시지 표시
+                        toast({
+                          title: "접근 제한",
+                          description: "관리자 권한이 필요한 페이지입니다.",
+                          variant: "destructive",
+                        });
+                        
+                        // 홈으로 리디렉션
+                        setLocation('/');
+                        return null;
+                      }
+                      
+                      // 관리자인 경우 컴포넌트 렌더링
+                      return <route.component {...route.props} />;
+                    };
+                    
+                    return (
+                      <Route 
+                        key={`admin-${prefix}${route.path}`}
+                        path={`${prefix}${route.path}`}
+                      >
+                        <Suspense fallback={<div className="flex flex-col items-center justify-center min-h-screen">
+                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mb-4"></div>
+                            <p className="text-center text-muted-foreground">관리자 페이지 로딩 중...</p>
+                          </div>}>
+                          <AdminPageWrapper />
+                        </Suspense>
+                      </Route>
+                    );
+                  })
                 }
                 
                 {/* 다른 일반 페이지는 appRoutes에서 가져온 정적 경로로 처리 */}
