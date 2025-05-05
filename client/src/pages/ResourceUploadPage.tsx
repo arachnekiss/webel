@@ -19,12 +19,14 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
   
   // 정규식 패턴
   const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
+  const uuidPattern = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
   const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
   const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
   const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
   
-  // 이미지 드래그 기능 추가
+  // 이미지 드래그 기능 추가 (요약 모드에서는 비활성화)
   useEffect(() => {
+    if (compact) return; // 요약 모드에서는 드래그 안함
     const enableDragAndDrop = () => {
       const container = document.querySelector('.media-preview');
       if (!container) return;
