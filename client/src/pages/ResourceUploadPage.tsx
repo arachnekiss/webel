@@ -515,6 +515,21 @@ export default function ResourceUploadPage() {
     setUrlInputActive(true);
     setTimeout(() => urlInputRef.current?.focus(), 100);
   };
+  
+  // 미디어 버튼 렌더링 함수 - 이미지 버튼만 표시
+  const renderMediaButtons = (fieldName: string) => (
+    <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaImageSelect(fieldName)}
+      >
+        <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+      </Button>
+    </div>
+  );
 
   const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
     const files = e.target.files;
