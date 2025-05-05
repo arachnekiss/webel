@@ -329,6 +329,85 @@ export default function ResourceUploadPage() {
       console.error("이미지 input 참조 실패");
     }
   };
+  
+  // 이미지 클릭 핸들러 - 클릭한 이미지 편집/관리 (예: 크기 조정, 삭제, 캡션 추가 등)
+  const handleImageClick = useCallback((imageSrc: string) => {
+    console.log("이미지 클릭됨:", imageSrc);
+    
+    // 여기에 이미지 편집 모달 표시 등의 코드를 추가할 수 있습니다.
+    toast({
+      title: "이미지 선택됨",
+      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+    });
+  }, [toast]);
+  
+  // 이미지 위치 이동 핸들러 - 드래그 앤 드롭으로 이미지 순서 변경
+  const handleImageMove = useCallback((
+    draggedImageSrc: string, 
+    targetImageSrc: string, 
+    direction: 'before' | 'after'
+  ) => {
+    if (!currentEditor) return;
+    
+    console.log(`이미지 이동: ${draggedImageSrc} -> ${targetImageSrc} (${direction})`);
+    
+    // 현재 에디터 내용 가져오기
+    const currentContent = form.getValues(currentEditor as any) || '';
+    
+    // 마크다운 이미지 형식(![]()) 찾기
+    const regex = /!\[(.*?)\]\((.*?)\)/g;
+    const matches: {alt: string, src: string, full: string, index: number}[] = [];
+    
+    let match;
+    while ((match = regex.exec(currentContent)) !== null) {
+      matches.push({
+        full: match[0],
+        alt: match[1],
+        src: match[2],
+        index: match.index
+      });
+    }
+    
+    // 드래그한 이미지와 타겟 이미지 찾기
+    const draggedImage = matches.find(m => m.src === draggedImageSrc);
+    const targetImage = matches.find(m => m.src === targetImageSrc);
+    
+    if (!draggedImage || !targetImage) {
+      console.error("이미지를 찾을 수 없음");
+      return;
+    }
+    
+    // 원본 텍스트에서 드래그한 이미지 제거
+    let newContent = currentContent.substring(0, draggedImage.index) + 
+                     currentContent.substring(draggedImage.index + draggedImage.full.length);
+    
+    // 타겟 이미지 위치 업데이트 (draggedImage를 제거한 후 인덱스가 변경될 수 있음)
+    const targetIndex = newContent.indexOf(targetImage.full);
+    if (targetIndex === -1) {
+      console.error("타겟 이미지 위치를 찾을 수 없음");
+      return;
+    }
+    
+    // 새로운 위치에 드래그한 이미지 삽입
+    if (direction === 'before') {
+      newContent = newContent.substring(0, targetIndex) + 
+                  draggedImage.full + '\n\n' + 
+                  newContent.substring(targetIndex);
+    } else {
+      const insertIndex = targetIndex + targetImage.full.length;
+      newContent = newContent.substring(0, insertIndex) + 
+                  '\n\n' + draggedImage.full + 
+                  newContent.substring(insertIndex);
+    }
+    
+    // 폼 업데이트
+    form.setValue(currentEditor as any, newContent, { shouldValidate: true });
+    
+    toast({
+      title: "이미지 위치 변경됨",
+      description: "이미지 순서가 업데이트되었습니다.",
+    });
+  }, [currentEditor, form, toast]);
 
   const handleMediaGifSelect = (fieldName: string) => {
     console.log("GIF 버튼 클릭: ", fieldName);
@@ -713,12 +792,16 @@ export default function ResourceUploadPage() {
     placeholder,
     name,
     onImageClick,
+    onImageMove,
+    editable = false
   }: { 
     value: string; 
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void | Promise<void>;
     placeholder: string;
     name: string;
     onImageClick?: (src: string) => void;
+    onImageMove?: (draggedImageSrc: string, targetImageSrc: string, direction: 'before' | 'after') => void;
+    editable?: boolean;
   }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
@@ -787,23 +870,110 @@ export default function ResourceUploadPage() {
       // 오버레이에 처리된 내용 표시
       overlay.innerHTML = processContent(value || "");
       
-      // 이미지 클릭 이벤트 설정
+      // 이미지 클릭 및 드래그 이벤트 설정
       overlay.querySelectorAll('img').forEach(img => {
-        img.addEventListener('click', () => {
-          if (onImageClick) {
-            onImageClick(img.getAttribute('src') || "");
+        // 편집 가능한 경우만 이벤트 추가
+        if (editable) {
+          // 클릭 이벤트 설정
+          img.addEventListener('click', () => {
+            if (onImageClick) {
+              onImageClick(img.getAttribute('src') || "");
+            }
+          });
+          
+          // 드래그 이벤트 설정
+          img.addEventListener('dragstart', (e) => {
+            if (e.dataTransfer) {
+              // 드래그 중인 이미지 표시
+              img.classList.add('dragging-media');
+              
+              // 이미지 URL을 드래그 데이터로 전달
+              const src = img.getAttribute('src') || "";
+              e.dataTransfer.setData('text/plain', src);
+              
+              // 드래그 이미지 사용자 정의 (이미지의 작은 버전)
+              const dragImage = new Image();
+              dragImage.src = src;
+              dragImage.style.opacity = '0.7';
+              dragImage.style.width = '100px';
+              dragImage.style.height = 'auto';
+              dragImage.style.position = 'absolute';
+              dragImage.style.left = '-9999px';
+              dragImage.style.top = '-9999px';
+              
+              document.body.appendChild(dragImage);
+              e.dataTransfer.setDragImage(dragImage, 50, 30);
+              
+              // 1ms 후 드래그 이미지 제거
+              setTimeout(() => {
+                document.body.removeChild(dragImage);
+              }, 1);
+            }
+          });
+          
+          img.addEventListener('dragend', (e) => {
+            img.classList.remove('dragging-media');
+          });
+        }
+      });
+      
+      // 이미지 드래그 앤 드롭 영역 설정 (컨테이너에 적용)
+      if (editable && onImageMove) {
+        // 드래그 오버 이벤트 (시각적 피드백)
+        overlay.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          
+          // 드롭 위치에 더 다양한 시각적 피드백을 제공할 수 있음
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'IMG') {
+            const rect = target.getBoundingClientRect();
+            const middle = rect.top + rect.height / 2;
+            
+            // 마우스 위치에 따라 이미지 위/아래 표시
+            target.classList.remove('drop-before', 'drop-after');
+            if (e.clientY < middle) {
+              target.classList.add('drop-before');
+            } else {
+              target.classList.add('drop-after');
+            }
           }
         });
         
-        // 드래그 이벤트 설정
-        img.addEventListener('dragstart', (e) => {
-          img.classList.add('dragging-media');
+        // 드래그 리브 이벤트 (시각적 피드백 제거)
+        overlay.addEventListener('dragleave', (e) => {
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'IMG') {
+            target.classList.remove('drop-before', 'drop-after');
+          }
         });
         
-        img.addEventListener('dragend', (e) => {
-          img.classList.remove('dragging-media');
+        // 드롭 이벤트
+        overlay.addEventListener('drop', (e) => {
+          e.preventDefault();
+          
+          // 드롭된 텍스트 데이터 (이미지 URL) 가져오기
+          const draggedImageSrc = e.dataTransfer?.getData('text/plain');
+          if (!draggedImageSrc) return;
+          
+          // 드롭 대상 요소 찾기
+          const target = e.target as HTMLElement;
+          if (target.tagName === 'IMG') {
+            const targetImageSrc = target.getAttribute('src') || "";
+            
+            // 드롭 방향 계산 (이미지 위/아래)
+            const rect = target.getBoundingClientRect();
+            const middle = rect.top + rect.height / 2;
+            const direction = e.clientY < middle ? 'before' : 'after';
+            
+            // 콜백 호출
+            console.log(`이미지 이동: ${draggedImageSrc} -> ${targetImageSrc} (${direction})`);
+            onImageMove(draggedImageSrc, targetImageSrc, direction);
+            
+            // 시각적 피드백 제거
+            target.classList.remove('drop-before', 'drop-after');
+          }
         });
-      });
+      }
       
       // 텍스트 영역 크기 자동 조절
       const adjustHeight = () => {
@@ -822,7 +992,7 @@ export default function ResourceUploadPage() {
       return () => {
         textarea.removeEventListener('input', adjustHeight);
       };
-    }, [value, processContent, onImageClick]);
+    }, [value, processContent, onImageClick, onImageMove, editable]);
     
     // 스크롤 동기화
     useEffect(() => {
@@ -881,6 +1051,13 @@ export default function ResourceUploadPage() {
         onChange={onChange}
         placeholder={placeholder}
         name={name}
+        editable={true}
+        onImageClick={(src) => {
+          toast({
+            title: "이미지 선택됨",
+            description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+          });
+        }}
       />
     );
   };

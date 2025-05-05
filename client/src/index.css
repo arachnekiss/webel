@@ -32,6 +32,19 @@
   z-index: 50;
 }
 
+/* 이미지 드롭 위치 표시 */
+.drop-before {
+  border-top: 3px dashed #3b82f6 !important;
+  padding-top: 6px;
+  margin-top: -6px;
+}
+
+.drop-after {
+  border-bottom: 3px dashed #3b82f6 !important;
+  padding-bottom: 6px;
+  margin-bottom: -6px;
+}
+
 .media-preview .youtube-embed {
   margin: 1rem 0;
   width: 100%;
