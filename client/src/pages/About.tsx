@@ -28,8 +28,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const About: React.FC = () => {
+  const { language } = useLanguage();
   return (
     <div className="relative overflow-hidden">
       {/* 배경 요소 */}
@@ -43,11 +45,19 @@ const About: React.FC = () => {
           <div className="mb-16 max-w-3xl mx-auto">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 text-slate-800">
-                Webel – 누구나 만들 수 있도록
+                {language === 'ko' 
+                  ? 'Webel – 누구나 만들 수 있도록'
+                  : language === 'jp' 
+                    ? 'Webel – 誰でも作れるように'
+                    : 'Webel – Making Creation Accessible to Everyone'}
               </h1>
               
               <p className="text-lg text-slate-600 mb-8 leading-relaxed">
-                아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 메이커 플랫폼입니다.
+                {language === 'ko' 
+                  ? '아이디어를 가진 누구나 원하는 것을 직접 만들어낼 수 있도록 돕는 오픈 메이커 플랫폼입니다.'
+                  : language === 'jp' 
+                    ? 'アイデアを持つ誰もが自分の欲しいものを直接作り出せるよう支援するオープンメーカープラットフォームです。'
+                    : 'An open maker platform that helps anyone with an idea to create what they want.'}
               </p>
             </div>
             
@@ -55,40 +65,80 @@ const About: React.FC = () => {
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                 <div className="flex items-center gap-3 mb-3 text-blue-600">
                   <LayoutGrid className="h-5 w-5" />
-                  <h3 className="font-medium">다양한 리소스</h3>
+                  <h3 className="font-medium">
+                    {language === 'ko' 
+                      ? '다양한 리소스'
+                      : language === 'jp' 
+                        ? '多様なリソース'
+                        : 'Various Resources'}
+                  </h3>
                 </div>
                 <p className="text-slate-600 text-sm">
-                  하드웨어 설계도, 소프트웨어, 3D 모델링, AI 모델 등 다양한 디지털 자료를 제공하며, 회원가입 없이도 즉시 다운로드할 수 있습니다.
+                  {language === 'ko' 
+                    ? '하드웨어 설계도, 소프트웨어, 3D 모델링, AI 모델 등 다양한 디지털 자료를 제공하며, 회원가입 없이도 즉시 다운로드할 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'ハードウェア設計図、ソフトウェア、3Dモデリング、AIモデルなど多様なデジタル資料を提供し、会員登録なしでもすぐにダウンロードできます。'
+                      : 'Provides various digital materials such as hardware designs, software, 3D modeling, and AI models that can be downloaded immediately without registration.'}
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                 <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <CircleUser className="h-5 w-5" />
-                  <h3 className="font-medium">전문 엔지니어</h3>
+                  <h3 className="font-medium">
+                    {language === 'ko' 
+                      ? '전문 엔지니어'
+                      : language === 'jp' 
+                        ? '専門エンジニア'
+                        : 'Professional Engineers'}
+                  </h3>
                 </div>
                 <p className="text-slate-600 text-sm">
-                  맞춤형 제작이 필요할 경우, 전문 엔지니어에게 제작을 요청하고 안내받을 수 있습니다.
+                  {language === 'ko' 
+                    ? '맞춤형 제작이 필요할 경우, 전문 엔지니어에게 제작을 요청하고 안내받을 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'カスタム製作が必要な場合、専門エンジニアに製作を依頼し、ガイダンスを受けることができます。'
+                      : 'If custom production is needed, you can request assistance from professional engineers for guidance and help.'}
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                 <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <Factory className="h-5 w-5" />
-                  <h3 className="font-medium">제조업체 연결</h3>
+                  <h3 className="font-medium">
+                    {language === 'ko' 
+                      ? '제조업체 연결'
+                      : language === 'jp' 
+                        ? 'メーカーとの連携'
+                        : 'Manufacturer Connections'}
+                  </h3>
                 </div>
                 <p className="text-slate-600 text-sm">
-                  프로토타입 완성 후 대량생산을 원할 때, 조건에 맞는 제조업체를 찾고 연결받을 수 있습니다.
+                  {language === 'ko' 
+                    ? '프로토타입 완성 후 대량생산을 원할 때, 조건에 맞는 제조업체를 찾고 연결받을 수 있습니다.'
+                    : language === 'jp' 
+                      ? 'プロトタイプ完成後に量産を希望する場合、条件に合うメーカーを見つけて連携することができます。'
+                      : 'When you want mass production after completing a prototype, you can find and connect with suitable manufacturers.'}
                 </p>
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                 <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <ShieldCheck className="h-5 w-5" />
-                  <h3 className="font-medium">신뢰할 수 있는 거래</h3>
+                  <h3 className="font-medium">
+                    {language === 'ko' 
+                      ? '신뢰할 수 있는 거래'
+                      : language === 'jp' 
+                        ? '信頼できる取引'
+                        : 'Trusted Transactions'}
+                  </h3>
                 </div>
                 <p className="text-slate-600 text-sm">
-                  본인 인증 시스템을 통해 안전한 거래 환경을 제공하고, 사용자 간 신뢰를 구축합니다.
+                  {language === 'ko' 
+                    ? '본인 인증 시스템을 통해 안전한 거래 환경을 제공하고, 사용자 간 신뢰를 구축합니다.'
+                    : language === 'jp' 
+                      ? '本人認証システムを通じて安全な取引環境を提供し、ユーザー間の信頼を構築します。'
+                      : 'Provides a secure transaction environment through identity verification systems and builds trust between users.'}
                 </p>
               </div>
             </div>
@@ -97,13 +147,21 @@ const About: React.FC = () => {
               <div className="flex justify-center gap-4">
                 <Link href="/resources">
                   <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors inline-flex items-center">
-                    리소스 둘러보기
+                    {language === 'ko' 
+                      ? '리소스 둘러보기'
+                      : language === 'jp' 
+                        ? 'リソースを見る'
+                        : 'Browse Resources'}
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </button>
                 </Link>
                 <Link href="/services/type/engineer">
                   <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-medium py-3 px-6 rounded-lg transition-colors">
-                    엔지니어 찾기
+                    {language === 'ko' 
+                      ? '엔지니어 찾기'
+                      : language === 'jp' 
+                        ? 'エンジニアを探す'
+                        : 'Find Engineers'}
                   </button>
                 </Link>
               </div>
@@ -118,18 +176,36 @@ const About: React.FC = () => {
             <div className="absolute -left-10 -bottom-10 w-60 h-60 bg-indigo-500/5 rotate-12 rounded-3xl"></div>
             
             <div className="relative">
-              <h2 className="text-4xl font-bold mb-8 text-slate-800">Webel의 핵심 목적</h2>
+              <h2 className="text-4xl font-bold mb-8 text-slate-800">
+                {language === 'ko' 
+                  ? 'Webel의 핵심 목적'
+                  : language === 'jp' 
+                    ? 'Webelの核心目的'
+                    : 'Core Purpose of Webel'}
+              </h2>
               <div className="max-w-3xl">
                 <p className="text-lg text-slate-600 mb-6">
-                  Webel의 설립 목적은 명확합니다.
+                  {language === 'ko' 
+                    ? 'Webel의 설립 목적은 명확합니다.'
+                    : language === 'jp' 
+                      ? 'Webelの設立目的は明確です。'
+                      : 'The founding purpose of Webel is clear.'}
                 </p>
                 <div className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm mb-6 border-l-4 border-blue-500">
                   <p className="text-2xl font-bold text-blue-700">
-                    기술 리소스가 자유롭게 순환하고, 엔지니어가 성장하며, 누구나 원하는 것을 생산할 수 있는 사회를 만드는 것.
+                    {language === 'ko' 
+                      ? '기술 리소스가 자유롭게 순환하고, 엔지니어가 성장하며, 누구나 원하는 것을 생산할 수 있는 사회를 만드는 것.'
+                      : language === 'jp' 
+                        ? '技術リソースが自由に循環し、エンジニアが成長し、誰もが望むものを生産できる社会を作ること。'
+                        : 'To create a society where technology resources circulate freely, engineers grow, and anyone can produce what they want.'}
                   </p>
                 </div>
                 <p className="text-lg text-slate-600">
-                  이는 단순히 도구와 기능을 제공하는 것을 넘어, 소비자와 엔지니어, 제조업체가 함께 성장하는 순환형 생태계를 실현하려는 시도입니다.
+                  {language === 'ko' 
+                    ? '이는 단순히 도구와 기능을 제공하는 것을 넘어, 소비자와 엔지니어, 제조업체가 함께 성장하는 순환형 생태계를 실현하려는 시도입니다.'
+                    : language === 'jp' 
+                      ? 'これは単にツールと機能を提供することを超え、消費者とエンジニア、メーカーが共に成長する循環型エコシステムを実現する試みです。'
+                      : 'This goes beyond simply providing tools and features; it is an attempt to realize a circular ecosystem where consumers, engineers, and manufacturers grow together.'}
                 </p>
               </div>
             </div>
@@ -139,10 +215,26 @@ const About: React.FC = () => {
         {/* 기능 섹션 */}
         <section className="mb-24">
           <div className="text-center mb-14">
-            <Badge className="mb-4 px-3 py-1.5 text-sm">플랫폼 기능</Badge>
-            <h2 className="text-4xl font-bold mb-4">Webel에서 할 수 있는 일</h2>
+            <Badge className="mb-4 px-3 py-1.5 text-sm">
+              {language === 'ko' 
+                ? '플랫폼 기능'
+                : language === 'jp' 
+                  ? 'プラットフォーム機能'
+                  : 'Platform Features'}
+            </Badge>
+            <h2 className="text-4xl font-bold mb-4">
+              {language === 'ko' 
+                ? 'Webel에서 할 수 있는 일'
+                : language === 'jp' 
+                  ? 'Webelでできること'
+                  : 'What You Can Do with Webel'}
+            </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-              리소스 공유부터 전문가 연결, 제품 생산까지 원스톱으로 제공하는 Webel의 다양한 기능을 확인하세요.
+              {language === 'ko' 
+                ? '리소스 공유부터 전문가 연결, 제품 생산까지 원스톱으로 제공하는 Webel의 다양한 기능을 확인하세요.'
+                : language === 'jp' 
+                  ? 'リソース共有から専門家の連携、製品生産まで一括で提供するWebelの多様な機能をご確認ください。'
+                  : 'Check out Webel\'s various features that provide everything from resource sharing to expert connections and product manufacturing in one place.'}
             </p>
           </div>
           
@@ -429,13 +521,21 @@ const About: React.FC = () => {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/resources">
                 <button className="bg-white text-blue-700 font-medium py-3 px-8 rounded-lg hover:bg-blue-50 transition-colors inline-flex items-center">
-                  리소스 둘러보기
+                  {language === 'ko' 
+                    ? '리소스 둘러보기'
+                    : language === 'jp' 
+                      ? 'リソースを見る'
+                      : 'Browse Resources'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </button>
               </Link>
               <Link href="/services/register">
                 <button className="bg-blue-700/30 border border-blue-400/30 text-white font-medium py-3 px-8 rounded-lg hover:bg-blue-700/40 transition-colors">
-                  서비스 등록하기
+                  {language === 'ko' 
+                    ? '서비스 등록하기'
+                    : language === 'jp' 
+                      ? 'サービスを登録する'
+                      : 'Register Service'}
                 </button>
               </Link>
             </div>
