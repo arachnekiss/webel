@@ -1027,12 +1027,14 @@ export default function ResourceUploadPage() {
     value, 
     onChange, 
     placeholder,
-    name 
+    name,
+    onImageClick
   }: { 
     value: string; 
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void | Promise<void>;
     placeholder: string;
     name: string;
+    onImageClick?: (src: string) => void;
   }) => {
     // 리치 미디어 에디터로 전환
     return (
@@ -1042,12 +1044,12 @@ export default function ResourceUploadPage() {
         placeholder={placeholder}
         name={name}
         editable={true}
-        onImageClick={(src) => {
+        onImageClick={onImageClick || ((src) => {
           toast({
             title: "이미지 선택됨",
             description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
           });
-        }}
+        })}
       />
     );
   };
@@ -1542,17 +1544,13 @@ export default function ResourceUploadPage() {
                                   onChange={async (e) => {
                                     field.onChange(e.target.value);
                                   }}
+                                  onImageClick={(src) => {
+                                    toast({
+                                      title: "이미지 선택됨",
+                                      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                    });
+                                  }}
                                 />
-                                <div className="rich-editor-content">
-                                  <div className="rich-editor-overlay" 
-                                       dangerouslySetInnerHTML={{ 
-                                          __html: field.value?.replace(
-                                            /!\[(.*?)\]\((.*?)\)/g, 
-                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                          ) || "" 
-                                       }} 
-                                  />
-                                </div>
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
@@ -1620,16 +1618,6 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <div className="rich-editor-content">
-                                  <div className="rich-editor-overlay" 
-                                       dangerouslySetInnerHTML={{ 
-                                          __html: field.value?.replace(
-                                            /!\[(.*?)\]\((.*?)\)/g, 
-                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                          ) || "" 
-                                       }} 
-                                  />
-                                </div>
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
                             </div>
@@ -1700,16 +1688,6 @@ export default function ResourceUploadPage() {
                                   field.onChange(e.target.value);
                                 }}
                               />
-                              <div className="rich-editor-content">
-                                <div className="rich-editor-overlay" 
-                                     dangerouslySetInnerHTML={{ 
-                                        __html: field.value?.replace(
-                                          /!\[(.*?)\]\((.*?)\)/g, 
-                                          '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
-                                        ) || "" 
-                                     }} 
-                                />
-                              </div>
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
                           </div>
