@@ -7,46 +7,11 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
+import MediaPreview from "@/components/ui/MediaPreview";
 
-// 멀티미디어 미리보기 컴포넌트 - 텍스트 에디터 내에 직접 렌더링
-interface MediaPreviewProps {
-  content: string;
+interface FileWithPreview extends File {
+  preview: string;
 }
-
-const MediaPreview = ({ content }: MediaPreviewProps) => {
-  if (!content.trim()) return null;
-  
-  // 정규식 패턴
-  const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
-  const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
-  const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
-  const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
-  
-  // 이미지 드래그 기능 추가
-  useEffect(() => {
-    const enableDragAndDrop = () => {
-      const container = document.querySelector('.media-preview');
-      if (!container) return;
-      
-      // 모든 이미지에 드래그 속성 추가
-      const images = container.querySelectorAll('img');
-      images.forEach(img => {
-        img.setAttribute('draggable', 'true');
-        img.classList.add('editor-img');
-        
-        // 드래그 시작 이벤트
-        img.addEventListener('dragstart', (e) => {
-          if (!e.dataTransfer) return;
-          img.classList.add('dragging-media');
-          e.dataTransfer.setData('text/plain', 'dragging-image');
-        });
-        
-        // 드래그 종료 이벤트
-        img.addEventListener('dragend', () => {
-          img.classList.remove('dragging-media');
-        });
-      });
-    };
     
     // 컴포넌트 마운트 후 이미지 드래그 기능 추가
     setTimeout(enableDragAndDrop, 100);
