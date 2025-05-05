@@ -585,9 +585,19 @@ const About: React.FC = () => {
                 <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6">
                   <Download className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-slate-800">자원 공유</h3>
+                <h3 className="text-xl font-semibold mb-3 text-slate-800">
+                  {language === 'ko' 
+                    ? '자원 공유'
+                    : language === 'jp' 
+                      ? '資源共有'
+                      : 'Resource Sharing'}
+                </h3>
                 <p className="text-slate-600">
-                  사용자는 다양한 리소스를 자유롭게 활용하여 제품 제작을 시작합니다. 이 과정에서 새로운 아이디어가 발생하고 공유됩니다.
+                  {language === 'ko' 
+                    ? '사용자는 다양한 리소스를 자유롭게 활용하여 제품 제작을 시작합니다. 이 과정에서 새로운 아이디어가 발생하고 공유됩니다.'
+                    : language === 'jp' 
+                      ? 'ユーザーは様々なリソースを自由に活用して製品制作を始めます。この過程で新しいアイデアが生まれ、共有されます。'
+                      : 'Users freely utilize various resources to start product creation. New ideas emerge and are shared during this process.'}
                 </p>
               </div>
             </div>
@@ -598,9 +608,19 @@ const About: React.FC = () => {
                 <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6">
                   <Users className="h-8 w-8 text-indigo-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-slate-800">기술 협력</h3>
+                <h3 className="text-xl font-semibold mb-3 text-slate-800">
+                  {language === 'ko' 
+                    ? '기술 협력'
+                    : language === 'jp' 
+                      ? '技術協力'
+                      : 'Technical Collaboration'}
+                </h3>
                 <p className="text-slate-600">
-                  제작 과정에서 엔지니어의 기술과 경험이 더해져 더 나은 결과물이 탄생합니다. 이 과정에서 모두의 역량이 성장합니다.
+                  {language === 'ko' 
+                    ? '제작 과정에서 엔지니어의 기술과 경험이 더해져 더 나은 결과물이 탄생합니다. 이 과정에서 모두의 역량이 성장합니다.'
+                    : language === 'jp' 
+                      ? '制作過程でエンジニアの技術と経験が加わり、より良い結果物が誕生します。この過程で皆の能力が成長します。'
+                      : 'Engineers\' skills and experience are added during the creation process, resulting in better outcomes. In this process, everyone\'s capabilities grow.'}
                 </p>
               </div>
             </div>
@@ -611,9 +631,19 @@ const About: React.FC = () => {
                 <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center mb-6">
                   <RefreshCcw className="h-8 w-8 text-cyan-600" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3 text-slate-800">지속적 순환</h3>
+                <h3 className="text-xl font-semibold mb-3 text-slate-800">
+                  {language === 'ko' 
+                    ? '지속적 순환'
+                    : language === 'jp' 
+                      ? '持続的循環'
+                      : 'Continuous Circulation'}
+                </h3>
                 <p className="text-slate-600">
-                  완성된 결과물과 개선된 리소스는 다시 Webel에 등록되어 다른 사용자의 제작을 돕고, 이 순환은 계속됩니다.
+                  {language === 'ko' 
+                    ? '완성된 결과물과 개선된 리소스는 다시 Webel에 등록되어 다른 사용자의 제작을 돕고, 이 순환은 계속됩니다.'
+                    : language === 'jp' 
+                      ? '完成した成果物と改善されたリソースは再びWebelに登録され、他のユーザーの制作を手伝い、この循環は続きます。'
+                      : 'Completed results and improved resources are registered back to Webel, helping other users\' creations, and this cycle continues.'}
                 </p>
               </div>
             </div>
@@ -622,29 +652,60 @@ const About: React.FC = () => {
           <div className="bg-slate-50 rounded-2xl p-8 border border-slate-100">
             <div className="prose prose-lg max-w-none">
               <p className="lead text-center font-medium">
-                Webel의 순환 구조는 단순한 소비가 아닌 공유와 발전의 선순환을 만들어냅니다:
+                {language === 'ko' 
+                  ? 'Webel의 순환 구조는 단순한 소비가 아닌 공유와 발전의 선순환을 만들어냅니다:'
+                  : language === 'jp' 
+                    ? 'Webelの循環構造は単なる消費ではなく、共有と発展の好循環を生み出します:'
+                    : 'Webel\'s circular structure creates a virtuous cycle of sharing and development, not just consumption:'}
               </p>
               <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 list-none pl-0">
                 <li className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-start gap-3">
                   <span className="text-blue-600 font-bold text-lg">01</span>
-                  <p className="m-0">소비자는 리소스를 활용하여 제품 제작을 시작합니다.</p>
+                  <p className="m-0">
+                    {language === 'ko' 
+                      ? '소비자는 리소스를 활용하여 제품 제작을 시작합니다.'
+                      : language === 'jp' 
+                        ? '消費者はリソースを活用して製品制作を始めます。'
+                        : 'Consumers start product creation using resources.'}
+                  </p>
                 </li>
                 <li className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-start gap-3">
                   <span className="text-blue-600 font-bold text-lg">02</span>
-                  <p className="m-0">제작 과정에서 엔지니어의 기술과 경험이 더해집니다.</p>
+                  <p className="m-0">
+                    {language === 'ko' 
+                      ? '제작 과정에서 엔지니어의 기술과 경험이 더해집니다.'
+                      : language === 'jp' 
+                        ? '制作過程でエンジニアの技術と経験が加わります。'
+                        : 'Engineers\' skills and experience are added to the creation process.'}
+                  </p>
                 </li>
                 <li className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-start gap-3">
                   <span className="text-blue-600 font-bold text-lg">03</span>
-                  <p className="m-0">완성된 결과물과 개선된 리소스는 다시 Webel에 등록됩니다.</p>
+                  <p className="m-0">
+                    {language === 'ko' 
+                      ? '완성된 결과물과 개선된 리소스는 다시 Webel에 등록됩니다.'
+                      : language === 'jp' 
+                        ? '完成した成果物と改善されたリソースは再びWebelに登録されます。'
+                        : 'Completed results and improved resources are registered back to Webel.'}
+                  </p>
                 </li>
                 <li className="bg-white p-4 rounded-lg shadow-sm border border-slate-100 flex items-start gap-3">
                   <span className="text-blue-600 font-bold text-lg">04</span>
-                  <p className="m-0">안전한 본인 인증 시스템은 사용자 간 신뢰를 구축합니다.</p>
+                  <p className="m-0">
+                    {language === 'ko' 
+                      ? '안전한 본인 인증 시스템은 사용자 간 신뢰를 구축합니다.'
+                      : language === 'jp' 
+                        ? '安全な本人認証システムはユーザー間の信頼を構築します。'
+                        : 'The secure identity verification system builds trust between users.'}
+                  </p>
                 </li>
               </ul>
               <p className="text-center text-slate-700 my-6">
-                이처럼 기술과 아이디어, 그리고 신뢰는 일방적으로 소비되는 것이 아니라, 서로 순환하며 공유되고 발전합니다. 
-                그 결과, 제작 시간과 비용은 줄어들고, 기술 발전과 창의성의 확산은 가속화됩니다.
+                {language === 'ko' 
+                  ? '이처럼 기술과 아이디어, 그리고 신뢰는 일방적으로 소비되는 것이 아니라, 서로 순환하며 공유되고 발전합니다. 그 결과, 제작 시간과 비용은 줄어들고, 기술 발전과 창의성의 확산은 가속화됩니다.'
+                  : language === 'jp' 
+                    ? 'このように技術とアイディア、そして信頼は一方的に消費されるのではなく、互いに循環しながら共有され発展します。その結果、制作時間とコストが削減され、技術発展と創造性の拡散が加速します。'
+                    : 'In this way, technology, ideas, and trust are not consumed unilaterally, but circulate, are shared, and develop together. As a result, production time and costs are reduced, while technological advancement and the spread of creativity are accelerated.'}
               </p>
             </div>
           </div>
@@ -657,10 +718,18 @@ const About: React.FC = () => {
           
           <div className="relative z-10 px-8 py-16 md:px-16 md:py-20 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white max-w-3xl mx-auto leading-tight">
-              Webel은 누구나 원하는 것을 쉽게, 안전하게 만들 수 있는 세상을 지향합니다
+              {language === 'ko' 
+                ? 'Webel은 누구나 원하는 것을 쉽게, 안전하게 만들 수 있는 세상을 지향합니다'
+                : language === 'jp' 
+                  ? 'Webelは誰もが望むものを簡単に、安全に作れる世界を目指します'
+                  : 'Webel aims for a world where anyone can easily and safely create what they want'}
             </h2>
             <p className="text-xl mb-8 text-blue-100 max-w-2xl mx-auto">
-              지금 바로 Webel을 사용해서, 당신의 아이디어를 직접 만들어보세요.
+              {language === 'ko' 
+                ? '지금 바로 Webel을 사용해서, 당신의 아이디어를 직접 만들어보세요.'
+                : language === 'jp' 
+                  ? '今すぐWebelを使って、あなたのアイデアを直接作ってみましょう。'
+                  : 'Use Webel right now to create your ideas directly.'}
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/resources">
