@@ -975,57 +975,47 @@ export default function ResourceUploadPage() {
         });
       }
       
+      // 텍스트 영역 스크롤 이벤트 추가 (스크롤 동기화)
+      const syncScroll = () => {
+        if (overlay) {
+          overlay.scrollTop = textarea.scrollTop;
+        }
+      };
+      
+      textarea.addEventListener('scroll', syncScroll);
+      
       // 텍스트 영역 크기 자동 조절
       const adjustHeight = () => {
         textarea.style.height = 'auto';
         textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
-        
-        // 오버레이 높이도 같이 조절 (스크롤 포함)
-        if (containerRef.current) {
-          containerRef.current.style.height = `${textarea.scrollHeight}px`;
-        }
       };
       
       adjustHeight();
       textarea.addEventListener('input', adjustHeight);
       
+      // 입력할 때마다 스크롤 동기화
+      textarea.addEventListener('input', syncScroll);
+      
       return () => {
         textarea.removeEventListener('input', adjustHeight);
+        textarea.removeEventListener('scroll', syncScroll);
+        textarea.removeEventListener('input', syncScroll);
       };
     }, [value, processContent, onImageClick, onImageMove, editable]);
     
-    // 스크롤 동기화
-    useEffect(() => {
-      const textarea = textareaRef.current;
-      const overlay = overlayRef.current;
-      if (!textarea || !overlay) return;
-      
-      const syncScroll = () => {
-        if (overlay) {
-          overlay.scrollTop = textarea.scrollTop;
-          overlay.scrollLeft = textarea.scrollLeft;
-        }
-      };
-      
-      textarea.addEventListener('scroll', syncScroll);
-      return () => {
-        textarea.removeEventListener('scroll', syncScroll);
-      };
-    }, []);
-    
     return (
-      <div className="rich-editor-content" ref={containerRef}>
+      <div className="rich-editor-content border rounded-md" ref={containerRef}>
         <textarea
           ref={textareaRef}
           name={name}
-          className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+          className="resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           placeholder={placeholder}
           value={value}
           onChange={onChange}
         />
         <div 
           ref={overlayRef} 
-          className="rich-editor-overlay"
+          className="rich-editor-overlay media-preview"
           data-testid={`${name}-overlay`}
         />
       </div>

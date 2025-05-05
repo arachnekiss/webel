@@ -123,6 +123,59 @@
   box-shadow: 0 0 0 2px #3b82f6;
 }
 
+/* 리치 에디터 스타일 */
+.rich-editor-content {
+  position: relative;
+  min-height: 200px;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.rich-editor-content textarea {
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  height: 100%;
+  resize: vertical;
+  padding: 0.75rem;
+  background-color: transparent;
+  color: transparent;
+  caret-color: black;
+  position: relative;
+  z-index: 2;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  tab-size: 4;
+}
+
+.rich-editor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.75rem;
+  pointer-events: none;
+  z-index: 1;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  tab-size: 4;
+  overflow: hidden;
+}
+
+.rich-editor-overlay img, 
+.rich-editor-overlay iframe,
+.rich-editor-overlay .url-card,
+.rich-editor-overlay .media-card,
+.rich-editor-overlay .youtube-embed {
+  pointer-events: auto;
+}
+
 /* 에디터 프리뷰 스타일 */
 .editor-preview {
   background-color: #ffffff;
