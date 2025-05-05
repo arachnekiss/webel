@@ -23,6 +23,13 @@ import {
   checkStripeStatus
 } from './stripe';
 
+// PayPal 결제 라우트 핸들러
+import {
+  createPaypalOrder,
+  capturePaypalOrder,
+  loadPaypalDefault
+} from './paypal';
+
 // 다중 결제 시스템 라우트 핸들러
 import {
   initializePayment,
@@ -891,6 +898,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // 계좌 등록
   app.post('/api/user/register-bank-account', isAuthenticated, registerBankAccount);
+
+  // ==================== PayPal 결제 관련 라우트 ====================
+  // PayPal 세팅
+  app.get('/paypal/setup', async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+
+  // PayPal 주문 생성
+  app.post('/paypal/order', async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+
+  // PayPal 주문 확정
+  app.post('/paypal/order/:orderID/capture', async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
 
   const httpServer = createServer(app);
   return httpServer;
