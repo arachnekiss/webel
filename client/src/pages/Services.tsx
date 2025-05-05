@@ -31,7 +31,7 @@ const Services: React.FC<ServicesProps> = (props) => {
   
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
   const [_, navigate] = useWouterLocation();
-  const { language } = useLanguage();
+  const { language, translateUrl } = useLanguage();
   const [distance, setDistance] = useState<string>("10");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("newest"); // newest, rating, lowPrice
@@ -277,7 +277,11 @@ const Services: React.FC<ServicesProps> = (props) => {
             </p>
           </div>
           <Button 
-            onClick={() => navigate(type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`)} 
+            onClick={() => {
+              const path = type === '3d_printing' ? '/register-printer' : `/services/register${type ? `/${type}` : ''}`;
+              const localizedPath = translateUrl(path);
+              navigate(localizedPath);
+            }} 
             className="mt-4 md:mt-0 bg-primary hover:bg-blue-600 text-white"
           >
             {type === '3d_printing' 
