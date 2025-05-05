@@ -8,90 +8,120 @@ import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 
-// 마크다운 미리보기 컴포넌트
-interface MarkdownPreviewProps {
+// 멀티미디어 미리보기 컴포넌트
+interface MediaPreviewProps {
   content: string;
 }
 
-const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
+const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
 
-  // 줄바꿈을 <br /> 태그로 변환
-  const processLineBreaks = (text: string) => {
-    return text.replace(/\n/g, '<br />');
+  // YouTube 링크 추출하여 임베드로 변환
+  const extractYouTubeEmbeds = (text: string) => {
+    // YouTube URL 패턴(일반 링크, 공유 링크, 모바일 링크 등)
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+    const matches = Array.from(text.matchAll(youtubeRegex));
+    
+    if (matches.length === 0) return [];
+    
+    return matches.map(match => {
+      const videoId = match[1];
+      const originalUrl = match[0];
+      const embedCode = `
+        <div class="youtube-embed my-3">
+          <div class="aspect-video rounded-lg overflow-hidden shadow-md">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/${videoId}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+            ></iframe>
+          </div>
+          <div class="text-xs text-gray-500 mt-1">
+            <a href="${originalUrl}" target="_blank" rel="noopener noreferrer">${originalUrl}</a>
+          </div>
+        </div>
+      `;
+      return { originalUrl, embedCode };
+    });
   };
 
-  // 이미지 마크다운 구문 ([img:URL]) 처리
-  const processImageMarkdown = (text: string) => {
-    return text.replace(/\[img:(.*?)\]/g, '<img src="$1" alt="이미지" class="max-w-full rounded-md my-2" />');
+  // 이미지 URL 추출
+  const extractImages = (text: string) => {
+    // 일반 이미지 URL 패턴 (jpg, jpeg, png, gif, webp)
+    const imageRegex = /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)(\?\S+)?/gi;
+    const matches = Array.from(text.matchAll(imageRegex));
+    
+    if (matches.length === 0) return [];
+    
+    return matches.map(match => {
+      const imageUrl = match[0];
+      const embedCode = `
+        <div class="image-preview my-3">
+          <img 
+            src="${imageUrl}" 
+            alt="이미지" 
+            class="max-w-full rounded-lg shadow-sm"
+          />
+          <div class="text-xs text-gray-500 mt-1">
+            <a href="${imageUrl}" target="_blank" rel="noopener noreferrer">${imageUrl}</a>
+          </div>
+        </div>
+      `;
+      return { originalUrl: imageUrl, embedCode };
+    });
   };
+
+  // 일반 URL 추출하여 카드로 변환
+  const extractUrlCards = (text: string) => {
+    // URL 패턴 - 이미지와 YouTube URL 제외
+    const urlRegex = /https?:\/\/(?!.*\.(jpg|jpeg|png|gif|webp)(?:\?\S+)?$)(?!(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/))[^\s]+/gi;
+    const matches = Array.from(text.matchAll(urlRegex));
+    
+    if (matches.length === 0) return [];
+    
+    return matches.map(match => {
+      const url = match[0];
+      const domain = new URL(url).hostname.replace('www.', '');
+      const embedCode = `
+        <div class="url-card my-3">
+          <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
+            <div class="flex items-center">
+              <div class="url-icon mr-3 text-xl">🔗</div>
+              <div class="url-content overflow-hidden">
+                <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
+                <div class="url-link text-sm text-blue-600 truncate">
+                  <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      return { originalUrl: url, embedCode };
+    });
+  };
+
+  // 모든 미디어 요소 추출 및 변환
+  const youtubeEmbeds = extractYouTubeEmbeds(content);
+  const imageEmbeds = extractImages(content);
+  const urlCards = extractUrlCards(content);
   
-  // YouTube 임베드 패턴 처리
-  const processYouTubeEmbeds = (text: string) => {
-    return text.replace(
-      /\[youtube:(.*?)\]/g, 
-      '<div class="youtube-embed aspect-video my-4"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>'
-    );
-  };
+  // 추출된 미디어가 없으면 렌더링하지 않음
+  if (youtubeEmbeds.length === 0 && imageEmbeds.length === 0 && urlCards.length === 0) {
+    return null;
+  }
 
-  // URL 패턴 처리
-  const processURLs = (text: string) => {
-    return text.replace(
-      /\[url:(.*?)\|(.*?)\]/g,
-      '<div class="url-card"><div class="url-preview"><div class="url-icon">🔗</div><div class="url-content"><div class="url-title">$2</div><a href="$1" target="_blank" rel="noopener noreferrer" class="url-link">$1</a></div></div></div>'
-    );
-  };
-
-  // 마크다운 강조 구문 처리
-  const processMarkdownEmphasis = (text: string) => {
-    // 볼드 처리
-    let processed = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    // 이탤릭 처리
-    processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    // 취소선 처리
-    processed = processed.replace(/~~(.*?)~~/g, '<del>$1</del>');
-    return processed;
-  };
-
-  // 마크다운 헤더 처리
-  const processMarkdownHeaders = (text: string) => {
-    // h1 ~ h6 처리
-    let processed = text.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
-    processed = processed.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
-    processed = processed.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
-    processed = processed.replace(/^#### (.*?)$/gm, '<h4>$1</h4>');
-    processed = processed.replace(/^##### (.*?)$/gm, '<h5>$1</h5>');
-    processed = processed.replace(/^###### (.*?)$/gm, '<h6>$1</h6>');
-    return processed;
-  };
-
-  // 마크다운 리스트 처리
-  const processMarkdownLists = (text: string) => {
-    // 순서 없는 리스트
-    let processed = text.replace(/^- (.*?)$/gm, '<li>$1</li>');
-    processed = processed.replace(/<li>(.*?)<\/li>(\n<li>.*?<\/li>)+/g, '<ul>$&</ul>');
-    
-    // 순서 있는 리스트
-    processed = processed.replace(/^\d+\. (.*?)$/gm, '<li>$1</li>');
-    processed = processed.replace(/<li>(.*?)<\/li>(\n<li>.*?<\/li>)+/g, '<ol>$&</ol>');
-    
-    return processed;
-  };
-
-  // 모든 마크다운 처리 적용
-  let processedContent = content;
-  processedContent = processMarkdownHeaders(processedContent);
-  processedContent = processMarkdownEmphasis(processedContent);
-  processedContent = processMarkdownLists(processedContent);
-  processedContent = processImageMarkdown(processedContent);
-  processedContent = processYouTubeEmbeds(processedContent);
-  processedContent = processURLs(processedContent);
-  processedContent = processLineBreaks(processedContent);
+  // 모든 미디어 요소를 HTML로 모아서 렌더링
+  const mediaElements = [...youtubeEmbeds, ...imageEmbeds, ...urlCards];
+  const mediaHtml = mediaElements.map(media => media.embedCode).join('');
 
   return (
     <div 
-      className="markdown-preview"
-      dangerouslySetInnerHTML={{ __html: processedContent }}
+      className="media-preview border-t mt-2 pt-2 px-2"
+      dangerouslySetInnerHTML={{ __html: mediaHtml }}
     />
   );
 };
@@ -400,41 +430,7 @@ export default function ResourceUploadPage() {
     }
   };
 
-  // 멀티미디어 콘텐츠 미리보기 컴포넌트
-  const MarkdownPreview = ({ content }: { content: string }) => {
-    if (!content) return null;
 
-    // YouTube 임베딩, 이미지, 동영상 등의 HTML 콘텐츠 추출
-    const extractHtmlContent = (text: string) => {
-      // HTML 태그가 있는 부분을 추출
-      const htmlRegex = /<div[^>]*>[\s\S]*?<\/div>|<iframe[^>]*>[\s\S]*?<\/iframe>|<video[^>]*>[\s\S]*?<\/video>/g;
-      const imageRegex = /!\[.*?\]\((.*?)\)/g;
-
-      const htmlMatches = text.match(htmlRegex) || [];
-      
-      // 마크다운 이미지를 HTML로 변환
-      const imageMatches = Array.from(text.matchAll(imageRegex)).map(match => 
-        `<div class="image-preview"><img src="${match[1]}" alt="이미지" style="max-width: 100%;" /></div>`
-      );
-
-      return [...htmlMatches, ...imageMatches];
-    };
-
-    const htmlContents = extractHtmlContent(content);
-
-    if (htmlContents.length === 0) return null;
-
-    return (
-      <div className="mt-4 border-t pt-4">
-        <h3 className="text-sm font-medium mb-2">미리보기:</h3>
-        <div className="space-y-4">
-          {htmlContents.map((html, index) => (
-            <div key={index} dangerouslySetInnerHTML={{ __html: html }} className="preview-item rounded-md overflow-hidden" />
-          ))}
-        </div>
-      </div>
-    );
-  };
 
   // 미디어 첨부 도구 관련 함수들
 
@@ -500,28 +496,9 @@ export default function ResourceUploadPage() {
     if (e.target) e.target.value = '';
   };
 
-  // YouTube 링크 감지 및 변환 함수
+  // YouTube 링크 처리 함수 - 텍스트를 그대로 반환하고, MediaPreview 컴포넌트에서 미리보기 처리
   const processYouTubeLinks = async (text: string): Promise<string> => {
-    if (!text) return text;
-
-    // YouTube 링크 패턴 (youtu.be/ID 또는 youtube.com/watch?v=ID)
-    const youtubePattern = /https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:&[^&\s]*)*(?:\s|$)/g;
-
-    return text.replace(youtubePattern, (match, videoId) => {
-      // 이미 iframe으로 변환된 경우 건너뛰기
-      if (match.includes('iframe')) return match;
-
-      return `\n<div class="youtube-embed">
-      <iframe 
-        width="100%" 
-        height="315" 
-        src="https://www.youtube.com/embed/${videoId}" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen
-      ></iframe>
-      </div>\n`;
-    });
+    return text; // 텍스트를 변환하지 않고 그대로 반환, 대신 MediaPreview에서 처리
   };
 
   const handleUrlSubmit = (e: React.FormEvent) => {
