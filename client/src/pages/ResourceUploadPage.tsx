@@ -494,22 +494,34 @@ export default function ResourceUploadPage() {
   // 미디어 첨부 핸들러 함수들
   const handleMediaImageSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    mediaImageInputRef.current?.click();
+    if (mediaImageInputRef.current) {
+      mediaImageInputRef.current.value = '';
+      mediaImageInputRef.current.click();
+    }
   };
 
   const handleMediaGifSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    mediaGifInputRef.current?.click();
+    if (mediaGifInputRef.current) {
+      mediaGifInputRef.current.value = '';
+      mediaGifInputRef.current.click();
+    }
   };
 
   const handleMediaVideoSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    mediaVideoInputRef.current?.click();
+    if (mediaVideoInputRef.current) {
+      mediaVideoInputRef.current.value = '';
+      mediaVideoInputRef.current.click();
+    }
   };
 
   const handleMediaFileSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    mediaFileInputRef.current?.click();
+    if (mediaFileInputRef.current) {
+      mediaFileInputRef.current.value = '';
+      mediaFileInputRef.current.click();
+    }
   };
 
   const handleMediaUrlSelect = (fieldName: string) => {
@@ -562,7 +574,7 @@ export default function ResourceUploadPage() {
         size="sm" 
         type="button" 
         className="h-8"
-        onClick={() => handleUrlButtonClick(fieldName)}
+        onClick={() => handleMediaUrlSelect(fieldName)}
       >
         <Link2 className="h-4 w-4 mr-1" /> URL
       </Button>
