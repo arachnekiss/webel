@@ -37,3 +37,29 @@ export interface InsertResource {
   isFeatured?: boolean;
   isCrawled?: boolean;
 }
+
+// 서비스 타입 정의
+export interface Service {
+  id: number;
+  title: string;
+  description: string;
+  providerName?: string;
+  providerId?: number;
+  location?: {
+    lat: number;
+    long: number;
+    address?: string;
+  };
+  serviceType?: string;
+  price?: number;
+  priceUnit?: string;
+  currency?: string;
+  availability?: string;
+  imageUrl?: string | null;
+  thumbnailUrl?: string | null;
+  tags?: string[] | null;
+  createdAt?: Date | null;
+  updatedAt?: Date | null;
+  isVerified?: boolean | null;
+  distance?: number;
+}

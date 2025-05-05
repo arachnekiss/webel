@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'wouter';
+import TopLink from '@/components/ui/TopLink';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from '@/contexts/LocationContext';
 import { Service } from '@/types';
@@ -7,10 +7,12 @@ import LocationCard from '@/components/ui/LocationCard';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { Button } from '@/components/ui/button';
 import { MapPin, ArrowRight, Compass, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LocationBasedServices: React.FC = () => {
   const { currentLocation, isLoading: locationLoading, error: locationError, getLocation } = useLocation();
   const { isMobile } = useDeviceDetect();
+  const { language } = useLanguage();
   
   // Define query based on location
   const { data: services, isLoading: servicesLoading } = useQuery<Service[]>({
@@ -35,19 +37,27 @@ const LocationBasedServices: React.FC = () => {
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 mr-3">
                 <MapPin className="h-4 w-4 text-primary" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800">내 근처 서비스</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+                {language === 'ko' ? '내 근처 서비스' : 
+                 language === 'jp' ? '私の近くのサービス' : 
+                 'Services Near Me'}
+              </h2>
             </div>
             <p className="text-slate-500 md:max-w-lg">
-              현재 위치 주변의 3D 프린터 및 기타 제작 서비스를 찾아보세요
+              {language === 'ko' ? '현재 위치 주변의 3D 프린터 및 기타 제작 서비스를 찾아보세요' : 
+               language === 'jp' ? '現在地周辺の3Dプリンターやその他の制作サービスを探してみましょう' : 
+               'Find 3D printers and other manufacturing services in your area'}
             </p>
           </div>
           
-          <Link href="/services">
+          <TopLink href="/services" forceReload={false}>
             <Button variant="outline" className="group md:self-start rounded-lg border-slate-200 hover:border-primary hover:bg-primary/5 transition-all">
-              모든 서비스 보기
+              {language === 'ko' ? '모든 서비스 보기' : 
+               language === 'jp' ? 'すべてのサービスを見る' : 
+               'View All Services'}
               <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
-          </Link>
+          </TopLink>
         </div>
       </div>
       
@@ -58,20 +68,34 @@ const LocationBasedServices: React.FC = () => {
             <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
               <Compass className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-slate-600 font-medium">위치 정보를 가져오는 중...</p>
-            <p className="text-slate-400 text-sm mt-2 max-w-sm">현재 위치를 파악하여 근처의 서비스를 찾고 있습니다</p>
+            <p className="text-slate-600 font-medium">
+              {language === 'ko' ? '위치 정보를 가져오는 중...' : 
+               language === 'jp' ? '位置情報を取得中...' : 
+               'Getting location information...'}
+            </p>
+            <p className="text-slate-400 text-sm mt-2 max-w-sm">
+              {language === 'ko' ? '현재 위치를 파악하여 근처의 서비스를 찾고 있습니다' : 
+               language === 'jp' ? '現在地を把握して近くのサービスを探しています' : 
+               'Identifying your current location to find nearby services'}
+            </p>
           </div>
         ) : locationError ? (
           <div className="bg-slate-50 border border-slate-200 p-8 rounded-xl text-center">
             <div className="bg-red-50 w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-4 text-red-500">
               <MapPin className="h-6 w-6" />
             </div>
-            <p className="text-slate-800 font-medium mb-2">위치 정보를 사용할 수 없습니다</p>
+            <p className="text-slate-800 font-medium mb-2">
+              {language === 'ko' ? '위치 정보를 사용할 수 없습니다' : 
+               language === 'jp' ? '位置情報を使用できません' : 
+               'Location information unavailable'}
+            </p>
             <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">{locationError}</p>
             <Button 
               onClick={() => getLocation()}
               className="bg-primary hover:bg-primary/90 text-white">
-              위치 정보 다시 가져오기
+              {language === 'ko' ? '위치 정보 다시 가져오기' : 
+               language === 'jp' ? '位置情報を再取得' : 
+               'Try getting location again'}
             </Button>
           </div>
         ) : servicesLoading ? (
@@ -91,13 +115,23 @@ const LocationBasedServices: React.FC = () => {
             <div className="bg-blue-50 w-12 h-12 mx-auto rounded-full flex items-center justify-center mb-4">
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
-            <p className="text-slate-800 font-medium mb-2">근처에 이용 가능한 서비스가 없습니다</p>
-            <p className="text-slate-500 text-sm mb-6">다른 지역의 서비스를 찾아보거나 새로운 위치에서 시도해보세요</p>
-            <Link href="/services">
+            <p className="text-slate-800 font-medium mb-2">
+              {language === 'ko' ? '근처에 이용 가능한 서비스가 없습니다' : 
+               language === 'jp' ? '近くに利用可能なサービスがありません' : 
+               'No services available in your area'}
+            </p>
+            <p className="text-slate-500 text-sm mb-6">
+              {language === 'ko' ? '다른 지역의 서비스를 찾아보거나 새로운 위치에서 시도해보세요' : 
+               language === 'jp' ? '他のエリアのサービスを探すか、新しい場所で試してみてください' : 
+               'Try looking for services in other areas or try from a different location'}
+            </p>
+            <TopLink href="/services" forceReload={false}>
               <Button className="bg-primary hover:bg-primary/90 text-white">
-                모든 서비스 보기
+                {language === 'ko' ? '모든 서비스 보기' : 
+                 language === 'jp' ? 'すべてのサービスを見る' : 
+                 'View All Services'}
               </Button>
-            </Link>
+            </TopLink>
           </div>
         )}
       </div>

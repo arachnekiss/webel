@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'wouter';
+import TopLink from '@/components/ui/TopLink';
 import { Button } from '@/components/ui/button';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { ArrowRight, Search, MapPin, Sparkles } from 'lucide-react';
@@ -64,7 +64,7 @@ const HeroSection: React.FC = () => {
           </p>
           
           <div className="flex flex-wrap gap-5">
-            <Link href="/resources">
+            <TopLink href="/resources" forceReload={false}>
               <Button className="group px-6 py-6 bg-white text-blue-600 font-medium rounded-xl hover:bg-blue-50 shadow-lg hover:shadow-xl transition-all duration-300 text-base">
                 <Search className="h-5 w-5 mr-2" />
                 {language === 'ko' ? '리소스 찾기' : 
@@ -72,8 +72,8 @@ const HeroSection: React.FC = () => {
                  'Find Resources'}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-            </Link>
-            <Link href="/services/type/3d_printing">
+            </TopLink>
+            <TopLink href="/services/type/3d_printing" forceReload={false}>
               <Button variant="outline" className="group px-6 py-6 bg-blue-500/30 text-white backdrop-blur-sm font-medium rounded-xl border-2 border-white/20 hover:bg-blue-500/40 hover:border-white/30 shadow-lg transition-all duration-300 text-base">
                 <MapPin className="h-5 w-5 mr-2" />
                 {language === 'ko' ? '근처 3D 프린터 찾기' : 
@@ -81,7 +81,7 @@ const HeroSection: React.FC = () => {
                  'Find Nearby 3D Printers'}
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-            </Link>
+            </TopLink>
           </div>
           
           {/* Participant section removed */}
@@ -98,7 +98,7 @@ const HeroSection: React.FC = () => {
                'Various companies and individual creators participating'}
             </span>
             <div className="mt-2 flex justify-center items-center space-x-8 opacity-70">
-              {companyTypes[language].map((name, idx) => (
+              {companyTypes[language as keyof typeof companyTypes].map((name, idx) => (
                 <span key={idx} className="font-medium">{name}</span>
               ))}
             </div>
