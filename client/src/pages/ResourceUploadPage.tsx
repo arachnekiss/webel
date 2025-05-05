@@ -1190,7 +1190,7 @@ export default function ResourceUploadPage() {
                                   </div>
                                 </div>
                               )}
-                              <div className="flex flex-col">
+                              <div className="flex flex-col relative">
                                 <AutoResizeTextarea
                                   name="assemblyInstructions"
                                   placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
@@ -1199,7 +1199,16 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <MediaPreview content={field.value || ""} />
+                                <div className="rich-editor-content">
+                                  <div className="rich-editor-overlay" 
+                                       dangerouslySetInnerHTML={{ 
+                                          __html: field.value?.replace(
+                                            /!\[(.*?)\]\((.*?)\)/g, 
+                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                          ) || "" 
+                                       }} 
+                                  />
+                                </div>
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
@@ -1258,7 +1267,7 @@ export default function ResourceUploadPage() {
                                   </div>
                                 </div>
                               )}
-                              <div className="flex flex-col">
+                              <div className="flex flex-col relative">
                                 <AutoResizeTextarea
                                   name="howToUse"
                                   placeholder="하드웨어 사용 방법과 주의사항을 설명해주세요."
@@ -1267,7 +1276,16 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <MediaPreview content={field.value || ""} />
+                                <div className="rich-editor-content">
+                                  <div className="rich-editor-overlay" 
+                                       dangerouslySetInnerHTML={{ 
+                                          __html: field.value?.replace(
+                                            /!\[(.*?)\]\((.*?)\)/g, 
+                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                          ) || "" 
+                                       }} 
+                                  />
+                                </div>
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
                             </div>
@@ -1329,7 +1347,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </div>
                             )}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col relative">
                               <AutoResizeTextarea
                                 name="howToUse"
                                 placeholder="설치 방법과 사용법을 설명해주세요."
@@ -1338,7 +1356,16 @@ export default function ResourceUploadPage() {
                                   field.onChange(e.target.value);
                                 }}
                               />
-                              <MediaPreview content={field.value || ""} />
+                              <div className="rich-editor-content">
+                                <div className="rich-editor-overlay" 
+                                     dangerouslySetInnerHTML={{ 
+                                        __html: field.value?.replace(
+                                          /!\[(.*?)\]\((.*?)\)/g, 
+                                          '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                        ) || "" 
+                                     }} 
+                                />
+                              </div>
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
                           </div>
@@ -1421,7 +1448,7 @@ export default function ResourceUploadPage() {
                                   </div>
                                 </div>
                               )}
-                              <div className="flex flex-col">
+                              <div className="flex flex-col relative">
                                 <AutoResizeTextarea
                                   name="assemblyInstructions"
                                   placeholder="3D 모델의 조립 방법과 단계를 설명해주세요."
@@ -1430,7 +1457,16 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <MediaPreview content={field.value || ""} />
+                                <div className="rich-editor-content">
+                                  <div className="rich-editor-overlay" 
+                                       dangerouslySetInnerHTML={{ 
+                                          __html: field.value?.replace(
+                                            /!\[(.*?)\]\((.*?)\)/g, 
+                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                          ) || "" 
+                                       }} 
+                                  />
+                                </div>
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
@@ -1489,7 +1525,7 @@ export default function ResourceUploadPage() {
                                   </div>
                                 </div>
                               )}
-                              <div className="flex flex-col">
+                              <div className="flex flex-col relative">
                                 <AutoResizeTextarea
                                   name="howToUse"
                                   placeholder="3D 모델 프린팅 설정과 사용 방법을 설명해주세요."
@@ -1498,7 +1534,16 @@ export default function ResourceUploadPage() {
                                     field.onChange(e.target.value);
                                   }}
                                 />
-                                <MediaPreview content={field.value || ""} />
+                                <div className="rich-editor-content">
+                                  <div className="rich-editor-overlay" 
+                                       dangerouslySetInnerHTML={{ 
+                                          __html: field.value?.replace(
+                                            /!\[(.*?)\]\((.*?)\)/g, 
+                                            '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                          ) || "" 
+                                       }} 
+                                  />
+                                </div>
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
                             </div>
@@ -1560,7 +1605,7 @@ export default function ResourceUploadPage() {
                                 </div>
                               </div>
                             )}
-                            <div className="flex flex-col">
+                            <div className="flex flex-col relative">
                               <AutoResizeTextarea
                                 name="howToUse"
                                 placeholder="사용 방법과 특징을 설명해주세요."
@@ -1569,7 +1614,16 @@ export default function ResourceUploadPage() {
                                   field.onChange(e.target.value);
                                 }}
                               />
-                              <MediaPreview content={field.value || ""} />
+                              <div className="rich-editor-content">
+                                <div className="rich-editor-overlay" 
+                                     dangerouslySetInnerHTML={{ 
+                                        __html: field.value?.replace(
+                                          /!\[(.*?)\]\((.*?)\)/g, 
+                                          '<img src="$2" alt="$1" class="editor-img" draggable="true" />'
+                                        ) || "" 
+                                     }} 
+                                />
+                              </div>
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
                           </div>
