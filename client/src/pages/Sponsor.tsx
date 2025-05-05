@@ -444,12 +444,12 @@ const Sponsor: React.FC = () => {
         >
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-shrink-0 cursor-pointer bg-[#ffdd00] rounded-md px-3 py-2 flex items-center" onClick={(e) => {
+              <div className="flex-shrink-0 cursor-pointer bg-[#ffdd00] rounded-md px-2 py-1.5 sm:px-3 sm:py-2 flex items-center" onClick={(e) => {
                 e.stopPropagation();
                 window.open('https://buymeacoffee.com/webel', '_blank');
               }}>
-                <Coffee className="h-5 w-5 mr-2 text-black" />
-                <span className="font-bold text-black">Buy Me a Coffee</span>
+                <Coffee className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-black" />
+                <span className="font-medium sm:font-bold text-sm sm:text-base text-black">Buy Me a Coffee</span>
               </div>
               <div className="flex-grow">
                 <h3 className="text-xl font-bold text-gray-800 mb-1">
@@ -466,16 +466,17 @@ const Sponsor: React.FC = () => {
                       ? 'コーヒー1杯の価格でWebelプロジェクトの開発を応援してください！' 
                       : 'Support Webel project development with the price of a cup of coffee!'}
                 </p>
-                <div className="flex md:flex-row flex-col gap-2">
+                <div className="flex md:flex-row flex-col gap-2 flex-wrap">
                   <Button 
                     variant="outline" 
-                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30"
+                    size="sm"
+                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30 text-xs sm:text-sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open('https://buymeacoffee.com/webel', '_blank');
                     }}
                   >
-                    <Coffee className="h-4 w-4 mr-2" />
+                    <Coffee className="h-3 w-3 mr-1 sm:h-4 sm:w-4 sm:mr-2" />
                     {language === 'ko' 
                       ? '커피 한잔 선물하기' 
                       : language === 'jp' 
@@ -485,13 +486,14 @@ const Sponsor: React.FC = () => {
                   
                   <Button 
                     variant="outline" 
-                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30"
+                    size="sm"
+                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30 text-xs sm:text-sm"
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open('https://buymeacoffee.com/webel', '_blank');
                     }}
                   >
-                    <Coffee className="h-4 w-4 mr-2" />
+                    <Coffee className="h-3 w-3 mr-1 sm:h-4 sm:w-4 sm:mr-2" />
                     {language === 'ko' 
                       ? '커피 다섯잔 선물하기' 
                       : language === 'jp' 
@@ -512,11 +514,11 @@ const Sponsor: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center">
                 <div 
-                  className="flex-shrink-0 bg-blue-500 rounded-md px-3 py-2 flex items-center cursor-pointer" 
+                  className="flex-shrink-0 bg-blue-500 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 flex items-center cursor-pointer" 
                   onClick={() => setSelectedPaymentMethod('paypal')}
                 >
-                  <Globe className="h-5 w-5 mr-2 text-white" />
-                  <span className="font-bold text-white">PayPal</span>
+                  <Globe className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2 text-white" />
+                  <span className="font-medium sm:font-bold text-sm sm:text-base text-white">PayPal</span>
                 </div>
                 <div className="flex-grow">
                   <h3 className="text-xl font-bold text-gray-800 mb-1">
@@ -531,8 +533,8 @@ const Sponsor: React.FC = () => {
                   </p>
                   <div className="mt-2">
                     <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center">
-                      <Globe className="h-5 w-5 mr-2 text-blue-600" />
-                      <span className="font-bold text-blue-600">
+                      <Globe className="h-4 w-4 mr-1 sm:mr-2 text-blue-600" />
+                      <span className="font-medium text-sm sm:text-base text-blue-600">
                         {language === 'jp' 
                           ? 'PayPalで支払う' 
                           : 'Pay with PayPal'}
