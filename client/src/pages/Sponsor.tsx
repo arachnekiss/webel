@@ -238,16 +238,25 @@ const Sponsor: React.FC = () => {
   
   // 금액 표시 포맷
   const formatAmount = (amount: number) => {
-    // 외화는 환율로 환산하지 않고 1, 10, 100, 1000 단위로 표시
+    // 외화는 환율로 환산하지 않고 1, 5, 10, 50, 100, 1000 단위로 표시
     let displayAmount = amount;
     if (currency.standard) {
       // 한국 원화 기준 금액을 외화 표준 금액으로 변환
-      if (amount <= 1000) displayAmount = 1;
-      else if (amount <= 5000) displayAmount = 5;
-      else if (amount <= 10000) displayAmount = 10;
-      else if (amount <= 50000) displayAmount = 50;
-      else if (amount <= 100000) displayAmount = 100;
-      else displayAmount = 1000;
+      if (amount === 500) displayAmount = 1;
+      else if (amount === 1000) displayAmount = 2;
+      else if (amount === 5000) displayAmount = 5;
+      else if (amount === 10000) displayAmount = 10;
+      else if (amount === 50000) displayAmount = 50;
+      else if (amount === 100000) displayAmount = 100;
+      else {
+        // 사용자 지정 금액의 경우
+        // 1,000원 당 1달러/1엔 비율로 계산 (엔화는 100엔 단위로 반올림)
+        if (language === 'jp') {
+          displayAmount = Math.ceil(amount / 1000) * 100;
+        } else {
+          displayAmount = Math.ceil(amount / 1000);
+        }
+      }
     }
     
     return `${currency.symbol}${displayAmount.toLocaleString(
@@ -555,13 +564,13 @@ const Sponsor: React.FC = () => {
                       <PayPalButton
                         amount={customAmount 
                           ? (currency.standard 
-                              ? (customAmount <= 1000 ? "1" : 
-                                 customAmount <= 5000 ? "5" : 
-                                 customAmount <= 10000 ? "10" : 
-                                 customAmount <= 50000 ? "50" : 
-                                 customAmount <= 100000 ? "100" : "1000")
+                              ? (language === 'jp'
+                                 ? Math.ceil(customAmount / 1000) * 100
+                                 : Math.ceil(customAmount / 1000)).toString()
                               : customAmount.toString())
-                          : (currency.standard ? "5" : "5000")
+                          : (currency.standard 
+                              ? (language === 'jp' ? "500" : "5")
+                              : "5000")
                         }
                         currency={currency.code}
                         intent="CAPTURE"
