@@ -1594,16 +1594,19 @@ export default function ResourceUploadPage() {
                                       </div>
                                     </div>
                                   )}
-                                  <Textarea
-                                    placeholder="3D 모델 사용 방법을 설명해주세요."
-                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                    {...field}
-                                    value={field.value || ""}
-                                    onChange={async (e) => {
-                                      const newValue = await processYouTubeLinks(e.target.value);
-                                      field.onChange(newValue);
-                                    }}
-                                  />
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="3D 모델 사용 방법을 설명해주세요."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MarkdownPreview content={field.value || ""} />
+                                  </div>
                                 </div>
                               </FormControl>
                               <FormDescription>
@@ -1709,16 +1712,19 @@ export default function ResourceUploadPage() {
                                     </div>
                                   </div>
                                 )}
-                                <Textarea
-                                  placeholder="모델의 구조, 훈련 방법, 사용법 등을 설명해주세요."
-                                  className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                  {...field}
-                                  value={field.value || ""}
-                                  onChange={async (e) => {
-                                    const newValue = await processYouTubeLinks(e.target.value);
-                                    field.onChange(newValue);
-                                  }}
-                                />
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="모델의 구조, 훈련 방법, 사용법 등을 설명해주세요."
+                                    className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MarkdownPreview content={field.value || ""} />
+                                </div>
                               </div>
                             </FormControl>
                             <FormDescription>
@@ -1823,16 +1829,19 @@ export default function ResourceUploadPage() {
                                     </div>
                                   </div>
                                 )}
-                                <Textarea
-                                  placeholder="콘텐츠에 대한 설명과 라이센스 정보를 입력해주세요."
-                                  className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                  {...field}
-                                  value={field.value || ""}
-                                  onChange={async (e) => {
-                                    const newValue = await processYouTubeLinks(e.target.value);
-                                    field.onChange(newValue);
-                                  }}
-                                />
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="콘텐츠에 대한 설명과 라이센스 정보를 입력해주세요."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MarkdownPreview content={field.value || ""} />
+                                </div>
                               </div>
                             </FormControl>
                             <FormDescription>
@@ -1937,16 +1946,19 @@ export default function ResourceUploadPage() {
                                     </div>
                                   </div>
                                 )}
-                                <Textarea
-                                  placeholder="게임 설명, 목표, 조작법 등을 설명해주세요."
-                                  className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                  {...field}
-                                  value={field.value || ""}
-                                  onChange={async (e) => {
-                                    const newValue = await processYouTubeLinks(e.target.value);
-                                    field.onChange(newValue);
-                                  }}
-                                />
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="게임 설명, 목표, 조작법 등을 설명해주세요."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MarkdownPreview content={field.value || ""} />
+                                </div>
                               </div>
                             </FormControl>
                             <FormDescription>
