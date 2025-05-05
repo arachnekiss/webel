@@ -54,7 +54,7 @@ interface Service {
   userId: number | null;
   title: string;
   description: string;
-  serviceType: string;
+  serviceType: '3d_printing' | 'manufacturing' | 'engineer';
   location: {
     lat: number;
     long: number;

@@ -595,9 +595,6 @@ export default function RegisterService() {
                  {serviceType === "3d_printing" && <Printer className="h-8 w-8" />}
                  {serviceType === "engineer" && <User className="h-8 w-8" />}
                  {serviceType === "manufacturing" && <Building className="h-8 w-8" />}
-                 {serviceType === "electronics" && <Hexagon className="h-8 w-8" />}
-                 {serviceType === "woodworking" && <Wrench className="h-8 w-8" />}
-                 {serviceType === "metalworking" && <Wrench className="h-8 w-8" />}
                </div>
               }
               <div>
@@ -652,9 +649,6 @@ export default function RegisterService() {
                                       {option.value === "3d_printing" && <Printer className="h-4 w-4" />}
                                       {option.value === "engineer" && <User className="h-4 w-4" />}
                                       {option.value === "manufacturing" && <Building className="h-4 w-4" />}
-                                      {option.value === "electronics" && <Hexagon className="h-4 w-4" />}
-                                      {option.value === "woodworking" && <Wrench className="h-4 w-4" />}
-                                      {option.value === "metalworking" && <Wrench className="h-4 w-4" />}
                                     </span>
                                     {option.label}
                                   </div>
@@ -931,9 +925,6 @@ export default function RegisterService() {
                                 {serviceType === "3d_printing" && <Printer className="h-8 w-8" />}
                                 {serviceType === "engineer" && <User className="h-8 w-8" />}
                                 {serviceType === "manufacturing" && <Building className="h-8 w-8" />}
-                                {serviceType === "electronics" && <Hexagon className="h-8 w-8" />}
-                                {serviceType === "woodworking" && <Wrench className="h-8 w-8" />}
-                                {serviceType === "metalworking" && <Wrench className="h-8 w-8" />}
                               </div>
                             </div>
                           )}
