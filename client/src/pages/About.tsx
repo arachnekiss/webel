@@ -330,12 +330,12 @@ const About: React.FC = () => {
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
-                <Link href="/remote-support" className="text-cyan-600 font-medium inline-flex items-center text-sm hover:text-cyan-700">
+                <Link href="/services/type/engineer" className="text-cyan-600 font-medium inline-flex items-center text-sm hover:text-cyan-700">
                   {language === 'ko' 
-                    ? '원격 지원 알아보기'
+                    ? '엔지니어 찾기'
                     : language === 'jp' 
-                      ? 'リモートサポートを見る'
-                      : 'Learn About Remote Support'}
+                      ? 'エンジニアを探す'
+                      : 'Find Engineers'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
