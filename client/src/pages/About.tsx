@@ -83,7 +83,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <CircleUser className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
@@ -103,7 +103,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <Factory className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
@@ -123,7 +123,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <ShieldCheck className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
