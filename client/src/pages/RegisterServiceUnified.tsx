@@ -160,6 +160,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const [serviceType, setServiceType] = useState<ServiceType>(defaultType || "3d_printing");
   const [useCurrentLocation, setUseCurrentLocation] = useState(false);
   const [addressInput, setAddressInput] = useState('');
+  const [isPremiumService, setIsPremiumService] = useState(false);
   // 여러 주소 관리를 위한 상태
   const [locationList, setLocationList] = useState<{lat: number; long: number; address: string}[]>([]);
   
@@ -501,28 +502,34 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
     );
   }
   
-  // 알림 메시지 (로그인 사용자가 아닌 경우)
-  const LoginAlert = () => {
+  // 유료 서비스 여부 확인 (가격 설정 필드 변경 시)
+  const handlePricingChange = (isFree: boolean) => {
+    form.setValue('isFreeService', isFree);
+    setIsPremiumService(!isFree);
+  };
+
+  // 알림 메시지 (유료 서비스 등록 시 로그인 필요)
+  const PremiumServiceAlert = () => {
     return (
-      <Alert className="mb-6">
+      <Alert className={`mb-6 ${(isPremiumService && !user) ? 'block' : 'hidden'}`}>
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>
-          {language === 'ko' ? '로그인 안내' : 
-           language === 'jp' ? 'ログインのご案内' : 
-           'Login Notice'}
+          {language === 'ko' ? '유료 서비스 안내' : 
+           language === 'jp' ? '有料サービスのご案内' : 
+           'Premium Service Notice'}
         </AlertTitle>
         <AlertDescription>
-          {language === 'ko' ? '서비스를 등록하려면 로그인이 필요합니다. 페이지는 자유롭게 둘러보실 수 있습니다.' : 
-           language === 'jp' ? 'サービスを登録するにはログインが必要です。ページは自由にご覧いただけます。' : 
-           'Login is required to register a service. You can browse the page freely.'}
+          {language === 'ko' ? '유료 서비스를 제공하려면 본인인증과 계좌등록이 필요합니다. 로그인 후 등록해주세요.' : 
+           language === 'jp' ? '有料サービスを提供するには本人確認と口座登録が必要です。ログイン後に登録してください。' : 
+           'Identity verification and account registration are required to provide paid services. Please log in to register.'}
           <Button
             variant="link"
             className="p-0 ml-2"
             onClick={() => navigate('/login')}
           >
-            {language === 'ko' ? '로그인 페이지로 이동' : 
-             language === 'jp' ? 'ログインページへ' : 
-             'Go to login page'}
+            {language === 'ko' ? '로그인하기' : 
+             language === 'jp' ? 'ログインする' : 
+             'Log in'}
           </Button>
         </AlertDescription>
       </Alert>
@@ -531,7 +538,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
 
   return (
     <div className="container mx-auto py-10 px-4">
-      {!user && <LoginAlert />}
+      <PremiumServiceAlert />
       
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">
@@ -1033,6 +1040,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                               onClick={() => {
                                 field.onChange(true);
                                 form.setValue("pricing", "무료");
+                                handlePricingChange(true);
                               }}
                             >
                               <div className="flex justify-between items-center mb-2">
@@ -1059,6 +1067,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
                                 } else {
                                   form.setValue("pricing", "기본 서비스 20,000원부터, 작업량에 따라 추가 비용");
                                 }
+                                handlePricingChange(false);
                               }}
                             >
                               <div className="flex justify-between items-center mb-2">
