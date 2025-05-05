@@ -8,138 +8,26 @@ import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 
-// 멀티미디어 미리보기 컴포넌트 - 텍스트 에디터 내에 직접 렌더링
+// 멀티미디어 미리보기 컴포넌트
 interface MediaPreviewProps {
   content: string;
-  compact?: boolean; // 요약 모드 (미디어 썸네일만 표시)
 }
 
-const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
+const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
-  
-  // 정규식 패턴
-  const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
-  const uuidPattern = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
-  const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
-  const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
-  const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
-  
-  // 이미지 드래그 기능 추가 (요약 모드에서는 비활성화)
-  useEffect(() => {
-    if (compact) return; // 요약 모드에서는 드래그 안함
-    const enableDragAndDrop = () => {
-      const container = document.querySelector('.media-preview');
-      if (!container) return;
-      
-      // 모든 이미지에 드래그 속성 추가
-      const images = container.querySelectorAll('img');
-      images.forEach(img => {
-        img.setAttribute('draggable', 'true');
-        img.classList.add('editor-img');
-        
-        // 드래그 시작 이벤트
-        img.addEventListener('dragstart', (e) => {
-          if (!e.dataTransfer) return;
-          img.classList.add('dragging-media');
-          e.dataTransfer.setData('text/plain', 'dragging-image');
-        });
-        
-        // 드래그 종료 이벤트
-        img.addEventListener('dragend', () => {
-          img.classList.remove('dragging-media');
-        });
-      });
-    };
+
+  // YouTube 링크 추출하여 임베드로 변환
+  const extractYouTubeEmbeds = (text: string) => {
+    // YouTube URL 패턴(일반 링크, 공유 링크, 모바일 링크 등)
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+    const matches = Array.from(text.matchAll(youtubeRegex));
     
-    // 컴포넌트 마운트 후 이미지 드래그 기능 추가
-    setTimeout(enableDragAndDrop, 100);
+    if (matches.length === 0) return [];
     
-    // 컴포넌트 언마운트 시 정리
-    return () => {
-      const container = document.querySelector('.media-preview');
-      if (!container) return;
-      
-      const images = container.querySelectorAll('img');
-      images.forEach(img => {
-        img.removeAttribute('draggable');
-      });
-    };
-  }, [content]);
-  
-  // 정규식 패턴 - UUID 패턴 추가
-  const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
-  const uuidImageRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi; // UUID 패턴 감지
-  const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
-  const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
-  const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
-  
-  // 이미지 드래그 기능 추가 (요약 모드가 아닐 때만)
-  useEffect(() => {
-    if (compact) return; // 요약 모드에서는 드래그 비활성화
-    
-    const enableDragAndDrop = () => {
-      const container = document.querySelector('.media-preview');
-      if (!container) return;
-      
-      // 모든 이미지에 드래그 속성 추가
-      const images = container.querySelectorAll('img');
-      images.forEach(img => {
-        img.setAttribute('draggable', 'true');
-        img.classList.add('editor-img');
-        
-        // 드래그 시작 이벤트
-        img.addEventListener('dragstart', (e) => {
-          if (!e.dataTransfer) return;
-          img.classList.add('dragging-media');
-          e.dataTransfer.setData('text/plain', 'dragging-image');
-        });
-        
-        // 드래그 종료 이벤트
-        img.addEventListener('dragend', () => {
-          img.classList.remove('dragging-media');
-        });
-      });
-    };
-    
-    // 컴포넌트 마운트 후 이미지 드래그 기능 추가
-    setTimeout(enableDragAndDrop, 100);
-    
-    // 컴포넌트 언마운트 시 정리
-    return () => {
-      const container = document.querySelector('.media-preview');
-      if (!container) return;
-      
-      const images = container.querySelectorAll('img');
-      images.forEach(img => {
-        img.removeAttribute('draggable');
-      });
-    };
-  }, [content, compact]);
-  
-  // 마크다운 이미지와 UUID 포맷 URL을 HTML 이미지로 변환
-  const renderImages = (text: string) => {
-    // 서버에서 직접 이미지 URL로 임베딩 케이스 처리
-    let processedText = text.replace(uuidImageRegex, (match) => {
-      const completeUrl = `/api/resources/media/${match}`;
-      return `![이미지](${completeUrl})`;
-    });
-    
-    // 마크다운 이미지 형식 변환
-    return processedText.replace(markdownImageRegex, (match, alt, url) => {
-      if (compact) {
-        // 요약 모드: 더 작은 썸네일 스타일
-        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img inline-block h-8 w-8 object-cover rounded-md shadow-sm border border-border mx-1" />`;
-      } else {
-        // 일반 모드: 전체 크기 이미지
-        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
-      }
-    });
-  };
-  
-  // YouTube 임베드 변환
-  const renderYouTube = (text: string) => {
-    return text.replace(youtubeRegex, (match, videoId) => {
-      return `
+    return matches.map(match => {
+      const videoId = match[1];
+      const originalUrl = match[0];
+      const embedCode = `
         <div class="youtube-embed my-3">
           <div class="aspect-video rounded-lg overflow-hidden shadow-md">
             <iframe 
@@ -151,76 +39,92 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
               allowfullscreen
             ></iframe>
           </div>
+          <div class="text-xs text-gray-500 mt-1">
+            <a href="${originalUrl}" target="_blank" rel="noopener noreferrer">${originalUrl}</a>
+          </div>
         </div>
       `;
+      return { originalUrl, embedCode };
     });
   };
-  
-  // 비디오 태그 유지
-  const renderVideos = (text: string) => {
-    return text;
-  };
-  
-  // 파일 다운로드 링크 스타일링
-  const renderFileLinks = (text: string) => {
-    return text.replace(fileRegex, (match, fileName, url) => {
-      return `
-        <a href="${url}" download="${fileName}" class="inline-flex items-center px-3 py-2 border border-input rounded-md bg-background hover:bg-accent transition-colors text-sm my-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          ${fileName}
-        </a>
-      `;
-    });
-  };
-  
-  // URL 링크 카드로 변환
-  const renderUrlCards = (text: string) => {
-    // 이미지와 YouTube URL 제외한 URL 패턴
-    const urlRegex = /https?:\/\/(?!.*\.(jpg|jpeg|png|gif|webp)(?:\?\S+)?$)(?!(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/))[^\s]+/gi;
+
+  // 이미지 URL 추출
+  const extractImages = (text: string) => {
+    // 일반 이미지 URL 패턴 (jpg, jpeg, png, gif, webp)
+    const imageRegex = /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)(\?\S+)?/gi;
+    const matches = Array.from(text.matchAll(imageRegex));
     
-    return text.replace(urlRegex, (url) => {
-      try {
-        const domain = new URL(url).hostname.replace('www.', '');
-        return `
-          <div class="url-card my-3">
-            <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
-              <div class="flex items-center">
-                <div class="url-icon mr-3 text-xl">🔗</div>
-                <div class="url-content overflow-hidden">
-                  <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
-                  <div class="url-link text-sm text-blue-600 truncate">
-                    <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
-                  </div>
+    if (matches.length === 0) return [];
+    
+    return matches.map(match => {
+      const imageUrl = match[0];
+      const embedCode = `
+        <div class="image-preview my-3">
+          <img 
+            src="${imageUrl}" 
+            alt="이미지" 
+            class="max-w-full rounded-lg shadow-sm"
+          />
+          <div class="text-xs text-gray-500 mt-1">
+            <a href="${imageUrl}" target="_blank" rel="noopener noreferrer">${imageUrl}</a>
+          </div>
+        </div>
+      `;
+      return { originalUrl: imageUrl, embedCode };
+    });
+  };
+
+  // 일반 URL 추출하여 카드로 변환
+  const extractUrlCards = (text: string) => {
+    // URL 패턴 - 이미지와 YouTube URL 제외
+    const urlRegex = /https?:\/\/(?!.*\.(jpg|jpeg|png|gif|webp)(?:\?\S+)?$)(?!(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/))[^\s]+/gi;
+    const matches = Array.from(text.matchAll(urlRegex));
+    
+    if (matches.length === 0) return [];
+    
+    return matches.map(match => {
+      const url = match[0];
+      const domain = new URL(url).hostname.replace('www.', '');
+      const embedCode = `
+        <div class="url-card my-3">
+          <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
+            <div class="flex items-center">
+              <div class="url-icon mr-3 text-xl">🔗</div>
+              <div class="url-content overflow-hidden">
+                <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
+                <div class="url-link text-sm text-blue-600 truncate">
+                  <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
                 </div>
               </div>
             </div>
           </div>
-        `;
-      } catch (e) {
-        return url;
-      }
+        </div>
+      `;
+      return { originalUrl: url, embedCode };
     });
   };
+
+  // 모든 미디어 요소 추출 및 변환
+  const youtubeEmbeds = extractYouTubeEmbeds(content);
+  const imageEmbeds = extractImages(content);
+  const urlCards = extractUrlCards(content);
   
-  // 모든 변환 적용 - 최종 HTML 생성
-  let processedContent = content;
-  processedContent = renderImages(processedContent);
-  processedContent = renderYouTube(processedContent);
-  processedContent = renderVideos(processedContent);
-  processedContent = renderFileLinks(processedContent);
-  processedContent = renderUrlCards(processedContent);
-  
+  // 추출된 미디어가 없으면 렌더링하지 않음
+  if (youtubeEmbeds.length === 0 && imageEmbeds.length === 0 && urlCards.length === 0) {
+    return null;
+  }
+
+  // 모든 미디어 요소를 HTML로 모아서 렌더링
+  const mediaElements = [...youtubeEmbeds, ...imageEmbeds, ...urlCards];
+  const mediaHtml = mediaElements.map(media => media.embedCode).join('');
+
   return (
     <div 
-      className="media-preview"
-      dangerouslySetInnerHTML={{ __html: processedContent }}
+      className="media-preview border-t mt-2 pt-2 px-2"
+      dangerouslySetInnerHTML={{ __html: mediaHtml }}
     />
   );
-}
+};
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
@@ -533,34 +437,22 @@ export default function ResourceUploadPage() {
   // 미디어 첨부 핸들러 함수들
   const handleMediaImageSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    if (mediaImageInputRef.current) {
-      mediaImageInputRef.current.value = '';
-      mediaImageInputRef.current.click();
-    }
+    mediaImageInputRef.current?.click();
   };
 
   const handleMediaGifSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    if (mediaGifInputRef.current) {
-      mediaGifInputRef.current.value = '';
-      mediaGifInputRef.current.click();
-    }
+    mediaGifInputRef.current?.click();
   };
 
   const handleMediaVideoSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    if (mediaVideoInputRef.current) {
-      mediaVideoInputRef.current.value = '';
-      mediaVideoInputRef.current.click();
-    }
+    mediaVideoInputRef.current?.click();
   };
 
   const handleMediaFileSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    if (mediaFileInputRef.current) {
-      mediaFileInputRef.current.value = '';
-      mediaFileInputRef.current.click();
-    }
+    mediaFileInputRef.current?.click();
   };
 
   const handleMediaUrlSelect = (fieldName: string) => {
@@ -568,59 +460,7 @@ export default function ResourceUploadPage() {
     setUrlInputActive(true);
     setTimeout(() => urlInputRef.current?.focus(), 100);
   };
-  
-  // 미디어 버튼 렌더링 함수 - 모든 미디어 버튼 표시
-  const renderMediaButtons = (fieldName: string) => (
-    <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        type="button" 
-        className="h-8"
-        onClick={() => handleMediaImageSelect(fieldName)}
-      >
-        <ImageIcon className="h-4 w-4 mr-1" /> 이미지
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        type="button" 
-        className="h-8"
-        onClick={() => handleMediaGifSelect(fieldName)}
-      >
-        <Smile className="h-4 w-4 mr-1" /> GIF
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        type="button" 
-        className="h-8"
-        onClick={() => handleMediaVideoSelect(fieldName)}
-      >
-        <Video className="h-4 w-4 mr-1" /> 동영상
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        type="button" 
-        className="h-8"
-        onClick={() => handleMediaFileSelect(fieldName)}
-      >
-        <FolderOpen className="h-4 w-4 mr-1" /> 파일
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        type="button" 
-        className="h-8"
-        onClick={() => handleMediaUrlSelect(fieldName)}
-      >
-        <Link2 className="h-4 w-4 mr-1" /> URL
-      </Button>
-    </div>
-  );
 
-  // 미디어 파일 업로드 및 직접 에디터에 렌더링
   const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
     const files = e.target.files;
     if (!files || files.length === 0 || !currentEditor) {
@@ -628,104 +468,32 @@ export default function ResourceUploadPage() {
     }
 
     const file = files[0];
-    
-    // 로컬 URL 생성 (즉시 미리보기용)
     const fileUrl = URL.createObjectURL(file);
-    
-    // 현재 필드의 값과 커서 위치 가져오기
-    const textAreaElement = document.querySelector(`[name="${currentEditor}"]`) as HTMLTextAreaElement;
-    if (!textAreaElement) return;
-    
-    const currentValue = textAreaElement.value || '';
-    const selectionStart = textAreaElement.selectionStart || currentValue.length;
-    const selectionEnd = textAreaElement.selectionEnd || currentValue.length;
-    
-    // 미디어 타입에 따라 다른 마크다운 콘텐츠 생성
     let markdownContent = '';
-    
+
     switch (type) {
       case 'image':
+        markdownContent = `\n![이미지](${fileUrl})\n`;
+        break;
       case 'gif':
-        // 이미지 마크다운 생성 (실제 렌더링될 형태)
-        markdownContent = `\n![${type === 'image' ? '이미지' : 'GIF'}](${fileUrl})\n`;
+        markdownContent = `\n![GIF](${fileUrl})\n`;
         break;
       case 'video':
-        // 비디오 HTML 태그 생성
         markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
         break;
       case 'file':
-        // 파일 다운로드 링크 생성
         markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
         break;
     }
-    
-    // 마크다운을 커서 위치에 삽입
-    const newValue = currentValue.substring(0, selectionStart) + markdownContent + currentValue.substring(selectionEnd);
-    
-    // 폼 값 업데이트 및 캐럿 위치 조정
-    form.setValue(currentEditor as any, newValue, { shouldValidate: true });
-    
-    // 에디터에 포커스 복원 및 커서 위치 조정
-    setTimeout(() => {
-      if (textAreaElement) {
-        textAreaElement.focus();
-        const newCursorPosition = selectionStart + markdownContent.length;
-        textAreaElement.setSelectionRange(newCursorPosition, newCursorPosition);
-      }
-    }, 10);
-    
-    // 파일 입력 초기화
+
+    // 현재 필드의 값 가져오기
+    const currentValue = form.getValues(currentEditor as any) || '';
+
+    // 커서 위치에 삽입하는 대신 텍스트 끝에 추가
+    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+
+    // 입력창 초기화
     if (e.target) e.target.value = '';
-    
-    // 성공 토스트 표시
-    toast({
-      title: "미디어 추가 완료",
-      description: `${type === 'image' ? '이미지' : type === 'gif' ? 'GIF' : type === 'video' ? '동영상' : '파일'}가 에디터에 삽입되었습니다.`,
-    });
-  };
-  
-  // 미리보기 영역의 내용을 기반으로 마크다운으로 변환하는 함수
-  const updateTextareaFromPreview = (previewContent: HTMLElement, textAreaElement: HTMLTextAreaElement) => {
-    // 현재 모든 미디어 요소를 순회하며 마크다운 생성
-    const mediaElements = previewContent.querySelectorAll('.media-element');
-    let markdownContent = '';
-    
-    mediaElements.forEach(mediaElement => {
-      // 이미지인 경우
-      const imgElement = mediaElement.querySelector('img');
-      if (imgElement) {
-        const src = imgElement.getAttribute('src') || '';
-        const alt = imgElement.getAttribute('alt') || '이미지';
-        markdownContent += `\n![${alt}](${src})\n`;
-        return;
-      }
-      
-      // 비디오인 경우
-      const videoElement = mediaElement.querySelector('video');
-      if (videoElement) {
-        const sourceElement = videoElement.querySelector('source');
-        if (sourceElement) {
-          const src = sourceElement.getAttribute('src') || '';
-          const type = sourceElement.getAttribute('type') || '';
-          markdownContent += `\n<video controls width="100%"><source src="${src}" type="${type}"></video>\n`;
-        }
-        return;
-      }
-      
-      // 파일인 경우
-      const linkElement = mediaElement.querySelector('a');
-      if (linkElement) {
-        const href = linkElement.getAttribute('href') || '';
-        const fileName = linkElement.textContent?.trim() || '파일';
-        markdownContent += `\n[파일 다운로드: ${fileName}](${href})\n`;
-      }
-    });
-    
-    // 생성된 마크다운으로 텍스트 영역 업데이트
-    const fieldName = textAreaElement.getAttribute('name');
-    if (fieldName) {
-      form.setValue(fieldName as any, markdownContent, { shouldValidate: true });
-    }
   };
 
   // YouTube 링크 처리 함수 - 텍스트를 그대로 반환하고, MediaPreview 컴포넌트에서 미리보기 처리
@@ -760,24 +528,18 @@ export default function ResourceUploadPage() {
       ></iframe>
       </div>\n`;
     } else {
-      // 이미지 URL 감지
-      const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
-      if (imageRegex.test(urlInput)) {
-        // 이미지 URL이면 마크다운 이미지 형식으로 추가
-        markdownContent = `\n![이미지](${urlInput})\n`;
-      } else {
-        try {
-          // URL 정보 추출
-          const domainMatch = urlInput.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
-          const domain = domainMatch ? domainMatch[1] : urlInput;
-          
-          // 일반 URL - 카드 형태로 표시 (MediaPreview에서 처리됨)
-          markdownContent = `\n${urlInput}\n`;
-        } catch (e) {
-          // URL 파싱 오류 시 기본 링크 형태로 추가
-          markdownContent = `\n[${urlInput}](${urlInput})\n`;
-        }
-      }
+      // 일반 URL - 카드 형태로 표시
+      markdownContent = `\n<div class="url-card">
+      <a href="${urlInput}" target="_blank" rel="noopener noreferrer">
+        <div class="url-preview">
+          <div class="url-icon">🔗</div>
+          <div class="url-content">
+            <div class="url-title">${urlInput}</div>
+            <div class="url-link">${urlInput}</div>
+          </div>
+        </div>
+      </a>
+      </div>\n`;
     }
 
     const currentValue = form.getValues(currentEditor as any) || '';
@@ -1343,15 +1105,6 @@ export default function ResourceUploadPage() {
                                       size="sm" 
                                       type="button" 
                                       className="h-8"
-                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
-                                    >
-                                      <Smile className="h-4 w-4 mr-1" /> GIF
-                                    </Button>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      type="button" 
-                                      className="h-8"
                                       onClick={() => handleMediaVideoSelect("assemblyInstructions")}
                                     >
                                       <Video className="h-4 w-4 mr-1" /> 동영상
@@ -1373,6 +1126,15 @@ export default function ResourceUploadPage() {
                                       onClick={() => handleMediaUrlSelect("assemblyInstructions")}
                                     >
                                       <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
                                     </Button>
                                   </div>
                                   {urlInputActive && currentEditor === "assemblyInstructions" && (
@@ -1414,7 +1176,7 @@ export default function ResourceUploadPage() {
                                   )}
                                   <div className="flex flex-col">
                                     <Textarea
-                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
+                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 위 버튼을 이용하여 이미지, 동영상, GIF, 파일, URL 등을 첨부할 수 있습니다."
                                       className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
                                       {...field}
                                       value={field.value || ""}
@@ -1424,7 +1186,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1539,7 +1301,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1657,7 +1419,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -1796,7 +1558,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -1911,7 +1673,7 @@ export default function ResourceUploadPage() {
                                         field.onChange(newValue);
                                       }}
                                     />
-                                    <MediaPreview content={field.value || ""} />
+                                    <MarkdownPreview content={field.value || ""} />
                                   </div>
                                 </div>
                               </FormControl>
@@ -2029,7 +1791,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -2146,7 +1908,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>
@@ -2263,7 +2025,7 @@ export default function ResourceUploadPage() {
                                       field.onChange(newValue);
                                     }}
                                   />
-                                  <MediaPreview content={field.value || ""} />
+                                  <MarkdownPreview content={field.value || ""} />
                                 </div>
                               </div>
                             </FormControl>

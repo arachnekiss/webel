@@ -11,22 +11,19 @@ import { v4 as uuidv4 } from "uuid";
 // 멀티미디어 미리보기 컴포넌트 - 텍스트 에디터 내에 직접 렌더링
 interface MediaPreviewProps {
   content: string;
-  compact?: boolean; // 요약 모드 (미디어 썸네일만 표시)
 }
 
-const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
+const MediaPreview = ({ content }: MediaPreviewProps) => {
   if (!content.trim()) return null;
   
   // 정규식 패턴
   const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
-  const uuidPattern = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
   const youtubeRegex = /https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
   const videoRegex = /<video[\s\S]*?<source src="(.*?)"[\s\S]*?<\/video>/g;
   const fileRegex = /\[파일 다운로드: (.*?)\]\((.*?)\)/g;
   
-  // 이미지 드래그 기능 추가 (요약 모드에서는 비활성화)
+  // 이미지 드래그 기능 추가
   useEffect(() => {
-    if (compact) return; // 요약 모드에서는 드래그 안함
     const enableDragAndDrop = () => {
       const container = document.querySelector('.media-preview');
       if (!container) return;
@@ -64,105 +61,53 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
         img.removeAttribute('draggable');
       });
     };
-  }, [content, compact]);
+  }, [content]);
   
-  // 마크다운 이미지와 UUID 포맷 URL을 HTML 이미지로 변환
+  // 마크다운 이미지를 HTML 이미지로 변환
   const renderImages = (text: string) => {
-    // UUID 패턴 인식 및 이미지 URL로 변환
-    let processedText = text.replace(uuidPattern, (match) => {
-      const completeUrl = `/api/resources/media/${match}`;
-      return `![이미지](${completeUrl})`;
-    });
-    
-    // 마크다운 이미지 형식 변환
-    return processedText.replace(markdownImageRegex, (match, alt, url) => {
-      if (compact) {
-        // 요약 모드: 더 작은 썸네일 스타일
-        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img inline-block h-8 w-8 object-cover rounded-md shadow-sm border border-border mx-1" />`;
-      } else {
-        // 일반 모드: 전체 크기 이미지
-        return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
-      }
+    return text.replace(markdownImageRegex, (match, alt, url) => {
+      return `<img src="${url}" alt="${alt || '이미지'}" class="editor-img max-w-full rounded-md shadow-sm border border-border my-2" />`;
     });
   };
   
   // YouTube 임베드 변환
   const renderYouTube = (text: string) => {
     return text.replace(youtubeRegex, (match, videoId) => {
-      if (compact) {
-        // 요약 모드: YouTube 아이콘으로 표시
-        return `<span class="inline-flex items-center bg-red-50 text-red-600 rounded-md px-2 py-1 text-xs font-medium mr-1 my-1">
-          <svg class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z" fill="currentColor" />
-            <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02" fill="#fff" />
-          </svg>
-          YouTube
-        </span>`;
-      } else {
-        // 일반 모드: 전체 유튜브 임베드
-        return `
-          <div class="youtube-embed my-3">
-            <div class="aspect-video rounded-lg overflow-hidden shadow-md">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src="https://www.youtube.com/embed/${videoId}" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-              ></iframe>
-            </div>
+      return `
+        <div class="youtube-embed my-3">
+          <div class="aspect-video rounded-lg overflow-hidden shadow-md">
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src="https://www.youtube.com/embed/${videoId}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+            ></iframe>
           </div>
-        `;
-      }
+        </div>
+      `;
     });
   };
   
-  // 비디오 태그 처리
+  // 비디오 태그 유지
   const renderVideos = (text: string) => {
-    if (compact) {
-      // 요약 모드: 비디오를 아이콘으로 대체
-      return text.replace(videoRegex, () => {
-        return `<span class="inline-flex items-center bg-blue-50 text-blue-600 rounded-md px-2 py-1 text-xs font-medium mr-1 my-1">
-          <svg class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="6" width="15" height="12" rx="2" stroke="currentColor" stroke-width="2" />
-            <path d="M22 12L17 8V16L22 12Z" fill="currentColor" />
-          </svg>
-          비디오
-        </span>`;
-      });
-    }
-    return text; // 일반 모드: 원본 비디오 유지
+    return text;
   };
   
   // 파일 다운로드 링크 스타일링
   const renderFileLinks = (text: string) => {
     return text.replace(fileRegex, (match, fileName, url) => {
-      if (compact) {
-        // 요약 모드: 파일을 아이콘으로 표시
-        return `<span class="inline-flex items-center bg-green-50 text-green-600 rounded-md px-2 py-1 text-xs font-medium mr-1 my-1">
-          <svg class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" />
-            <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" />
-            <path d="M16 13H8" stroke="currentColor" stroke-width="2" />
-            <path d="M16 17H8" stroke="currentColor" stroke-width="2" />
-            <path d="M10 9H9H8" stroke="currentColor" stroke-width="2" />
+      return `
+        <a href="${url}" download="${fileName}" class="inline-flex items-center px-3 py-2 border border-input rounded-md bg-background hover:bg-accent transition-colors text-sm my-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          파일
-        </span>`;
-      } else {
-        // 일반 모드: 전체 다운로드 링크
-        return `
-          <a href="${url}" download="${fileName}" class="inline-flex items-center px-3 py-2 border border-input rounded-md bg-background hover:bg-accent transition-colors text-sm my-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            ${fileName}
-          </a>
-        `;
-      }
+          ${fileName}
+        </a>
+      `;
     });
   };
   
@@ -174,34 +119,21 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
     return text.replace(urlRegex, (url) => {
       try {
         const domain = new URL(url).hostname.replace('www.', '');
-        
-        if (compact) {
-          // 요약 모드: 간단한 링크 아이콘
-          return `<span class="inline-flex items-center bg-purple-50 text-purple-600 rounded-md px-2 py-1 text-xs font-medium mr-1 my-1">
-            <svg class="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 13C11.3132 14.3765 13.0267 15.1447 14.8285 15.1447C16.6303 15.1447 18.3438 14.3765 19.657 13C20.8846 11.6318 21.5918 9.83703 21.6518 7.95329C21.7118 6.06954 21.1198 4.22925 19.9861 2.77611C18.8524 1.32296 17.2437 0.388758 15.4647 0.16375C13.6858 -0.0612583 11.8846 0.437872 10.4308 1.55554C8.97695 2.67321 8.00335 4.33101 7.72636 6.15632C7.44938 7.98162 7.88986 9.84344 8.9445 11.3555" stroke="currentColor" stroke-width="2" />
-              <path d="M14 11C12.6868 9.62349 10.9733 8.85526 9.17154 8.85526C7.36978 8.85526 5.65625 9.62349 4.343 11C3.11539 12.3682 2.40815 14.163 2.34817 16.0467C2.2882 17.9305 2.88019 19.7707 4.01389 21.2239C5.14759 22.677 6.75631 23.6112 8.53527 23.8362C10.3142 24.0613 12.1154 23.5621 13.5692 22.4445C15.0231 21.3268 15.9967 19.669 16.2736 17.8437C16.5506 16.0184 16.1101 14.1566 15.0555 12.6445" stroke="currentColor" stroke-width="2" />
-            </svg>
-            ${domain}
-          </span>`;
-        } else {
-          // 일반 모드: 전체 URL 카드
-          return `
-            <div class="url-card my-3">
-              <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
-                <div class="flex items-center">
-                  <div class="url-icon mr-3 text-xl">🔗</div>
-                  <div class="url-content overflow-hidden">
-                    <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
-                    <div class="url-link text-sm text-blue-600 truncate">
-                      <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
-                    </div>
+        return `
+          <div class="url-card my-3">
+            <div class="url-preview p-3 border rounded-lg shadow-sm bg-gray-50">
+              <div class="flex items-center">
+                <div class="url-icon mr-3 text-xl">🔗</div>
+                <div class="url-content overflow-hidden">
+                  <div class="url-title font-medium text-gray-900 truncate">${domain}</div>
+                  <div class="url-link text-sm text-blue-600 truncate">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>
                   </div>
                 </div>
               </div>
             </div>
-          `;
-        }
+          </div>
+        `;
       } catch (e) {
         return url;
       }
@@ -216,18 +148,13 @@ const MediaPreview = ({ content, compact = false }: MediaPreviewProps) => {
   processedContent = renderFileLinks(processedContent);
   processedContent = renderUrlCards(processedContent);
   
-  // 컨테이너 클래스 설정 (요약 모드에 따라 다름)
-  const containerClass = compact 
-    ? "media-preview media-preview-compact flex flex-wrap items-center gap-1 p-2 bg-gray-50 rounded-md border"
-    : "media-preview";
-  
   return (
     <div 
-      className={containerClass}
+      className="media-preview"
       dangerouslySetInnerHTML={{ __html: processedContent }}
     />
   );
-};
+}
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
@@ -570,862 +497,1931 @@ export default function ResourceUploadPage() {
     }
   };
 
-  // URL 입력 토글
-  const toggleUrlInput = (fieldName: string) => {
+  const handleMediaUrlSelect = (fieldName: string) => {
     setCurrentEditor(fieldName);
-    setUrlInputActive(prev => !prev);
-    if (!urlInputActive && urlInputRef.current) {
-      setTimeout(() => urlInputRef.current?.focus(), 100);
-    }
+    setUrlInputActive(true);
+    setTimeout(() => urlInputRef.current?.focus(), 100);
   };
-
-  // 이미지 파일 업로드 처리
-  const handleMediaImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !currentEditor) return;
-
-    const file = files[0];
-    
-    try {
-      // 폼 데이터 준비
-      const formData = new FormData();
-      formData.append('image', file);
-      
-      // 이미지 업로드 API 호출
-      const response = await apiRequest(
-        "POST",
-        "/api/resources/upload-image",
-        formData,
-        { isFormData: true }
-      );
-      
-      const data = await response.json();
-      
-      if (data.success && data.url) {
-        // 성공 시 에디터에 이미지 추가
-        const markdownImage = `![${file.name}](${data.url})`;
-        appendToEditor(currentEditor, markdownImage);
-        
-        toast({
-          title: "이미지 업로드 성공",
-          description: "이미지가 에디터에 추가되었습니다.",
-        });
-      } else {
-        throw new Error(data.message || "이미지 업로드 실패");
-      }
-    } catch (error) {
-      console.error("이미지 업로드 오류:", error);
-      toast({
-        title: "이미지 업로드 실패",
-        description: "이미지를 업로드하는 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    }
-    
-    // 파일 선택 초기화
-    e.target.value = '';
-  };
-
-  // 파일 업로드 처리
-  const handleMediaFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !currentEditor) return;
-
-    const file = files[0];
-    
-    try {
-      // 폼 데이터 준비
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      // 파일 업로드 API 호출
-      const response = await apiRequest(
-        "POST",
-        "/api/resources/upload-file",
-        formData,
-        { isFormData: true }
-      );
-      
-      const data = await response.json();
-      
-      if (data.success && data.url) {
-        // 성공 시 에디터에 파일 다운로드 링크 추가
-        const fileMarkdown = `[파일 다운로드: ${file.name}](${data.url})`;
-        appendToEditor(currentEditor, fileMarkdown);
-        
-        toast({
-          title: "파일 업로드 성공",
-          description: "파일 다운로드 링크가 에디터에 추가되었습니다.",
-        });
-      } else {
-        throw new Error(data.message || "파일 업로드 실패");
-      }
-    } catch (error) {
-      console.error("파일 업로드 오류:", error);
-      toast({
-        title: "파일 업로드 실패",
-        description: "파일을 업로드하는 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    }
-    
-    // 파일 선택 초기화
-    e.target.value = '';
-  };
-
-  // YouTube URL 추가
-  const handleUrlAdd = () => {
-    if (!urlInput.trim() || !currentEditor) {
-      setUrlInputActive(false);
-      setUrlInput("");
-      return;
-    }
-    
-    // YouTube URL 추가
-    appendToEditor(currentEditor, urlInput.trim());
-    
-    // 상태 초기화
-    setUrlInputActive(false);
-    setUrlInput("");
-    setCurrentEditor(null);
-  };
-
-  // 에디터에 컨텐츠 추가 헬퍼 함수
-  const appendToEditor = (fieldName: string, content: string) => {
-    const currentValue = form.getValues(fieldName as any) || '';
-    const newValue = currentValue + (currentValue.length > 0 ? '\n\n' : '') + content;
-    form.setValue(fieldName as any, newValue);
-    
-    // 미리보기 업데이트 (텍스트 영역에 변경 사항 반영)
-    const textArea = document.getElementById(`${fieldName}`) as HTMLTextAreaElement;
-    if (textArea) {
-      updateTextareaFromPreview(document.querySelector('.media-preview') as HTMLElement, textArea);
-    }
-  };
-
-  // 미리보기에서 텍스트 영역으로 변경 사항 반영
-  const updateTextareaFromPreview = (previewContent: HTMLElement, textAreaElement: HTMLTextAreaElement) => {
-    if (!previewContent || !textAreaElement) return;
-    // 텍스트 영역에 변경 사항 반영 로직 추가
-    // (필요시 구현)
-  };
-
-  // 갤러리 이미지 미리보기 카드
-  const FilePreviewCard = ({ file, onDelete }: { file: FileWithPreview, onDelete: () => void }) => (
-    <div className="relative border rounded-md overflow-hidden">
-      <div className="aspect-square w-32 overflow-hidden">
-        <img 
-          src={file.preview} 
-          alt={file.name} 
-          className="w-full h-full object-cover transition-transform duration-200 hover:scale-110" 
-        />
-      </div>
-      <button 
+  
+  // 미디어 버튼 렌더링 함수 - 모든 미디어 버튼 표시
+  const renderMediaButtons = (fieldName: string) => (
+    <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+      <Button 
+        variant="outline" 
+        size="sm" 
         type="button" 
-        onClick={onDelete}
-        className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/80 transition-colors"
+        className="h-8"
+        onClick={() => handleMediaImageSelect(fieldName)}
       >
-        <X className="h-3 w-3" />
-      </button>
-      {file.progress !== undefined && file.progress < 100 && (
-        <Progress value={file.progress} className="absolute bottom-0 left-0 right-0 h-1 rounded-none" />
-      )}
+        <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaGifSelect(fieldName)}
+      >
+        <Smile className="h-4 w-4 mr-1" /> GIF
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaVideoSelect(fieldName)}
+      >
+        <Video className="h-4 w-4 mr-1" /> 동영상
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaFileSelect(fieldName)}
+      >
+        <FolderOpen className="h-4 w-4 mr-1" /> 파일
+      </Button>
+      <Button 
+        variant="outline" 
+        size="sm" 
+        type="button" 
+        className="h-8"
+        onClick={() => handleMediaUrlSelect(fieldName)}
+      >
+        <Link2 className="h-4 w-4 mr-1" /> URL
+      </Button>
     </div>
   );
 
+  // 미디어 파일 업로드 및 직접 에디터에 렌더링
+  const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !currentEditor) {
+      return;
+    }
+
+    const file = files[0];
+    
+    // 로컬 URL 생성 (즉시 미리보기용)
+    const fileUrl = URL.createObjectURL(file);
+    
+    // 현재 필드의 값과 커서 위치 가져오기
+    const textAreaElement = document.querySelector(`[name="${currentEditor}"]`) as HTMLTextAreaElement;
+    if (!textAreaElement) return;
+    
+    const currentValue = textAreaElement.value || '';
+    const selectionStart = textAreaElement.selectionStart || currentValue.length;
+    const selectionEnd = textAreaElement.selectionEnd || currentValue.length;
+    
+    // 미디어 타입에 따라 다른 마크다운 콘텐츠 생성
+    let markdownContent = '';
+    
+    switch (type) {
+      case 'image':
+      case 'gif':
+        // 이미지 마크다운 생성 (실제 렌더링될 형태)
+        markdownContent = `\n![${type === 'image' ? '이미지' : 'GIF'}](${fileUrl})\n`;
+        break;
+      case 'video':
+        // 비디오 HTML 태그 생성
+        markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
+        break;
+      case 'file':
+        // 파일 다운로드 링크 생성
+        markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
+        break;
+    }
+    
+    // 마크다운을 커서 위치에 삽입
+    const newValue = currentValue.substring(0, selectionStart) + markdownContent + currentValue.substring(selectionEnd);
+    
+    // 폼 값 업데이트 및 캐럿 위치 조정
+    form.setValue(currentEditor as any, newValue, { shouldValidate: true });
+    
+    // 에디터에 포커스 복원 및 커서 위치 조정
+    setTimeout(() => {
+      if (textAreaElement) {
+        textAreaElement.focus();
+        const newCursorPosition = selectionStart + markdownContent.length;
+        textAreaElement.setSelectionRange(newCursorPosition, newCursorPosition);
+      }
+    }, 10);
+    
+    // 파일 입력 초기화
+    if (e.target) e.target.value = '';
+    
+    // 성공 토스트 표시
+    toast({
+      title: "미디어 추가 완료",
+      description: `${type === 'image' ? '이미지' : type === 'gif' ? 'GIF' : type === 'video' ? '동영상' : '파일'}가 에디터에 삽입되었습니다.`,
+    });
+  };
+  
+  // 미리보기 영역의 내용을 기반으로 마크다운으로 변환하는 함수
+  const updateTextareaFromPreview = (previewContent: HTMLElement, textAreaElement: HTMLTextAreaElement) => {
+    // 현재 모든 미디어 요소를 순회하며 마크다운 생성
+    const mediaElements = previewContent.querySelectorAll('.media-element');
+    let markdownContent = '';
+    
+    mediaElements.forEach(mediaElement => {
+      // 이미지인 경우
+      const imgElement = mediaElement.querySelector('img');
+      if (imgElement) {
+        const src = imgElement.getAttribute('src') || '';
+        const alt = imgElement.getAttribute('alt') || '이미지';
+        markdownContent += `\n![${alt}](${src})\n`;
+        return;
+      }
+      
+      // 비디오인 경우
+      const videoElement = mediaElement.querySelector('video');
+      if (videoElement) {
+        const sourceElement = videoElement.querySelector('source');
+        if (sourceElement) {
+          const src = sourceElement.getAttribute('src') || '';
+          const type = sourceElement.getAttribute('type') || '';
+          markdownContent += `\n<video controls width="100%"><source src="${src}" type="${type}"></video>\n`;
+        }
+        return;
+      }
+      
+      // 파일인 경우
+      const linkElement = mediaElement.querySelector('a');
+      if (linkElement) {
+        const href = linkElement.getAttribute('href') || '';
+        const fileName = linkElement.textContent?.trim() || '파일';
+        markdownContent += `\n[파일 다운로드: ${fileName}](${href})\n`;
+      }
+    });
+    
+    // 생성된 마크다운으로 텍스트 영역 업데이트
+    const fieldName = textAreaElement.getAttribute('name');
+    if (fieldName) {
+      form.setValue(fieldName as any, markdownContent, { shouldValidate: true });
+    }
+  };
+
+  // YouTube 링크 처리 함수 - 텍스트를 그대로 반환하고, MediaPreview 컴포넌트에서 미리보기 처리
+  const processYouTubeLinks = async (text: string): Promise<string> => {
+    return text; // 텍스트를 변환하지 않고 그대로 반환, 대신 MediaPreview에서 처리
+  };
+
+  const handleUrlSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!urlInput.trim() || !currentEditor) {
+      setUrlInputActive(false);
+      return;
+    }
+
+    // YouTube URL 감지 및 처리
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const match = urlInput.match(youtubeRegex);
+
+    let markdownContent = '';
+
+    if (match && match[1]) {
+      // YouTube 비디오 임베드
+      const videoId = match[1];
+      markdownContent = `\n<div class="youtube-embed">
+      <iframe 
+        width="100%" 
+        height="315" 
+        src="https://www.youtube.com/embed/${videoId}" 
+        frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen
+      ></iframe>
+      </div>\n`;
+    } else {
+      // 이미지 URL 감지
+      const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+      if (imageRegex.test(urlInput)) {
+        // 이미지 URL이면 마크다운 이미지 형식으로 추가
+        markdownContent = `\n![이미지](${urlInput})\n`;
+      } else {
+        try {
+          // URL 정보 추출
+          const domainMatch = urlInput.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
+          const domain = domainMatch ? domainMatch[1] : urlInput;
+          
+          // 일반 URL - 카드 형태로 표시 (MediaPreview에서 처리됨)
+          markdownContent = `\n${urlInput}\n`;
+        } catch (e) {
+          // URL 파싱 오류 시 기본 링크 형태로 추가
+          markdownContent = `\n[${urlInput}](${urlInput})\n`;
+        }
+      }
+    }
+
+    const currentValue = form.getValues(currentEditor as any) || '';
+    form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
+
+    setUrlInput('');
+    setUrlInputActive(false);
+  };
+
+  // 진행률 표시 컴포넌트
+  const ProgressStatus = () => (
+    <div className="flex items-center space-x-2">
+      <div className="flex-1">
+        <Progress value={uploadProgress} className="h-2" />
+      </div>
+      <div className="w-10 text-sm font-medium">{Math.round(uploadProgress)}%</div>
+    </div>
+  );
+
+  // 파일 미리보기 카드 컴포넌트
+  const FilePreviewCard = ({ file, onDelete }: { file: FileWithPreview, onDelete: () => void }) => (
+    <div className="relative group">
+      <div className="overflow-hidden border rounded-md aspect-video bg-muted/20">
+        <img src={file.preview} alt="미리보기" className="object-cover w-full h-full" />
+        <Button
+          type="button"
+          variant="destructive"
+          size="icon"
+          className="absolute top-2 right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={onDelete}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+
+  // 미디어 파일 입력 참조용 숨겨진 input 요소들
+  const renderHiddenInputs = () => (
+    <>
+      <input
+        ref={mediaImageInputRef}
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={(e) => handleMediaFileUpload(e, 'image')}
+      />
+      <input
+        ref={mediaGifInputRef}
+        type="file"
+        className="hidden"
+        accept="image/gif"
+        onChange={(e) => handleMediaFileUpload(e, 'gif')}
+      />
+      <input
+        ref={mediaVideoInputRef}
+        type="file"
+        className="hidden"
+        accept="video/*"
+        onChange={(e) => handleMediaFileUpload(e, 'video')}
+      />
+      <input
+        ref={mediaFileInputRef}
+        type="file"
+        className="hidden"
+        onChange={(e) => handleMediaFileUpload(e, 'file')}
+      />
+    </>
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container py-6 max-w-screen-lg mx-auto">
-        {/* 상단 헤더 */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setLocation('/admin/resources')}
+    <div className="container mx-auto py-6">
+      <div className="flex flex-col space-y-6">
+        {/* 미디어 첨부용 숨겨진 input 요소들 */}
+        {renderHiddenInputs()}
+        {/* 헤더 섹션 */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b">
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/admin/resources")}
+              className="mr-4"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              돌아가기
             </Button>
-            <h1 className="text-2xl font-bold">자료 업로드</h1>
+            <div>
+              <h1 className="text-2xl font-bold">리소스 업로드</h1>
+              <p className="text-muted-foreground">새로운 리소스를 생성하고 공유하세요</p>
+            </div>
           </div>
+
           <div className="flex items-center space-x-2">
             {lastSaved && (
               <div className="text-xs text-muted-foreground flex items-center">
                 <Clock className="h-3 w-3 mr-1" />
-                <span>저장됨: {lastSaved.toLocaleTimeString()}</span>
+                {`마지막 저장: ${lastSaved.toLocaleTimeString()}`}
               </div>
             )}
-            <Button 
-              variant="outline" 
-              size="sm"
+            <Button
+              type="button"
+              variant="outline"
               onClick={saveFormLocally}
+              disabled={mutation.isPending}
             >
               <Save className="h-4 w-4 mr-1" />
               임시 저장
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
+            <Button
+              type="button"
+              variant="outline"
               onClick={loadLocalSave}
+              disabled={mutation.isPending}
             >
-              <FolderOpen className="h-4 w-4 mr-1" />
+              <FileUp className="h-4 w-4 mr-1" />
               불러오기
+            </Button>
+            <Button
+              type="submit"
+              form="resource-form"
+              disabled={mutation.isPending}
+              className="md:w-auto w-full"
+            >
+              {mutation.isPending ? (
+                <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
+              ) : (
+                <>업로드 <Upload className="ml-2 h-4 w-4" /></>
+              )}
             </Button>
           </div>
         </div>
-        
-        {/* 업로드 진행 표시줄 */}
-        {isUploading && (
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-medium">업로드 중... {Math.round(uploadProgress)}%</span>
-            </div>
-            <Progress value={uploadProgress} className="h-2" />
-          </div>
-        )}
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <Tabs 
-              value={currentTab} 
-              onValueChange={setCurrentTab}
-              className="w-full"
-            >
-              <div className="mb-6">
-                <TabsList className="w-full grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
-                  <TabsTrigger value="basic" className="gap-1">
-                    <FileText className="h-4 w-4" />
-                    <span className="hidden md:inline-block">기본 정보</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="details" className="gap-1">
-                    <Info className="h-4 w-4" />
-                    <span className="hidden md:inline-block">상세 정보</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="files" className="gap-1">
-                    <UploadCloud className="h-4 w-4" />
-                    <span className="hidden md:inline-block">파일 첨부</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
+
+        {/* 탭 네비게이션 */}
+        <Tabs defaultValue="basic" value={currentTab} onValueChange={setCurrentTab} className="w-full">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 mb-6">
+            <TabsTrigger value="basic" className="flex items-center">
+              <FileText className="h-4 w-4 mr-2" />
+              기본 정보
+            </TabsTrigger>
+            <TabsTrigger value="images" className="flex items-center">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              이미지 갤러리
+            </TabsTrigger>
+            <TabsTrigger value="details" className="flex items-center">
+              <Info className="h-4 w-4 mr-2" />
+              상세 정보
+            </TabsTrigger>
+            <TabsTrigger value="files" className="flex items-center">
+              <UploadCloud className="h-4 w-4 mr-2" />
+              파일 업로드
+            </TabsTrigger>
+          </TabsList>
+
+          <Form {...form}>
+            <form id="resource-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
               {/* 기본 정보 탭 */}
-              <TabsContent value="basic" className="space-y-6">
-                <Card>
-                  <CardContent className="pt-6 space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>제목 <span className="text-red-500">*</span></FormLabel>
+              <TabsContent value="basic" className="space-y-6 mt-2">
+                <Alert className="mb-6">
+                  <Info className="h-4 w-4" />
+                  <AlertTitle>리소스 기본 정보를 입력해주세요</AlertTitle>
+                  <AlertDescription>
+                    정확한 정보를 제공할수록 사용자들이 리소스를 더 쉽게 찾고 활용할 수 있습니다.
+                  </AlertDescription>
+                </Alert>
+
+                {/* 제목 및 카테고리 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>리소스 제목 (선택)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="간결하고 명확한 제목을 입력하세요" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="resourceType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>카테고리</FormLabel>
+                        <Select onValueChange={(value) => {
+                          field.onChange(value);
+                          form.trigger("resourceType");
+                        }} defaultValue={field.value}>
                           <FormControl>
-                            <Input placeholder="자료 제목을 입력하세요" {...field} />
+                            <SelectTrigger>
+                              <SelectValue placeholder="카테고리 선택" />
+                            </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="resourceType"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>자료 유형 <span className="text-red-500">*</span></FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="자료 유형을 선택하세요" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Object.entries(categoryLabels).map(([value, label]) => (
-                                <SelectItem key={value} value={value}>{label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {resourceTypeInfo && (
-                            <FormDescription>
-                              <div className="flex items-start mt-2">
-                                <Info className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
-                                <span className="text-sm">{resourceTypeInfo}</span>
-                              </div>
-                            </FormDescription>
-                          )}
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="tags"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>태그</FormLabel>
-                          <div className="flex items-center space-x-2">
-                            <Tag className="h-4 w-4 text-muted-foreground" />
-                            <FormControl>
-                              <Input placeholder="태그를 입력하세요 (쉼표로 구분)" {...field} />
-                            </FormControl>
-                          </div>
+                          <SelectContent>
+                            {Object.entries(categoryLabels).map(([value, label]) => (
+                              <SelectItem key={value} value={value}>{label}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        {resourceTypeInfo && (
                           <FormDescription>
-                            쉼표로 구분하여 여러 태그를 입력할 수 있습니다.
+                            {resourceTypeInfo}
                           </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>설명</FormLabel>
+                        )}
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* 세부 카테고리 및 날짜 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="uploadDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>업로드 일자</FormLabel>
+                        <FormControl>
                           <div className="relative">
-                            <FormControl>
-                              <Textarea 
-                                placeholder="자료에 대한 설명을 입력하세요" 
-                                className="min-h-32 resize-y"
-                                id="description"
-                                {...field} 
-                              />
-                            </FormControl>
-                            
-                            {/* 미디어 첨부 도구 */}
-                            <div className="absolute right-3 bottom-3 flex space-x-1">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaImageSelect('description')}
-                              >
-                                <ImageIcon className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaVideoSelect('description')}
-                              >
-                                <Video className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaFileSelect('description')}
-                              >
-                                <FileUp className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => toggleUrlInput('description')}
-                              >
-                                <Link2 className="h-4 w-4" />
-                              </Button>
+                            <Input 
+                              type="text" 
+                              placeholder="YYYY-MM-DD" 
+                              {...field}
+                              value={field.value || new Date().toISOString().split('T')[0]}
+                              onChange={(e) => field.onChange(e.target.value)}
+                              pattern="\d{4}-\d{2}-\d{2}"
+                            />
+                            <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-8 w-8"
+                                    type="button"
+                                  >
+                                    <CalendarIcon className="h-4 w-4" />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="end">
+                                  <Calendar
+                                    mode="single"
+                                    selected={field.value ? new Date(field.value) : new Date()}
+                                    onSelect={(date) => {
+                                      if (date) {
+                                        const dateStr = date.toISOString().split('T')[0];
+                                        field.onChange(dateStr);
+                                      }
+                                    }}
+                                    initialFocus
+                                  />
+                                </PopoverContent>
+                              </Popover>
                             </div>
                           </div>
-                          
-                          {/* URL 입력 필드 */}
-                          {urlInputActive && currentEditor === 'description' && (
-                            <div className="mt-2 flex space-x-2">
-                              <Input
-                                ref={urlInputRef}
-                                value={urlInput}
-                                onChange={(e) => setUrlInput(e.target.value)}
-                                placeholder="URL을 입력하세요 (YouTube 등)"
-                                className="flex-1"
-                                onKeyDown={(e) => e.key === 'Enter' && handleUrlAdd()}
-                              />
-                              <Button 
-                                type="button" 
-                                onClick={handleUrlAdd}
-                                size="sm"
-                              >
-                                추가
-                              </Button>
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => {
-                                  setUrlInputActive(false);
-                                  setUrlInput("");
-                                }}
-                              >
-                                취소
-                              </Button>
-                            </div>
-                          )}
-                          
-                          {/* 미리보기 */}
-                          {field.value && (
-                            <div className="mt-4">
-                              <FormLabel className="text-sm text-muted-foreground">미리보기</FormLabel>
-                              <div className="mt-2 p-4 border rounded-md bg-muted/50">
-                                <MediaPreview content={field.value} />
-                              </div>
-                            </div>
-                          )}
-                          
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
+                        </FormControl>
+                        <FormDescription>
+                          리소스가 생성된 날짜를 입력하거나 달력에서 선택해주세요. 형식: YYYY-MM-DD
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="downloadUrl"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>다운로드 URL</FormLabel>
+                        <FormControl>
+                          <div className="flex">
+                            <span className="inline-flex items-center px-3 bg-muted text-muted-foreground rounded-l-md border border-r-0 border-input">
+                              <Link2 className="h-4 w-4" />
+                            </span>
+                            <Input
+                              className="rounded-l-none"
+                              placeholder="다운로드 URL (있는 경우)"
+                              {...field}
+                              value={field.value || ""}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormDescription>
+                          리소스를 다운로드할 수 있는 URL을 입력해주세요.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* 설명 */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>설명 (선택)</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="리소스에 대한 간략한 설명을 입력하세요 (이 내용은 리소스 목록에서 미리보기로 표시됩니다)"
+                          className="min-h-[120px] resize-y"
+                          {...field}
+                          onChange={async (e) => {
+                            const newValue = await processYouTubeLinks(e.target.value);
+                            field.onChange(newValue);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* 태그 */}
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>태그</FormLabel>
+                      <FormControl>
+                        <div className="flex">
+                          <span className="inline-flex items-center px-3 bg-muted text-muted-foreground rounded-l-md border border-r-0 border-input">
+                            <Tag className="h-4 w-4" />
+                          </span>
+                          <Input
+                            className="rounded-l-none"
+                            placeholder="#태그1 #태그2 #태그3 형식으로 입력 (예: #아두이노 #전자공학 #DIY)"
+                            {...field}
+                            value={field.value || ""}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        태그를 사용하면 검색 결과에 더 잘 노출되고, 관련 리소스 추천에 활용됩니다.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-between pt-4 border-t">
+                  <div></div>
+                  <Button type="button" onClick={() => setCurrentTab("images")}>
+                    다음: 이미지 갤러리
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </TabsContent>
-              
-              {/* 상세 정보 탭 */}
-              <TabsContent value="details" className="space-y-6">
-                <Card>
-                  <CardContent className="pt-6 space-y-6">
-                    <FormField
-                      control={form.control}
-                      name="downloadUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>다운로드 URL</FormLabel>
-                          <FormControl>
-                            <Input placeholder="외부 다운로드 링크 (있는 경우)" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            외부 사이트에서 다운로드할 수 있는 URL이 있다면 입력하세요.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="howToUse"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>사용 방법</FormLabel>
-                          <div className="relative">
-                            <FormControl>
-                              <Textarea 
-                                placeholder="자료 사용 방법을 설명하세요" 
-                                className="min-h-32 resize-y" 
-                                id="howToUse"
-                                {...field} 
-                              />
-                            </FormControl>
-                            
-                            {/* 미디어 첨부 도구 */}
-                            <div className="absolute right-3 bottom-3 flex space-x-1">
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaImageSelect('howToUse')}
-                              >
-                                <ImageIcon className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaVideoSelect('howToUse')}
-                              >
-                                <Video className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => handleMediaFileSelect('howToUse')}
-                              >
-                                <FileUp className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 rounded-full"
-                                onClick={() => toggleUrlInput('howToUse')}
-                              >
-                                <Link2 className="h-4 w-4" />
-                              </Button>
-                            </div>
+
+              {/* 이미지 갤러리 탭 */}
+              <TabsContent value="images" className="space-y-6 mt-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* 썸네일 업로드 영역 */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">대표 이미지 (썸네일)</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      리소스 목록에 표시될 대표 이미지를 업로드해주세요. 권장 비율은 16:9입니다.
+                    </p>
+
+                    <div className="flex flex-col gap-4">
+                      {thumbnailFile ? (
+                        <div className="relative group">
+                          <div className="overflow-hidden border rounded-md aspect-video bg-muted/20">
+                            <img 
+                              src={thumbnailFile.preview || ''} 
+                              alt="대표 이미지" 
+                              className="object-cover w-full h-full"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => setThumbnailFile(null)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
                           </div>
-                          
-                          {/* URL 입력 필드 */}
-                          {urlInputActive && currentEditor === 'howToUse' && (
-                            <div className="mt-2 flex space-x-2">
-                              <Input
-                                ref={urlInputRef}
-                                value={urlInput}
-                                onChange={(e) => setUrlInput(e.target.value)}
-                                placeholder="URL을 입력하세요 (YouTube 등)"
-                                className="flex-1"
-                                onKeyDown={(e) => e.key === 'Enter' && handleUrlAdd()}
-                              />
-                              <Button 
-                                type="button" 
-                                onClick={handleUrlAdd}
-                                size="sm"
-                              >
-                                추가
-                              </Button>
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => {
-                                  setUrlInputActive(false);
-                                  setUrlInput("");
-                                }}
-                              >
-                                취소
-                              </Button>
-                            </div>
-                          )}
-                          
-                          {/* 미리보기 */}
-                          {field.value && (
-                            <div className="mt-4">
-                              <FormLabel className="text-sm text-muted-foreground">미리보기</FormLabel>
-                              <div className="mt-2 p-4 border rounded-md bg-muted/50">
-                                <MediaPreview content={field.value} />
-                              </div>
-                            </div>
-                          )}
-                          
-                          <FormMessage />
-                        </FormItem>
+                        </div>
+                      ) : (
+                        <div 
+                          className="border border-dashed rounded-md flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-muted/20 transition-colors aspect-video"
+                          onClick={() => {
+                            const input = document.getElementById('thumbnailInput') as HTMLInputElement;
+                            if (input) input.click();
+                          }}
+                        >
+                          <ImageIcon className="h-8 w-8 mb-2 text-muted-foreground" />
+                          <p className="text-sm font-medium mb-1">대표 이미지 추가</p>
+                          <p className="text-xs text-muted-foreground">클릭하여 이미지 업로드</p>
+                        </div>
                       )}
+                      <input
+                        id="thumbnailInput"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => handleFileSelect(e, 'thumbnail')}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="mt-2 w-full"
+                        onClick={() => {
+                          const input = document.getElementById('thumbnailInput') as HTMLInputElement;
+                          if (input) input.click();
+                        }}
+                      >
+                        {thumbnailFile ? "대표 이미지 변경" : "대표 이미지 선택"}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* 갤러리 이미지 업로드 영역 */}
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">갤러리 이미지</h3>
+                    <p className="textsm text-muted-foreground mb-4">
+                      추가 이미지를 업로드하여 리소스를 더 상세하게 보여주세요. 최대 10개까지 가능합니다.
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                      {galleryFiles.map((file, index) => (
+                        <FilePreviewCard 
+                          key={index} 
+                          file={file} 
+                          onDelete={() => removeGalleryFile(index)}
+                        />
+                      ))}
+
+                      {galleryFiles.length < 10 && (
+                        <div 
+                          className="border border-dashed rounded-md flex flex-col items-center justify-center p-4 cursor-pointer hover:bg-muted/20 transition-colors aspect-video"
+                          onClick={() => {
+                            const input = document.getElementById('galleryInput') as HTMLInputElement;
+                            if (input) input.click();
+                          }}
+                        >
+                          <Plus className="h-6 w-6 mb-1 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">이미지 추가</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <input
+                      id="galleryInput"
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={(e) => handleFileSelect(e, 'gallery')}
                     />
-                    
-                    {watchResourceType === 'hardware_design' && (
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => {
+                        const input = document.getElementById('galleryInput') as HTMLInputElement;
+                        if (input) input.click();
+                      }}
+                      disabled={galleryFiles.length >= 10}
+                    >
+                      <ImageIcon className="h-4 w-4 mr-1" />
+                      갤러리 이미지 추가 {galleryFiles.length > 0 && `(${galleryFiles.length}/10)`}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex justify-between pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={() => setCurrentTab("basic")}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    이전: 기본 정보
+                  </Button>
+                  <Button type="button" onClick={() => setCurrentTab("details")}>
+                    다음: 상세 정보
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+
+              {/* 상세 정보 탭 */}
+              <TabsContent value="details" className="space-y-6 mt-2">
+                {(
+                  <>
+                    {/* 카테고리별 상세 정보 */}
+                    {form.watch('resourceType') === 'hardware_design' && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <FormField
+                            control={form.control}
+                            name="materials"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>필요한 재료</FormLabel>
+                                <FormControl>
+                                  <Textarea
+                                    placeholder="제작에 필요한 재료를 입력하세요 (한 줄에 하나씩)"
+                                    className="min-h-[150px] resize-y"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  재료명, 수량, 규격 등을 포함하여 상세히 작성해주세요.
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name="dimensions"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>크기/치수</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="예: 100mm x 50mm x 20mm"
+                                    {...field}
+                                    value={field.value || ""}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  제품의 물리적 크기나 치수를 입력해주세요.
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
                         <FormField
                           control={form.control}
                           name="assemblyInstructions"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>조립 방법</FormLabel>
-                              <div className="relative">
-                                <FormControl>
-                                  <Textarea 
-                                    placeholder="조립 방법을 단계별로 설명하세요" 
-                                    className="min-h-32 resize-y" 
-                                    id="assemblyInstructions"
-                                    {...field} 
-                                  />
-                                </FormControl>
-                                
-                                {/* 미디어 첨부 도구 */}
-                                <div className="absolute right-3 bottom-3 flex space-x-1">
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full"
-                                    onClick={() => handleMediaImageSelect('assemblyInstructions')}
-                                  >
-                                    <ImageIcon className="h-4 w-4" />
-                                  </Button>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 rounded-full"
-                                    onClick={() => handleMediaVideoSelect('assemblyInstructions')}
-                                  >
-                                    <Video className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              {/* 미리보기 */}
-                              {field.value && (
-                                <div className="mt-4">
-                                  <FormLabel className="text-sm text-muted-foreground">미리보기</FormLabel>
-                                  <div className="mt-2 p-4 border rounded-md bg-muted/50">
-                                    <MediaPreview content={field.value} />
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("assemblyInstructions")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                  </div>
+                                  {urlInputActive && currentEditor === "assemblyInstructions" && (
+                                    <div className="p-2 border-b bg-muted/5">
+                                      <div className="flex gap-2">
+                                        <Input
+                                          ref={urlInputRef}
+                                          value={urlInput}
+                                          onChange={(e) => setUrlInput(e.target.value)}
+                                          placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                          className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
+                                        />
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setUrlInputActive(false);
+                                            setUrlInput("");
+                                          }}
+                                        >
+                                          취소
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        // YouTube URL 감지 및 변환
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MediaPreview content={field.value || ""} />
                                   </div>
                                 </div>
-                              )}
-                              
+                              </FormControl>
+                              <FormDescription>
+                                조립에 필요한 단계와 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={form.control}
-                          name="materials"
+                          name="howToUse"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>필요한 재료</FormLabel>
+                              <FormLabel>사용법</FormLabel>
                               <FormControl>
-                                <Textarea 
-                                  placeholder="필요한 재료와 부품을 나열하세요" 
-                                  className="min-h-20 resize-y" 
-                                  {...field} 
-                                />
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("howToUse")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("howToUse")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("howToUse")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("howToUse")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("howToUse")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
+                                  {urlInputActive && currentEditor === "howToUse" && (
+                                    <div className="p-2 border-b bg-muted/5">
+                                      <div className="flex gap-2">
+                                        <Input
+                                          ref={urlInputRef}
+                                          value={urlInput}
+                                          onChange={(e) => setUrlInput(e.target.value)}
+                                          placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                          className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
+                                        />
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setUrlInputActive(false);
+                                            setUrlInput("");
+                                          }}
+                                        >
+                                          취소
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="하드웨어 사용 방법과 주의사항을 설명해주세요."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MediaPreview content={field.value || ""} />
+                                  </div>
+                                </div>
                               </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        
-                        <FormField
-                          control={form.control}
-                          name="dimensions"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>치수 정보</FormLabel>
-                              <FormControl>
-                                <Input placeholder="치수 정보 (가로x세로x높이 등)" {...field} />
-                              </FormControl>
+                              <FormDescription>
+                                하드웨어 제품의 사용법, 주의사항, 팁 등을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
                               <FormMessage />
                             </FormItem>
                           )}
                         />
                       </>
                     )}
-                    
-                    <FormField
-                      control={form.control}
-                      name="sourceSite"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>출처</FormLabel>
-                          <FormControl>
-                            <Input placeholder="원본 자료의 출처 (사이트, 저자 등)" {...field} />
-                          </FormControl>
-                          <FormDescription>
-                            원본 자료의 출처나 제작자 정보를 입력하세요.
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              {/* 파일 첨부 탭 */}
-              <TabsContent value="files" className="space-y-6">
-                <Card>
-                  <CardContent className="pt-6 space-y-6">
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">썸네일 이미지</h3>
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0 w-32">
-                          {thumbnailFile ? (
-                            <div className="relative aspect-square rounded-md overflow-hidden">
-                              <img 
-                                src={thumbnailFile.preview} 
-                                alt="Thumbnail preview" 
-                                className="w-full h-full object-cover" 
-                              />
-                              <button 
-                                type="button" 
-                                onClick={() => setThumbnailFile(null)}
-                                className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 hover:bg-black/80 transition-colors"
-                              >
-                                <X className="h-3 w-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div 
-                              className="aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-md text-muted-foreground hover:text-foreground"
-                              onClick={() => fileInputRef.current?.click()}
-                            >
-                              <ImageIcon className="h-8 w-8 mb-2" />
-                              <span className="text-xs text-center">이미지<br/>업로드</span>
-                            </div>
+
+                    {form.watch('resourceType') === 'software' && (
+                      <FormField
+                        control={form.control}
+                        name="howToUse"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>사용 방법</FormLabel>
+                            <FormControl>
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
+                                {urlInputActive && currentEditor === "howToUse" && (
+                                  <div className="p-2 border-b bg-muted/5">
+                                    <div className="flex gap-2">
+                                      <Input
+                                        ref={urlInputRef}
+                                        value={urlInput}
+                                        onChange={(e) => setUrlInput(e.target.value)}
+                                        placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                        className="flex-1"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleUrlSubmit(e);
+                                          }
+                                        }}
+                                      />
+                                      <Button 
+                                        type="button" 
+                                        size="sm"
+                                        onClick={handleUrlSubmit}
+                                      >
+                                        추가
+                                      </Button>
+                                      <Button 
+                                        type="button" 
+                                        size="sm" 
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setUrlInputActive(false);
+                                          setUrlInput("");
+                                        }}
+                                      >
+                                        취소
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="설치 방법과 사용법을 설명해주세요."
+                                    className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MediaPreview content={field.value || ""} />
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              소프트웨어 설치 및 사용 방법을 단계별로 설명해주세요. 코드 예제도 포함하면 좋습니다. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {form.watch('resourceType') === '3d_model' && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="dimensions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>모델 크기</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="예: 100mm x 50mm x 20mm"
+                                  {...field}
+                                  value={field.value || ""}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                3D 모델의 기본 크기를 입력해주세요.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
                           )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <p className="text-sm text-muted-foreground mb-2">
-                            자료를 대표하는 이미지를 업로드하세요. 권장 크기는 800x600px입니다.
-                          </p>
-                          <Button 
-                            type="button" 
-                            variant="outline"
-                            size="sm"
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="assemblyInstructions"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>조립 방법</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("assemblyInstructions")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("assemblyInstructions")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("assemblyInstructions")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("assemblyInstructions")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("assemblyInstructions")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
+                                  {urlInputActive && currentEditor === "assemblyInstructions" && (
+                                    <div className="p-2 border-b bg-muted/5">
+                                      <div className="flex gap-2">
+                                        <Input
+                                          ref={urlInputRef}
+                                          value={urlInput}
+                                          onChange={(e) => setUrlInput(e.target.value)}
+                                          placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                          className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
+                                        />
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setUrlInputActive(false);
+                                            setUrlInput("");
+                                          }}
+                                        >
+                                          취소
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="3D 모델의 조립 방법과 단계를 설명해주세요."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MediaPreview content={field.value || ""} />
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                모델의 조립 과정과 방법을 순서대로 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="howToUse"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>사용법</FormLabel>
+                              <FormControl>
+                                <div className="border rounded-md">
+                                  <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaImageSelect("howToUse")}
+                                    >
+                                      <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaGifSelect("howToUse")}
+                                    >
+                                      <Smile className="h-4 w-4 mr-1" /> GIF
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaVideoSelect("howToUse")}
+                                    >
+                                      <Video className="h-4 w-4 mr-1" /> 동영상
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaUrlSelect("howToUse")}
+                                    >
+                                      <Link2 className="h-4 w-4 mr-1" /> URL
+                                    </Button>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      type="button" 
+                                      className="h-8"
+                                      onClick={() => handleMediaFileSelect("howToUse")}
+                                    >
+                                      <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                    </Button>
+                                  </div>
+                                  {urlInputActive && currentEditor === "howToUse" && (
+                                    <div className="p-2 border-b bg-muted/5">
+                                      <div className="flex gap-2">
+                                        <Input
+                                          ref={urlInputRef}
+                                          value={urlInput}
+                                          onChange={(e) => setUrlInput(e.target.value)}
+                                          placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                          className="flex-1"
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              e.preventDefault();
+                                              handleUrlSubmit(e);
+                                            }
+                                          }}
+                                        />
+                                        <Button 
+                                          type="button" 
+                                          size="sm"
+                                          onClick={handleUrlSubmit}
+                                        >
+                                          추가
+                                        </Button>
+                                        <Button 
+                                          type="button" 
+                                          size="sm" 
+                                          variant="ghost"
+                                          onClick={() => {
+                                            setUrlInputActive(false);
+                                            setUrlInput("");
+                                          }}
+                                        >
+                                          취소
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  )}
+                                  <div className="flex flex-col">
+                                    <Textarea
+                                      placeholder="3D 모델 사용 방법을 설명해주세요."
+                                      className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                      {...field}
+                                      value={field.value || ""}
+                                      onChange={async (e) => {
+                                        const newValue = await processYouTubeLinks(e.target.value);
+                                        field.onChange(newValue);
+                                      }}
+                                    />
+                                    <MediaPreview content={field.value || ""} />
+                                  </div>
+                                </div>
+                              </FormControl>
+                              <FormDescription>
+                                3D 모델 사용 방법, 최적의 프린팅 설정(층 높이, 충전률, 서포트 등)을 상세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
+
+                    {form.watch('resourceType') === 'ai_model' && (
+                      <FormField
+                        control={form.control}
+                        name="howToUse"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>사용 방법 및 모델 설명</FormLabel>
+                            <FormControl>
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
+                                {urlInputActive && currentEditor === "howToUse" && (
+                                  <div className="p-2 border-b bg-muted/5">
+                                    <div className="flex gap-2">
+                                      <Input
+                                        ref={urlInputRef}
+                                        value={urlInput}
+                                        onChange={(e) => setUrlInput(e.target.value)}
+                                        placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                        className="flex-1"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleUrlSubmit(e);
+                                          }
+                                        }}
+                                      />
+                                      <Button 
+                                        type="button" 
+                                        size="sm"
+                                        onClick={handleUrlSubmit}
+                                      >
+                                        추가
+                                      </Button>
+                                      <Button 
+                                        type="button" 
+                                        size="sm" 
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setUrlInputActive(false);
+                                          setUrlInput("");
+                                        }}
+                                      >
+                                        취소
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="모델의 구조, 훈련 방법, 사용법 등을 설명해주세요."
+                                    className="min-h-[300px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MediaPreview content={field.value || ""} />
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              모델 구조, 파라미터, 성능지표, 사용 예제 등을 포함해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {form.watch('resourceType') === 'free_content' && (
+                      <FormField
+                        control={form.control}
+                        name="howToUse"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>콘텐츠 설명 및 라이센스</FormLabel>
+                            <FormControl>
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
+                                {urlInputActive && currentEditor === "howToUse" && (
+                                  <div className="p-2 border-b bg-muted/5">
+                                    <div className="flex gap-2">
+                                      <Input
+                                        ref={urlInputRef}
+                                        value={urlInput}
+                                        onChange={(e) => setUrlInput(e.target.value)}
+                                        placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                        className="flex-1"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleUrlSubmit(e);
+                                          }
+                                        }}
+                                      />
+                                      <Button 
+                                        type="button" 
+                                        size="sm"
+                                        onClick={handleUrlSubmit}
+                                      >
+                                        추가
+                                      </Button>
+                                      <Button 
+                                        type="button" 
+                                        size="sm" 
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setUrlInputActive(false);
+                                          setUrlInput("");
+                                        }}
+                                      >
+                                        취소
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="콘텐츠에 대한 설명과 라이센스 정보를 입력해주세요."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MediaPreview content={field.value || ""} />
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              콘텐츠 이용 조건, 출처, 라이센스 정보를 명확히 기재해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+
+                    {form.watch('resourceType') === 'flash_game' && (
+                      <FormField
+                        control={form.control}
+                        name="howToUse"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>게임 설명 및 조작법</FormLabel>
+                            <FormControl>
+                              <div className="border rounded-md">
+                                <div className="flex flex-wrap border-b p-2 gap-2 bg-muted/10">
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaImageSelect("howToUse")}
+                                  >
+                                    <ImageIcon className="h-4 w-4 mr-1" /> 이미지
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaGifSelect("howToUse")}
+                                  >
+                                    <Smile className="h-4 w-4 mr-1" /> GIF
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaVideoSelect("howToUse")}
+                                  >
+                                    <Video className="h-4 w-4 mr-1" /> 동영상
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaUrlSelect("howToUse")}
+                                  >
+                                    <Link2 className="h-4 w-4 mr-1" /> URL
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    type="button" 
+                                    className="h-8"
+                                    onClick={() => handleMediaFileSelect("howToUse")}
+                                  >
+                                    <FolderOpen className="h-4 w-4 mr-1" /> 파일
+                                  </Button>
+                                </div>
+                                {urlInputActive && currentEditor === "howToUse" && (
+                                  <div className="p-2 border-b bg-muted/5">
+                                    <div className="flex gap-2">
+                                      <Input
+                                        ref={urlInputRef}
+                                        value={urlInput}
+                                        onChange={(e) => setUrlInput(e.target.value)}
+                                        placeholder="URL을 입력하세요 (YouTube 링크도 지원됩니다)"
+                                        className="flex-1"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            handleUrlSubmit(e);
+                                          }
+                                        }}
+                                      />
+                                      <Button 
+                                        type="button" 
+                                        size="sm"
+                                        onClick={handleUrlSubmit}
+                                      >
+                                        추가
+                                      </Button>
+                                      <Button 
+                                        type="button" 
+                                        size="sm" 
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setUrlInputActive(false);
+                                          setUrlInput("");
+                                        }}
+                                      >
+                                        취소
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
+                                <div className="flex flex-col">
+                                  <Textarea
+                                    placeholder="게임 설명, 목표, 조작법 등을 설명해주세요."
+                                    className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                                    {...field}
+                                    value={field.value || ""}
+                                    onChange={async (e) => {
+                                      const newValue = await processYouTubeLinks(e.target.value);
+                                      field.onChange(newValue);
+                                    }}
+                                  />
+                                  <MediaPreview content={field.value || ""} />
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormDescription>
+                              게임 목표, 조작키, 게임 플레이 방법을 자세히 설명해주세요. 미디어 요소를 추가하여 더 명확하게 설명할 수 있습니다.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </>
+                )}
+
+                <div className="flex justify-between pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={() => setCurrentTab("images")}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    이전: 이미지 갤러리
+                  </Button>
+                  <Button type="button" onClick={() => setCurrentTab("files")}>
+                    다음: 파일 업로드
+                    <ChevronRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
+              </TabsContent>
+
+              {/* 파일 업로드 탭 */}
+              <TabsContent value="files" className="space-y-6 mt-2">
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col gap-6">
+                      <div>
+                        <h3 className="text-lg font-semibold mb-2">다운로드 파일 업로드</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          사용자가 다운로드할 수 있는 파일을 업로드하거나 외부 URL을 입력해주세요.
+                        </p>
+
+                        {downloadFile ? (
+                          <div className="border rounded-md p-4 bg-muted/10 mb-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <div className="flex items-center justify-center h-10 w-10 rounded-md bg-primary/10 text-primary mr-3">
+                                  <FileText className="h-5 w-5" />
+                                </div>
+                                <div>
+                                  <p className="font-medium">{downloadFile.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {(downloadFile.size / 1024 / 1024).toFixed(2)} MB
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDownloadFile(null)}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div 
+                            className="border border-dashed rounded-md flex flex-col items-center justify-center p-8 cursor-pointer hover:bg-muted/20 transition-colors"
                             onClick={() => fileInputRef.current?.click()}
                           >
-                            <Upload className="h-4 w-4 mr-2" />
-                            이미지 선택
-                          </Button>
-                          <input 
-                            type="file" 
-                            ref={fileInputRef}
-                            className="hidden"
-                            accept="image/*"
-                            onChange={(e) => handleFileSelect(e, 'thumbnail')}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">갤러리 이미지</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        자료를 보여주는 추가 이미지를 업로드하세요. 최대 5개까지 가능합니다.
-                      </p>
-                      
-                      <div className="flex flex-wrap gap-4">
-                        {galleryFiles.map((file, index) => (
-                          <FilePreviewCard 
-                            key={index} 
-                            file={file} 
-                            onDelete={() => removeGalleryFile(index)} 
-                          />
-                        ))}
-                        
-                        {galleryFiles.length < 5 && (
-                          <div 
-                            className="w-32 aspect-square flex flex-col items-center justify-center border-2 border-dashed rounded-md text-muted-foreground hover:text-foreground"
-                            onClick={() => {
-                              const input = document.createElement('input');
-                              input.type = 'file';
-                              input.accept = 'image/*';
-                              input.onchange = (e) => handleFileSelect(e as React.ChangeEvent<HTMLInputElement>, 'gallery');
-                              input.click();
-                            }}
+                            <UploadCloud className="h-8 w-8 mb-2 text-muted-foreground" />
+                            <p className="text-sm font-medium mb-1">파일을 여기에 드래그하거나 클릭하여 업로드</p>
+                            <p className="text-xs text-muted-foreground">최대 100MB</p>
+                          </div>
+                        )}
+
+                        <input 
+                          ref={fileInputRef}
+                          type="file" 
+                          className="hidden" 
+                          onChange={(e) => handleFileSelect(e, 'download')}
+                        />
+
+                        <div className="flex items-center gap-4 mt-4">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex-1"
                           >
-                            <Plus className="h-8 w-8 mb-2" />
-                            <span className="text-xs text-center">이미지<br/>추가</span>
+                            <Upload className="h-4 w-4 mr-1" />
+                            파일 선택
+                          </Button>
+
+                          <Separator orientation="vertical" className="h-8" />
+
+                          <div className="flex-1">
+                            <FormField
+                              control={form.control}
+                              name="downloadUrl"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="또는 다운로드 URL 직접 입력"
+                                      {...field}
+                                      value={field.value || ""}
+                                      disabled={!!downloadFile}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {downloadFile && downloadFile.progress !== undefined && downloadFile.progress > 0 && downloadFile.progress < 100 && (
+                          <div className="mt-4">
+                            <ProgressStatus />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 업로드 요약 및 완료 버튼 */}
+                      <div className="mt-6 pt-6 border-t">
+                        <h3 className="text-lg font-semibold mb-4">업로드 요약</h3>
+
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 mb-6">
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {form.watch('title') ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-destructive" />}
+                            </div>
+                            <span className="text-sm">리소스 제목</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {form.watch('resourceType') ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-destructive" />}
+                            </div>
+                            <span className="text-sm">카테고리</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {form.watch('description') ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-destructive" />}
+                            </div>
+                            <span className="text-sm">설명</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {thumbnailFile ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-destructive" />}
+                            </div>
+                            <span className="text-sm">대표 이미지</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {(downloadFile || form.watch('downloadUrl')) ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-muted-foreground" />}
+                            </div>
+                            <span className="text-sm">다운로드 파일</span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-6 text-primary mr-2">
+                              {galleryFiles.length > 0 ? <Check className="h-4 w-4" /> : <X className="h-4 w-4 text-muted-foreground" />}
+                            </div>
+                            <span className="text-sm">갤러리 이미지 ({galleryFiles.length}개)</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-4">
+                          <Button
+                            type="button"
+                            variant="outline" 
+                            className="flex-1"
+                            onClick={() => setCurrentTab("basic")}
+                          >
+                            정보 수정
+                          </Button>
+                          <Button 
+                            type="submit"
+                            className="flex-1"
+                            disabled={
+                              mutation.isPending || 
+                              !form.watch('title') || 
+                              !form.watch('description') || 
+                              !form.watch('resourceType') ||
+                              !thumbnailFile
+                            }
+                          >
+                            {mutation.isPending ? (
+                              <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
+                            ) : (
+                              <>리소스 업로드 완료 <Check className="ml-2 h-4 w-4" /></>
+                            )}
+                          </Button>
+                        </div>
+
+                        {mutation.isPending && (
+                          <div className="mt-4">
+                            <ProgressStatus />
                           </div>
                         )}
                       </div>
                     </div>
-                    
-                    <Separator />
-                    
-                    <div>
-                      <h3 className="text-lg font-medium mb-2">다운로드 파일</h3>
-                      <div className="flex items-start space-x-4">
-                        <div className="flex-shrink-0">
-                          {downloadFile ? (
-                            <div className="border rounded-md p-3 bg-muted w-60">
-                              <div className="flex items-center">
-                                <FileText className="h-8 w-8 mr-2 text-blue-500" />
-                                <div className="overflow-hidden flex-1">
-                                  <p className="font-medium truncate">{downloadFile.name}</p>
-                                  <p className="text-xs text-muted-foreground">{(downloadFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                                </div>
-                                <button 
-                                  type="button" 
-                                  onClick={() => setDownloadFile(null)}
-                                  className="text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <Button 
-                              type="button" 
-                              variant="outline"
-                              onClick={() => {
-                                const input = document.createElement('input');
-                                input.type = 'file';
-                                input.onchange = (e) => handleFileSelect(e as React.ChangeEvent<HTMLInputElement>, 'download');
-                                input.click();
-                              }}
-                            >
-                              <FileUp className="h-4 w-4 mr-2" />
-                              파일 업로드
-                            </Button>
-                          )}
-                        </div>
-                        
-                        <div className="flex-1">
-                          <p className="text-sm text-muted-foreground">
-                            사용자가 다운로드할 파일을 업로드하세요. 압축 파일(ZIP)을 권장합니다.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
                   </CardContent>
                 </Card>
+
+                <div className="flex justify-between pt-4 border-t">
+                  <Button type="button" variant="outline" onClick={() => setCurrentTab("details")}>
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    이전: 상세 정보
+                  </Button>
+                  <Button 
+                    type="submit"
+                    disabled={
+                      mutation.isPending || 
+                      !form.watch('resourceType')
+                    }
+                  >
+                    {mutation.isPending ? (
+                      <>업로드 중... <UploadCloud className="ml-2 h-4 w-4 animate-bounce" /></>
+                    ) : (
+                      <>리소스 업로드 <Upload className="ml-2 h-4 w-4" /></>
+                    )}
+                  </Button>
+                </div>
               </TabsContent>
-            </Tabs>
-            
-            <div className="pt-6 space-x-2 flex justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isUploading}
-                onClick={() => setLocation('/admin/resources')}
-              >
-                취소
-              </Button>
-              <Button 
-                type="submit"
-                disabled={isUploading}
-              >
-                {isUploading ? (
-                  <span className="flex items-center">
-                    <span className="animate-spin mr-2">
-                      <UploadCloud className="h-4 w-4" />
-                    </span>
-                    업로드 중...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Upload className="h-4 w-4 mr-2" />
-                    자료 업로드
-                  </span>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-        
-        {/* 히든 파일 입력 필드 */}
-        <input 
-          type="file" 
-          ref={mediaImageInputRef}
-          className="hidden"
-          accept="image/*"
-          onChange={handleMediaImageUpload}
-        />
-        <input 
-          type="file" 
-          ref={mediaGifInputRef}
-          className="hidden"
-          accept="image/gif"
-          onChange={handleMediaImageUpload}
-        />
-        <input 
-          type="file" 
-          ref={mediaVideoInputRef}
-          className="hidden"
-          accept="video/*"
-          onChange={handleMediaImageUpload}
-        />
-        <input 
-          type="file" 
-          ref={mediaFileInputRef}
-          className="hidden"
-          onChange={handleMediaFileUpload}
-        />
+            </form>
+          </Form>
+        </Tabs>
       </div>
     </div>
   );
