@@ -83,7 +83,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <CircleUser className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
@@ -103,7 +103,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <Factory className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
@@ -123,7 +123,7 @@ const About: React.FC = () => {
               </div>
               
               <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3 text-blue-600">
+                <div className="flex items-center gap-3 mb-3 text-slate-600">
                   <ShieldCheck className="h-5 w-5" />
                   <h3 className="font-medium">
                     {language === 'ko' 
@@ -330,12 +330,12 @@ const About: React.FC = () => {
                 </p>
               </CardContent>
               <CardFooter className="pt-0">
-                <Link href="/services/type/engineer" className="text-cyan-600 font-medium inline-flex items-center text-sm hover:text-cyan-700">
+                <Link href="/remote-support" className="text-cyan-600 font-medium inline-flex items-center text-sm hover:text-cyan-700">
                   {language === 'ko' 
-                    ? '엔지니어 찾기'
+                    ? '원격 지원 알아보기'
                     : language === 'jp' 
-                      ? 'エンジニアを探す'
-                      : 'Find Engineers'}
+                      ? 'リモートサポートを見る'
+                      : 'Learn About Remote Support'}
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
               </CardFooter>
