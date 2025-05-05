@@ -38,6 +38,7 @@ type PaymentMethod = 'card' | 'bank' | 'kakaopay' | 'naverpay' | 'payco' | 'toss
 const Sponsor: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [comment, setComment] = useState('');
   const [amount, setAmount] = useState<number>(5000);
   const [customAmount, setCustomAmount] = useState<number | ''>('');
@@ -167,20 +168,32 @@ const Sponsor: React.FC = () => {
   
   // PayPal 버튼 초기화
   useEffect(() => {
-    const handleClick = () => {
-      handlePaymentMethodChange('paypal');
-    };
-    
+    // 바깥 스코프의 language와 customAmount 값을 클로저로 캡처
     const paypalButton = document.getElementById('paypal-button');
-    if (paypalButton) {
-      paypalButton.addEventListener('click', handleClick);
-    }
     
-    return () => {
-      if (paypalButton) {
-        paypalButton.removeEventListener('click', handleClick);
-      }
-    };
+    if (paypalButton) {
+      // 클릭 핸들러 함수 - 클릭 시 결제 모달 열기
+      const clickHandler = () => {
+        // 티어 이름 설정
+        const tierName = language === 'jp' ? 'PayPalサポート' : 'PayPal Support';
+        // 금액 설정 (customAmount가 있으면 그 값, 없으면 5000)
+        const amount = customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000;
+        
+        // 결제 정보 설정 및 다이얼로그 열기
+        setSelectedPaymentMethod('paypal');
+        setSelectedTier(tierName);
+        setSelectedAmount(amount);
+        setShowPaymentDialog(true);
+      };
+      
+      // 이벤트 리스너 등록
+      paypalButton.addEventListener('click', clickHandler);
+      
+      // 클린업 함수 - 컴포넌트 언마운트 시 이벤트 리스너 제거
+      return () => {
+        paypalButton.removeEventListener('click', clickHandler);
+      };
+    }
   }, [language, customAmount]);
   
   // 금액에 따라 캐릭터 배경색 결정
@@ -211,8 +224,6 @@ const Sponsor: React.FC = () => {
     
     return icons[amount] || <Star className="h-8 w-8 text-gray-500" />;
   };
-  
-  const { language } = useLanguage();
   
   // 통화 단위 설정
   const getCurrency = () => {
@@ -455,26 +466,38 @@ const Sponsor: React.FC = () => {
                       ? 'コーヒー1杯の価格でWebelプロジェクトの開発を応援してください！' 
                       : 'Support Webel project development with the price of a cup of coffee!'}
                 </p>
-                <Button 
-                  className="bg-[#ffdd00] hover:bg-[#ffdd00]/80 text-black font-bold"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open('https://buymeacoffee.com/webel', '_blank');
-                  }}
-                >
-                  <Coffee className="h-5 w-5 mr-2" />
-                  Buy Me a Coffee
-                </Button>
-              </div>
-              <div 
-                className="flex-shrink-0 hidden md:block cursor-pointer" 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  window.open('https://buymeacoffee.com/webel', '_blank');
-                }}
-              >
-                <div className="h-24 w-24 bg-[#ffdd00] rounded-full flex items-center justify-center hover:shadow-lg transition-shadow">
-                  <Coffee className="h-12 w-12 text-amber-900" />
+                <div className="flex md:flex-row flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://buymeacoffee.com/webel', '_blank');
+                    }}
+                  >
+                    <Coffee className="h-4 w-4 mr-2" />
+                    {language === 'ko' 
+                      ? '커피 한잔 선물하기' 
+                      : language === 'jp' 
+                        ? 'コーヒーを1杯贈る' 
+                        : 'Buy a coffee'}
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="bg-[#ffdd00]/20 border-[#ffdd00] text-[#825f00] hover:bg-[#ffdd00]/30"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('https://buymeacoffee.com/webel', '_blank');
+                    }}
+                  >
+                    <Coffee className="h-4 w-4 mr-2" />
+                    {language === 'ko' 
+                      ? '커피 다섯잔 선물하기' 
+                      : language === 'jp' 
+                        ? 'コーヒーを5杯贈る' 
+                        : 'Buy 5 coffees'}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -482,13 +505,16 @@ const Sponsor: React.FC = () => {
         </Card>
       </section>
       
-      {/* PayPal 후원 섹션 */}
-      {(language === 'en' || language === 'jp') && (
+      {/* PayPal 후원 (only visible for non-Korean languages) */}
+      {language !== 'ko' && (
         <section className="mb-8">
           <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100/30 hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center">
-                <div className="flex-shrink-0 bg-blue-500 rounded-md px-3 py-2 flex items-center cursor-pointer" onClick={() => handlePaymentMethodChange('paypal')}>
+                <div 
+                  className="flex-shrink-0 bg-blue-500 rounded-md px-3 py-2 flex items-center cursor-pointer" 
+                  onClick={() => setSelectedPaymentMethod('paypal')}
+                >
                   <Globe className="h-5 w-5 mr-2 text-white" />
                   <span className="font-bold text-white">PayPal</span>
                 </div>
@@ -757,16 +783,23 @@ const Sponsor: React.FC = () => {
                         {formatDate(comment.createdAt)}
                       </div>
                       <div className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
-                        {comment.tier} (₩{comment.amount.toLocaleString()})
+                        {comment.tier}
+                      </div>
+                      <div className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                        {formatAmount(comment.amount)}
                       </div>
                     </div>
                     
-                    <p className="text-gray-700 mb-3">{comment.message}</p>
+                    <p className="text-gray-700">{comment.message}</p>
                     
                     <div className="flex justify-end mt-2">
                       <Button variant="ghost" size="sm" className="text-gray-500 hover:text-gray-700">
                         <MessageSquare className="h-4 w-4 mr-1" />
-                        <span className="text-xs">감사 인사하기</span>
+                        {language === 'ko' 
+                          ? '답글' 
+                          : language === 'jp' 
+                            ? '返信' 
+                            : 'Reply'}
                       </Button>
                     </div>
                   </div>
@@ -776,203 +809,154 @@ const Sponsor: React.FC = () => {
           ))}
         </div>
       </section>
-      
-      {/* 결제 다이얼로그 */}
+
+      {/* 결제 모달 */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle className="text-center">후원 결제</DialogTitle>
-            <DialogDescription className="text-center">
-              Webel을 후원해주셔서 감사합니다.
+            <DialogTitle>
+              {language === 'ko' 
+                ? '후원 결제' 
+                : language === 'jp' 
+                  ? 'サポートのお支払い' 
+                  : 'Support Payment'}
+            </DialogTitle>
+            <DialogDescription>
+              {language === 'ko' 
+                ? `선택하신 ${formatAmount(selectedAmount)}로 Webel을 후원합니다.` 
+                : language === 'jp' 
+                  ? `選択された${formatAmount(selectedAmount)}でWebelをサポートします。` 
+                  : `Support Webel with your selected ${formatAmount(selectedAmount)}.`}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="py-4 space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">후원 등급:</span>
-                <span className="font-medium">{selectedTier}</span>
+          <div className="flex flex-col gap-4 py-4">
+            <div className="flex flex-col gap-2">
+              <div className="text-sm font-medium mb-2">
+                {language === 'ko' 
+                  ? '결제 수단 선택' 
+                  : language === 'jp' 
+                    ? 'お支払い方法の選択' 
+                    : 'Select Payment Method'}
               </div>
-              <div className="flex justify-between mb-2">
-                <span className="text-gray-600">금액:</span>
-                <span className="font-medium">₩{selectedAmount?.toLocaleString() || '0'}</span>
-              </div>
-              {comment && (
-                <div className="mb-2">
-                  <span className="text-gray-600">코멘트:</span>
-                  <p className="text-sm mt-1 p-2 bg-white rounded border border-gray-200">{comment}</p>
-                </div>
-              )}
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium mb-3">결제 수단 선택</h4>
               
-              <div className="mb-4">
-                <h5 className="text-xs text-gray-500 mb-2">국내 결제</h5>
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <Button 
-                    variant={selectedPaymentMethod === 'card' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => handlePaymentMethodChange('card')}
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    국내카드
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'kakaopay' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-yellow-600"
-                    onClick={() => handlePaymentMethodChange('kakaopay')}
-                  >
-                    <span className="mr-2 font-bold">K</span>
-                    카카오페이
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'naverpay' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-green-600"
-                    onClick={() => handlePaymentMethodChange('naverpay')}
-                  >
-                    <span className="mr-2 font-bold">N</span>
-                    네이버페이
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'tosspay' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-blue-600"
-                    onClick={() => handlePaymentMethodChange('tosspay')}
-                  >
-                    <span className="mr-2 font-bold">T</span>
-                    토스페이
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'payco' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-red-600"
-                    onClick={() => handlePaymentMethodChange('payco')}
-                  >
-                    <span className="mr-2 font-bold">P</span>
-                    페이코
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'phone' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => handlePaymentMethodChange('phone')}
-                  >
-                    <Smartphone className="h-4 w-4 mr-2" />
-                    휴대폰
-                  </Button>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                <div 
+                  className={`p-3 border rounded-md flex items-center gap-2 cursor-pointer transition-colors ${selectedPaymentMethod === 'bank' ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'}`}
+                  onClick={() => handlePaymentMethodChange('bank')}
+                >
+                  <Building className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium">
+                    {language === 'ko' 
+                      ? '계좌이체' 
+                      : language === 'jp' 
+                        ? '口座振込' 
+                        : 'Bank Transfer'}
+                  </span>
                 </div>
                 
-                <h5 className="text-xs text-gray-500 mb-2">계좌 결제</h5>
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                  <Button 
-                    variant={selectedPaymentMethod === 'bank' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => handlePaymentMethodChange('bank')}
-                  >
-                    <Building className="h-4 w-4 mr-2" />
-                    계좌이체
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'virtualaccount' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => handlePaymentMethodChange('virtualaccount')}
-                  >
-                    <Building className="h-4 w-4 mr-2" />
-                    가상계좌
-                  </Button>
+                <div 
+                  className={`p-3 border rounded-md flex items-center gap-2 cursor-pointer transition-colors ${selectedPaymentMethod === 'card' ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'}`}
+                  onClick={() => handlePaymentMethodChange('card')}
+                >
+                  <CreditCard className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium">
+                    {language === 'ko' 
+                      ? '카드결제' 
+                      : language === 'jp' 
+                        ? 'カード決済' 
+                        : 'Card Payment'}
+                  </span>
                 </div>
                 
-                <h5 className="text-xs text-gray-500 mb-2">해외 결제</h5>
-                <div className="grid grid-cols-3 gap-2">
-                  <Button 
-                    variant={selectedPaymentMethod === 'foreigncard' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start"
-                    onClick={() => handlePaymentMethodChange('foreigncard')}
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    해외카드
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'paypal' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-blue-600"
+                {language === 'ko' && (
+                  <>
+                    <div 
+                      className={`p-3 border rounded-md flex items-center gap-2 cursor-pointer transition-colors ${selectedPaymentMethod === 'kakaopay' ? 'bg-yellow-50 border-yellow-300' : 'hover:bg-gray-50'}`}
+                      onClick={() => handlePaymentMethodChange('kakaopay')}
+                    >
+                      <img src="/images/kakaopay-icon.png" className="h-4 w-4 object-contain" alt="KakaoPay" />
+                      <span className="text-sm font-medium">KakaoPay</span>
+                    </div>
+                    
+                    <div 
+                      className={`p-3 border rounded-md flex items-center gap-2 cursor-pointer transition-colors ${selectedPaymentMethod === 'naverpay' ? 'bg-green-50 border-green-300' : 'hover:bg-gray-50'}`}
+                      onClick={() => handlePaymentMethodChange('naverpay')}
+                    >
+                      <img src="/images/naverpay-icon.png" className="h-4 w-4 object-contain" alt="NaverPay" />
+                      <span className="text-sm font-medium">NaverPay</span>
+                    </div>
+                  </>
+                )}
+                
+                {language !== 'ko' && (
+                  <div 
+                    className={`p-3 border rounded-md flex items-center gap-2 cursor-pointer transition-colors ${selectedPaymentMethod === 'paypal' ? 'bg-blue-50 border-blue-300' : 'hover:bg-gray-50'}`}
                     onClick={() => handlePaymentMethodChange('paypal')}
                   >
-                    <span className="mr-2 font-bold">P</span>
-                    PayPal
-                  </Button>
-                  <Button 
-                    variant={selectedPaymentMethod === 'alipay' ? 'default' : 'outline'} 
-                    size="sm"
-                    className="justify-start text-blue-500"
-                    onClick={() => handlePaymentMethodChange('alipay')}
-                  >
-                    <span className="mr-2 font-bold">A</span>
-                    Alipay
-                  </Button>
-                </div>
+                    <Globe className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium">PayPal</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex flex-col gap-2">
+              <div className="text-sm font-medium">
+                {language === 'ko' 
+                  ? '후원 정보' 
+                  : language === 'jp' 
+                    ? 'サポート情報' 
+                    : 'Support Information'}
               </div>
               
-              {/* 선택된 결제 수단에 따른 추가 정보 표시 */}
-              {selectedPaymentMethod === 'bank' && (
-                <div className="bg-gray-50 p-3 rounded-md border border-gray-200 mt-2">
-                  <div className="text-sm">
-                    <p className="font-medium mb-2">계좌 정보</p>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-600">은행:</span>
-                      <span>KB국민은행</span>
+              <div className="bg-gray-50 p-4 rounded-md">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-600">
+                    {language === 'ko' 
+                      ? '후원 금액' 
+                      : language === 'jp' 
+                        ? 'サポート金額' 
+                        : 'Support Amount'}
+                  </span>
+                  <span className="font-medium">{formatAmount(selectedAmount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">
+                    {language === 'ko' 
+                      ? '후원 티어' 
+                      : language === 'jp' 
+                        ? 'サポートティア' 
+                        : 'Support Tier'}
+                  </span>
+                  <span className="font-medium">{selectedTier}</span>
+                </div>
+                
+                {comment && (
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="text-gray-600 mb-1">
+                      {language === 'ko' 
+                        ? '코멘트' 
+                        : language === 'jp' 
+                          ? 'コメント' 
+                          : 'Comment'}
                     </div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-gray-600">계좌번호:</span>
-                      <div className="flex items-center">
-                        <span>089501-04-288396</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="p-0 h-4 w-4 ml-1"
-                          onClick={() => {
-                            navigator.clipboard.writeText('089501-04-288396');
-                            toast({
-                              title: "복사됨",
-                              description: "계좌번호가 클립보드에 복사되었습니다.",
-                            });
-                          }}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">예금주:</span>
-                      <span>허무</span>
+                    <div className="text-sm bg-white p-2 rounded border">
+                      {comment}
                     </div>
                   </div>
-                </div>
-              )}
-              
-              {selectedPaymentMethod === 'paypal' && (
-                <div className="bg-blue-50 p-3 rounded-md border border-blue-100 text-sm text-blue-700">
-                  PayPal을 통해 안전하게 국제 결제를 진행할 수 있습니다. 결제하기 버튼을 클릭하면 PayPal 결제 페이지로 연결됩니다.
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
           
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setShowPaymentDialog(false)}
-              disabled={isLoading}
-            >
-              취소
+            <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>
+              {language === 'ko' 
+                ? '취소' 
+                : language === 'jp' 
+                  ? 'キャンセル' 
+                  : 'Cancel'}
             </Button>
             <Button 
               onClick={handlePaymentComplete}
