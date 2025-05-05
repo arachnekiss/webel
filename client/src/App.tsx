@@ -167,35 +167,10 @@ function Router() {
                 </Route>
                 
                 {/* 서비스 등록 관련 경로 (별도로 처리) - 순서 유의! */}
+                {/* 서비스 등록 - 특수 경로 */}
                 <Route path={`${prefix}/register-printer`}>
                   <Suspense fallback={<div>Loading...</div>}>
                     <RegisterServiceUnified defaultType="3d_printing" />
-                  </Suspense>
-                </Route>
-                
-                {/* 서비스 등록 고정 경로 */}
-                <Route path={`${prefix}/services/register/3d_printing`}>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <RegisterServiceUnified defaultType="3d_printing" />
-                  </Suspense>
-                </Route>
-                
-                <Route path={`${prefix}/services/register/engineer`}>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <RegisterServiceUnified defaultType="engineer" />
-                  </Suspense>
-                </Route>
-                
-                <Route path={`${prefix}/services/register/manufacturing`}>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <RegisterServiceUnified defaultType="manufacturing" />
-                  </Suspense>
-                </Route>
-                
-                {/* 서비스 등록 베이스 경로 */}
-                <Route path={`${prefix}/services/register`}>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <RegisterServiceUnified />
                   </Suspense>
                 </Route>
                 
@@ -215,8 +190,36 @@ function Router() {
                   {params => <Services type={params.type} />}
                 </Route>
                 
-                {/* 서비스 등록 동적 경로 (맨 마지막에) */}
+                {/* 서비스 등록 고정 경로 - 타입별 */}
+                <Route path={`${prefix}/services/register/3d_printing`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <RegisterServiceUnified defaultType="3d_printing" />
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/services/register/engineer`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <RegisterServiceUnified defaultType="engineer" />
+                  </Suspense>
+                </Route>
+                
+                <Route path={`${prefix}/services/register/manufacturing`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <RegisterServiceUnified defaultType="manufacturing" />
+                  </Suspense>
+                </Route>
+                
+                {/* 서비스 등록 동적 경로 (params 처리) */}
                 <Route path={`${prefix}/services/register/:type`}>
+                  {params => (
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <RegisterServiceUnified defaultType={params.type as ServiceType} />
+                    </Suspense>
+                  )}
+                </Route>
+                
+                {/* 서비스 등록 베이스 경로 (맨 마지막에) */}
+                <Route path={`${prefix}/services/register`}>
                   <Suspense fallback={<div>Loading...</div>}>
                     <RegisterServiceUnified />
                   </Suspense>
