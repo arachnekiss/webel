@@ -475,7 +475,29 @@ const Sponsor: React.FC = () => {
                       : 'Support Webel with PayPal for easy international payments!'}
                   </p>
                   <div className="mt-2">
-                    <div id="paypal-button" className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center">
+                    <div 
+                      id="paypal-button" 
+                      className="w-full p-2 bg-blue-50 rounded-md shadow cursor-pointer hover:bg-blue-100 transition-colors flex items-center justify-center"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // PayPal 버튼 클릭 시 실행할 동작
+                        const paypalButtonElement = document.querySelector('paypal-button');
+                        if (paypalButtonElement) {
+                          // PayPal 버튼 존재하면 클릭 이벤트 시뮬레이션
+                          paypalButtonElement.click();
+                        } else {
+                          // 버튼 요소가 없으면 PayPal 모달 직접 표시
+                          setSelectedPaymentMethod('paypal');
+                          setSelectedTier(language === 'ko' 
+                            ? '후원' 
+                            : language === 'jp' 
+                              ? 'サポート' 
+                              : 'Support');
+                          setSelectedAmount(customAmount && typeof customAmount === 'number' && customAmount >= 1000 ? customAmount : 5000);
+                          setShowPaymentDialog(true);
+                        }
+                      }}
+                    >
                       <Globe className="h-5 w-5 mr-2 text-blue-600" />
                       <span className="font-bold text-blue-600">
                         {language === 'jp' 
