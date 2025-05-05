@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { MediaPreview } from './MediaPreview';
+import MediaPreview from './MediaPreview';
 
 interface RichMediaEditorProps {
   value: string;

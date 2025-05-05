@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
-import { MediaPreview } from "@/components/ui/MediaPreview";
+import MediaPreview from "@/components/ui/MediaPreview";
 import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
 
 // UI 컴포넌트

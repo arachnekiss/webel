@@ -12,13 +12,13 @@ interface MediaPreviewProps {
 /**
  * 다양한 미디어 컨텐츠(이미지, 비디오, URL, 파일)를 인라인으로 렌더링하는 컴포넌트
  */
-const MediaPreview: React.FC<MediaPreviewProps> = ({ 
+function MediaPreview({ 
   content, 
   className = '', 
   onImageClick, 
   onImageMove,
   editable = false 
-}) => {
+}: MediaPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggedImage, setDraggedImage] = useState<string | null>(null);
 
