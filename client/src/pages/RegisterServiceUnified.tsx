@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { ServiceType } from "@shared/schema";
 import { useLocation } from "@/contexts/LocationContext"; 
+import { useLanguage } from "@/contexts/LanguageContext";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -146,6 +147,7 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
   const params = location.split('/').pop(); // 간단히 마지막 세그먼트를 추출
   const { user, isLoading: isAuthLoading } = useAuth();
   const { currentLocation, getLocation } = useLocation();
+  const { language } = useLanguage();
   const queryClient = useQueryClient();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -498,35 +500,49 @@ export default function RegisterServiceUnified({ defaultType }: RegisterServiceU
       </div>
     );
   }
-
-  // 로그인 확인
-  if (!user) {
+  
+  // 알림 메시지 (로그인 사용자가 아닌 경우)
+  const LoginAlert = () => {
     return (
-      <div className="container mx-auto py-10 px-4">
-        <Alert variant="destructive" className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>로그인이 필요합니다</AlertTitle>
-          <AlertDescription>
-            서비스를 등록하려면 로그인이 필요합니다.
-            <Button
-              variant="link"
-              className="p-0 ml-2"
-              onClick={() => navigate('/auth')}
-            >
-              로그인 페이지로 이동
-            </Button>
-          </AlertDescription>
-        </Alert>
-      </div>
+      <Alert className="mb-6">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>
+          {language === 'ko' ? '로그인 안내' : 
+           language === 'jp' ? 'ログインのご案内' : 
+           'Login Notice'}
+        </AlertTitle>
+        <AlertDescription>
+          {language === 'ko' ? '서비스를 등록하려면 로그인이 필요합니다. 페이지는 자유롭게 둘러보실 수 있습니다.' : 
+           language === 'jp' ? 'サービスを登録するにはログインが必要です。ページは自由にご覧いただけます。' : 
+           'Login is required to register a service. You can browse the page freely.'}
+          <Button
+            variant="link"
+            className="p-0 ml-2"
+            onClick={() => navigate('/login')}
+          >
+            {language === 'ko' ? '로그인 페이지로 이동' : 
+             language === 'jp' ? 'ログインページへ' : 
+             'Go to login page'}
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
-  }
+  };
 
   return (
     <div className="container mx-auto py-10 px-4">
+      {!user && <LoginAlert />}
+      
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">서비스 등록</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {language === 'ko' ? '서비스 등록' : 
+           language === 'jp' ? 'サービス登録' : 
+           'Service Registration'}
+        </h1>
         <p className="text-muted-foreground mt-2">
-          여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요
+          {language === 'ko' ? '여러분의 서비스를 등록하고 다른 사용자들과 연결해보세요' : 
+           language === 'jp' ? 'あなたのサービスを登録して他のユーザーとつながりましょう' : 
+           'Register your service and connect with other users'}
         </p>
       </div>
 
