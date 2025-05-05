@@ -66,18 +66,24 @@ export function AdminRoute({
 }) {
   const { user, isAdmin, isLoading } = useAuth();
   const { toast } = useToast();
+  const [location] = useLocation();
+
+  // 디버깅용 로그 추가
+  console.log("[AdminRoute] 상태:", { path, location, isLoading, user, isAdmin });
 
   // 로딩 중일 때는 로딩 인디케이터 표시
   if (isLoading) {
     return path ? (
       <Route path={path}>
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+          <p className="text-center text-muted-foreground">관리자 권한 확인 중...</p>
         </div>
       </Route>
     ) : (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+        <p className="text-center text-muted-foreground">관리자 권한 확인 중...</p>
       </div>
     );
   }
