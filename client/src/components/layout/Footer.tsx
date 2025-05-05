@@ -162,6 +162,15 @@ const Footer: React.FC = () => {
                 </TopLink>
               </li>
               <li>
+                <TopLink href="/resources/type/ai_model" showLoadingIndicator={true} forceReload={true}>
+                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
+                    {language === 'ko' ? 'AI 모델' : 
+                     language === 'jp' ? 'AIモデル' : 
+                     'AI Models'}
+                  </span>
+                </TopLink>
+              </li>
+              <li>
                 <TopLink href="/resources/type/free_content" showLoadingIndicator={true} forceReload={true}>
                   <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
                     {language === 'ko' ? '프리 콘텐츠' : 
