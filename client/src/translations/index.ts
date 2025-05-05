@@ -200,12 +200,12 @@ const serviceTranslations: LanguageMap = {
 // 리소스 관련 번역
 const resourceTranslations: LanguageMap = {
   ko: {
-    'resource.category.hardware_design': '하드웨어 설계',
-    'resource.category.3d_model': '3D 모델',
-    'resource.category.software': '소프트웨어',
+    'resource.category.hardware_design': '하드웨어 설계도',
+    'resource.category.3d_model': '3D 모델링 파일',
+    'resource.category.software': '소프트웨어 오픈소스',
     'resource.category.ai_model': 'AI 모델',
     'resource.category.flash_game': '플래시 게임',
-    'resource.category.free_content': '무료 콘텐츠',
+    'resource.category.free_content': '프리 콘텐츠',
     'resource.details.title': '리소스 상세',
     'resource.details.author': '작성자',
     'resource.details.download': '다운로드',
