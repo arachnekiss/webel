@@ -108,6 +108,8 @@ export const appRoutes: RouteConfig[] = [
   { path: '/admin/dashboard', component: AdminDashboard },
   { path: '/admin/users', component: AdminUserManagement },
   { path: '/admin/resources', component: AdminResourceManagement },
+  { path: '/admin/resources/upload', component: ResourceUploadPage },
+  { path: '/admin/resources/edit/:id', component: ResourceManagementPage },
   { path: '/admin/services', component: AdminServiceManagement },
   { path: '/admin/engineers', component: AdminServiceManagement },
 ];
