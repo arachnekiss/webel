@@ -319,34 +319,50 @@ export default function ResourceUploadPage() {
 
   // 미디어 첨부 핸들러 함수들
   const handleMediaImageSelect = (fieldName: string) => {
+    console.log("이미지 버튼 클릭: ", fieldName);
     setCurrentEditor(fieldName);
     if (mediaImageInputRef.current) {
+      console.log("이미지 input 참조 성공");
       mediaImageInputRef.current.value = '';
       mediaImageInputRef.current.click();
+    } else {
+      console.error("이미지 input 참조 실패");
     }
   };
 
   const handleMediaGifSelect = (fieldName: string) => {
+    console.log("GIF 버튼 클릭: ", fieldName);
     setCurrentEditor(fieldName);
     if (mediaGifInputRef.current) {
+      console.log("GIF input 참조 성공");
       mediaGifInputRef.current.value = '';
       mediaGifInputRef.current.click();
+    } else {
+      console.error("GIF input 참조 실패");
     }
   };
 
   const handleMediaVideoSelect = (fieldName: string) => {
+    console.log("비디오 버튼 클릭: ", fieldName);
     setCurrentEditor(fieldName);
     if (mediaVideoInputRef.current) {
+      console.log("비디오 input 참조 성공");
       mediaVideoInputRef.current.value = '';
       mediaVideoInputRef.current.click();
+    } else {
+      console.error("비디오 input 참조 실패");
     }
   };
 
   const handleMediaFileSelect = (fieldName: string) => {
+    console.log("파일 버튼 클릭: ", fieldName);
     setCurrentEditor(fieldName);
     if (mediaFileInputRef.current) {
+      console.log("파일 input 참조 성공");
       mediaFileInputRef.current.value = '';
       mediaFileInputRef.current.click();
+    } else {
+      console.error("파일 input 참조 실패");
     }
   };
 
@@ -409,16 +425,26 @@ export default function ResourceUploadPage() {
 
   // 미디어 파일 업로드 및 직접 에디터에 렌더링
   const handleMediaFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'gif' | 'video' | 'file') => {
+    console.log("파일 업로드 이벤트:", type, e.target.files);
     const files = e.target.files;
-    if (!files || files.length === 0 || !currentEditor) return;
+    if (!files || files.length === 0 || !currentEditor) {
+      console.error("파일 없음 또는 currentEditor 없음:", files, currentEditor);
+      return;
+    }
 
     const file = files[0];
+    console.log("선택된 파일:", file.name, file.type, file.size);
     // 임시 URL 생성 (실제로는 서버에 업로드하고 URL을 받아야 함)
     const fileUrl = URL.createObjectURL(file);
 
     // 현재 에디터 텍스트 영역 가져오기
+    console.log("현재 에디터:", currentEditor);
     const textAreaElement = document.querySelector(`textarea[name="${currentEditor}"]`) as HTMLTextAreaElement;
-    if (!textAreaElement) return;
+    if (!textAreaElement) {
+      console.error("텍스트 영역 요소를 찾을 수 없음:", currentEditor);
+      alert(`텍스트 영역을 찾을 수 없습니다: ${currentEditor}`);
+      return;
+    }
 
     // 캐럿 위치 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
@@ -636,13 +662,20 @@ export default function ResourceUploadPage() {
   const AutoResizeTextarea = ({ 
     value, 
     onChange, 
-    placeholder 
+    placeholder,
+    name 
   }: { 
     value: string; 
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
     placeholder: string;
+    name: string;
   }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    
+    useEffect(() => {
+      // 디버깅을 위한 로그
+      console.log(`AutoResizeTextarea 마운트됨: ${name}`, textareaRef.current);
+    }, []);
     
     // 텍스트 영역 크기 자동 조절
     useEffect(() => {
@@ -666,6 +699,7 @@ export default function ResourceUploadPage() {
     return (
       <textarea
         ref={textareaRef}
+        name={name}
         className="min-h-[200px] resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0 w-full p-3"
         placeholder={placeholder}
         value={value}
@@ -1158,6 +1192,7 @@ export default function ResourceUploadPage() {
                               )}
                               <div className="flex flex-col">
                                 <AutoResizeTextarea
+                                  name="assemblyInstructions"
                                   placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
                                   value={field.value || ""}
                                   onChange={async (e) => {
@@ -1225,6 +1260,7 @@ export default function ResourceUploadPage() {
                               )}
                               <div className="flex flex-col">
                                 <AutoResizeTextarea
+                                  name="howToUse"
                                   placeholder="하드웨어 사용 방법과 주의사항을 설명해주세요."
                                   value={field.value || ""}
                                   onChange={async (e) => {
