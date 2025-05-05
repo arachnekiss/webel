@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { FileIcon, ImageIcon, Link2Icon, PlayCircleIcon } from 'lucide-react';
+import { FileIcon, ImageIcon, Link2 } from 'lucide-react';
 
 interface MediaPreviewProps {
   content: string;
@@ -97,10 +97,10 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
     );
     
     // URL 카드 링크 처리
-    const urlCardPattern = /<div class="url-card">(.*?)<\/div>/gs;
+    const urlCardPattern = /<div class="url-card">[\s\S]*?<\/div>/g;
     const processedWithUrlCards = processedWithVideos.replace(
       urlCardPattern,
-      (match, content) => {
+      (match) => {
         return match; // 이미 HTML로 구성된 URL 카드는 그대로 유지
       }
     );
@@ -112,7 +112,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
       (match, fileName, url) => {
         return `<div class="file-link">
           <a href="${url}" download class="flex items-center p-2 border rounded-md hover:bg-muted/20 transition-colors">
-            <FileIcon className="w-5 h-5 mr-2 text-muted-foreground" />
+            <span class="file-icon">📄</span>
             <span>${fileName}</span>
           </a>
         </div>`;
@@ -165,7 +165,7 @@ const MediaPreview: React.FC<MediaPreviewProps> = ({ content, className = '' }) 
             return `<div class="url-card">
               <a href="${url}" target="_blank" rel="noopener noreferrer">
                 <div class="url-preview">
-                  <div class="url-icon"><Link2Icon className="w-4 h-4" /></div>
+                  <div class="url-icon"><span class="w-4 h-4">🔗</span></div>
                   <div class="url-content">
                     <div class="url-title">${title}</div>
                     <div class="url-link">${url}</div>
