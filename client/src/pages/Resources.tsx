@@ -105,19 +105,47 @@ const Resources: React.FC<ResourcesProps> = (props) => {
   const getResourceTypeName = () => {
     switch (type) {
       case 'hardware_design':
-        return '하드웨어 설계도';
+        return language === 'ko' 
+          ? '하드웨어 설계도' 
+          : language === 'jp' 
+            ? 'ハードウェア設計' 
+            : 'Hardware Design';
       case 'software':
-        return '소프트웨어 오픈소스';
+        return language === 'ko' 
+          ? '소프트웨어 오픈소스' 
+          : language === 'jp' 
+            ? 'ソフトウェア' 
+            : 'Software';
       case '3d_model':
-        return '3D 모델링 파일';
+        return language === 'ko' 
+          ? '3D 모델링 파일' 
+          : language === 'jp' 
+            ? '3Dモデル' 
+            : '3D Model';
       case 'free_content':
-        return '프리 콘텐츠';
+        return language === 'ko' 
+          ? '프리 콘텐츠' 
+          : language === 'jp' 
+            ? '無料コンテンツ' 
+            : 'Free Content';
       case 'ai_model':
-        return '인공지능 모델';
+        return language === 'ko' 
+          ? 'AI 모델' 
+          : language === 'jp' 
+            ? 'AIモデル' 
+            : 'AI Model';
       case 'flash_game':
-        return '플래시 게임';
+        return language === 'ko' 
+          ? '플래시 게임' 
+          : language === 'jp' 
+            ? 'フラッシュゲーム' 
+            : 'Flash Game';
       default:
-        return '모든 리소스';
+        return language === 'ko' 
+          ? '모든 리소스' 
+          : language === 'jp' 
+            ? 'すべてのリソース' 
+            : 'All Resources';
     }
   };
   
