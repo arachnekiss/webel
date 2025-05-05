@@ -14,7 +14,8 @@ import {
   MapPin,
   Filter,
   CheckCircle2, 
-  XCircle 
+  XCircle,
+  Check
 } from "lucide-react";
 import { 
   Table, 

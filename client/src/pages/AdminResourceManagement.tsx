@@ -14,7 +14,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Filter,
-  PlusCircle
+  PlusCircle,
+  Check
 } from "lucide-react";
 import { 
   Table, 
@@ -260,17 +261,23 @@ export default function AdminResourceManagement() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => selectTypeFilter("all")}
-                className={typeFilter.length === 0 ? "bg-accent" : ""}
+                className={typeFilter.length === 0 ? "bg-accent text-accent-foreground font-medium" : ""}
               >
                 모든 리소스
+                {typeFilter.length === 0 && (
+                  <Check className="h-4 w-4 ml-auto text-green-600" />
+                )}
               </DropdownMenuItem>
               {Object.entries(resourceTypeLabels).map(([type, label]) => (
                 <DropdownMenuItem
                   key={type}
                   onClick={() => selectTypeFilter(type)}
-                  className={typeFilter.includes(type) ? "bg-accent" : ""}
+                  className={typeFilter.includes(type) ? "bg-accent text-accent-foreground font-medium" : ""}
                 >
                   {label}
+                  {typeFilter.includes(type) && (
+                    <Check className="h-4 w-4 ml-auto text-green-600" />
+                  )}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
