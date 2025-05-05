@@ -2,6 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 미디어 프리뷰 컴포넌트 스타일 */
+.media-preview {
+  padding: 1rem;
+}
+
+.media-preview img.editor-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem 0;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  cursor: move;
+}
+
+.media-preview .youtube-embed {
+  margin: 1rem 0;
+  width: 100%;
+  position: relative;
+}
+
+.media-preview .aspect-video {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 0.375rem;
+}
+
+.media-preview .aspect-video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.media-preview .file-link {
+  margin: 1rem 0;
+}
+
+.media-preview .url-card {
+  margin: 1rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.media-preview .url-preview {
+  display: flex;
+  padding: 1rem;
+  background-color: #f9fafb;
+  align-items: center;
+}
+
+.media-preview .url-icon {
+  margin-right: 0.75rem;
+}
+
+.media-preview .url-content {
+  flex: 1;
+}
+
+.media-preview .url-title {
+  font-weight: 500;
+  color: #111827;
+}
+
+.media-preview .url-link {
+  font-size: 0.875rem;
+  color: #6b7280;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.media-preview .video-container {
+  margin: 1rem 0;
+}
+
+.media-preview .editor-video {
+  max-width: 100%;
+  border-radius: 0.375rem;
+}
+
+/* 드래그 중인 미디어 스타일 */
+.dragging-media {
+  opacity: 0.5;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+/* 에디터 프리뷰 스타일 */
+.editor-preview {
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  min-height: 100px;
+}
+
 @keyframes float {
   0% {
     transform: translateY(0px) translateX(-50%);

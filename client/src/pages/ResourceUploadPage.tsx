@@ -666,7 +666,7 @@ export default function ResourceUploadPage() {
     name 
   }: { 
     value: string; 
-    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void | Promise<void>;
     placeholder: string;
     name: string;
   }) => {
@@ -1331,6 +1331,7 @@ export default function ResourceUploadPage() {
                             )}
                             <div className="flex flex-col">
                               <AutoResizeTextarea
+                                name="howToUse"
                                 placeholder="설치 방법과 사용법을 설명해주세요."
                                 value={field.value || ""}
                                 onChange={async (e) => {
@@ -1422,6 +1423,7 @@ export default function ResourceUploadPage() {
                               )}
                               <div className="flex flex-col">
                                 <AutoResizeTextarea
+                                  name="assemblyInstructions"
                                   placeholder="3D 모델의 조립 방법과 단계를 설명해주세요."
                                   value={field.value || ""}
                                   onChange={async (e) => {
@@ -1489,6 +1491,7 @@ export default function ResourceUploadPage() {
                               )}
                               <div className="flex flex-col">
                                 <AutoResizeTextarea
+                                  name="howToUse"
                                   placeholder="3D 모델 프린팅 설정과 사용 방법을 설명해주세요."
                                   value={field.value || ""}
                                   onChange={async (e) => {
@@ -1559,6 +1562,7 @@ export default function ResourceUploadPage() {
                             )}
                             <div className="flex flex-col">
                               <AutoResizeTextarea
+                                name="howToUse"
                                 placeholder="사용 방법과 특징을 설명해주세요."
                                 value={field.value || ""}
                                 onChange={async (e) => {
