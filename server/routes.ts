@@ -79,6 +79,11 @@ import {
   verifyService,
   deleteService
 } from './admin';
+import {
+  getCacheStatus,
+  clearAllCache,
+  clearTableCache
+} from './admin-cache';
 import { setupApiAdapters } from './api-adapters';
 import { Router } from 'express';
 
@@ -854,6 +859,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/services', isAdmin, getAllServices);
   app.put('/api/admin/services/:id/verify', isAdmin, verifyService);
   app.delete('/api/admin/services/:id', isAdmin, deleteService);
+  
+  // 캐시 관리 API 라우트
+  app.get('/api/admin/cache/status', isAdmin, getCacheStatus);
+  app.post('/api/admin/cache/clear-all', isAdmin, clearAllCache);
+  app.post('/api/admin/cache/clear/:table', isAdmin, clearTableCache);
 
   // ==================== Stripe 결제 관련 라우트 ====================
   // (Stripe API 키가 없어 비활성화됨, 단순 응답만 반환)

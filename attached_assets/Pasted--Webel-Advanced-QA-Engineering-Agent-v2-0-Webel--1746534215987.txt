@@ -1,0 +1,70 @@
+
+"Webel Advanced QA & Engineering Agent v2.0"  
+- 목표: **Webel 핵심 비즈니스 플로우(리소스·서비스) 전체를 인간 사용자처럼 깊이 탐색·실험·개선**  
+- 권한: 코드 수정, 데이터 시드·정리, 로드 테스트 실행, 커밋/PR, Replit 재시작  
+
+== 🧠 THINK DEEPLY ==
+1. **사용자 페르소나 3종** 시뮬레이션  
+   - P1 : 비회원 다운로드 전용 방문자  
+   - P2 : 제작자(비회원 업로드·유료 서비스 등록)  
+   - P3 : 엔지니어/제조업체(서비스 등록·매칭 수락)  
+2. **플로우별 “행동 가설 → 실험 → 결과 기록 → 개선안”** 사이클 반복  
+3. **경계 조건·동시성·부하**까지 가정(대용량 파일·다중 업로드·다국어 입력·악성 데이터)  
+
+== 🔧 INITIAL SETUP ==
+git clone `github.com/master01059635648/webel`  → `.env` 로드 (Sandbox 결제 키 포함)  
+Replit URL 자동 인식, `PORT` 동기화  
+Dummy 데이터: `/scripts/seed.ts` (리소스 30개, 서비스 6개, 다국어 태그) 삽입
+
+== 📋 DEEP-DIVE TEST MATRIX ==
+### 1. 리소스 **업로드** 실험
+- [ ] 파일 형식 5종: 이미지(JPG/PNG), 동영상(MP4), STL, PDF, ZIP(>50 MB)  
+- [ ] 제목 중복·특수문자·다국어(中文/日本語/русский) 처리  
+- [ ] 동시 업로드(3 탭) → Supabase Storage & DB 일관성  
+- [ ] 실패 시 재시도·보류 상태 UI
+
+### 2. 리소스 **다운로드** 검증
+- [ ] CDN URL 유효성·속도 측정 (sha256 해시 비교)  
+- [ ] 비회원 다운로드 제한 없음 확인  
+- [ ] 삭제 후 URL 404 응답 확인
+
+### 3. **서비스 이용/등록** 시나리오
+- [ ] “AI 조립 비서”: 입력 → 3단계 가이드 출력, 다국어 대응  
+- [ ] “조립 원격 지원”: 대화방 생성 → 피어 연결(Mock)  
+- [ ] “엔지니어 찾기”: 태그 검색·정렬 → 프로필 열람  
+- [ ] **유료 서비스 등록**: 전화번호 인증·계좌 입력 → 상태 `pending`  
+- [ ] 결제 플로우: PayPal / Toss / Komoju Sandbox로 100 원 테스트 → `payments` = `paid`
+
+### 4. 스트레스 & 경계 테스트
+- [ ] k6 10VU×5 분 리소스 업로드/다운로드 혼합 부하 → 오류율 < 0.1 %  
+- [ ] 20 개 동시 댓글·태그 입력 → XSS 필터·SQL 인젝션 방어  
+- [ ] Lighthouse + Axe 접근성 스캔 → 항목 95 점↑
+
+### 5. 자동화 품질 게이트
+- [ ] Playwright e2e + 결제 시나리오​ `npm run test:e2e`  
+- [ ] ESLint/Prettier → Vitest → Cypress 통과  
+- [ ] Sentry 신규 error = 0
+
+== 🪄 ENGINEERING IMPROVEMENT TASKS ==
+- 캐시 TTL 조정·SWR mutate 시점 최적화  
+- 대용량 파일 업로드 Resumable 정책(Supabase Storage / Tus) 프루프  
+- 다국어 full-text 검색용 pg_trgm 인덱스 추가  
+- 결제 웹훅 시그니처 검증 미구현 시 `feat/payments-webhook-verify` PR  
+- `/config/social.ts` 실제 URL 세팅 후 아이콘 상태표시
+
+== 🛠 PROCEDURE ==
+1. 사용자 P1~P3 시뮬레이션 스크립트 작성 → 실행 → 로그 기록  
+2. 실패·느린 구간 → Root-Cause 분석 → PR(`fix/*`, `perf/*`, `feat/*`)  
+3. 미리보기 배포 → 새 URL 자동 코멘트  
+4. **Test Matrix** 전 항목 ✅ → `release/v2.0.0` 태그 → main 병합  
+5. `/docs/release-notes.md` 업데이트 (`experiments`, `bugs_fixed`, `perf_gain`, `next_steps`)
+
+== 🛑 BLOCKERS ==
+- Storage 429/5xx → 지수 백오프·chunk upload  
+- Webhook 오류 → 로그&시그니처 비교 후 3회 재시도  
+- Rate-limit 감지 → 클라이언트 큐잉·백오프
+
+== ✅ DONE CRITERIA ==
+- Deep-Dive Test Matrix 100 % Pass  
+- k6 오류율 < 0.1 %, Lighthouse ≥ 95  
+- Sentry 0 new issues, “release/v2.0.0” PR merged
