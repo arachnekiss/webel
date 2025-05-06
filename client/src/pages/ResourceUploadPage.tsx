@@ -391,167 +391,9 @@ export default function ResourceUploadPage() {
     // 추후 이미지 편집 모달을 여기에 구현할 수 있음
   }, []);
   
-  // 에디터에서 미디어 찾아 삭제하는 함수
-  const removeMediaFromEditor = useCallback((editorField: string, mediaUrl: string) => {
-    try {
-      // 에디터에서 미디어 찾아 삭제
-      console.log(`에디터(${editorField})에서 미디어 삭제 시도: ${mediaUrl.substring(0, 30)}...`);
-      
-      // 해당 필드의 에디터 컨테이너 찾기
-      const editorContainer = document.querySelector(`[data-field-name="${editorField}"]`);
-      if (!editorContainer) {
-        console.error(`에디터 컨테이너를 찾을 수 없음: ${editorField}`);
-        return false;
-      }
-      
-      // editorContainer 내부의 TipTap 인스턴스 찾기
-      const editorContent = editorContainer.querySelector('.ProseMirror');
-      if (!editorContent) {
-        console.error(`에디터 콘텐츠(.ProseMirror)를 찾을 수 없음: ${editorField}`);
-        return false;
-      }
-      
-      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
-      if (!tiptapEditor) {
-        console.error(`TipTap 에디터 인스턴스를 찾을 수 없음: ${editorField}`);
-        return false;
-      }
-      
-      // 미디어 URL이 포함된 노드 찾기 (이미지, 비디오, iframe)
-      let found = false;
-      let nodePos = -1;
-      let nodeSize = 0;
-      
-      const { doc } = tiptapEditor.state;
-      
-      // 정규화된 URL 비교 함수
-      const matchesUrl = (nodeUrl: string, targetUrl: string) => {
-        // Base64 데이터 URL은 앞부분만 비교
-        if (nodeUrl.startsWith('data:') && targetUrl.startsWith('data:')) {
-          return nodeUrl.split(',')[0] === targetUrl.split(',')[0];
-        }
-        
-        // 일반 URL 비교 (쿼리스트링, 해시 제거)
-        try {
-          const cleanNodeUrl = nodeUrl.split('?')[0].split('#')[0];
-          const cleanTargetUrl = targetUrl.split('?')[0].split('#')[0];
-          
-          return cleanNodeUrl === cleanTargetUrl || 
-                 cleanNodeUrl.includes(cleanTargetUrl) || 
-                 cleanTargetUrl.includes(cleanNodeUrl);
-        } catch (e) {
-          return nodeUrl === targetUrl;
-        }
-      };
-      
-      doc.descendants((node: any, pos: number) => {
-        // 이미지 노드 확인
-        if (node.type.name === 'image') {
-          if (matchesUrl(node.attrs.src, mediaUrl)) {
-            found = true;
-            nodePos = pos;
-            nodeSize = node.nodeSize;
-            return false; // 순회 중단
-          }
-        }
-        // 비디오 노드 확인
-        else if (node.type.name === 'video') {
-          if (matchesUrl(node.attrs.src, mediaUrl)) {
-            found = true;
-            nodePos = pos;
-            nodeSize = node.nodeSize;
-            return false; // 순회 중단
-          }
-        }
-        // HTML 내부의 video, iframe, img 태그 찾기
-        else if (node.isText && node.text) {
-          const regex = /src=["'](.*?)["']/g;
-          let match;
-          while ((match = regex.exec(node.text)) !== null) {
-            if (matchesUrl(match[1], mediaUrl)) {
-              // HTML 노드 안에 있는 경우 전체 노드 위치와 크기 반환
-              found = true;
-              nodePos = pos - node.text.indexOf(match[0]);
-              nodeSize = node.nodeSize;
-              return false; // 순회 중단
-            }
-          }
-        }
-        
-        // iframe을 포함한 div 등 다른 노드 내 미디어 검색
-        if (node.isBlock) {
-          const html = node.attrs.innerHTML || '';
-          
-          // 노드 HTML에 미디어 URL이 포함되어 있는지 확인
-          if (html && html.includes(mediaUrl)) {
-            found = true;
-            nodePos = pos;
-            nodeSize = node.nodeSize;
-            return false; // 순회 중단
-          }
-          
-          // YouTube 비디오 감지 - iframe에서 embed URL 확인
-          if (html && html.includes('youtube.com/embed/')) {
-            // YouTube URL을 비교하기 위한 특수 처리
-            if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
-              // 원본 URL에서 비디오 ID 추출 - 글로벌 유틸리티 함수 사용
-              const srcVideoId = getYouTubeVideoId(mediaUrl);
-              
-              // iframe HTML에서 비디오 ID 추출
-              const embedMatch = html.match(/youtube\.com\/embed\/([^"?&/]+)/);
-              const embedVideoId = embedMatch && embedMatch[1] ? embedMatch[1] : '';
-              
-              // 추출된 비디오 ID가 iframe 소스에 포함되어 있는지 확인
-              if (srcVideoId && embedVideoId && srcVideoId === embedVideoId) {
-                found = true;
-                nodePos = pos;
-                nodeSize = node.nodeSize;
-                console.log(`유튜브 비디오 ID 매치 (${srcVideoId}) 발견:`, html);
-                return false; // 순회 중단
-              }
-            }
-          }
-        }
-        
-        return true; // 계속 순회
-      });
-      
-      // 미디어를 찾았으면 삭제
-      if (found && nodePos >= 0) {
-        console.log(`에디터에서 ${nodePos} 위치의 미디어 노드 삭제 중...`);
-        const { state, dispatch } = tiptapEditor.view;
-        const { tr } = state;
-        
-        // 노드 삭제
-        tr.delete(nodePos, nodePos + nodeSize);
-        
-        // 선택 위치 조정
-        tr.setSelection(TextSelection.near(tr.doc.resolve(nodePos)));
-        
-        // 트랜잭션 적용
-        dispatch(tr);
-        
-        // 에디터 포커스
-        setTimeout(() => {
-          tiptapEditor.view.focus();
-        }, 0);
-        
-        // 에디터 내용을 폼 필드에 업데이트
-        const updatedContent = tiptapEditor.getHTML();
-        form.setValue(editorField as any, updatedContent, { shouldValidate: true });
-        
-        return true;
-      }
-      
-      console.log(`에디터에서 미디어를 찾을 수 없음: ${mediaUrl.substring(0, 30)}...`);
-      return false;
-    } catch (error) {
-      console.error('에디터에서 미디어 삭제 중 오류:', error);
-      return false;
-    }
-  }, [form]);
-
-  // URL 정규화 함수 (util)
+  // ----- 미디어 관리 유틸리티 함수 ----- //
+  
+  // URL 정규화 함수
   const normalizeUrl = useCallback((url: string): string => {
     // null이나 undefined 처리
     if (!url) return '';
@@ -570,6 +412,246 @@ export default function ResourceUploadPage() {
       return url.split('?')[0].split('#')[0];
     }
   }, []);
+  
+  // 미디어 아이템 추가 유틸리티 (단일 소스)
+  const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
+    console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
+    
+    setMediaItems(prev => {
+      const fieldMedia = prev[fieldName] || [];
+      // URL 기준으로 중복 확인
+      if (!fieldMedia.some(item => normalizeUrl(item.url) === normalizeUrl(media.url))) {
+        return {
+          ...prev,
+          [fieldName]: [...fieldMedia, media]
+        };
+      }
+      return prev;
+    });
+    
+    // 기존 uploadedMediaFiles 호환성 유지 (추후 제거 가능)
+    if (media.file || media.type === 'youtube') {
+      setUploadedMediaFiles(prev => {
+        const fieldFiles = prev[fieldName] || [];
+        
+        // 이미 존재하는지 확인
+        if (fieldFiles.some(file => file.preview === media.url)) {
+          return prev;
+        }
+        
+        // 새 FileWithPreview 객체 생성
+        const newFile = new File([], 
+          media.name || `${media.type}-${Date.now()}`, 
+          { type: `${media.type}/${media.type === 'youtube' ? 'mp4' : 'file'}` }) as FileWithPreview;
+        
+        newFile.preview = media.url;
+        // size는 읽기 전용이므로 Object.defineProperty 사용
+        if (media.size) {
+          Object.defineProperty(newFile, 'size', {
+            value: media.size,
+            writable: false
+          });
+        }
+        
+        return {
+          ...prev,
+          [fieldName]: [...fieldFiles, newFile]
+        };
+      });
+    }
+  }, [normalizeUrl]);
+  
+  // 미디어 아이템 제거 유틸리티 (단일 소스)
+  const removeMediaItem = useCallback((fieldName: string, url: string) => {
+    console.log(`미디어 아이템 제거: URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
+    
+    setMediaItems(prev => {
+      const fieldMedia = prev[fieldName] || [];
+      return {
+        ...prev,
+        [fieldName]: fieldMedia.filter(item => normalizeUrl(item.url) !== normalizeUrl(url))
+      };
+    });
+  }, [normalizeUrl]);
+  
+  // 에디터에서 미디어 찾아 삭제하는 함수
+  const removeMediaFromEditor = useCallback((editorField: string, mediaUrl: string) => {
+    try {
+      // 로그 출력 - mediaUrl이 매우 길 경우 앞부분만 표시
+      console.log(`에디터(${editorField})에서 미디어 삭제 시도: ${mediaUrl.substring(0, 30)}...`);
+      
+      // 1. 에디터 레퍼런스 가져오기 - 선호순위
+      
+      // 1.1 먼저 editorRefs에서 참조 찾기
+      let tiptapEditor = null;
+      if (editorRefs.current[editorField]?.current?.editor) {
+        tiptapEditor = editorRefs.current[editorField].current.editor;
+        console.log("✅ editorRefs에서 에디터 인스턴스 찾음");
+      }
+      
+      // 1.2 실패 시 DOM에서 직접 찾기 
+      if (!tiptapEditor) {
+        // 해당 필드의 에디터 컨테이너 찾기
+        const editorContainer = document.querySelector(`[data-field-name="${editorField}"]`);
+        if (!editorContainer) {
+          console.error(`에디터 컨테이너를 찾을 수 없음: ${editorField}`);
+          return false;
+        }
+        
+        // editorContainer 내부의 TipTap 인스턴스 찾기
+        const editorContent = editorContainer.querySelector('.ProseMirror');
+        if (!editorContent) {
+          console.error(`에디터 콘텐츠(.ProseMirror)를 찾을 수 없음: ${editorField}`);
+          return false;
+        }
+        
+        tiptapEditor = (editorContent as any)?.editor;
+        if (!tiptapEditor) {
+          console.error(`TipTap 에디터 인스턴스를 찾을 수 없음: ${editorField}`);
+          return false;
+        }
+      }
+      
+      if (!tiptapEditor) {
+        console.error("에디터 인스턴스를 찾을 수 없습니다.");
+        return false;
+      }
+      
+      // 2. YouTube 비디오 ID 비교 함수
+      const matchesYouTubeVideo = (html: string, targetUrl: string): boolean => {
+        if (!html.includes('youtube.com/embed/')) return false;
+        if (!targetUrl.includes('youtube.com') && !targetUrl.includes('youtu.be')) return false;
+        
+        // 원본 URL에서 비디오 ID 추출
+        const targetVideoId = getYouTubeVideoId(targetUrl);
+        if (!targetVideoId) return false;
+        
+        // iframe HTML에서 비디오 ID 추출
+        const embedMatch = html.match(/youtube\.com\/embed\/([^"?&/]+)/);
+        const embedVideoId = embedMatch && embedMatch[1] ? embedMatch[1] : '';
+        
+        // ID 비교
+        return embedVideoId === targetVideoId;
+      };
+      
+      // 3. 노드 찾기 및 삭제
+      let found = false;
+      
+      // 3.1 커맨드 생성 - tiptap 커맨드 API 사용
+      tiptapEditor.commands.command(({ tr, state }) => {
+        const { doc } = state;
+        
+        // 3.2 문서의 모든 노드 순회
+        doc.descendants((node: any, pos: number) => {
+          // 이미 찾았으면 더 이상 검색하지 않음
+          if (found) return false;
+          
+          // 이미지 노드 확인
+          if (node.type.name === 'image') {
+            if (normalizeUrl(node.attrs.src) === normalizeUrl(mediaUrl)) {
+              // 노드 삭제
+              tr.delete(pos, pos + node.nodeSize);
+              
+              // 빈 문단 처리 (필요 시 남겨두기)
+              if (tr.doc.childCount === 0) {
+                tr.insert(pos, state.schema.nodes.paragraph.create());
+              }
+              
+              found = true;
+              return false; // 순회 중단
+            }
+          }
+          
+          // 비디오 노드 확인
+          else if (node.type.name === 'video') {
+            if (normalizeUrl(node.attrs.src) === normalizeUrl(mediaUrl)) {
+              tr.delete(pos, pos + node.nodeSize);
+              
+              if (tr.doc.childCount === 0) {
+                tr.insert(pos, state.schema.nodes.paragraph.create());
+              }
+              
+              found = true;
+              return false;
+            }
+          }
+          
+          // attachment 노드 확인 (파일)
+          else if (node.type.name === 'attachment') {
+            if (normalizeUrl(node.attrs.url) === normalizeUrl(mediaUrl)) {
+              tr.delete(pos, pos + node.nodeSize);
+              
+              if (tr.doc.childCount === 0) {
+                tr.insert(pos, state.schema.nodes.paragraph.create());
+              }
+              
+              found = true;
+              return false;
+            }
+          }
+          
+          // HTML 블록 노드 확인 (YouTube iframe 등)
+          else if (node.isBlock) {
+            const html = node.attrs.innerHTML || node.attrs.html || '';
+            
+            // YouTube 비디오 검사
+            if (matchesYouTubeVideo(html, mediaUrl)) {
+              tr.delete(pos, pos + node.nodeSize);
+              
+              if (tr.doc.childCount === 0) {
+                tr.insert(pos, state.schema.nodes.paragraph.create());
+              }
+              
+              found = true;
+              return false;
+            }
+            
+            // 일반 HTML에 URL이 포함되어 있는지 확인
+            if (html && html.includes(mediaUrl)) {
+              tr.delete(pos, pos + node.nodeSize);
+              
+              if (tr.doc.childCount === 0) {
+                tr.insert(pos, state.schema.nodes.paragraph.create());
+              }
+              
+              found = true;
+              return false;
+            }
+          }
+          
+          return true; // 계속 순회
+        });
+        
+        return found;
+      });
+      
+      // 에디터 포커스 및 업데이트
+      if (found) {
+        console.log(`✅ 미디어 노드 삭제 성공: ${mediaUrl.substring(0, 20)}...`);
+        window.lastEditorDeletionTimestamp = Date.now();
+        
+        // 에디터 포커스
+        setTimeout(() => {
+          tiptapEditor.view.focus();
+        }, 0);
+        
+        // 에디터 내용을 폼 필드에 업데이트
+        const updatedContent = tiptapEditor.getHTML();
+        form.setValue(editorField as any, updatedContent, { shouldValidate: true });
+        
+        // MediaItems에서도 해당 미디어 제거 (단일 소스 유지)
+        removeMediaItem(editorField, mediaUrl);
+        
+        return true;
+      } else {
+        console.warn(`⚠️ 미디어 노드를 찾지 못함: ${mediaUrl.substring(0, 20)}...`);
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ 에디터에서 미디어 삭제 중 오류:", error);
+      return false;
+    }
+  }, [form, normalizeUrl, removeMediaItem]);
   
   // 미디어 아이템 추가 유틸리티 (단일 소스)
   const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
