@@ -787,7 +787,7 @@ export default function ResourceUploadPage() {
     </>
   );
 
-  // 리치 미디어 에디터 컴포넌트
+  // TipTap 기반 리치 미디어 에디터 컴포넌트
   const CustomMediaEditor = ({ 
     value, 
     onChange, 
@@ -795,7 +795,7 @@ export default function ResourceUploadPage() {
     name,
     onImageClick,
     onImageMove,
-    editable = false
+    editable = true
   }: { 
     value: string; 
     onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void | Promise<void>;
@@ -1043,44 +1043,47 @@ export default function ResourceUploadPage() {
       };
     }, [value, processContent, onImageClick, onImageMove, editable]);
     
+    // TipTap 에디터용 onChange 핸들러
+    const handleEditorChange = (newValue: string) => {
+      // form에 사용될 객체 형태로 변환 (React.ChangeEvent 형태 모방)
+      const syntheticEvent = {
+        target: { name, value: newValue },
+        currentTarget: { name, value: newValue },
+        preventDefault: () => {},
+        stopPropagation: () => {}
+      } as unknown as React.ChangeEvent<HTMLTextAreaElement>;
+      
+      onChange(syntheticEvent);
+    };
+    
+    // 이미지 업로드 핸들러 (나중에 S3 또는 다른 스토리지 연동 가능)
+    const handleImageUpload = async (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result && typeof e.target.result === 'string') {
+            resolve(e.target.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+    
     return (
-      <div 
-        className="border rounded-md relative"
-        ref={containerRef} 
-        style={{ minHeight: '300px', height: `${inputHeight}px` }}
-      >
-        <textarea
-          ref={textareaRef}
-          name={name}
-          className="w-full h-full p-3 resize-none border-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-          placeholder={placeholder}
+      <div className="tiptap-wrapper">
+        <TipTapEditor
           value={value}
-          onChange={onChange}
-          style={{ 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 10, 
-            background: 'transparent',
-            color: 'inherit'
-          }}
-        />
-        <div 
-          ref={overlayRef} 
-          className="absolute top-0 left-0 right-0 bottom-0 p-3 overflow-hidden pointer-events-none"
-          data-testid={`${name}-overlay`}
-          style={{ 
-            zIndex: 5,
-            height: '100%'
-          }}
+          onChange={handleEditorChange}
+          placeholder={placeholder}
+          editable={editable}
+          onImageClick={onImageClick}
+          onImageUpload={handleImageUpload}
         />
       </div>
     );
   };
   
-  // 간단한 텍스트 영역 컴포넌트 (기존 호환성 유지)
+  // TipTap 에디터를 사용하는 리치 텍스트 에디터 컴포넌트
   const AutoResizeTextarea = ({ 
     value, 
     onChange, 
@@ -1094,82 +1097,61 @@ export default function ResourceUploadPage() {
     name: string;
     onImageClick?: (src: string) => void;
   }) => {
-    // 이미지 이동 핸들러
-    const handleImageMove = (draggedSrc: string, targetSrc: string, direction: 'before' | 'after') => {
-      if (!currentEditor) return;
+    // TipTap 에디터용 onChange 핸들러
+    const handleEditorChange = (newValue: string) => {
+      // form에 사용될 객체 형태로 변환 (React.ChangeEvent 형태 모방)
+      const syntheticEvent = {
+        target: { name, value: newValue },
+        currentTarget: { name, value: newValue },
+        preventDefault: () => {},
+        stopPropagation: () => {}
+      } as unknown as React.ChangeEvent<HTMLTextAreaElement>;
       
-      // 현재 에디터 내용 가져오기
-      const content = form.getValues(currentEditor as any);
-      if (!content) return;
-      
-      // 이미지 마크다운 추출
-      const imageRegex = /!\[(.*?)\]\((.*?)\)/g;
-      const images: {alt: string, src: string, full: string}[] = [];
-      let match;
-      while ((match = imageRegex.exec(content)) !== null) {
-        images.push({
-          alt: match[1],
-          src: match[2],
-          full: match[0]
-        });
-      }
-      
-      // 드래그한 이미지와 타겟 이미지 찾기
-      const draggedImage = images.find(img => img.src === draggedSrc);
-      const targetImage = images.find(img => img.src === targetSrc);
-      
-      if (!draggedImage || !targetImage) {
-        console.error("이미지를 찾을 수 없음");
-        return;
-      }
-      
-      // 기존 이미지 제거
-      let newContent = content.replace(draggedImage.full, '');
-      
-      // 타겟 이미지 위치 찾기
-      const targetIndex = newContent.indexOf(targetImage.full);
-      if (targetIndex === -1) {
-        console.error("타겟 이미지 위치를 찾을 수 없음");
-        return;
-      }
-      
-      // 새로운 위치에 드래그한 이미지 삽입
-      if (direction === 'before') {
-        newContent = newContent.substring(0, targetIndex) + 
-                     draggedImage.full + '\n\n' + 
-                     newContent.substring(targetIndex);
-      } else {
-        const insertIndex = targetIndex + targetImage.full.length;
-        newContent = newContent.substring(0, insertIndex) + 
-                     '\n\n' + draggedImage.full + 
-                     newContent.substring(insertIndex);
-      }
-      
-      // 폼 업데이트
-      form.setValue(currentEditor as any, newContent, { shouldValidate: true });
-      
-      toast({
-        title: "이미지 위치 변경됨",
-        description: "이미지 순서가 업데이트되었습니다.",
+      onChange(syntheticEvent);
+    };
+    
+    // 이미지 업로드 핸들러 (나중에 S3 또는 다른 스토리지 연동 가능)
+    const handleImageUpload = async (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result && typeof e.target.result === 'string') {
+            resolve(e.target.result);
+            
+            // 나중에 이미지 업로드 기능과 연동할 수 있도록 상태 업데이트 로직 준비
+            if (uploadedMediaFiles[name]) {
+              const fileWithPreview = {
+                ...file,
+                preview: e.target.result
+              } as FileWithPreview;
+              
+              setUploadedMediaFiles(prev => ({
+                ...prev,
+                [name]: [...prev[name], fileWithPreview]
+              }));
+            }
+          }
+        };
+        reader.readAsDataURL(file);
       });
     };
     
-    // 커스텀 미디어 에디터로 전환
     return (
-      <CustomMediaEditor 
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        name={name}
-        editable={true}
-        onImageClick={onImageClick || ((src) => {
-          toast({
-            title: "이미지 선택됨",
-            description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
-          });
-        })}
-        onImageMove={handleImageMove}
-      />
+      <div className="tiptap-wrapper border rounded-md overflow-hidden">
+        <TipTapEditor
+          value={value}
+          onChange={handleEditorChange}
+          placeholder={placeholder}
+          editable={true}
+          onImageClick={onImageClick || ((src) => {
+            toast({
+              title: "이미지 선택됨",
+              description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+            });
+          })}
+          onImageUpload={handleImageUpload}
+        />
+      </div>
     );
   };
 
