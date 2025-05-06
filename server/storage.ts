@@ -116,17 +116,66 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getUser(id: number): Promise<User | undefined> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('user', { id });
+    
+    // 캐시에서 데이터 확인
+    const cachedUser = userCache.get<User>(cacheKey);
+    if (cachedUser) {
+      return cachedUser;
+    }
+    
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    
+    // 결과 캐싱
+    if (user) {
+      userCache.set(cacheKey, user);
+    }
+    
     return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('user_by_username', { username });
+    
+    // 캐시에서 데이터 확인
+    const cachedUser = userCache.get<User>(cacheKey);
+    if (cachedUser) {
+      return cachedUser;
+    }
+    
     const [user] = await db.select().from(users).where(eq(users.username, username));
+    
+    // 결과 캐싱
+    if (user) {
+      userCache.set(cacheKey, user);
+      // ID 기반 캐싱도 추가
+      userCache.set(generateCacheKey('user', { id: user.id }), user);
+    }
+    
     return user;
   }
   
   async getUserByEmail(email: string): Promise<User | undefined> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('user_by_email', { email });
+    
+    // 캐시에서 데이터 확인
+    const cachedUser = userCache.get<User>(cacheKey);
+    if (cachedUser) {
+      return cachedUser;
+    }
+    
     const [user] = await db.select().from(users).where(eq(users.email, email));
+    
+    // 결과 캐싱
+    if (user) {
+      userCache.set(cacheKey, user);
+      // ID 기반 캐싱도 추가
+      userCache.set(generateCacheKey('user', { id: user.id }), user);
+    }
+    
     return user;
   }
 
@@ -139,11 +188,40 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    // 기존 사용자 정보 가져오기
+    const existingUser = await this.getUser(id);
+    if (!existingUser) return undefined;
+    
     const [updatedUser] = await db
       .update(users)
       .set(userData)
       .where(eq(users.id, id))
       .returning();
+      
+    if (updatedUser) {
+      // 사용자 관련 캐시 무효화
+      userCache.del(generateCacheKey('user', { id }));
+      
+      if (existingUser.username) {
+        userCache.del(generateCacheKey('user_by_username', { username: existingUser.username }));
+      }
+      
+      if (existingUser.email) {
+        userCache.del(generateCacheKey('user_by_email', { email: existingUser.email }));
+      }
+      
+      // 새로운 캐시 설정
+      userCache.set(generateCacheKey('user', { id }), updatedUser);
+      
+      if (updatedUser.username) {
+        userCache.set(generateCacheKey('user_by_username', { username: updatedUser.username }), updatedUser);
+      }
+      
+      if (updatedUser.email) {
+        userCache.set(generateCacheKey('user_by_email', { email: updatedUser.email }), updatedUser);
+      }
+    }
+    
     return updatedUser;
   }
   
@@ -153,7 +231,26 @@ export class DatabaseStorage implements IStorage {
   
   async deleteUser(id: number): Promise<boolean> {
     try {
+      // 기존 사용자 정보 가져오기
+      const existingUser = await this.getUser(id);
+      if (!existingUser) return false;
+      
       await db.delete(users).where(eq(users.id, id));
+      
+      // 사용자 관련 캐시 무효화
+      userCache.del(generateCacheKey('user', { id }));
+      
+      if (existingUser.username) {
+        userCache.del(generateCacheKey('user_by_username', { username: existingUser.username }));
+      }
+      
+      if (existingUser.email) {
+        userCache.del(generateCacheKey('user_by_email', { email: existingUser.email }));
+      }
+      
+      // 사용자 목록 캐시 무효화
+      clearCacheByPrefix('users_');
+      
       return true;
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -307,6 +404,15 @@ export class DatabaseStorage implements IStorage {
       });
       
       const [createdService] = await db.insert(services).values(processedData).returning();
+      
+      // 서비스 목록 관련 캐시 무효화
+      clearCacheByPrefix('services');
+      
+      // 서비스 타입별 캐시 무효화
+      if (createdService.serviceType) {
+        clearCacheByPrefix(`services_by_type-${JSON.stringify({ type: createdService.serviceType })}`);
+      }
+      
       return createdService;
     } catch (error) {
       console.error('서비스 생성 DB 오류:', error);
@@ -315,11 +421,36 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateService(id: number, serviceUpdate: Partial<Service>): Promise<Service | undefined> {
+    // 기존 서비스 정보 가져오기
+    const existingService = await this.getServiceById(id);
+    if (!existingService) return undefined;
+    
     const [updatedService] = await db
       .update(services)
       .set(serviceUpdate)
       .where(eq(services.id, id))
       .returning();
+      
+    if (updatedService) {
+      // 서비스 캐시 무효화
+      cache.del(generateCacheKey('service', { id }));
+      
+      // 서비스 목록 관련 캐시 무효화
+      clearCacheByPrefix('services');
+      
+      // 서비스 타입이 변경된 경우, 이전 타입 및 새 타입 관련 캐시 무효화
+      if (existingService.serviceType) {
+        clearCacheByPrefix(`services_by_type-${JSON.stringify({ type: existingService.serviceType })}`);
+      }
+      
+      if (updatedService.serviceType && existingService.serviceType !== updatedService.serviceType) {
+        clearCacheByPrefix(`services_by_type-${JSON.stringify({ type: updatedService.serviceType })}`);
+      }
+      
+      // 위치 기반 서비스 캐시 무효화
+      clearCacheByPrefix('services_by_location');
+    }
+    
     return updatedService;
   }
 
@@ -479,6 +610,14 @@ export class DatabaseStorage implements IStorage {
         (createdResource as any).resourceType = createdResource.category;
       }
       
+      // 리소스 목록 관련 캐시 무효화
+      clearCacheByPrefix('resources');
+      
+      // 카테고리별 리소스 캐시 무효화
+      if (createdResource.category) {
+        clearCacheByPrefix(`resources_by_category-${JSON.stringify({ category: createdResource.category })}`);
+      }
+      
       return createdResource;
     } catch (error) {
       console.error('Error creating resource:', error);
@@ -488,6 +627,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateResource(id: number, resourceUpdate: Partial<Resource>): Promise<Resource | undefined> {
     try {
+      // 기존 리소스 정보 가져오기
+      const existingResource = await this.getResourceById(id);
+      if (!existingResource) return undefined;
+      
       // Handle resourceType to category mapping
       if (resourceUpdate.resourceType && !resourceUpdate.category) {
         resourceUpdate.category = resourceUpdate.resourceType;
@@ -506,6 +649,24 @@ export class DatabaseStorage implements IStorage {
       // Add resourceType back to the returned object for type compatibility
       if (updatedResource && updatedResource.category) {
         (updatedResource as any).resourceType = updatedResource.category;
+      }
+      
+      // 리소스 캐시 무효화
+      cache.del(generateCacheKey('resource', { id }));
+      
+      // 리소스 목록 관련 캐시 무효화
+      clearCacheByPrefix('resources');
+      
+      // 카테고리가 변경된 경우, 이전 카테고리 및 새 카테고리 관련 캐시 무효화
+      const oldCategory = existingResource?.category;
+      const newCategory = updatedResource?.category;
+      
+      if (oldCategory) {
+        clearCacheByPrefix(`resources_by_category-${JSON.stringify({ category: oldCategory })}`);
+      }
+      
+      if (newCategory && oldCategory !== newCategory) {
+        clearCacheByPrefix(`resources_by_category-${JSON.stringify({ category: newCategory })}`);
       }
       
       return updatedResource;
@@ -540,6 +701,10 @@ export class DatabaseStorage implements IStorage {
         (updatedResource as any).resourceType = updatedResource.category;
       }
       
+      // 리소스 캐시 업데이트
+      const cacheKey = generateCacheKey('resource', { id });
+      cache.set(cacheKey, updatedResource);
+      
       return updatedResource;
     } catch (error) {
       console.error(`Error incrementing download count for resource ${id}:`, error);
@@ -550,6 +715,10 @@ export class DatabaseStorage implements IStorage {
   // 소프트 삭제 - deleted_at 타임스탬프만 설정
   async deleteResource(id: number): Promise<boolean> {
     try {
+      // 기존 리소스 정보 가져오기
+      const existingResource = await this.getResourceById(id);
+      if (!existingResource) return false;
+      
       // 현재 시간으로 deleted_at 필드 설정
       const now = new Date();
       
@@ -565,6 +734,19 @@ export class DatabaseStorage implements IStorage {
           )
         )
         .returning();
+      
+      if (deleted) {
+        // 리소스 캐시 무효화
+        cache.del(generateCacheKey('resource', { id }));
+        
+        // 리소스 목록 관련 캐시 무효화
+        clearCacheByPrefix('resources');
+        
+        // 카테고리별 리소스 캐시 무효화
+        if (existingResource.category) {
+          clearCacheByPrefix(`resources_by_category-${JSON.stringify({ category: existingResource.category })}`);
+        }
+      }
       
       return !!deleted; // 삭제된 리소스가 있으면 true, 없으면 false 반환
     } catch (error) {
