@@ -338,7 +338,8 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               const pos = getPos();
               
               // 이미지 URL 가져오기 (onMediaDelete 콜백용)
-              const src = img.getAttribute('src');
+              // 이미지 엘리먼트 대신 노드 속성에서 직접 URL 추출
+              const src = node.attrs.src;
               
               // ProseMirror 트랜잭션으로 노드 삭제
               const { tr } = editor.view.state;
