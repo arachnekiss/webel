@@ -103,8 +103,12 @@ const Video = Node.create({
             }, 0);
             
             // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
-            if (src && onMediaDelete) {
-              onMediaDelete(src, 'video');
+            if (src) {
+              // editor.options에서 onMediaDelete 핸들러 가져오기
+              const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+              if (typeof mediaDeleteHandler === 'function') {
+                mediaDeleteHandler(src, 'video');
+              }
             }
           }
         });
@@ -355,8 +359,12 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               }, 0);
               
               // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
-              if (src && onMediaDelete) {
-                onMediaDelete(src, 'image');
+              if (src) {
+                // editor.options에서 onMediaDelete 핸들러 가져오기
+                const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+                if (typeof mediaDeleteHandler === 'function') {
+                  mediaDeleteHandler(src, 'image');
+                }
               }
             }
           });
@@ -399,6 +407,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     },
   });
 
+  // 커스텀 옵션을 확장한 useEditor 형태
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -432,6 +441,11 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       },
     },
   });
+  
+  // 에디터 인스턴스에 onMediaDelete 핸들러 추가 (타입 단언 사용)
+  if (editor) {
+    (editor as any).options.onMediaDelete = onMediaDelete;
+  }
 
   // 외부에서 에디터 기능에 접근할 수 있는 핸들 제공
   useImperativeHandle(ref, () => ({
