@@ -81,7 +81,8 @@ const Video = Node.create({
             const pos = getPos();
             
             // 비디오 URL 가져오기 (onMediaDelete 콜백용)
-            const src = video.getAttribute('src');
+            // video 요소에서 src를 가져오는 대신 노드 속성에서 직접 가져옴
+            const src = node.attrs.src;
             
             // ProseMirror 트랜잭션으로 노드 삭제
             const { tr } = editor.view.state;
