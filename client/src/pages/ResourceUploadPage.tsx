@@ -653,66 +653,7 @@ export default function ResourceUploadPage() {
     }
   }, [form, normalizeUrl, removeMediaItem]);
   
-  // 미디어 아이템 추가 유틸리티 (단일 소스)
-  const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
-    console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
-    
-    setMediaItems(prev => {
-      const fieldMedia = prev[fieldName] || [];
-      // URL 기준으로 중복 확인
-      if (!fieldMedia.some(item => normalizeUrl(item.url) === normalizeUrl(media.url))) {
-        return {
-          ...prev,
-          [fieldName]: [...fieldMedia, media]
-        };
-      }
-      return prev;
-    });
-    
-    // 기존 uploadedMediaFiles 호환성 유지 (추후 제거 가능)
-    if (media.file || media.type === 'youtube') {
-      setUploadedMediaFiles(prev => {
-        const fieldFiles = prev[fieldName] || [];
-        
-        // 이미 존재하는지 확인
-        if (fieldFiles.some(file => file.preview === media.url)) {
-          return prev;
-        }
-        
-        // 새 FileWithPreview 객체 생성
-        const newFile = new File([], 
-          media.name || `${media.type}-${Date.now()}`, 
-          { type: `${media.type}/${media.type === 'youtube' ? 'mp4' : 'file'}` }) as FileWithPreview;
-        
-        newFile.preview = media.url;
-        // size는 읽기 전용이므로 Object.defineProperty 사용
-        if (media.size) {
-          Object.defineProperty(newFile, 'size', {
-            value: media.size,
-            writable: false
-          });
-        }
-        
-        return {
-          ...prev,
-          [fieldName]: [...fieldFiles, newFile]
-        };
-      });
-    }
-  }, [normalizeUrl]);
-  
-  // 미디어 아이템 제거 유틸리티 (단일 소스)
-  const removeMediaItem = useCallback((fieldName: string, url: string) => {
-    console.log(`미디어 아이템 제거: URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
-    
-    setMediaItems(prev => {
-      const fieldMedia = prev[fieldName] || [];
-      return {
-        ...prev,
-        [fieldName]: fieldMedia.filter(item => normalizeUrl(item.url) !== normalizeUrl(url))
-      };
-    });
-  }, [normalizeUrl]);
+  // 에디터에서 미디어를 제거하고 빈 단락 정리하는 함수
   
   // 에디터에서 미디어를 제거하고 빈 단락 정리하는 함수
   const removeMediaAndCleanup = useCallback((fieldName: string, url: string) => {
@@ -1128,6 +1069,17 @@ export default function ResourceUploadPage() {
       const editorContent = editorContainer.querySelector('.ProseMirror');
       const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
       
+      // URL 검증 - 빈 URL이나 공백만 있는 경우 처리하지 않음
+      if (!urlInput.trim()) {
+        toast({
+          title: "URL 오류",
+          description: "유효한 URL을 입력해주세요.",
+          variant: "destructive"
+        });
+        setUrlInputActive(false);
+        return;
+      }
+      
       // YouTube URL 감지 및 처리
       const isYouTubeUrl = urlInput.includes('youtube.com') || urlInput.includes('youtu.be');
       const videoId = isYouTubeUrl ? getYouTubeVideoId(urlInput) : '';
@@ -1138,7 +1090,9 @@ export default function ResourceUploadPage() {
         if (isYouTubeUrl && videoId) {
           // YouTube 비디오인 경우
           console.log(`YouTube 비디오 ID 추출됨: ${videoId}`);
-          const youtubeHtml = `<div class="youtube-embed">
+          
+          // YouTube iframe을 생성
+          const youtubeHtml = `<div class="youtube-embed" data-youtube-id="${videoId}">
             <iframe 
               width="100%" 
               height="315" 
@@ -1149,6 +1103,7 @@ export default function ResourceUploadPage() {
             ></iframe>
           </div><p><br></p>`;
           
+          // 에디터에 삽입
           tiptapEditor.chain().focus().insertContent(youtubeHtml).run();
           
           // YouTube 링크를 중앙 집중식 미디어 관리 시스템에 추가
@@ -1159,6 +1114,11 @@ export default function ResourceUploadPage() {
             url: youtubeUrl,
             type: 'youtube',
             name: `YouTube 비디오: ${videoId}`
+          });
+          
+          toast({
+            title: "YouTube 비디오 추가됨",
+            description: `비디오 ID: ${videoId}`,
           });
           
         } else {
@@ -1202,7 +1162,7 @@ export default function ResourceUploadPage() {
         if (isYouTubeUrl && videoId) {
           // YouTube 비디오 임베드
           console.log(`폴백: YouTube 비디오 ID 추출됨: ${videoId}`);
-          newHtmlContent = `<div class="youtube-embed">
+          newHtmlContent = `<div class="youtube-embed" data-youtube-id="${videoId}">
           <iframe 
             width="100%" 
             height="315" 
@@ -1258,7 +1218,7 @@ export default function ResourceUploadPage() {
       if (isYouTubeUrl && videoId) {
         // YouTube 비디오 임베드
         console.log(`폴백: YouTube 비디오 ID 추출됨: ${videoId}`);
-        newHtmlContent = `<div class="youtube-embed">
+        newHtmlContent = `<div class="youtube-embed" data-youtube-id="${videoId}">
         <iframe 
           width="100%" 
           height="315" 
