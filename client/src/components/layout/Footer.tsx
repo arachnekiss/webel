@@ -216,15 +216,7 @@ const Footer: React.FC = () => {
                   </span>
                 </TopLink>
               </li>
-              <li>
-                <TopLink href="/api-docs" showLoadingIndicator={true} forceReload={true}>
-                  <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                    {language === 'ko' ? 'API 문서' : 
-                     language === 'jp' ? 'APIドキュメント' : 
-                     'API Documentation'}
-                  </span>
-                </TopLink>
-              </li>
+
               <li>
                 <TopLink href="/privacy" showLoadingIndicator={true} forceReload={true}>
                   <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
