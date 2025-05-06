@@ -80,6 +80,9 @@ const Video = Node.create({
           if (typeof getPos === 'function') {
             const pos = getPos();
             
+            // 비디오 URL 가져오기 (onMediaDelete 콜백용)
+            const src = video.getAttribute('src');
+            
             // ProseMirror 트랜잭션으로 노드 삭제
             const { tr } = editor.view.state;
             tr.delete(pos, pos + node.nodeSize);
@@ -98,6 +101,11 @@ const Video = Node.create({
             setTimeout(() => {
               editor.view.focus();
             }, 0);
+            
+            // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
+            if (src && onMediaDelete) {
+              onMediaDelete(src, 'video');
+            }
           }
         });
         
@@ -245,6 +253,7 @@ interface TipTapEditorProps {
   editable?: boolean;
   onImageClick?: (src: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
+  onMediaDelete?: (src: string, type: 'image' | 'video') => void; // 미디어 삭제 이벤트 핸들러
   fieldName?: string; // 필드 이름 (멀티미디어 추적용)
   name?: string; // input name 속성
   hideLinkButton?: boolean; // 링크 버튼을 숨길지 여부
@@ -276,6 +285,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   editable = true,
   onImageClick,
   onImageUpload,
+  onMediaDelete,
   fieldName,
   name,
   hideLinkButton,
@@ -322,6 +332,9 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
             if (typeof getPos === 'function') {
               const pos = getPos();
               
+              // 이미지 URL 가져오기 (onMediaDelete 콜백용)
+              const src = img.getAttribute('src');
+              
               // ProseMirror 트랜잭션으로 노드 삭제
               const { tr } = editor.view.state;
               tr.delete(pos, pos + node.nodeSize);
@@ -340,6 +353,11 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               setTimeout(() => {
                 editor.view.focus();
               }, 0);
+              
+              // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
+              if (src && onMediaDelete) {
+                onMediaDelete(src, 'image');
+              }
             }
           });
           
