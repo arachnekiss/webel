@@ -705,18 +705,26 @@ export default function ResourceUploadPage() {
         return false;
       }
       
-      // 2. YouTube 비디오 ID 비교 함수
+      // 2. YouTube 비디오 ID 비교 함수 (개선된 버전)
       const matchesYouTubeVideo = (html: string, targetUrl: string): boolean => {
-        if (!html.includes('youtube.com/embed/')) return false;
+        if (!html.includes('youtube.com/embed/') && !html.includes('data-youtube-id')) return false;
         if (!targetUrl.includes('youtube.com') && !targetUrl.includes('youtu.be')) return false;
         
         // 원본 URL에서 비디오 ID 추출
         const targetVideoId = getYouTubeVideoId(targetUrl);
         if (!targetVideoId) return false;
         
-        // iframe HTML에서 비디오 ID 추출
+        // iframe HTML에서 비디오 ID 추출 (방법 1)
         const embedMatch = html.match(/youtube\.com\/embed\/([^"?&/]+)/);
-        const embedVideoId = embedMatch && embedMatch[1] ? embedMatch[1] : '';
+        let embedVideoId = embedMatch && embedMatch[1] ? embedMatch[1] : '';
+        
+        // 방법 2: data-youtube-id 속성 확인 (확장 검색)
+        if (!embedVideoId) {
+          const dataIdMatch = html.match(/data-youtube-id=["']([^"']+)["']/);
+          embedVideoId = dataIdMatch && dataIdMatch[1] ? dataIdMatch[1] : '';
+        }
+        
+        console.log(`YouTube ID 비교: 타겟(${targetVideoId}) vs 임베드(${embedVideoId})`);
         
         // ID 비교
         return embedVideoId === targetVideoId;
