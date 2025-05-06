@@ -1,11 +1,89 @@
-import { Editor, EditorContent, useEditor } from '@tiptap/react';
+import { Editor, EditorContent, useEditor, Node, mergeAttributes, ReactNodeViewRenderer } from '@tiptap/react';
+import { Extension } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
-import { useCallback, useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import { keymap } from '@tiptap/pm/keymap';
+import { useCallback, useEffect, useState, useRef, useImperativeHandle, forwardRef, ReactNode } from 'react';
 import { Button } from './button';
-import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link2, ImageIcon } from 'lucide-react';
+import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link2, ImageIcon, X } from 'lucide-react';
+
+// 커스텀 비디오 확장 만들기
+const Video = Node.create({
+  name: 'video',
+  group: 'block',
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      controls: {
+        default: true,
+      },
+      width: {
+        default: '100%',
+      },
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'video',
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['video', mergeAttributes(HTMLAttributes)];
+  },
+
+  addCommands() {
+    return {
+      setVideo: (options: { src: string, controls?: boolean, width?: string }) => ({ commands }: any) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
+      },
+    };
+  },
+});
+
+// 이미지 자동 삭제 방지 확장
+const PreventImageNodeDeletion = Extension.create({
+  name: 'preventImageNodeDeletion',
+  
+  addKeyboardShortcuts() {
+    return {
+      'Backspace': ({ editor }) => {
+        const { selection } = editor.state;
+        const { empty, $anchor } = selection;
+        
+        // 이미지 노드 앞에서 Backspace 눌렀을 때 이미지 삭제되지 않도록
+        if (empty && $anchor.nodeBefore && $anchor.nodeBefore.type.name === 'image') {
+          return true; // 기본 동작 취소
+        }
+        
+        return false; // 원래 동작 실행
+      },
+      'Delete': ({ editor }) => {
+        const { selection } = editor.state;
+        const { empty, $head } = selection;
+        
+        // 이미지 노드 뒤에서 Delete 눌렀을 때 이미지 삭제되지 않도록
+        if (empty && $head.nodeAfter && $head.nodeAfter.type.name === 'image') {
+          return true; // 기본 동작 취소
+        }
+        
+        return false; // 원래 동작 실행
+      }
+    };
+  }
+});
 
 // 에디터 인스턴스를 외부에서 참조하기 위한 핸들 타입 정의
 export interface TipTapEditorHandle {
@@ -44,10 +122,61 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   // 에디터 내 이미지 클릭 핸들링은 아래 EditorContent의 onClick 이벤트로 처리
   // TipTap API에서 요구하는 handleClick 함수 시그니처와 맞지 않아 제거함
 
+  // 이미지 노드 확장 - 이미지에 삭제 버튼 추가
+  const ImageWithDeleteButton = Image.extend({
+    renderHTML({ HTMLAttributes }) {
+      const { src, alt, title } = HTMLAttributes;
+      
+      // 원래의 HTML 렌더링을 사용하지만, 커스텀 클래스 추가
+      HTMLAttributes.class = 'tiptap-image-wrapper';
+      
+      return [
+        'img',
+        mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      ]
+    },
+    addNodeView() {
+      return ({ HTMLAttributes, node, editor, getPos }) => {
+        const dom = document.createElement('div');
+        dom.classList.add('tiptap-image-wrapper');
+        
+        const img = document.createElement('img');
+        Object.entries(HTMLAttributes).forEach(([key, value]) => {
+          img.setAttribute(key, String(value));
+        });
+        
+        // 삭제 버튼 추가
+        if (editor.isEditable) {
+          const deleteButton = document.createElement('button');
+          deleteButton.classList.add('tiptap-image-delete-button');
+          deleteButton.innerHTML = '×';
+          deleteButton.addEventListener('click', () => {
+            if (typeof getPos === 'function') {
+              const pos = getPos();
+              editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
+            }
+          });
+          
+          dom.appendChild(img);
+          dom.appendChild(deleteButton);
+        } else {
+          dom.appendChild(img);
+        }
+        
+        return {
+          dom,
+          contentDOM: null,
+        };
+      };
+    },
+  });
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image,
+      ImageWithDeleteButton,
+      Video,
+      PreventImageNodeDeletion,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
@@ -94,8 +223,24 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     
     // 비디오 삽입
     insertVideo: (src: string) => {
-      const videoHtml = `<div><video controls width="100%"><source src="${src}"></video></div><p><br></p>`;
-      editor?.chain().focus().insertContent(videoHtml).run();
+      // 직접 Video 명령 사용으로 변경
+      if (src.includes('youtube.com') || src.includes('youtu.be')) {
+        // YouTube 비디오인 경우 iframe 사용
+        const embedId = src.includes('youtu.be') 
+          ? src.split('/').pop() 
+          : src.includes('v=') 
+            ? new URLSearchParams(src.split('?')[1]).get('v') 
+            : null;
+        
+        if (embedId) {
+          const youtubeHtml = `<div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${embedId}" frameborder="0" allowfullscreen></iframe></div><p><br></p>`;
+          editor?.chain().focus().insertContent(youtubeHtml).run();
+        }
+      } else {
+        // 일반 비디오 파일인 경우 video 태그 사용
+        const videoHtml = `<video controls width="100%" src="${src}"></video><p><br></p>`;
+        editor?.chain().focus().insertContent(videoHtml).run();
+      }
     },
     
     // 파일 링크 삽입
