@@ -1,0 +1,66 @@
+│  ★ FINAL QA SPRINT — “GREEN-ALL” 지시문 ★   │
+╰──────────────────────────────────────────────╯
+목표: 체크리스트 1-5 전 항목을 **100 % Green** 으로 만들고  
+`release/v1.0.0` 태그 → main 머지 → /docs/release-notes.md 작성 후 종료.
+
+### ⏳ DEADLINE
+24 h 내(Asia/Seoul) 자동 완료. 실패 시 `HELP NEEDED` 로 중단.
+
+### ✔ DONE 조건 요약
+1. **Playwright e2e**  → 모든 핵심 플로우 PASS (비회원 시나리오 포함)  
+2. **UI/접근성**  → 모바일·데스크톱 레이아웃, aria-label, SNS href OK  
+3. **성능/SEO**  → TTFB < 200 ms (서울) + Lighthouse ≥ 90 / CLS·LCP 경고 0  
+4. **안정/보안**  → RLS 정책, 미보호 POST/PUT 없음, rate-limit 목록 정리  
+5. **법적 페이지**  → /privacy, /terms 링크 OK, footer 연도 고정 텍스트 유지  
+6. **CI Green**  → ESLint·Vitest·Cypress·Playwright·k6 & Lighthouse 워크플로 전부 녹색  
+7. **Sentry**  → 신규 오류 0 (5 분 모니터링)  
+8. **release/v1.0.0** 태그 & `/docs/release-notes.md`(bugs_fixed, perf_improvements, open_todos)
+
+### 단계별 액션 (자동 Loop)
+
+#### ▶ Stage A — Playwright e2e (Weight 5)
+1. `tests/e2e/*.spec.ts` 작성:  
+   - 열람/다운로드 · 업로드/미리보기 · 삭제 시 대시보드 업데이트  
+   - 검색/필터·페이지네이션 · 사이드 6 메뉴 진입 & 기능  
+   - 다국어 토글 ko/en/ja/zh/es 확인  
+   - 유료 서비스 등록 → 전화번호 인증/계좌 입력 폼 렌더  
+2. `npm run test:e2e` → 실패 시 원인 수정 → 재시도.  
+3. 녹색이면 **Stage A DONE**.
+
+#### ▶ Stage B — UI/접근성 (Weight 4)
+1. Lighthouse CI (`desktop, mobile`) → ≥ 90.  
+2. axe-core 스캔(aria-label·tabIndex) → 0 Critical.  
+3. SNS href (Twitter, Instagram, YouTube, GitHub, Blog) 연결 확인.  
+4. fixed footer year text 확인.  
+5. 녹색 → **Stage B DONE**.
+
+#### ▶ Stage C — 성능/SEO (Weight 4)
+1. `k6 run scripts/timing.js` (30 VU × 2 m) → p95 TTFB < 200 ms.  
+2. next/image lazy-loading, CLS·LCP 경고 0.  
+3. OG/메타 태그·robots.txt dev-domain 기준 테스트.  
+4. 녹색 → **Stage C DONE**.
+
+#### ▶ Stage D — 안정/보안 (Weight 3)
+1. Supabase RLS: 비회원 업로드 허용 / 유료만 `verified_phone = true`.  
+2. `scripts/find_open_posts.js` → 미보호 POST/PUT 엔드포인트 0.  
+3. rate-limit (60 req/min) 미구현 리스트 작성 & `/docs/open_todos.md` 기록.  
+4. Sentry 5 분 모니터링: 신규 오류 0.  
+5. 녹색 → **Stage D DONE**.
+
+#### ▶ Stage E — 릴리스 & 문서 (Weight 2)
+1. `/docs/release-notes.md` →  
+   - **bugs_fixed** (링크)  
+   - **perf_improvements** (k6 & LH 스크린샷)  
+   - **open_todos** (rate-limit 등)  
+2. `git tag -a v1.0.0 -m "Webel 1.0 GA"`  
+3. `git push origin v1.0.0`  
+4. Pull Request → main (`Stage-2 REAL PASS` 이미 머지된 상태 기준)  
+5. 워크플로 녹색 → main 머지 → **🎉 FINISH MESSAGE** 출력.
+
+### 자동 루프 규칙
+- 각 Stage 완료 시 `✔ Stage X DONE` 로그.  
+- 조건 불충족 시 원인 수정 → 같은 Stage 재시도.  
+- Stage E 까지 완료하면 `🎉 ALL CHECKLIST GREEN — RELEASE 1.0 DONE`.  
+- 문제 해결 불가 시 `HELP NEEDED` 출력 후 중단.
+
+(추가 승인 불필요—이 스크립트를 즉시 실행)

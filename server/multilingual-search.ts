@@ -136,33 +136,46 @@ function createSearchCondition(normalizedQuery: string, lang: string) {
       likePattern = `%${normalizedQuery}%`;
     }
 
+    // 언어별 정규화 함수를 직접 호출하는 대신 간소화된 검색 조건 사용
     if (table === 'resources') {
       // 리소스 테이블 검색 조건
       // 단일 검색어면 단순 ILIKE 사용
       if (searchTerms.length <= 1) {
         return or(
-          sql`normalize_${lang}(${resources.title} || ' ' || ${resources.description} || ' ' || coalesce(${resources.tags}::text, '')) ILIKE ${likePattern}`,
-          sql`${resources.category} ILIKE ${likePattern}`
+          ilike(resources.title, likePattern),
+          ilike(resources.description, likePattern),
+          ilike(resources.category, likePattern)
         ) as SQL<unknown>;
       } 
       
       // 다중 검색어면 각 단어별 검색 조건 결합
-      const conditions = searchTerms.map(term => 
-        sql`normalize_${lang}(${resources.title} || ' ' || ${resources.description} || ' ' || coalesce(${resources.tags}::text, '')) ILIKE ${'%' + term + '%'}`
-      );
+      const conditions = searchTerms.map(term => {
+        const termPattern = `%${term}%`;
+        return or(
+          ilike(resources.title, termPattern),
+          ilike(resources.description, termPattern),
+          ilike(resources.category, termPattern)
+        );
+      });
       return and(...conditions) as SQL<unknown>;
     } else {
       // 서비스 테이블 검색 조건
       if (searchTerms.length <= 1) {
         return or(
-          sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${likePattern}`,
-          sql`${services.serviceType} ILIKE ${likePattern}`
+          ilike(services.title, likePattern),
+          ilike(services.description, likePattern),
+          ilike(services.serviceType, likePattern)
         ) as SQL<unknown>;
       }
       
-      const conditions = searchTerms.map(term => 
-        sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${'%' + term + '%'}`
-      );
+      const conditions = searchTerms.map(term => {
+        const termPattern = `%${term}%`;
+        return or(
+          ilike(services.title, termPattern),
+          ilike(services.description, termPattern),
+          ilike(services.serviceType, termPattern)
+        );
+      });
       return and(...conditions) as SQL<unknown>;
     }
   };
@@ -183,7 +196,9 @@ export async function searchPerformanceTest(req: Request, res: Response) {
       { lang: 'en', query: 'engineering' },
       { lang: 'ja', query: 'エンジニアリング' },
       { lang: 'zh', query: '工程' },
-      { lang: 'es', query: 'ingeniería' }
+      { lang: 'es', query: 'ingeniería' },
+      { lang: 'ko', query: '소프트웨어' },
+      { lang: 'en', query: 'software' }
     ];
     
     const results: any[] = [];
