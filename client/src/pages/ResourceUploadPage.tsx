@@ -342,6 +342,142 @@ export default function ResourceUploadPage() {
     // 추후 이미지 편집 모달을 여기에 구현할 수 있음
   }, []);
   
+  // 에디터에서 미디어 찾아 삭제하는 함수
+  const removeMediaFromEditor = useCallback((editorField: string, mediaUrl: string) => {
+    try {
+      // 에디터에서 미디어 찾아 삭제
+      console.log(`에디터(${editorField})에서 미디어 삭제 시도: ${mediaUrl.substring(0, 30)}...`);
+      
+      // 해당 필드의 에디터 컨테이너 찾기
+      const editorContainer = document.querySelector(`[data-field-name="${editorField}"]`);
+      if (!editorContainer) {
+        console.error(`에디터 컨테이너를 찾을 수 없음: ${editorField}`);
+        return false;
+      }
+      
+      // editorContainer 내부의 TipTap 인스턴스 찾기
+      const editorContent = editorContainer.querySelector('.ProseMirror');
+      if (!editorContent) {
+        console.error(`에디터 콘텐츠(.ProseMirror)를 찾을 수 없음: ${editorField}`);
+        return false;
+      }
+      
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
+      if (!tiptapEditor) {
+        console.error(`TipTap 에디터 인스턴스를 찾을 수 없음: ${editorField}`);
+        return false;
+      }
+      
+      // 미디어 URL이 포함된 노드 찾기 (이미지, 비디오, iframe)
+      let found = false;
+      let nodePos = -1;
+      let nodeSize = 0;
+      
+      const { doc } = tiptapEditor.state;
+      
+      // 정규화된 URL 비교 함수
+      const matchesUrl = (nodeUrl: string, targetUrl: string) => {
+        // Base64 데이터 URL은 앞부분만 비교
+        if (nodeUrl.startsWith('data:') && targetUrl.startsWith('data:')) {
+          return nodeUrl.split(',')[0] === targetUrl.split(',')[0];
+        }
+        
+        // 일반 URL 비교 (쿼리스트링, 해시 제거)
+        try {
+          const cleanNodeUrl = nodeUrl.split('?')[0].split('#')[0];
+          const cleanTargetUrl = targetUrl.split('?')[0].split('#')[0];
+          
+          return cleanNodeUrl === cleanTargetUrl || 
+                 cleanNodeUrl.includes(cleanTargetUrl) || 
+                 cleanTargetUrl.includes(cleanNodeUrl);
+        } catch (e) {
+          return nodeUrl === targetUrl;
+        }
+      };
+      
+      doc.descendants((node, pos) => {
+        // 이미지 노드 확인
+        if (node.type.name === 'image') {
+          if (matchesUrl(node.attrs.src, mediaUrl)) {
+            found = true;
+            nodePos = pos;
+            nodeSize = node.nodeSize;
+            return false; // 순회 중단
+          }
+        }
+        // 비디오 노드 확인
+        else if (node.type.name === 'video') {
+          if (matchesUrl(node.attrs.src, mediaUrl)) {
+            found = true;
+            nodePos = pos;
+            nodeSize = node.nodeSize;
+            return false; // 순회 중단
+          }
+        }
+        // HTML 내부의 video, iframe, img 태그 찾기
+        else if (node.isText && node.text) {
+          const regex = /src=["'](.*?)["']/g;
+          let match;
+          while ((match = regex.exec(node.text)) !== null) {
+            if (matchesUrl(match[1], mediaUrl)) {
+              // HTML 노드 안에 있는 경우 전체 노드 위치와 크기 반환
+              found = true;
+              nodePos = pos - node.text.indexOf(match[0]);
+              nodeSize = node.nodeSize;
+              return false; // 순회 중단
+            }
+          }
+        }
+        
+        // iframe을 포함한 div 등 다른 노드 내 미디어 검색
+        if (node.isBlock) {
+          const html = node.attrs.innerHTML || '';
+          if (html && html.includes(mediaUrl)) {
+            found = true;
+            nodePos = pos;
+            nodeSize = node.nodeSize;
+            return false; // 순회 중단
+          }
+        }
+        
+        return true; // 계속 순회
+      });
+      
+      // 미디어를 찾았으면 삭제
+      if (found && nodePos >= 0) {
+        console.log(`에디터에서 ${nodePos} 위치의 미디어 노드 삭제 중...`);
+        const { state, dispatch } = tiptapEditor.view;
+        const { tr } = state;
+        
+        // 노드 삭제
+        tr.delete(nodePos, nodePos + nodeSize);
+        
+        // 선택 위치 조정
+        tr.setSelection(TextSelection.near(tr.doc.resolve(nodePos)));
+        
+        // 트랜잭션 적용
+        dispatch(tr);
+        
+        // 에디터 포커스
+        setTimeout(() => {
+          tiptapEditor.view.focus();
+        }, 0);
+        
+        // 에디터 내용을 폼 필드에 업데이트
+        const updatedContent = tiptapEditor.getHTML();
+        form.setValue(editorField as any, updatedContent, { shouldValidate: true });
+        
+        return true;
+      }
+      
+      console.log(`에디터에서 미디어를 찾을 수 없음: ${mediaUrl.substring(0, 30)}...`);
+      return false;
+    } catch (error) {
+      console.error('에디터에서 미디어 삭제 중 오류:', error);
+      return false;
+    }
+  }, [form]);
+
   // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
   const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName?: string) => {
     console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}, 필드: ${fieldName || '미지정'}`);
@@ -383,6 +519,21 @@ export default function ResourceUploadPage() {
       return;
     }
 
+    // 요청 시작 위치에 따라 동기화 결정
+    const fromAttachedMedia = !window.lastEditorDeletionTimestamp || 
+                              (Date.now() - window.lastEditorDeletionTimestamp > 500);
+    
+    // 첨부된 미디어 버튼에서 삭제 시 에디터 내용도 함께 삭제
+    if (fromAttachedMedia) {
+      console.log('첨부된 미디어에서 삭제 요청 -> 에디터 내용 동기화');
+      // 에디터에서도 해당 미디어 삭제 
+      removeMediaFromEditor(targetField, src);
+    } else {
+      console.log('에디터에서 삭제 요청 -> 첨부 미디어만 업데이트');
+      // 에디터 내에서 삭제된 경우 타임스탬프 초기화
+      window.lastEditorDeletionTimestamp = undefined;
+    }
+
     // 해당 필드의 미디어 파일 목록 업데이트
     setUploadedMediaFiles(prev => {
       // 타입 안전성을 위해 문자열로 확실히 변환
@@ -415,7 +566,7 @@ export default function ResourceUploadPage() {
         [fieldKey]: updatedFiles
       };
     });
-  }, [currentEditor]);
+  }, [currentEditor, removeMediaFromEditor]);
   
   // 이미지 위치 이동 핸들러 - 드래그 앤 드롭으로 이미지 순서 변경
   const handleImageMove = useCallback((
