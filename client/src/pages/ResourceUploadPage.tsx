@@ -86,6 +86,7 @@ const detailCategoryOptions = [
 declare global {
   interface Window {
     lastEditorDeletionTimestamp?: number;
+    getYouTubeVideoId?: (url: string) => string;
   }
 }
 
@@ -110,6 +111,34 @@ const formSchema = z.object({
   sourceSite: z.string().optional(),
   isFeatured: z.boolean().optional(),
 });
+
+// YouTube 비디오 ID 추출 유틸리티 함수
+function getYouTubeVideoId(url: string): string {
+  if (!url) return '';
+  
+  let videoId = '';
+  try {
+    if (url.includes('youtube.com/watch?v=')) {
+      const match = url.match(/v=([^&]+)/);
+      if (match && match[1]) videoId = match[1];
+    } else if (url.includes('youtu.be/')) {
+      const match = url.match(/youtu\.be\/([^?&]+)/);
+      if (match && match[1]) videoId = match[1];
+    } else if (url.includes('youtube.com/embed/')) {
+      const match = url.match(/embed\/([^?&/]+)/);
+      if (match && match[1]) videoId = match[1];
+    }
+  } catch (error) {
+    console.error('YouTube 비디오 ID 추출 중 오류:', error);
+  }
+  
+  return videoId;
+}
+
+// 전역에서 함수 접근 가능하도록 설정
+if (typeof window !== 'undefined') {
+  window.getYouTubeVideoId = getYouTubeVideoId;
+}
 
 export default function ResourceUploadPage() {
   const [_, setLocation] = useLocation();
@@ -440,11 +469,35 @@ export default function ResourceUploadPage() {
         // iframe을 포함한 div 등 다른 노드 내 미디어 검색
         if (node.isBlock) {
           const html = node.attrs.innerHTML || '';
+          
+          // 노드 HTML에 미디어 URL이 포함되어 있는지 확인
           if (html && html.includes(mediaUrl)) {
             found = true;
             nodePos = pos;
             nodeSize = node.nodeSize;
             return false; // 순회 중단
+          }
+          
+          // YouTube 비디오 감지 - iframe에서 embed URL 확인
+          if (html && html.includes('youtube.com/embed/')) {
+            // YouTube URL을 비교하기 위한 특수 처리
+            if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
+              // 원본 URL에서 비디오 ID 추출 - 글로벌 유틸리티 함수 사용
+              const srcVideoId = getYouTubeVideoId(mediaUrl);
+              
+              // iframe HTML에서 비디오 ID 추출
+              const embedMatch = html.match(/youtube\.com\/embed\/([^"?&/]+)/);
+              const embedVideoId = embedMatch && embedMatch[1] ? embedMatch[1] : '';
+              
+              // 추출된 비디오 ID가 iframe 소스에 포함되어 있는지 확인
+              if (srcVideoId && embedVideoId && srcVideoId === embedVideoId) {
+                found = true;
+                nodePos = pos;
+                nodeSize = node.nodeSize;
+                console.log(`유튜브 비디오 ID 매치 (${srcVideoId}) 발견:`, html);
+                return false; // 순회 중단
+              }
+            }
           }
         }
         
@@ -555,7 +608,26 @@ export default function ResourceUploadPage() {
         
         const filePreviewUrl = normalizeUrl(file.preview);
         
-        // URL이 일치하지 않으면 유지, 일치하면 제거
+        // YouTube URL 특수 처리
+        if ((file.preview.includes('youtube.com') || file.preview.includes('youtu.be')) &&
+            (src.includes('youtube.com') || src.includes('youtu.be'))) {
+          
+          // 글로벌 유틸리티 함수 사용
+          const fileVideoId = getYouTubeVideoId(file.preview);
+          const srcVideoId = getYouTubeVideoId(src);
+          
+          console.log(`유튜브 비디오 ID 비교: 파일(${fileVideoId}) vs 소스(${srcVideoId})`);
+          
+          // 비디오 ID가 일치하면 제거
+          if (fileVideoId && srcVideoId && fileVideoId === srcVideoId) {
+            console.log(`유튜브 미디어 제거: ${file.name || '이름없음'}, ID: ${fileVideoId}`);
+            return false;
+          }
+          
+          return true;
+        }
+        
+        // 일반 URL 비교
         const shouldKeep = filePreviewUrl !== normalizedSrc && 
                           !filePreviewUrl.includes(normalizedSrc) && 
                           !normalizedSrc.includes(filePreviewUrl);
