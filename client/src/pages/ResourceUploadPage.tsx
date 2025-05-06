@@ -1144,12 +1144,13 @@ export default function ResourceUploadPage() {
 
     const file = files[0];
     console.log("선택된 파일:", file.name, file.type, file.size);
-    // 임시 URL 생성 (실제로는 서버에 업로드하고 URL을 받아야 함)
-    const fileUrl = URL.createObjectURL(file);
+    // 파일에서 Blob URL 생성
+    const blobUrl = URL.createObjectURL(file);
+    console.log("Blob URL 생성됨:", blobUrl);
     
     // 단일 소스 미디어 상태 관리: 미디어 아이템 추가
     addMediaItem(currentEditor, {
-      url: fileUrl,
+      url: blobUrl,
       type: type as 'image' | 'video' | 'gif' | 'file',
       name: file.name,
       size: file.size,
@@ -1180,13 +1181,13 @@ export default function ResourceUploadPage() {
             tiptapEditor
               .chain()
               .focus()
-              .setImage({ src: fileUrl, alt: type === 'image' ? '이미지' : 'GIF' })
+              .setImage({ src: blobUrl, alt: type === 'image' ? '이미지' : 'GIF' })
               .insertContent('<p><br></p>')
               .run();
             break;
           case 'video':
             // 비디오 삽입 후 빈 단락 추가
-            const videoHtml = `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+            const videoHtml = `<div><video controls width="100%" preload="metadata"><source src="${blobUrl}" type="${file.type}"></video></div><p><br></p>`;
             tiptapEditor
               .chain()
               .focus()
@@ -1195,7 +1196,7 @@ export default function ResourceUploadPage() {
             break;
           case 'file':
             // 파일 링크 삽입 후 빈 단락 추가
-            const fileHtml = `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            const fileHtml = `<p><a href="${blobUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
             tiptapEditor
               .chain()
               .focus()
@@ -1212,13 +1213,13 @@ export default function ResourceUploadPage() {
         switch (type) {
           case 'image':
           case 'gif':
-            newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+            newContent = currentValue + `<img src="${blobUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
             break;
           case 'video':
-            newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+            newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${blobUrl}" type="${file.type}"></video></div><p><br></p>`;
             break;
           case 'file':
-            newContent = currentValue + `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            newContent = currentValue + `<p><a href="${blobUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
             break;
         }
         
@@ -1234,13 +1235,13 @@ export default function ResourceUploadPage() {
       switch (type) {
         case 'image':
         case 'gif':
-          newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+          newContent = currentValue + `<img src="${blobUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
           break;
         case 'video':
-          newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+          newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${blobUrl}" type="${file.type}"></video></div><p><br></p>`;
           break;
         case 'file':
-          newContent = currentValue + `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+          newContent = currentValue + `<p><a href="${blobUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
           break;
       }
       
@@ -1252,7 +1253,7 @@ export default function ResourceUploadPage() {
     
     // 업로드된 미디어 파일 추적
     const fileWithPreview = file as FileWithPreview;
-    fileWithPreview.preview = fileUrl;
+    fileWithPreview.preview = blobUrl;
     
     setUploadedMediaFiles(prev => {
       const fieldFiles = prev[currentEditor] || [];

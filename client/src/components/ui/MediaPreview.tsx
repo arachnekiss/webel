@@ -80,9 +80,9 @@ function MediaPreview({
         return;
       }
       
-      const allLoaded = [...images].every(img => img.complete) && 
-                      [...videos].every(video => video.readyState >= 2) &&
-                      [...iframes].every(iframe => iframe.dataset.loaded === 'true');
+      const allLoaded = Array.from(images).every(img => img.complete) && 
+                      Array.from(videos).every(video => video.readyState >= 2) &&
+                      Array.from(iframes).every(iframe => iframe.dataset.loaded === 'true');
       
       if (allLoaded) {
         setLoading(false);
