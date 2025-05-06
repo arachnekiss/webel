@@ -397,6 +397,7 @@ const ResourceDetail: React.FC = () => {
                       content={resource.assemblyInstructions}
                       className="prose max-w-none text-gray-700 tiptap-content"
                       editable={false}
+                      disableEditorClasses={true}
                     />
                   </>
                 ) : (

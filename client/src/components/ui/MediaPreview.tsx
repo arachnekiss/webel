@@ -7,6 +7,7 @@ interface MediaPreviewProps {
   onImageClick?: (src: string) => void;
   onImageMove?: (draggedImageSrc: string, targetImageSrc: string, direction: 'before' | 'after') => void;
   editable?: boolean;
+  disableEditorClasses?: boolean; // 에디터 클래스 비활성화 옵션 추가
 }
 
 /**
@@ -17,7 +18,8 @@ function MediaPreview({
   className = '', 
   onImageClick, 
   onImageMove,
-  editable = false 
+  editable = false,
+  disableEditorClasses = false
 }: MediaPreviewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggedImage, setDraggedImage] = useState<string | null>(null);
@@ -174,6 +176,14 @@ function MediaPreview({
         img.classList.add('editor-img');
       } else {
         img.classList.add('reader-img');
+        // 읽기 모드에서는 일반 스타일링도 추가
+        img.style.cursor = 'default';
+        img.style.pointerEvents = 'none';
+      }
+      
+      // disableEditorClasses가 true면 모든 에디터 관련 클래스 제거
+      if (disableEditorClasses) {
+        img.classList.remove('editor-img', 'tiptap-image-wrapper');
       }
       
       // 로드 및 에러 이벤트 핸들러
@@ -187,7 +197,7 @@ function MediaPreview({
         console.error('이미지 로드 실패:', img.src);
         img.style.display = 'block';
         // 오류가 발생한 이미지에 플레이스홀더 스타일 적용
-        img.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_15ba800aa20%20text%20%7B%20fill%3A%23AAA%3Bfont-weight%3Anormal%3Bfont-family%3A%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans-serif%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_15ba800aa20%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23F5F5F5%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22279.2%22%20y%3D%22218.3%22%3E%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EC%98%A4%EB%A5%98%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';
+        img.src = '/static/placeholder.png';
         img.alt = '이미지 오류';
         mediaLoaded.current[img.src] = true;
       });
@@ -299,7 +309,7 @@ function MediaPreview({
   const processContent = (text: string): string => {
     // Blob URL 패턴 처리 - blob: URL을 이미지 데이터 URL로 대체
     // 인라인 base64 플레이스홀더 이미지 사용
-    const blobImagePlaceholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4jaG9sZGVyXzE1YmE4MDBhYTIwIHRleHQgeyBmaWxsOiNBQUE7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtZmFtaWx5OiJIZWx2ZXRpY2EgTmV1ZSIsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7Zm9udC1zaXplOjQwcHQgfSA8L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YmE4MDBhYTIwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI3OS4yIiB5PSIyMTguMyI+7IOB66Gc7KeAIOyYpOyLoTwvdGV4dD48L2c+PC9nPjwvc3ZnPg==';
+    const blobImagePlaceholder = '/static/placeholder.png';
     const blobVideoPlaceholder = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA9NtZGF0AAACmQYF//+X3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTIgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDEgbWU9dW1oIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz0zIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgdm05PTEgdnJlZj0yIGNtcD00NiBpbnRpYl85NyB2dXZfY21wPTE4IGNoaXBfc2l6ZT0wIHA4eDg9MCBwNHg0PTAgYmx1cj0wIG1heHJhdGU9MjUgYndoaW50PTAgYnJkb3E9NyBjcXBvZmZzZXQ9MCBxcHJpbz0wIHByZXA9MyBkZWFkend1PXNvdXJjZSB3cHJlZD0wIGhyYW5nZT0wIG1heHN0ZXA9MQ==';
     
     // Blob URL 이미지 패턴 처리 (다양한 패턴 대응)
