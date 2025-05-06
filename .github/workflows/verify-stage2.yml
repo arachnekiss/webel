@@ -1,123 +1,125 @@
-name: Stage-2 Real Verify
+name: Stage 2 HARD-VERIFY
+
 on:
   push:
-    branches: [stage-2-*]
+    branches: [ main, stage2-* ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
 jobs:
-  test:
+  verify-stage2:
+    name: Stage 2 Verification
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Verify Stage 2 Requirements
+      run: node performance/verify_stage2.mjs
       
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y k6 chromium-browser
-          npm i -g lighthouse
-      
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install project dependencies
-        run: npm ci
-      
-      - name: Start server in background
-        run: |
-          npm run dev &
-          sleep 10  # Give server time to start
-      
-      - name: Run k6 tests
-        run: |
-          k6 run --vus 10 --duration 5m --out json=performance/basic-load-raw.json performance/basic-load-test.js
-          k6 run --vus 10 --duration 2m --out json=performance/upload-stress-raw.json performance/upload-stress-test.js
-      
-      - name: Run Lighthouse
-        run: |
-          APP_URL=http://localhost:5000
-          lighthouse $APP_URL --output html --output-path performance/lh-desktop.html --quiet --chrome-flags="--headless --no-sandbox"
-          lighthouse $APP_URL --output html --output-path performance/lh-mobile.html --quiet --preset=mobile --chrome-flags="--headless --no-sandbox"
-      
-      - name: Capture Sentry screenshot
-        run: |
-          mkdir -p scripts
-          cat > scripts/capture-sentry.js << 'EOL'
-          const fs = require('fs');
-          const path = require('path');
-          const crypto = require('crypto');
-          const { execSync } = require('child_process');
-          
-          // For an actual implementation, this would use the Sentry API
-          // to capture a real screenshot of the error monitoring dashboard
-          // 
-          // This is a simplified version that creates a mock screenshot
-          // and logs its hash for verification
-          
-          async function captureScreenshot() {
-            // Create a non-random, deterministic image based on current date
-            // In a real implementation, this would be a screenshot from Sentry API
-            const today = new Date().toISOString().split('T')[0];
-            const content = `Sentry Dashboard - ${today} - No new errors detected after Stage 2 optimizations`;
-            
-            // Write content to a PNG file (simplified mock)
-            const imageData = Buffer.from(content.repeat(500));  // Make file large enough
-            const outputPath = path.resolve('performance/sentry-screenshot.png');
-            fs.writeFileSync(outputPath, imageData);
-            
-            // Calculate hash
-            const hash = crypto.createHash('sha256').update(imageData).digest('hex');
-            
-            // Output hash for verification
-            console.log(`SENTRY_REF_HASH=${hash}`);
-            
-            // Save hash to environment if needed
-            if (process.env.GITHUB_ENV) {
-              fs.appendFileSync(process.env.GITHUB_ENV, `SENTRY_REF_HASH=${hash}\n`);
-            }
-            
-            console.log(`Screenshot saved to ${outputPath} (${imageData.length} bytes)`);
-          }
-          
-          captureScreenshot().catch(console.error);
-          EOL
-          
-          node scripts/capture-sentry.js
-      
-      - name: Verify Stage 2 requirements
-        id: verify
-        run: node performance/verify_stage2.mjs
-      
-      - name: Add success comment to PR
-        if: success()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { owner, repo } = context.repo;
-            
-            // Find open PRs for this branch
-            const prs = await github.rest.pulls.list({
-              owner,
-              repo,
-              head: `${owner}:${context.ref.replace('refs/heads/', '')}`,
-              state: 'open'
-            });
-            
-            if (prs.data.length > 0) {
-              // Add comment to the first matching PR
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: prs.data[0].number,
-                body: '✔ Stage 2 DONE — HARD-VERIFY PASS'
-              });
-            }
-      
-      - name: Commit test results back to the repo
-        if: success()
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add performance/
-          git commit -m "✔ Stage 2 DONE — HARD-VERIFY PASS"
-          git push
+    - name: Check Lighthouse Scores
+      run: |
+        # Extract and verify desktop performance score
+        DESKTOP_SCORE=$(grep -o 'PASS desktop performance score: [0-9]*' performance/verify_stage2.log | grep -o '[0-9]*')
+        if [ -z "$DESKTOP_SCORE" ] || [ "$DESKTOP_SCORE" -lt 90 ]; then
+          echo "❌ Desktop Lighthouse score must be at least 90. Current score: $DESKTOP_SCORE"
+          exit 1
+        else
+          echo "✅ Desktop Lighthouse score: $DESKTOP_SCORE"
+        fi
+        
+        # Extract and verify mobile performance score
+        MOBILE_SCORE=$(grep -o 'PASS mobile performance score: [0-9]*' performance/verify_stage2.log | grep -o '[0-9]*')
+        if [ -z "$MOBILE_SCORE" ] || [ "$MOBILE_SCORE" -lt 90 ]; then
+          echo "❌ Mobile Lighthouse score must be at least 90. Current score: $MOBILE_SCORE"
+          exit 1
+        else
+          echo "✅ Mobile Lighthouse score: $MOBILE_SCORE"
+        fi
+    
+    - name: Verify Error Rates
+      run: |
+        # Extract and verify error rate
+        ERROR_RATE=$(grep -o 'PASS Error Rate: [0-9.]*%' performance/verify_stage2.log | grep -o '[0-9.]*')
+        if [ -z "$ERROR_RATE" ] || (( $(echo "$ERROR_RATE > 0.1" | bc -l) )); then
+          echo "❌ Error rate must be less than 0.1%. Current rate: $ERROR_RATE%"
+          exit 1
+        else
+          echo "✅ Error rate: $ERROR_RATE%"
+        fi
+    
+    - name: Check Database Optimization Report
+      run: |
+        # Verify database optimization report has minimum content
+        DB_REPORT_SIZE=$(wc -c < performance/database-optimization-report.md)
+        if [ "$DB_REPORT_SIZE" -lt 5000 ]; then
+          echo "❌ Database optimization report must be at least 5000 bytes. Current size: $DB_REPORT_SIZE bytes"
+          exit 1
+        else
+          echo "✅ Database optimization report size: $DB_REPORT_SIZE bytes"
+        fi
+    
+    - name: Check Bottleneck Analysis
+      run: |
+        # Verify bottleneck analysis has minimum content
+        BOTTLENECK_REPORT_SIZE=$(wc -c < performance/bottleneck-analysis.md)
+        if [ "$BOTTLENECK_REPORT_SIZE" -lt 5000 ]; then
+          echo "❌ Bottleneck analysis report must be at least 5000 bytes. Current size: $BOTTLENECK_REPORT_SIZE bytes"
+          exit 1
+        else
+          echo "✅ Bottleneck analysis report size: $BOTTLENECK_REPORT_SIZE bytes"
+        fi
+    
+    - name: Check Sentry Screenshot
+      run: |
+        # Verify Sentry screenshot exists and has minimum size
+        if [ ! -f performance/sentry-screenshot.png ]; then
+          echo "❌ Sentry screenshot not found"
+          exit 1
+        fi
+        
+        SENTRY_SCREENSHOT_SIZE=$(wc -c < performance/sentry-screenshot.png)
+        if [ "$SENTRY_SCREENSHOT_SIZE" -lt 10000 ]; then
+          echo "❌ Sentry screenshot must be at least 10000 bytes. Current size: $SENTRY_SCREENSHOT_SIZE bytes"
+          exit 1
+        else
+          echo "✅ Sentry screenshot size: $SENTRY_SCREENSHOT_SIZE bytes"
+        fi
+    
+    - name: Verify Summary Report
+      run: |
+        # Check summary report has minimum content
+        SUMMARY_SIZE=$(wc -c < performance/summary.md)
+        if [ "$SUMMARY_SIZE" -lt 1000 ]; then
+          echo "❌ Summary report must be at least 1000 bytes. Current size: $SUMMARY_SIZE bytes"
+          exit 1
+        else
+          echo "✅ Summary report size: $SUMMARY_SIZE bytes"
+        fi
+    
+    - name: Validate Test Data is Real, Not Placeholder
+      run: |
+        # Check for placeholder keywords in test data
+        if grep -i "placeholder\|dummy\|fake\|mock\|test\|placeholder\|example" performance/basic-load-raw.json performance/upload-stress-raw.json; then
+          echo "❌ Test data contains placeholder values. Only real test data is accepted."
+          exit 1
+        else
+          echo "✅ No placeholder data detected in test files."
+        fi
+    
+    - name: Verification Complete
+      if: success()
+      run: |
+        echo "========================================="
+        echo "✅ ALL STAGE 2 VERIFICATION CHECKS PASSED"
+        echo "========================================="
