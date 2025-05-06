@@ -3,6 +3,7 @@
  * 
  * 이 모듈은 다국어 검색 관련 API 엔드포인트를 제공합니다.
  * PostgreSQL의 pg_trgm과 정규화 함수를 활용한 효율적인 다국어 검색 기능을 제공합니다.
+ * 지원 언어: 한국어(ko), 영어(en), 일본어(ja)
  */
 
 import { Request, Response } from 'express';
@@ -13,8 +14,8 @@ import { PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { cache } from './cache';
 import { detectLanguageFromHeader, normalizeText } from './utils/normalizeText';
 
-// 지원하는 언어 목록
-const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja', 'zh', 'es'];
+// 지원하는 언어 목록 - 한국어, 영어, 일본어만 지원
+const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja'];
 
 // 캐시 키 생성 함수
 function generateSearchCacheKey(query: string, lang: string, type?: string): string {
@@ -28,7 +29,7 @@ function generateSearchCacheKey(query: string, lang: string, type?: string): str
  * 
  * @route GET /api/search
  * @param {string} q - 검색어
- * @param {string} [lang=auto] - 언어 코드 (ko, en, ja, zh, es, auto)
+ * @param {string} [lang=auto] - 언어 코드 (ko, en, ja, auto)
  * @param {string} [type] - 검색 유형 (resources, services, all)
  * @param {number} [limit=20] - 반환할 최대 결과 수
  */
@@ -120,63 +121,58 @@ export async function multilingualSearch(req: Request, res: Response) {
 }
 
 /**
- * 언어별 검색 조건 생성 함수
+ * 언어별 검색 조건 생성 함수 (최적화 버전)
+ * 정규화된 generated column과 GIN 인덱스 활용하여 성능 개선
+ * 
  * @param normalizedQuery 정규화된 검색어
  * @param lang 언어 코드
  * @returns 테이블별 검색 조건 생성 함수
  */
 function createSearchCondition(normalizedQuery: string, lang: string) {
   return (table: 'resources' | 'services'): SQL<unknown> => {
+    // 검색어에서 불필요한 공백 제거 및 유효 검색어만 유지
     const searchTerms = normalizedQuery.split(' ').filter(term => term.length > 0);
-    let likePattern = `%${normalizedQuery}%`;
     
-    // 검색어가 한글자인 경우, 정확한 패턴 매칭을 위해 공백 추가하지 않음
-    if (normalizedQuery.length > 1) {
-      // 앞뒤 공백 추가하여 단어 단위 매칭 개선
-      likePattern = `%${normalizedQuery}%`;
-    }
-
-    // 언어별 정규화 함수를 직접 호출하는 대신 간소화된 검색 조건 사용
+    // 태그 검색을 위한 검색어 배열
+    const tagSearchTerms = searchTerms.filter(term => term.length >= 2);
+    
+    // PostgreSQL의 trigram 유사도 연산자(%) 활용
+    // 참고: % 연산자는 GIN 인덱스를 사용하는 최적화된 유사도 검색 활용
+    
     if (table === 'resources') {
-      // 리소스 테이블 검색 조건
-      // 단일 검색어면 단순 ILIKE 사용
-      if (searchTerms.length <= 1) {
-        return or(
-          ilike(resources.title, likePattern),
-          ilike(resources.description, likePattern),
-          ilike(resources.category, likePattern)
-        ) as SQL<unknown>;
-      } 
+      // 리소스 테이블 검색 조건 - 정규화된 컬럼 사용
+      const titleCondition = sql`norm_title % ${normalizedQuery}`;
+      const descCondition = sql`norm_desc % ${normalizedQuery}`;
       
-      // 다중 검색어면 각 단어별 검색 조건 결합
-      const conditions = searchTerms.map(term => {
-        const termPattern = `%${term}%`;
-        return or(
-          ilike(resources.title, termPattern),
-          ilike(resources.description, termPattern),
-          ilike(resources.category, termPattern)
-        );
-      });
-      return and(...conditions) as SQL<unknown>;
+      // 태그 검색 조건 추가 (길이가 2 이상인 검색어에 대해서만)
+      const tagConditions = tagSearchTerms.map(term => 
+        sql`${term} = ANY(tags)`
+      );
+      
+      // 카테고리 정확 매칭
+      const categoryCondition = tagSearchTerms.map(term => 
+        sql`category = ${term}`
+      );
+      
+      // 모든 검색 조건 OR 결합 (제목, 설명, 태그, 카테고리)
+      return sql`(${titleCondition} OR ${descCondition} ${tagConditions.length > 0 ? sql` OR ${or(...tagConditions)}` : sql``} ${categoryCondition.length > 0 ? sql` OR ${or(...categoryCondition)}` : sql``})` as SQL<unknown>;
     } else {
-      // 서비스 테이블 검색 조건
-      if (searchTerms.length <= 1) {
-        return or(
-          ilike(services.title, likePattern),
-          ilike(services.description, likePattern),
-          ilike(services.serviceType, likePattern)
-        ) as SQL<unknown>;
-      }
+      // 서비스 테이블 검색 조건 - 정규화된 컬럼 사용
+      const titleCondition = sql`norm_title % ${normalizedQuery}`;
+      const descCondition = sql`norm_desc % ${normalizedQuery}`;
       
-      const conditions = searchTerms.map(term => {
-        const termPattern = `%${term}%`;
-        return or(
-          ilike(services.title, termPattern),
-          ilike(services.description, termPattern),
-          ilike(services.serviceType, termPattern)
-        );
-      });
-      return and(...conditions) as SQL<unknown>;
+      // 태그 검색 조건 추가
+      const tagConditions = tagSearchTerms.map(term => 
+        sql`${term} = ANY(tags)`
+      );
+      
+      // 서비스 타입 정확 매칭
+      const typeConditions = tagSearchTerms.map(term => 
+        sql`service_type = ${term}`
+      );
+      
+      // 모든 검색 조건 OR 결합 (제목, 설명, 태그, 서비스 타입)
+      return sql`(${titleCondition} OR ${descCondition} ${tagConditions.length > 0 ? sql` OR ${or(...tagConditions)}` : sql``} ${typeConditions.length > 0 ? sql` OR ${or(...typeConditions)}` : sql``})` as SQL<unknown>;
     }
   };
 }
@@ -190,15 +186,14 @@ function createSearchCondition(normalizedQuery: string, lang: string) {
  */
 export async function searchPerformanceTest(req: Request, res: Response) {
   try {
-    // 성능 테스트용 샘플 쿼리
+    // 성능 테스트용 샘플 쿼리 - 한국어, 영어, 일본어만 지원
     const testQueries = [
       { lang: 'ko', query: '엔지니어링' },
       { lang: 'en', query: 'engineering' },
       { lang: 'ja', query: 'エンジニアリング' },
-      { lang: 'zh', query: '工程' },
-      { lang: 'es', query: 'ingeniería' },
       { lang: 'ko', query: '소프트웨어' },
-      { lang: 'en', query: 'software' }
+      { lang: 'en', query: 'software' },
+      { lang: 'ja', query: 'ソフトウェア' }
     ];
     
     const results: any[] = [];

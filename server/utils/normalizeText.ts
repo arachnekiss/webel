@@ -1,7 +1,7 @@
 /**
  * 다국어 텍스트 정규화 유틸리티
  * 
- * 이 모듈은 여러 언어의 텍스트를 검색에 적합한 형태로 정규화하는 기능을 제공합니다.
+ * 이 모듈은 한국어(ko), 영어(en), 일본어(ja) 텍스트를 검색에 적합한 형태로 정규화하는 기능을 제공합니다.
  * PostgreSQL의 정규화 함수와 동일한 로직을 JavaScript로 구현하여 클라이언트-서버 일관성을 유지합니다.
  */
 
@@ -35,31 +35,10 @@ export function normalizeJapanese(text: string): string {
     .replace(/\s+/g, ' ');
 }
 
-// 중국어 정규화
-export function normalizeChinese(text: string): string {
-  if (!text) return '';
-  
-  // 중국어 문자 정규화, 소문자 변환
-  return text.toLowerCase()
-    .normalize('NFKC')
-    .replace(/\s+/g, ' ');
-}
-
-// 스페인어 정규화
-export function normalizeSpanish(text: string): string {
-  if (!text) return '';
-  
-  // 스페인어 특수문자(악센트) 제거, 소문자 변환
-  return text.toLowerCase()
-    .normalize('NFC')
-    .replace(/[^a-zA-Z0-9\s]/g, '')
-    .replace(/\s+/g, ' ');
-}
-
 /**
  * 언어 코드에 따라 적절한 정규화 함수를 선택하여 텍스트 정규화
  * @param text 정규화할 텍스트
- * @param lang 언어 코드 (ko, en, ja, zh, es)
+ * @param lang 언어 코드 (ko, en, ja)
  * @returns 정규화된 텍스트
  */
 export function normalizeText(text: string, lang: string = 'en'): string {
@@ -70,10 +49,6 @@ export function normalizeText(text: string, lang: string = 'en'): string {
       return normalizeKorean(text);
     case 'ja':
       return normalizeJapanese(text);
-    case 'zh':
-      return normalizeChinese(text);
-    case 'es':
-      return normalizeSpanish(text);
     case 'en':
     default:
       return normalizeEnglish(text);
@@ -88,8 +63,8 @@ export function normalizeText(text: string, lang: string = 'en'): string {
 export function detectLanguageFromHeader(acceptLanguage: string | undefined): string {
   if (!acceptLanguage) return 'en';
   
-  // 지원하는 언어 목록
-  const supportedLanguages = ['ko', 'en', 'ja', 'zh', 'es'];
+  // 지원하는 언어 목록 - 한국어, 영어, 일본어만 지원
+  const supportedLanguages = ['ko', 'en', 'ja'];
   
   // Accept-Language 헤더 파싱
   // 예: "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7"
