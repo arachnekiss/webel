@@ -2001,12 +2001,17 @@ export default function ResourceUploadPage() {
                                 </div>
                               )}
                               <div className="flex flex-col relative">
-                                <AutoResizeTextarea
+                                <TipTapEditor
                                   name="assemblyInstructions"
+                                  fieldName="assemblyInstructions" 
                                   placeholder="3D 모델의 조립 방법과 단계를 설명해주세요."
                                   value={field.value || ""}
-                                  onChange={async (e) => {
-                                    field.onChange(e.target.value);
+                                  onChange={(html) => field.onChange(html)}
+                                  onImageClick={(src) => {
+                                    toast({
+                                      title: "이미지 선택됨",
+                                      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                    });
                                   }}
                                 />
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
@@ -2068,12 +2073,17 @@ export default function ResourceUploadPage() {
                                 </div>
                               )}
                               <div className="flex flex-col relative">
-                                <AutoResizeTextarea
+                                <TipTapEditor
                                   name="howToUse"
+                                  fieldName="howToUse"
                                   placeholder="3D 모델 프린팅 설정과 사용 방법을 설명해주세요."
                                   value={field.value || ""}
-                                  onChange={async (e) => {
-                                    field.onChange(e.target.value);
+                                  onChange={(html) => field.onChange(html)}
+                                  onImageClick={(src) => {
+                                    toast({
+                                      title: "이미지 선택됨",
+                                      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                    });
                                   }}
                                 />
                                 <AttachedMediaSummary fieldName="howToUse" />
@@ -2138,12 +2148,17 @@ export default function ResourceUploadPage() {
                               </div>
                             )}
                             <div className="flex flex-col relative">
-                              <AutoResizeTextarea
+                              <TipTapEditor
                                 name="howToUse"
+                                fieldName="howToUse"
                                 placeholder="사용 방법과 특징을 설명해주세요."
                                 value={field.value || ""}
-                                onChange={async (e) => {
-                                  field.onChange(e.target.value);
+                                onChange={(html) => field.onChange(html)}
+                                onImageClick={(src) => {
+                                  toast({
+                                    title: "이미지 선택됨",
+                                    description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                  });
                                 }}
                               />
                               <AttachedMediaSummary fieldName="howToUse" />
