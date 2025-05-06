@@ -284,10 +284,71 @@ function MediaPreview({
 
   // 컨텐츠 처리
   const processContent = (text: string): string => {
+    // Blob URL 패턴 처리 - blob: URL을 이미지 데이터 URL로 대체
+    // 인라인 base64 플레이스홀더 이미지 사용
+    const blobImagePlaceholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4jaG9sZGVyXzE1YmE4MDBhYTIwIHRleHQgeyBmaWxsOiNBQUE7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtZmFtaWx5OiJIZWx2ZXRpY2EgTmV1ZSIsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7Zm9udC1zaXplOjQwcHQgfSA8L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YmE4MDBhYTIwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI3OS4yIiB5PSIyMTguMyI+7IOB66Gc7KeAIOyYpOyLoTwvdGV4dD48L2c+PC9nPjwvc3ZnPg==';
+    const blobVideoPlaceholder = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA9NtZGF0AAACmQYF//+X3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTIgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDEgbWU9dW1oIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz0zIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgdm05PTEgdnJlZj0yIGNtcD00NiBpbnRpYl85NyB2dXZfY21wPTE4IGNoaXBfc2l6ZT0wIHA4eDg9MCBwNHg0PTAgYmx1cj0wIG1heHJhdGU9MjUgYndoaW50PTAgYnJkb3E9NyBjcXBvZmZzZXQ9MCBxcHJpbz0wIHByZXA9MyBkZWFkend1PXNvdXJjZSB3cHJlZD0wIGhyYW5nZT0wIG1heHN0ZXA9MQ==';
+    
+    // Blob URL 이미지 패턴 처리
+    const blobImgPattern = /<img(?:.*?)src="blob:([^"]+)"(?:.*?)(?:alt="([^"]*)")?(?:.*?)>/gi;
+    let processedContent = text.replace(
+      blobImgPattern,
+      (match, blobUrl, alt = '이미지') => {
+        // Blob URL을 플레이스홀더로 대체
+        return `<img 
+          src="${blobImagePlaceholder}" 
+          alt="${alt}"
+          class="blob-image-placeholder"
+          style="width: 100%; height: auto; max-height: 400px; object-fit: contain; background-color: #f5f5f5; border-radius: 4px;"
+        >`;
+      }
+    );
+    
+    // Blob URL 비디오 패턴 처리
+    const blobVideoPattern = /<video(?:.*?)>\s*<source\s+src="blob:([^"]+)"(?:.*?)>\s*<\/video>/gi;
+    processedContent = processedContent.replace(
+      blobVideoPattern,
+      (match, blobUrl) => {
+        // Blob URL을 플레이스홀더로 대체
+        return `<div class="video-container" style="background-color: #f5f5f5; border-radius: 4px; padding: 16px; text-align: center;">
+          <div style="max-width: 400px; margin: 0 auto;">
+            <video 
+              controls 
+              width="100%" 
+              poster="${blobImagePlaceholder}"
+              style="width: 100%; max-height: 300px;" 
+              preload="metadata"
+              class="editor-video"
+            >
+              <source src="${blobVideoPlaceholder}" type="video/mp4">
+            </video>
+            <div style="margin-top: 8px; color: #666;">
+              <span>저장된 비디오 (직접 다운로드 필요)</span>
+            </div>
+          </div>
+        </div>`;
+      }
+    );
+    
+    // Blob URL 파일 다운로드 링크 처리
+    const blobDownloadPattern = /<a\s+href="blob:([^"]+)"\s+download="([^"]+)"(?:.*?)>([^<]+)<\/a>/gi;
+    processedContent = processedContent.replace(
+      blobDownloadPattern,
+      (match, blobUrl, filename, text) => {
+        return `<div class="attachment-preview">
+          <div class="flex items-center p-3 border rounded-md bg-gray-50">
+            <span class="mr-2">📎</span>
+            <span>${text || filename}</span>
+            <span class="text-xs text-gray-500 ml-2">(저장된 파일)</span>
+          </div>
+        </div>`;
+      }
+    );
+    
     // YouTube 임베드 처리
     const youtubePattern = /<div class="youtube-embed".*?data-youtube-id="(.*?)".*?<\/div>|<div class="youtube-embed">\s*<iframe\s+width="(.*?)"\s+height="(.*?)"\s+src="https:\/\/www\.youtube\.com\/embed\/(.*?)"\s+frameborder="(.*?)"\s+allow="(.*?)"\s+allowfullscreen[^>]*>\s*<\/iframe>\s*<\/div>/gi;
     
-    let processedContent = text.replace(
+    processedContent = processedContent.replace(
       youtubePattern,
       (match, dataId, width, height, videoId, frameborder, allow) => {
         // 두 패턴 중 하나로 매칭되는데, dataId가 있으면 그것을 사용하고, 없으면 videoId 사용
@@ -320,16 +381,20 @@ function MediaPreview({
     processedContent = processedContent.replace(
       videoWrapperPattern,
       (match, width, preload, src, type) => {
-        return `<div class="video-container">
-          <video 
-            src="${src}"
-            controls 
-            width="${width || '100%'}" 
-            style="width: 100%; max-height: 400px" 
-            preload="metadata"
-            class="editor-video"
-          ></video>
-        </div>`;
+        // blob: URL이 아닌 경우만 처리
+        if (src && !src.startsWith('blob:')) {
+          return `<div class="video-container">
+            <video 
+              src="${src}"
+              controls 
+              width="${width || '100%'}" 
+              style="width: 100%; max-height: 400px" 
+              preload="metadata"
+              class="editor-video"
+            ></video>
+          </div>`;
+        }
+        return match;
       }
     );
     
@@ -338,16 +403,20 @@ function MediaPreview({
     processedContent = processedContent.replace(
       videoPattern,
       (match, width, preload, src, type) => {
-        return `<div class="video-container">
-          <video 
-            src="${src}"
-            controls 
-            width="${width || '100%'}" 
-            style="width: 100%; max-height: 400px" 
-            preload="metadata"
-            class="editor-video"
-          ></video>
-        </div>`;
+        // blob: URL이 아닌 경우만 처리
+        if (src && !src.startsWith('blob:')) {
+          return `<div class="video-container">
+            <video 
+              src="${src}"
+              controls 
+              width="${width || '100%'}" 
+              style="width: 100%; max-height: 400px" 
+              preload="metadata"
+              class="editor-video"
+            ></video>
+          </div>`;
+        }
+        return match;
       }
     );
     
@@ -363,13 +432,17 @@ function MediaPreview({
         
         if (!src) return match; // src가 없으면 원본 반환
         
-        return `<img 
-          src="${src}" 
-          alt="${alt || '이미지'}"
-          style="width: 100%; height: auto;" 
-          onError="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_15ba800aa20%20text%20%7B%20fill%3A%23AAA%3Bfont-weight%3Anormal%3Bfont-family%3A%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans-serif%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_15ba800aa20%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23F5F5F5%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22279.2%22%20y%3D%22218.3%22%3E%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EC%98%A4%EB%A5%98%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';"
-          onLoad="console.log('img loaded:', this.src);"
-        >`;
+        // blob: URL이 아닌 경우만 처리
+        if (!src.startsWith('blob:')) {
+          return `<img 
+            src="${src}" 
+            alt="${alt || '이미지'}"
+            style="width: 100%; height: auto;" 
+            onError="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_15ba800aa20%20text%20%7B%20fill%3A%23AAA%3Bfont-weight%3Anormal%3Bfont-family%3A%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans-serif%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_15ba800aa20%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23F5F5F5%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22279.2%22%20y%3D%22218.3%22%3E%EC%9D%B4%EB%AF%B8%EC%A7%80%20%EC%98%A4%EB%A5%98%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';"
+            onLoad="console.log('img loaded:', this.src);"
+          >`;
+        }
+        return match;
       }
     );
     
@@ -378,19 +451,23 @@ function MediaPreview({
     processedContent = processedContent.replace(
       fileDownloadPattern,
       (match, href, filename, text) => {
-        const fileSize = ''; // 파일 크기 정보는 이 시점에서 구할 수 없음
-        
-        return `<div class="attachment-preview">
-          <button 
-            class="attachment-btn flex items-center p-3 border rounded-md hover:bg-gray-100 transition-colors"
-            data-href="${href}" 
-            data-filename="${filename}"
-          >
-            <span class="mr-2">📎</span>
-            <span>${text || filename}</span>
-            ${fileSize ? `<span class="text-xs text-gray-500 ml-2">(${fileSize})</span>` : ''}
-          </button>
-        </div>`;
+        // blob: URL이 아닌 경우만 처리
+        if (!href.startsWith('blob:')) {
+          const fileSize = ''; // 파일 크기 정보는 이 시점에서 구할 수 없음
+          
+          return `<div class="attachment-preview">
+            <button 
+              class="attachment-btn flex items-center p-3 border rounded-md hover:bg-gray-100 transition-colors"
+              data-href="${href}" 
+              data-filename="${filename}"
+            >
+              <span class="mr-2">📎</span>
+              <span>${text || filename}</span>
+              ${fileSize ? `<span class="text-xs text-gray-500 ml-2">(${fileSize})</span>` : ''}
+            </button>
+          </div>`;
+        }
+        return match;
       }
     );
     
