@@ -363,7 +363,7 @@ const ResourceDetail: React.FC = () => {
               <div className="space-y-4">
                 {typeof resource.assemblyInstructions === 'string' ? (
                   <div 
-                    className="prose max-w-none text-gray-700"
+                    className="prose max-w-none text-gray-700 tiptap-content"
                     dangerouslySetInnerHTML={{ __html: resource.assemblyInstructions }}
                   />
                 ) : (
