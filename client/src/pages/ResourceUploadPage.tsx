@@ -517,8 +517,8 @@ export default function ResourceUploadPage() {
       
       // 1.1 먼저 editorRefs에서 참조 찾기
       let tiptapEditor = null;
-      if (editorRefs.current[editorField]?.current?.editor) {
-        tiptapEditor = editorRefs.current[editorField].current.editor;
+      if (editorRefs.current[editorField]?.current?.getEditor()) {
+        tiptapEditor = editorRefs.current[editorField].current.getEditor();
         console.log("✅ editorRefs에서 에디터 인스턴스 찾음");
       }
       
@@ -538,7 +538,9 @@ export default function ResourceUploadPage() {
           return false;
         }
         
-        tiptapEditor = (editorContent as any)?.editor;
+        // The DOM editor query approach is a fallback - let's try to get the editor instance
+        // This uses editor._tiptapEditor which is consistent with the TipTap internal convention
+        tiptapEditor = (editorContent as any)?._tiptapEditor;
         if (!tiptapEditor) {
           console.error(`TipTap 에디터 인스턴스를 찾을 수 없음: ${editorField}`);
           return false;
