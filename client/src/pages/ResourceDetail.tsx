@@ -352,7 +352,10 @@ const ResourceDetail: React.FC = () => {
             {resource.assemblyInstructions ? (
               <div className="space-y-4">
                 {typeof resource.assemblyInstructions === 'string' ? (
-                  <p className="whitespace-pre-line text-gray-700">{resource.assemblyInstructions}</p>
+                  <div 
+                    className="prose max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: resource.assemblyInstructions }}
+                  />
                 ) : (
                   <div className="space-y-6">
                     {/* 구조화된 조립 지침 렌더링 */}

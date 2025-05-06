@@ -12,6 +12,21 @@ import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
 import { TipTapEditor, TipTapEditorHandle } from "@/components/ui/TipTapEditor";
 import { TextSelection } from '@tiptap/pm/state';
 
+// 미디어 항목 타입 정의
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video' | 'gif' | 'file' | 'youtube';
+  name?: string;
+  size?: number;
+  file?: File;
+}
+
+// 편집기 커스텀 윈도우 타입 확장
+interface Window {
+  lastEditorDeletionTimestamp?: number;
+  getYouTubeVideoId?: (url: string) => string;
+}
+
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -96,14 +111,7 @@ interface FileWithPreview extends File {
   progress?: number;
 }
 
-// 미디어 아이템 타입 정의 (단일 소스로 관리)
-interface MediaItem {
-  url: string;
-  type: 'image' | 'video' | 'gif' | 'file' | 'youtube';
-  name?: string;
-  size?: number;
-  file?: File;
-}
+// 이미 위에서 MediaItem 인터페이스가 정의되어 있음
 
 // 폼 유효성 검사 스키마 - 모든 필드를 선택 사항으로 변경하고 최소 문자수 제한 제거
 const formSchema = z.object({
@@ -215,6 +223,8 @@ export default function ResourceUploadPage() {
   
   // 단일 미디어 소스 관리 (MediaItem[])
   const [mediaItems, setMediaItems] = useState<{[key: string]: MediaItem[]}>({});
+  
+  // 미디어 관리 함수들은 아래에서 normalizeUrl과 함께 구현됨
   
   // TipTap 에디터 레퍼런스 관리
   const editorRefs = useRef<{ [fieldName: string]: React.RefObject<TipTapEditorHandle> }>({});
