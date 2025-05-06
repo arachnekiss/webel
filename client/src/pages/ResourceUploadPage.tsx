@@ -352,7 +352,7 @@ export default function ResourceUploadPage() {
     }
     
     // fieldName이 제공되지 않은 경우 현재 활성화된 에디터 필드 사용
-    const targetField = fieldName || currentEditor;
+    const targetField = fieldName || currentEditor || '';
     
     // Base64 데이터 URL과 일반 URL을 모두 처리할 수 있도록 정규화
     const normalizeUrl = (url: string): string => {
@@ -385,11 +385,13 @@ export default function ResourceUploadPage() {
 
     // 해당 필드의 미디어 파일 목록 업데이트
     setUploadedMediaFiles(prev => {
-      const fieldFiles = prev[targetField] || [];
-      console.log(`필드 ${targetField}의 파일 수: ${fieldFiles.length}`);
+      // 타입 안전성을 위해 문자열로 확실히 변환
+      const fieldKey = String(targetField);
+      const fieldFiles = prev[fieldKey] || [];
+      console.log(`필드 ${fieldKey}의 파일 수: ${fieldFiles.length}`);
       
       // URL을 정규화하여 비교 (동일한 파일 찾기)
-      const updatedFiles = fieldFiles.filter(file => {
+      const updatedFiles = fieldFiles.filter((file: FileWithPreview) => {
         if (!file.preview) return true;
         
         const filePreviewUrl = normalizeUrl(file.preview);
@@ -410,10 +412,10 @@ export default function ResourceUploadPage() {
       
       return {
         ...prev,
-        [targetField]: updatedFiles
+        [fieldKey]: updatedFiles
       };
     });
-  }, []);
+  }, [currentEditor]);
   
   // 이미지 위치 이동 핸들러 - 드래그 앤 드롭으로 이미지 순서 변경
   const handleImageMove = useCallback((
