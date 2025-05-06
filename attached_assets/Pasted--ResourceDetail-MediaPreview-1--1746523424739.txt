@@ -1,0 +1,98 @@
+ 🚨 ResourceDetail & MediaPreview – 최종 버그 픽스 요청
+
+## 🔍 재현 증상
+1. **업로드된 실제 이미지 대신** “이미지 미리보기” 고정 placeholder 블록만 표시  
+2. 게시 페이지에서도 **에디터 커서(드래그·클릭)** 활성화
+
+---
+
+## 🎯 오늘 반드시 해결할 3가지
+
+| 번호 | 증상 | 완료 기준 |
+|------|-----|-----------|
+| 1 | 실제 이미지 미노출<br>대신 placeholder | 업로드된 이미지 URL(`src`)이 정상 바인딩되어 **실제 이미지**가 보임<br>로드 실패 시에만 placeholder |
+| 2 | 게시 페이지 편집 가능 | ResourceDetail 페이지는 **완전 읽기 전용**<br>`contentEditable={false}`, `draggable={false}`, `style={{cursor:'default'}}` |
+| 3 | placeholder 항상 표시 | placeholder는 **onError** 콜백에서만 교체하고, 정상 `src`일 땐 절대 보이지 않음 |
+
+---
+
+## 🛠 구현 가이드
+
+### A. MediaPreview 컴포넌트
+```tsx
+type MediaPreviewProps = { src: string; alt?:string; type:'image'|'video'|'file'|'youtube' };
+
+export function MediaPreview({ src, alt, type }: MediaPreviewProps) {
+  // 1) blob URL cleanup
+  useEffect(() => {
+    return () => { URL.revokeObjectURL(src); };
+  }, [src]);
+
+  // 2) src가 없거나 invalid → placeholder
+  if (!src) {
+    return <div className="preview-placeholder">이미지 미리보기</div>;
+  }
+
+  // 3) 실제 렌더
+  switch(type) {
+    case 'image':
+      return (
+        <img
+          src={src}
+          alt={alt||''}
+          draggable={false}
+          style={{ width:'100%', height:'auto', cursor:'default' }}
+          onError={e => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = '/static/placeholder.png';
+          }}
+        />
+      );
+    case 'video':
+      return (
+        <video
+          src={src}
+          controls
+          preload="metadata"
+          draggable={false}
+          style={{ width:'100%', cursor:'default' }}
+          onLoadedMetadata={e => {
+            const v = e.currentTarget;
+            v.load(); v.pause();
+          }}
+          onError={e => console.error('video load error', src)}
+        />
+      );
+    // file, youtube 등 기타 처리 ...
+    default:
+      return null;
+  }
+}
+B. ResourceDetail 페이지
+tsx
+복사
+편집
+// 최상단 컨테이너
+<div
+  contentEditable={false}
+  suppressContentEditableWarning={true}
+  style={{
+    userSelect:'text',
+    cursor:'default',
+    pointerEvents:'auto'
+  }}
+>
+  {/* HTML 대신 MediaPreview 렌더 */}
+  {mediaItems.map(item=>(
+    <MediaPreview key={item.url} {...item} />
+  ))}
+  {/* tiptap.getHTML() 로 생성된 순수 텍스트 영역은 모두 제거 */}
+</div>
+C. 검수 기준
+업로드된 진짜 이미지가 보이고, placeholder는 로드 실패 시에만
+
+게시 페이지에서 클릭/드래그/편집 커서 전혀 나타나지 않음
+
+npm run build 시 타입·ESLint 에러 0
+
+이 셋만 맞추면 머지 승인합니다.
