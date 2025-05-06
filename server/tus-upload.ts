@@ -42,11 +42,25 @@ const tusServer = new Server({
         ).toString()
       : 'unknown_file';
     
-    const sanitizedFilename = originalFilename.replace(/[^a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣぁ-ゔァ-ヴー々〆〤一-龥]/g, '_');
+    // 파일명에서 경로 구분자와 OS에서 금지된 문자 제거
+    const sanitizedFilename = decodeURIComponent(originalFilename)
+      .replace(/[\\/:*?"<>|]/g, '_')  // 윈도우와 유닉스 시스템에서 금지된 문자 제거
+      .replace(/\.\./g, '_')         // 상위 디렉토리 참조 방지
+      .trim();                       // 앞뒤 공백 제거
+    
+    // 파일명 길이 제한 (리눅스 파일시스템 최대 이름 길이는 255바이트)
+    const MAX_FILENAME_LENGTH = 128; // 충분히 여유롭게 설정
+    
+    // 타임스탬프와 랜덤 값으로 유니크한 파일명 생성
     const timestamp = Date.now();
-    const uniqueSuffix = Math.round(Math.random() * 1E9);
+    const uniqueSuffix = Math.round(Math.random() * 1E9).toString(36); // base36로 변환하여 더 짧게
     const extension = path.extname(sanitizedFilename);
-    const basename = path.basename(sanitizedFilename, extension);
+    
+    // 파일명이 너무 길면 잘라서 사용
+    let basename = path.basename(sanitizedFilename, extension);
+    if (basename.length > MAX_FILENAME_LENGTH) {
+      basename = basename.substring(0, MAX_FILENAME_LENGTH);
+    }
     
     return `${basename}-${timestamp}-${uniqueSuffix}${extension}`;
   },
@@ -73,7 +87,18 @@ const tusServer = new Server({
         upload.metadata.relativePath = `/uploads/${finalFilename}`;
       }
       
-      console.log(`파일 업로드 완료: ${finalFilename} (크기: ${upload.size} 바이트)`);
+      // 파일 정보 로깅
+      const fileInfo = {
+        filename: finalFilename,
+        size: upload.size,
+        path: finalPath,
+        relativePath: `/uploads/${finalFilename}`,
+        mimeType: upload.metadata?.contentType || 'application/octet-stream',
+        originalName: upload.metadata?.originalFilename || finalFilename,
+        timestamp: new Date().toISOString()
+      };
+      
+      console.log(`파일 업로드 완료:`, JSON.stringify(fileInfo, null, 2));
       
       // tus가 응답 객체를 예상하므로 반환
       return { 
@@ -204,9 +229,26 @@ export function setupTusUpload(app: express.Express): void {
 
 // 다국어 파일명 및 태그 검증 헬퍼 함수
 export function validateMultilingualString(str: string): boolean {
-  // 한국어, 일본어, 중국어, 러시아어, 영어, 숫자, 기본 특수문자 허용
-  const multilingualRegex = /^[A-Za-z0-9\s\-_\.가-힣ㄱ-ㅎㅏ-ㅣぁ-ゔァ-ヴー々〆〤一-龥а-яА-Я\(\)\[\]\{\}\+\=\!\?\.\*]+$/;
-  return multilingualRegex.test(str);
+  if (!str || str.length === 0) return false;
+  
+  // 유효하지 않은 파일명 문자 체크 (Windows, Unix 파일 시스템에서 허용되지 않는 문자)
+  const invalidChars = /[\\/:*?"<>|]/;
+  if (invalidChars.test(str)) return false;
+  
+  // 파일명 길이 제한
+  if (str.length > 255) return false;
+  
+  // 모든 비제어 및 인쇄 가능한 문자 허용 (Control 문자만 제외)
+  // 이는 모든 언어의 문자를 포함함 (한글, 중국어, 일본어, 아랍어, 태국어, 히브리어 등)
+  for (let i = 0; i < str.length; i++) {
+    const charCode = str.charCodeAt(i);
+    // 제어 문자 (00-1F, 7F) 제외
+    if (charCode <= 0x1F || charCode === 0x7F) {
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 // 대용량 파일 확장자 검증 함수
