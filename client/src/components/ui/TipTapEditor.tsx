@@ -10,6 +10,204 @@ import { useCallback, useEffect, useState, useRef, useImperativeHandle, forwardR
 import { Button } from './button';
 import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link2, ImageIcon, X } from 'lucide-react';
 
+// 커스텀 첨부 파일 확장
+const Attachment = Node.create({
+  name: 'attachment',
+  group: 'block',
+  atom: true, 
+  draggable: true,
+
+  addAttributes() {
+    return {
+      src: {
+        default: null,
+      },
+      name: {
+        default: '파일',
+      },
+      size: {
+        default: 0,
+      },
+      fileType: {
+        default: 'file',
+      }
+    };
+  },
+
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-attachment]',
+      },
+    ];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'div', 
+      { 
+        'data-attachment': '', 
+        class: 'attachment-node'
+      },
+      ['a', 
+       { 
+         href: HTMLAttributes.src, 
+         download: HTMLAttributes.name,
+         class: 'tiptap-file-link'
+       }, 
+       `📎 ${HTMLAttributes.name} 다운로드`
+      ]
+    ];
+  },
+
+  addCommands() {
+    return {
+      insertAttachment: (attributes: Record<string, any>) => ({ chain }: { chain: any }) => {
+        return chain()
+          .insertContent({
+            type: this.name,
+            attrs: attributes,
+          })
+          .run();
+      },
+    } as any;
+  },
+  
+  // 첨부 파일 노드를 위한 nodeView 추가
+  addNodeView() {
+    return ({ HTMLAttributes, node, editor, getPos }) => {
+      const dom = document.createElement('div');
+      dom.classList.add('tiptap-attachment-wrapper');
+      dom.setAttribute('data-attachment', '');
+      
+      // 파일 링크 컨테이너 생성
+      const fileCard = document.createElement('div');
+      fileCard.classList.add('tiptap-file-card');
+      fileCard.style.display = 'flex';
+      fileCard.style.alignItems = 'center';
+      fileCard.style.padding = '10px';
+      fileCard.style.border = '1px solid #e2e8f0';
+      fileCard.style.borderRadius = '8px';
+      fileCard.style.backgroundColor = '#f8fafc';
+      fileCard.style.marginBottom = '12px';
+      
+      // 파일 아이콘 생성
+      const fileIcon = document.createElement('div');
+      fileIcon.innerHTML = '📎';
+      fileIcon.style.marginRight = '10px';
+      fileIcon.style.fontSize = '20px';
+      
+      // 파일 정보 컨테이너
+      const fileInfo = document.createElement('div');
+      fileInfo.style.flexGrow = '1';
+      
+      // 파일명 (링크)
+      const fileLink = document.createElement('a');
+      fileLink.textContent = HTMLAttributes.name;
+      fileLink.href = HTMLAttributes.src;
+      fileLink.setAttribute('download', HTMLAttributes.name);
+      fileLink.style.fontWeight = 'bold';
+      fileLink.style.color = '#2563eb';
+      fileLink.style.textDecoration = 'none';
+      fileLink.style.display = 'block';
+      
+      // 파일 크기 (있을 경우)
+      if (HTMLAttributes.size) {
+        const fileSize = document.createElement('div');
+        const size = HTMLAttributes.size;
+        fileSize.textContent = formatFileSize(size);
+        fileSize.style.fontSize = '12px';
+        fileSize.style.color = '#64748b';
+        fileInfo.appendChild(fileSize);
+      }
+      
+      fileInfo.appendChild(fileLink);
+      
+      fileCard.appendChild(fileIcon);
+      fileCard.appendChild(fileInfo);
+      
+      // 편집 모드일 때 삭제 버튼 추가
+      if (editor.isEditable) {
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('tiptap-attachment-delete-button');
+        deleteButton.innerHTML = '×';
+        deleteButton.style.background = 'none';
+        deleteButton.style.border = 'none';
+        deleteButton.style.color = '#64748b';
+        deleteButton.style.fontSize = '18px';
+        deleteButton.style.cursor = 'pointer';
+        deleteButton.style.padding = '0 5px';
+        deleteButton.style.marginLeft = '10px';
+        
+        deleteButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof getPos === 'function') {
+            const pos = getPos();
+            
+            // 파일 URL 가져오기 (onMediaDelete 콜백용)
+            const src = node.attrs.src;
+            
+            // ProseMirror 트랜잭션으로 노드 삭제
+            const { state, dispatch } = editor.view;
+            const { tr } = state;
+            
+            // 노드 삭제
+            tr.delete(pos, pos + node.nodeSize);
+            
+            // 불필요한 빈 단락이 생성되지 않도록 처리
+            cleanupEmptyParagraphs(tr, pos);
+            
+            // 적절한 위치에 커서 배치
+            tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
+            
+            // 트랜잭션 적용
+            dispatch(tr);
+            
+            // 에디터 포커스
+            setTimeout(() => {
+              editor.view.focus();
+            }, 0);
+            
+            // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
+            if (src) {
+              console.log('첨부 파일 삭제:', src);
+              
+              if (typeof window !== 'undefined') {
+                window.lastEditorDeletionTimestamp = Date.now();
+              }
+              
+              const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+              const fieldName = (editor.options as any)?.fieldName || '';
+              
+              if (typeof mediaDeleteHandler === 'function') {
+                mediaDeleteHandler(src, 'file', fieldName);
+              }
+            }
+          }
+        });
+        
+        fileCard.appendChild(deleteButton);
+      }
+      
+      dom.appendChild(fileCard);
+      
+      return {
+        dom,
+        contentDOM: null,
+      };
+    };
+  },
+});
+
+// 파일 크기 포맷 함수
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
 // 커스텀 비디오 확장 만들기
 const Video = Node.create({
   name: 'video',
@@ -92,7 +290,9 @@ const Video = Node.create({
             tr.delete(pos, pos + node.nodeSize);
             
             // 불필요한 빈 단락이 생성되지 않도록 처리
-            // TextSelection.near 사용하여 가장 가까운 적절한 위치에 커서 배치
+            cleanupEmptyParagraphs(tr, pos);
+            
+            // 적절한 위치에 커서 배치
             tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
             
             // 트랜잭션 적용
@@ -250,6 +450,9 @@ const YouTube = Node.create({
             
             tr.delete(pos, pos + node.nodeSize);
             
+            // 불필요한 빈 단락이 생성되지 않도록 처리
+            cleanupEmptyParagraphs(tr, pos);
+            
             // Fix cursor position
             tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
             
@@ -293,8 +496,28 @@ const YouTube = Node.create({
       };
     };
   },
-
 });
+
+// 빈 단락 정리 유틸리티 함수
+function cleanupEmptyParagraphs(tr: any, pos: number) {
+  // 노드 삭제 후 위치에서 문서 스캔
+  const { doc } = tr;
+  
+  // 다음 노드 확인
+  const $afterPos = tr.doc.resolve(pos);
+  if ($afterPos.nodeAfter && $afterPos.nodeAfter.type.name === 'paragraph' && !$afterPos.nodeAfter.textContent) {
+    // 빈 단락 삭제
+    tr.delete(pos, pos + $afterPos.nodeAfter.nodeSize);
+  }
+  
+  // 이전 노드 확인
+  const $beforePos = tr.doc.resolve(Math.max(0, pos - 1));
+  if ($beforePos.nodeBefore && $beforePos.nodeBefore.type.name === 'paragraph' && !$beforePos.nodeBefore.textContent) {
+    const beforeNodePos = pos - $beforePos.nodeBefore.nodeSize;
+    // 빈 단락 삭제
+    tr.delete(beforeNodePos, pos);
+  }
+}
 
 // 이미지 및 미디어 노드 자동 삭제 방지 확장 (강화된 버전)
 const PreventImageNodeDeletion = Extension.create({
@@ -517,7 +740,9 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               tr.delete(pos, pos + node.nodeSize);
               
               // 불필요한 빈 단락이 생성되지 않도록 처리
-              // TextSelection.near 사용하여 가장 가까운 적절한 위치에 커서 배치
+              cleanupEmptyParagraphs(tr, pos);
+              
+              // 적절한 위치에 커서 배치
               tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
               
               // 트랜잭션 적용
@@ -592,7 +817,8 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       StarterKit,
       ImageWithDeleteButton,
       Video,
-      YouTube, // Add our YouTube extension
+      YouTube, // YouTube 확장
+      Attachment, // 파일 첨부 확장 추가
       PreventImageNodeDeletion,
       Link.configure({
         openOnClick: false,
@@ -684,10 +910,21 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       }
     },
     
-    // 파일 링크 삽입
-    insertFile: (url: string, fileName: string) => {
-      const fileHtml = `<p><a href="${url}" download="${fileName}" class="tiptap-file-link">${fileName} 다운로드</a></p><p><br></p>`;
-      editor?.chain().focus().insertContent(fileHtml).run();
+    // 파일 링크 삽입 (Attachment 노드 사용)
+    insertFile: (url: string, fileName: string, fileSize?: number) => {
+      // Attachment 노드를 사용하여 파일 첨부 카드 스타일로 삽입
+      editor?.chain().focus().insertContent({
+        type: 'attachment',
+        attrs: {
+          src: url,
+          name: fileName,
+          size: fileSize || 0,
+          fileType: fileName.split('.').pop() || 'file'
+        }
+      }).run();
+      
+      // 빈 단락 삽입으로 커서 위치 조정
+      editor?.chain().focus().insertContent('<p><br></p>').run();
     },
     
     // 링크 삽입

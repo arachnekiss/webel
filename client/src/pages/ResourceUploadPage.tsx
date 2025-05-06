@@ -417,6 +417,14 @@ export default function ResourceUploadPage() {
     }
   };
   
+  // 에디터에서 미디어 삭제될 때 호출되는 핸들러
+  const handleMediaDelete = useCallback((url: string, type: string, fieldName: string) => {
+    console.log(`에디터에서 미디어 삭제 감지: ${type}, URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
+    
+    // 단일 소스 미디어 상태에서도 삭제
+    removeMediaItem(fieldName, url);
+  }, [removeMediaItem]);
+  
   // 이미지 클릭 핸들러 - 클릭한 이미지 편집/관리 (예: 크기 조정, 삭제, 캡션 추가 등)
   const handleImageClick = useCallback((imageSrc: string) => {
     console.log("이미지 클릭됨:", imageSrc);
@@ -450,6 +458,7 @@ export default function ResourceUploadPage() {
   const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
     console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
     
+    // 미디어 아이템 저장 (단일 소스)
     setMediaItems(prev => {
       const fieldMedia = prev[fieldName] || [];
       // URL 기준으로 중복 확인
@@ -462,7 +471,31 @@ export default function ResourceUploadPage() {
       return prev;
     });
     
-    // 기존 uploadedMediaFiles 호환성 유지 (추후 제거 가능)
+    // 에디터 참조 가져오기 및 미디어 타입에 따른 삽입
+    const editorRef = editorRefs.current[fieldName];
+    if (editorRef?.current) {
+      const editor = editorRef.current;
+      
+      // 미디어 타입에 따라 적절한 삽입 방법 선택
+      switch(media.type) {
+        case 'image':
+          editor.insertImage(media.url, media.name || '이미지');
+          break;
+        case 'video':
+          editor.insertVideo(media.url);
+          break;
+        case 'youtube':
+          editor.insertVideo(media.url); // insertVideo 메서드가 YouTube URL 감지 및 처리
+          break;
+        case 'file':
+          editor.insertFile(media.url, media.name || '파일', media.size);
+          break;
+        default:
+          console.warn(`지원하지 않는 미디어 타입: ${media.type}`);
+      }
+    }
+    
+    // 기존 uploadedMediaFiles 호환성 유지 (필요시에만 사용)
     if (media.file || media.type === 'youtube') {
       setUploadedMediaFiles(prev => {
         const fieldFiles = prev[fieldName] || [];
@@ -495,9 +528,10 @@ export default function ResourceUploadPage() {
   }, [normalizeUrl]);
   
   // 미디어 아이템 제거 유틸리티 (단일 소스)
-  const removeMediaItem = useCallback((fieldName: string, url: string) => {
+  const removeMediaItem = useCallback((fieldName: string, url: string, mediaType?: string) => {
     console.log(`미디어 아이템 제거: URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
     
+    // 1. 상태에서 미디어 아이템 제거
     setMediaItems(prev => {
       const fieldMedia = prev[fieldName] || [];
       return {
@@ -505,6 +539,72 @@ export default function ResourceUploadPage() {
         [fieldName]: fieldMedia.filter(item => normalizeUrl(item.url) !== normalizeUrl(url))
       };
     });
+    
+    // 2. uploadedMediaFiles에서도 제거 (호환성 유지)
+    setUploadedMediaFiles(prev => {
+      const fieldFiles = prev[fieldName] || [];
+      return {
+        ...prev,
+        [fieldName]: fieldFiles.filter(file => normalizeUrl(file.preview) !== normalizeUrl(url))
+      };
+    });
+    
+    // 3. 에디터 내용에서도 미디어 삭제 (에디터 외부에서 삭제 버튼 클릭 시)
+    const editorRef = editorRefs.current[fieldName];
+    if (editorRef?.current) {
+      const editor = editorRef.current.getEditor();
+      if (editor) {
+        editor.commands.command(({ tr, state }) => {
+          let found = false;
+          
+          // 전체 문서를 순회하면서 해당 URL을 가진 노드 찾기
+          state.doc.descendants((node, pos) => {
+            // 이미지 노드 검사
+            if (node.type.name === 'image' && normalizeUrl(node.attrs.src) === normalizeUrl(url)) {
+              tr.delete(pos, pos + node.nodeSize);
+              found = true;
+              return false; // 순회 중단
+            }
+            
+            // 비디오 노드 검사
+            else if (node.type.name === 'video' && normalizeUrl(node.attrs.src) === normalizeUrl(url)) {
+              tr.delete(pos, pos + node.nodeSize);
+              found = true;
+              return false;
+            }
+            
+            // YouTube 노드 검사 (videoId를 사용하므로 URL 전체가 아니라 ID 추출 필요)
+            else if (node.type.name === 'youtube') {
+              const videoId = node.attrs.videoId;
+              const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+              
+              if (normalizeUrl(youtubeUrl) === normalizeUrl(url)) {
+                tr.delete(pos, pos + node.nodeSize);
+                found = true;
+                return false;
+              }
+            }
+            
+            // 첨부 파일 노드 검사
+            else if (node.type.name === 'attachment' && normalizeUrl(node.attrs.src) === normalizeUrl(url)) {
+              tr.delete(pos, pos + node.nodeSize);
+              found = true;
+              return false;
+            }
+            
+            return true; // 계속 순회
+          });
+          
+          // 빈 단락 정리
+          if (found) {
+            // 여기서는 간단히 수행 - 더 정밀한 처리는 에디터 자체 cleanupEmptyParagraphs 함수가 담당
+            return true;
+          }
+          
+          return false;
+        });
+      }
+    }
   }, [normalizeUrl]);
   
   // 에디터에서 미디어 찾아 삭제하는 함수

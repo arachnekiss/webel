@@ -1,0 +1,86 @@
+# 🛠️ Webel 멀티미디어 업로드 – 완전 재설계 요청
+
+## 🔍 재현 환경 & 주요 버그
+1. **동영상 첨부 후 X 클릭해도 리스트에 잔존**  
+   - 에디터 본문에서 동영상 블록 삭제되지만, “첨부된 미디어” 영역에 영상 카드가 그대로 남아 있음  
+2. **파일 첨부 시 에디터에 ‘텍스트 링크’만 생성**  
+   - PDF·ZIP 등 파일 업로드 → `<a>파일명 다운로드</a>` 마크다운만 삽입 → 카드 UI 아님  
+3. **YouTube URL 삽입 → 에디터 본문에 iframe 미표시**  
+   - URL 입력 후 리스트에는 항목 추가되나, 본문에는 아무 블록도 생성되지 않음  
+4. **에디터 ↔ 첨부 리스트 양방향 연동 불완전**  
+   - 리스트 X → 에디터 블록 남거나, 에디터 X → 리스트에도 남음  
+5. **미디어 삭제 후 빈 `<p><br>` 잔존**  
+   - 연속 삭제 시 빈 줄이 잔뜩 누적
+
+---
+
+## 🎯 요구 사항
+
+### 1. **단일 소스(mediaItems) state 확립**
+- 전역 또는 상위 컴포넌트 `const [mediaItems, setMediaItems] = useState<MediaItem[]>([])` 사용  
+- **추가**(`addMedia`) / **삭제**(`removeMedia`) 유틸만으로 모든 경로 제어  
+  - TipTap Editor 삽입 → `addMedia({url,type,field})`  
+  - NodeView X 클릭 → `removeMedia(url)` + 본문 노드 삭제  
+  - 첨부 리스트 X 클릭 → `removeMedia(url)` + TipTap 본문 노드 삭제  
+
+### 2. **NodeView 재정의 및 삭제 로직**
+- **Video, Image, Attachment** NodeView에 X 버튼 추가  
+- 클릭 시:
+  1. `removeMedia(url)`
+  2. `view.dispatch(tr.delete(pos, pos + node.nodeSize))`
+  3. `if` 인접 빈 paragraph 있으면 `tr.delete(...)`로 제거
+
+### 3. **파일 첨부용 Attachment Node**
+```ts
+// @tiptap/core 사용 예
+import { Node } from '@tiptap/core';
+
+const Attachment = Node.create({
+  name: 'attachment',
+  group: 'block',
+  atom: true,
+  draggable: true,
+  addAttributes() {
+    return { src:{default:''}, name:{default:''}, size:{default:0} };
+  },
+  parseHTML: () => [{ tag: 'div[data-attachment]' }],
+  renderHTML: ({ HTMLAttributes }) => [
+    'div', { 'data-attachment':'', class:'attachment-node' },
+    ['a', { href: HTMLAttributes.src, download: HTMLAttributes.name }, `📎 ${HTMLAttributes.name}`]
+  ],
+});
+업로드 완료 후 이 NodeView를 삽입 & addMedia
+
+4. YouTube URL ↔ iframe 노드
+handleUrlSubmit(url) 시:
+
+const id = getYouTubeVideoId(url) → if(id) editor.commands.insertContent({ type:'youtube', attrs:{ src:\https://www.youtube.com/embed/${id}\` } })`
+
+addMedia({url, type:'youtube'})
+
+삭제 시 iframe Node도 위 삭제 로직으로 제거
+
+5. 양방향 삭제 함수 예시
+ts
+복사
+편집
+// 리스트 X 클릭 시
+function onListItemDelete(url:string) {
+  removeMedia(url);
+  editor.commands.command(({ tr, state }) => {
+    state.doc.descendants((node,pos) => {
+      if(node.attrs.src === url) tr.delete(pos, pos + node.nodeSize);
+    });
+    return true;
+  });
+}
+6. 수용 기준 (PR 체크리스트)
+ 이미지/동영상/GIF/PDF/유튜브 업로드 → 에디터+리스트 동시 추가
+
+ 어느 쪽 X 클릭 → 양쪽 동시 삭제 & 빈 줄 0
+
+ 파일 첨부 → 카드형 UI 렌더, 다운로드 동작
+
+ YouTube URL → 본문 iframe 표시
+
+ npm run build 타입·ESLint 오류 0
