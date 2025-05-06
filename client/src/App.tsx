@@ -35,6 +35,10 @@ const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
 const ResourceUploadPage = ResourceSimpleUpload;
 const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
 
+// 페이지 정보
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+
 // 404 페이지
 const NotFound = lazy(() => import('./pages/not-found'));
 
@@ -232,6 +236,21 @@ function Router() {
                 <Route path={`${prefix}/services/:id`}>
                   <Suspense fallback={<div>Loading...</div>}>
                     <ServiceDetail />
+                  </Suspense>
+                </Route>
+
+                {/* ============= STATIC PAGES ============= */}
+                {/* 개인정보처리방침 */}
+                <Route path={`${prefix}/privacy`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Privacy />
+                  </Suspense>
+                </Route>
+                
+                {/* 이용약관 */}
+                <Route path={`${prefix}/terms`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Terms />
                   </Suspense>
                 </Route>
                 
