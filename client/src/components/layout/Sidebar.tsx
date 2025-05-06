@@ -10,7 +10,8 @@ import {
   Wrench,
   FileCode,
   Database,
-  CreditCard
+  CreditCard,
+  Search
 } from 'lucide-react';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
@@ -173,6 +174,23 @@ const Sidebar: React.FC = () => {
             {language === 'ko' ? '결제 데모' : 
              language === 'jp' ? '決済デモ' : 
              'Payment Demo'}
+          </span>
+        </div>
+      </TopLink>
+      
+      <TopLink href="/search-demo" showLoadingIndicator={true}>
+        <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base mx-4 ${
+          location === '/search-demo' 
+            ? 'bg-primary/5 text-primary font-medium' 
+            : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
+        } cursor-pointer transition-all`}>
+          <div className={`mr-3 transition-transform duration-300 ${location === '/search-demo' ? 'text-primary scale-110' : 'text-slate-500'}`}>
+            <Search className="h-5 w-5" />
+          </div>
+          <span>
+            {language === 'ko' ? '다국어 검색 데모' : 
+             language === 'jp' ? '多言語検索デモ' : 
+             'Multilingual Search Demo'}
           </span>
         </div>
       </TopLink>
