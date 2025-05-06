@@ -86,6 +86,7 @@ import {
 } from './admin-cache';
 import { setupApiAdapters } from './api-adapters';
 import { Router } from 'express';
+import { multilingualSearch, searchPerformanceTest } from './multilingual-search';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API 어댑터 라우터 설정
@@ -960,6 +961,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: error instanceof Error ? error.message : '알 수 없는 오류'
       });
     }
+  });
+
+  // 다국어 검색 API 엔드포인트
+  app.get('/api/search', multilingualSearch);
+  
+  // 다국어 검색 성능 테스트 API (개발 환경에서만 사용)
+  app.get('/api/search/performance-test', (req: Request, res: Response) => {
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({ message: "이 엔드포인트는 개발 환경에서만 사용 가능합니다." });
+    }
+    return searchPerformanceTest(req, res);
   });
 
   const httpServer = createServer(app);

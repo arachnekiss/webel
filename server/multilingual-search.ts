@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 import { db, executeWithRetry } from './db';
 import { resources, services } from '@shared/schema';
 import { SQL, ilike, and, isNull, or, desc, sql } from 'drizzle-orm';
+import { PgTableWithColumns } from 'drizzle-orm/pg-core';
 import { cache } from './cache';
 import { detectLanguageFromHeader, normalizeText } from './utils/normalizeText';
 
@@ -80,10 +81,10 @@ export async function multilingualSearch(req: Request, res: Response): Promise<v
           .from(resources)
           .where(and(
             searchCondition('resources'),
-            isNull(resources.deleted_at)
+            isNull(resources.deletedAt)
           ))
           .limit(limit)
-          .orderBy(desc(resources.created_at));
+          .orderBy(desc(resources.createdAt));
       });
     }
 
@@ -93,7 +94,7 @@ export async function multilingualSearch(req: Request, res: Response): Promise<v
           .from(services)
           .where(searchCondition('services'))
           .limit(limit)
-          .orderBy(desc(services.created_at));
+          .orderBy(desc(services.createdAt));
       });
     }
 
@@ -154,13 +155,13 @@ function createSearchCondition(normalizedQuery: string, lang: string) {
       // 서비스 테이블 검색 조건
       if (searchTerms.length <= 1) {
         return or(
-          sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.service_type}, '')) ILIKE ${likePattern}`,
-          sql`${services.service_type} ILIKE ${likePattern}`
+          sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${likePattern}`,
+          sql`${services.serviceType} ILIKE ${likePattern}`
         );
       }
       
       const conditions = searchTerms.map(term => 
-        sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.service_type}, '')) ILIKE ${'%' + term + '%'}`
+        sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${'%' + term + '%'}`
       );
       return and(...conditions);
     }
