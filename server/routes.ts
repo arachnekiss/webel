@@ -928,20 +928,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/user/register-bank-account', isAuthenticated, registerBankAccount);
 
   // ==================== PayPal 결제 관련 라우트 ====================
-  // PayPal 세팅
-  app.get('/paypal/setup', async (req, res) => {
-    await loadPaypalDefault(req, res);
-  });
-
-  // PayPal 주문 생성
-  app.post('/paypal/order', async (req, res) => {
-    await createPaypalOrder(req, res);
-  });
-
-  // PayPal 주문 확정
-  app.post('/paypal/order/:orderID/capture', async (req, res) => {
-    await capturePaypalOrder(req, res);
-  });
+  // PayPal routes are already defined above
 
   // 후원 코멘트 관련 라우트
   app.get('/api/sponsor/comments', async (_req: Request, res: Response) => {
