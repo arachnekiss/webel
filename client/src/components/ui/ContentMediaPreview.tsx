@@ -94,7 +94,7 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
       const youtubeId = embed.getAttribute('data-youtube-id');
       if (youtubeId) {
         const iframe = embed.querySelector('iframe');
-        if (iframe) {
+        if (iframe && iframe instanceof HTMLElement) {
           // iframe의 상호작용 방지
           iframe.style.pointerEvents = 'none';
         }
@@ -105,16 +105,18 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
     const fileLinks = container.querySelectorAll('a.tiptap-file-link');
     fileLinks.forEach(link => {
       // 링크의 상호작용 방지 (다운로드 비활성화)
-      link.style.pointerEvents = 'none';
-      link.style.color = 'gray';
-      link.style.cursor = 'default';
-      
-      // 읽기 전용 표시 추가
-      const readOnlySpan = document.createElement('span');
-      readOnlySpan.textContent = ' (읽기 전용)';
-      readOnlySpan.style.fontSize = '0.8em';
-      readOnlySpan.style.color = 'gray';
-      link.parentNode?.insertBefore(readOnlySpan, link.nextSibling);
+      if (link instanceof HTMLElement) {
+        link.style.pointerEvents = 'none';
+        link.style.color = 'gray';
+        link.style.cursor = 'default';
+        
+        // 읽기 전용 표시 추가
+        const readOnlySpan = document.createElement('span');
+        readOnlySpan.textContent = ' (읽기 전용)';
+        readOnlySpan.style.fontSize = '0.8em';
+        readOnlySpan.style.color = 'gray';
+        link.parentNode?.insertBefore(readOnlySpan, link.nextSibling);
+      }
     });
     
   }, [content]);

@@ -29,8 +29,10 @@ import Services from './pages/Services';
 const ResourceDetail = lazy(() => import('./pages/ResourceDetail'));
 const ServiceDetail = lazy(() => import('./pages/ServiceDetail'));
 const ResourceManagementPage = lazy(() => import('./pages/ResourceManagementPage'));
-const ResourceUploadPage = lazy(() => import('./pages/ResourceUploadPage'));
+const ResourceSimpleUpload = lazy(() => import('./pages/ResourceSimpleUpload'));
 const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
+// 원본 업로드 페이지에서 에러가 발생하여 간소화된 버전으로 대체
+const ResourceUploadPage = ResourceSimpleUpload;
 const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
 
 // 404 페이지
@@ -112,7 +114,7 @@ function Router() {
                 
                 <Route path={`${prefix}/resources/upload`}>
                   <Suspense fallback={<div>Loading...</div>}>
-                    <ResourceUploadPage />
+                    <ResourceSimpleUpload />
                   </Suspense>
                 </Route>
                 
