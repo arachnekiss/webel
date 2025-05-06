@@ -56,6 +56,7 @@ export interface IStorage {
   createResource(resource: InsertResource): Promise<Resource>;
   updateResource(id: number, resource: Partial<Resource>): Promise<Resource | undefined>;
   incrementDownloadCount(id: number): Promise<Resource | undefined>;
+  deleteResource(id: number): Promise<boolean>;
   
   // Auction operations
   getAuctions(): Promise<Auction[]>;
@@ -240,7 +241,11 @@ export class DatabaseStorage implements IStorage {
   // Resource operations
   async getResources(): Promise<Resource[]> {
     try {
-      const results = await db.select().from(resources).orderBy(desc(resources.createdAt));
+      // 삭제되지 않은 리소스만 가져오기 (deleted_at이 null인 경우)
+      const results = await db.select()
+        .from(resources)
+        .where(sql`${resources.deletedAt} IS NULL`)
+        .orderBy(desc(resources.createdAt));
       
       // Add resourceType field to match category for type safety
       return results.map(resource => {
@@ -257,7 +262,14 @@ export class DatabaseStorage implements IStorage {
 
   async getResourceById(id: number): Promise<Resource | undefined> {
     try {
-      const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+      const [resource] = await db.select()
+        .from(resources)
+        .where(
+          and(
+            eq(resources.id, id),
+            sql`${resources.deletedAt} IS NULL` // 삭제되지 않은 리소스만 조회
+          )
+        );
       
       if (resource && resource.category) {
         // Add resourceType field based on category for type compatibility
@@ -283,7 +295,12 @@ export class DatabaseStorage implements IStorage {
       const query = db
         .select()
         .from(resources)
-        .where(eq(resources.category, category));
+        .where(
+          and(
+            eq(resources.category, category),
+            sql`${resources.deletedAt} IS NULL` // 삭제되지 않은 리소스만 조회
+          )
+        );
       
       const results = await query;
       
@@ -361,7 +378,14 @@ export class DatabaseStorage implements IStorage {
 
   async incrementDownloadCount(id: number): Promise<Resource | undefined> {
     try {
-      const [resource] = await db.select().from(resources).where(eq(resources.id, id));
+      const [resource] = await db.select()
+        .from(resources)
+        .where(
+          and(
+            eq(resources.id, id),
+            sql`${resources.deletedAt} IS NULL`
+          )
+        );
       if (!resource) return undefined;
 
       const [updatedResource] = await db
@@ -381,6 +405,32 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error(`Error incrementing download count for resource ${id}:`, error);
       return undefined;
+    }
+  }
+  
+  // 소프트 삭제 - deleted_at 타임스탬프만 설정
+  async deleteResource(id: number): Promise<boolean> {
+    try {
+      // 현재 시간으로 deleted_at 필드 설정
+      const now = new Date();
+      
+      const [deleted] = await db
+        .update(resources)
+        .set({
+          deletedAt: now
+        })
+        .where(
+          and(
+            eq(resources.id, id),
+            sql`${resources.deletedAt} IS NULL` // 이미 삭제된 리소스를 다시 삭제하지 않도록 함
+          )
+        )
+        .returning();
+      
+      return !!deleted; // 삭제된 리소스가 있으면 true, 없으면 false 반환
+    } catch (error) {
+      console.error(`Error soft-deleting resource with id ${id}:`, error);
+      return false;
     }
   }
 

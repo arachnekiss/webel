@@ -89,7 +89,8 @@ export const resources = pgTable("resources", {
   createdAt: timestamp("created_at").defaultNow(), // This serves as the uploadDate
   subcategory: text("subcategory"), // More specific categorization within category
   isFeatured: boolean("is_featured").default(false), // 관리자 추천 여부 
-  isCrawled: boolean("is_crawled").default(false) // Flag for automatically crawled resources
+  isCrawled: boolean("is_crawled").default(false), // Flag for automatically crawled resources
+  deletedAt: timestamp("deleted_at") // Soft delete timestamp
   
   // Add a virtual field to mirror category for backwards compatibility
   // This is not in the database, but we'll add it in our code
