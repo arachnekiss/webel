@@ -338,13 +338,9 @@ export default function ResourceUploadPage() {
   // 이미지 클릭 핸들러 - 클릭한 이미지 편집/관리 (예: 크기 조정, 삭제, 캡션 추가 등)
   const handleImageClick = useCallback((imageSrc: string) => {
     console.log("이미지 클릭됨:", imageSrc);
-    
-    // 여기에 이미지 편집 모달 표시 등의 코드를 추가할 수 있습니다.
-    toast({
-      title: "이미지 선택됨",
-      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
-    });
-  }, [toast]);
+    // 팝업 메시지 제거 - UX 개선을 위해 클릭 시 팝업 없음
+    // 추후 이미지 편집 모달을 여기에 구현할 수 있음
+  }, []);
   
   // 이미지 위치 이동 핸들러 - 드래그 앤 드롭으로 이미지 순서 변경
   const handleImageMove = useCallback((
