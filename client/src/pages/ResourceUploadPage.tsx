@@ -904,6 +904,19 @@ export default function ResourceUploadPage() {
           
           tiptapEditor.chain().focus().insertContent(youtubeHtml).run();
           
+          // YouTube 링크를 첨부된 미디어 목록에 추가
+          const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          const videoFile = new File([], `youtube-${videoId}.mp4`, { type: 'video/mp4' }) as FileWithPreview;
+          videoFile.preview = youtubeUrl;
+          
+          setUploadedMediaFiles(prev => {
+            const fieldFiles = prev[currentEditor] || [];
+            return {
+              ...prev,
+              [currentEditor]: [...fieldFiles, videoFile]
+            };
+          });
+          
         } else {
           // 이미지 URL 감지
           const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
@@ -956,6 +969,19 @@ export default function ResourceUploadPage() {
             allowfullscreen
           ></iframe>
           </div><p><br></p>`;
+          
+          // YouTube 링크를 첨부된 미디어 목록에 추가
+          const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+          const videoFile = new File([], `youtube-${videoId}.mp4`, { type: 'video/mp4' }) as FileWithPreview;
+          videoFile.preview = youtubeUrl;
+          
+          setUploadedMediaFiles(prev => {
+            const fieldFiles = prev[currentEditor] || [];
+            return {
+              ...prev,
+              [currentEditor]: [...fieldFiles, videoFile]
+            };
+          });
         } else {
           // 이미지 URL 감지
           const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
