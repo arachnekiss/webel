@@ -1,11 +1,9 @@
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { formatDistanceToNow } from 'date-fns';
-import { Link } from 'wouter';
-import { MapPin, Star } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Star, Wifi } from "lucide-react";
 
-interface ServiceCardProps {
+export interface ServiceCardProps {
   service: {
     id: number;
     title: string;
@@ -25,118 +23,112 @@ interface ServiceCardProps {
     pricePerHour?: number;
     createdAt?: string | Date;
   };
+  onClick?: () => void;
 }
 
-export const ServiceCard: React.FC<ServiceCardProps> = ({ service }) => {
-  const {
-    id,
-    title,
-    description,
-    serviceType,
-    tags,
-    imageUrl,
-    location,
-    rating,
+export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) => {
+  const { 
+    title, 
+    description, 
+    serviceType, 
+    tags, 
+    imageUrl, 
+    location, 
+    rating, 
     ratingCount,
     isRemote,
-    price,
-    pricePerHour,
-    createdAt,
+    pricePerHour
   } = service;
 
-  // Format tags if they exist as a string or an array
-  const formattedTags = tags
-    ? typeof tags === 'string'
-      ? [tags]
-      : tags
-    : [];
+  const getLocationAddress = () => {
+    if (!location) return '';
+    if (typeof location === 'string') return location;
+    return location.address || '';
+  };
 
-  // Format created date
-  const formattedDate = createdAt
-    ? formatDistanceToNow(new Date(createdAt), { addSuffix: true })
-    : '';
-
-  // Parse location
-  let locationText = '';
-  if (location) {
-    if (typeof location === 'string') {
-      locationText = location;
-    } else if (typeof location === 'object' && location.address) {
-      locationText = location.address;
-    }
-  }
+  const formatCurrency = (amount: number | undefined) => {
+    if (!amount) return '';
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
 
   return (
-    <Link href={`/services/${id}`}>
-      <Card className="h-full overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md">
-        <div className="aspect-video relative overflow-hidden bg-muted">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={title}
-              className="w-full h-full object-cover transition-transform hover:scale-105"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
-              No Image
-            </div>
-          )}
-          {isRemote && (
-            <Badge className="absolute top-2 right-2 bg-green-500">
-              Remote
+    <Card className="overflow-hidden transition-shadow duration-300 h-full flex flex-col hover:shadow-md cursor-pointer" onClick={onClick}>
+      <div className="h-36 overflow-hidden bg-gray-100 relative">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-blue-50">
+            <div className="text-4xl text-blue-200">🛠️</div>
+          </div>
+        )}
+      </div>
+      <CardHeader className="p-4 pb-2">
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-lg font-semibold line-clamp-2 mb-1">
+            {title}
+          </CardTitle>
+        </div>
+        {serviceType && (
+          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-100 text-xs">
+            {serviceType}
+          </Badge>
+        )}
+      </CardHeader>
+      <CardContent className="px-4 py-2 flex-grow">
+        <CardDescription className="text-sm text-gray-600 line-clamp-3 mb-2">
+          {description}
+        </CardDescription>
+        <div className="flex flex-wrap gap-1 mt-2">
+          {tags && tags.slice(0, 3).map((tag, idx) => (
+            <Badge key={idx} variant="secondary" className="text-xs bg-gray-100 text-gray-700 font-normal">
+              {tag}
+            </Badge>
+          ))}
+          {tags && tags.length > 3 && (
+            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 font-normal">
+              +{tags.length - 3}
             </Badge>
           )}
         </div>
-        <CardHeader className="p-4 pb-0">
-          <CardTitle className="line-clamp-2 text-lg">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4 pt-2">
-          {description && (
-            <p className="text-muted-foreground text-sm line-clamp-2 mb-2">
-              {description}
-            </p>
+      </CardContent>
+      <CardFooter className="px-4 py-2 border-t flex justify-between items-center text-sm text-gray-500">
+        <div className="flex items-center gap-2">
+          {isRemote && (
+            <div className="flex items-center gap-1 text-green-600">
+              <Wifi size={14} />
+              <span className="text-xs">Remote</span>
+            </div>
           )}
-          <div className="flex justify-between items-center mb-2">
-            {serviceType && (
-              <Badge variant="secondary">{serviceType}</Badge>
-            )}
-            {rating !== undefined && (
-              <div className="flex items-center text-amber-500">
-                <Star className="w-4 h-4 fill-current mr-1" />
-                <span>{rating.toFixed(1)}</span>
-                {ratingCount !== undefined && (
-                  <span className="text-xs text-muted-foreground ml-1">
-                    ({ratingCount})
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-1 mt-2">
-            {formattedTags.slice(0, 3).map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-0 flex justify-between items-center text-sm">
-          <div className="flex items-center text-muted-foreground">
-            {locationText && (
-              <>
-                <MapPin className="w-3 h-3 mr-1" />
-                <span className="truncate max-w-[120px]">{locationText}</span>
-              </>
-            )}
-          </div>
-          <div className="font-semibold">
-            {price !== undefined && <span>{price.toLocaleString()}₩</span>}
-            {pricePerHour !== undefined && (
-              <span>{pricePerHour.toLocaleString()}₩/hr</span>
-            )}
-          </div>
-        </CardFooter>
-      </Card>
-    </Link>
+          {getLocationAddress() && (
+            <div className="flex items-center gap-1">
+              <MapPin size={14} />
+              <span className="text-xs truncate max-w-[120px]">{getLocationAddress()}</span>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {rating && (
+            <div className="flex items-center gap-1">
+              <Star size={14} className="text-yellow-400 fill-yellow-400" />
+              <span>{rating.toFixed(1)}</span>
+              {ratingCount && <span className="text-xs text-gray-400">({ratingCount})</span>}
+            </div>
+          )}
+          {pricePerHour && (
+            <div className="text-xs font-medium">
+              {formatCurrency(pricePerHour)}/hr
+            </div>
+          )}
+        </div>
+      </CardFooter>
+    </Card>
   );
 };

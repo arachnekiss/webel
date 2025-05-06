@@ -333,20 +333,20 @@ async function insertServices() {
     console.log('Inserting multilingual services...');
     
     for (const service of multilingualServices) {
-      // Insert service
+      // Insert service with proper PostgreSQL array format for tags
       const result = await pool.query(
         `INSERT INTO services (
           user_id, title, description, service_type, tags, location,
           rating, rating_count, image_url, printer_model, contact_email,
           is_remote, hourly_rate, price_per_unit, pricing_unit, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
+        ) VALUES ($1, $2, $3, $4, $5::text[], $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW())
         RETURNING id`,
         [
           service.user_id,
           service.title,
           service.description,
           service.service_type,
-          JSON.stringify(service.tags),
+          service.tags,
           JSON.stringify(service.location),
           service.rating,
           service.rating_count,
