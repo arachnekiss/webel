@@ -16,6 +16,15 @@ import { Store } from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import createMemoryStore from 'memorystore';
 
+// 캐싱 시스템 임포트
+import { 
+  cache, 
+  staticCache, 
+  userCache, 
+  generateCacheKey, 
+  clearCacheByPrefix 
+} from './cache';
+
 // Interface for storage operations
 export interface IStorage {
   // Session store for persistence
@@ -153,20 +162,93 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Service operations
-  async getServices(): Promise<Service[]> {
-    return db.select().from(services).orderBy(desc(services.createdAt));
+  async getServices(limit?: number): Promise<Service[]> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('services', { limit });
+      
+    // 캐시에서 데이터 확인
+    const cachedData = cache.get<Service[]>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // DB에서 가져오기
+    let query = db.select().from(services).orderBy(desc(services.createdAt));
+    
+    // 결과 제한
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const results = await query;
+    
+    // 결과 캐싱
+    cache.set(cacheKey, results);
+    
+    return results;
   }
 
   async getServiceById(id: number): Promise<Service | undefined> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('service', { id });
+      
+    // 캐시에서 데이터 확인
+    const cachedData = cache.get<Service>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
     const [service] = await db.select().from(services).where(eq(services.id, id));
+    
+    // 결과 캐싱
+    if (service) {
+      cache.set(cacheKey, service);
+    }
+    
     return service;
   }
 
-  async getServicesByType(type: string): Promise<Service[]> {
-    return db.select().from(services).where(eq(services.serviceType, type));
+  async getServicesByType(type: string, limit?: number): Promise<Service[]> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('services_by_type', { type, limit });
+      
+    // 캐시에서 데이터 확인
+    const cachedData = staticCache.get<Service[]>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
+    // DB에서 가져오기
+    let query = db.select().from(services).where(eq(services.serviceType, type));
+    
+    // 결과 제한
+    if (limit) {
+      query = query.limit(limit);
+    }
+    
+    const results = await query;
+    
+    // 결과 캐싱
+    staticCache.set(cacheKey, results);
+    
+    return results;
   }
 
   async getServicesByLocation(location: Location, maxDistance: number, serviceType?: string): Promise<Service[]> {
+    // 캐시 키 생성
+    const cacheKey = generateCacheKey('services_by_location', { 
+      lat: location.lat, 
+      long: location.long, 
+      maxDistance, 
+      serviceType 
+    });
+      
+    // 캐시에서 데이터 확인 - 짧은 TTL 사용
+    const cachedData = cache.get<Service[]>(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+    
     // 먼저 모든 서비스 또는 특정 타입의 서비스를 가져옴
     const allServices = serviceType 
       ? await this.getServicesByType(serviceType) 
@@ -192,6 +274,9 @@ export class DatabaseStorage implements IStorage {
       })
       // 가까운 순으로 정렬
       .sort((a, b) => (a as any).distance - (b as any).distance);
+    
+    // 결과 캐싱
+    cache.set(cacheKey, servicesWithDistance);
     
     return servicesWithDistance;
   }
@@ -239,21 +324,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Resource operations
-  async getResources(): Promise<Resource[]> {
+  async getResources(limit?: number): Promise<Resource[]> {
     try {
+      // 캐시 키 생성
+      const cacheKey = generateCacheKey('resources', { limit });
+      
+      // 캐시에서 데이터 확인
+      const cachedData = cache.get<Resource[]>(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+      
       // 삭제되지 않은 리소스만 가져오기 (deleted_at이 null인 경우)
-      const results = await db.select()
+      let query = db.select()
         .from(resources)
         .where(sql`${resources.deletedAt} IS NULL`)
         .orderBy(desc(resources.createdAt));
+        
+      // 결과 제한
+      if (limit) {
+        query = query.limit(limit);
+      }
+      
+      const results = await query;
       
       // Add resourceType field to match category for type safety
-      return results.map(resource => {
+      const processedResults = results.map(resource => {
         if (resource.category) {
           (resource as any).resourceType = resource.category;
         }
         return resource;
       });
+      
+      // 결과 캐싱
+      cache.set(cacheKey, processedResults);
+      
+      return processedResults;
     } catch (error) {
       console.error('Error getting all resources:', error);
       return [];
@@ -262,6 +368,15 @@ export class DatabaseStorage implements IStorage {
 
   async getResourceById(id: number): Promise<Resource | undefined> {
     try {
+      // 캐시 키 생성
+      const cacheKey = generateCacheKey('resource', { id });
+      
+      // 캐시에서 데이터 확인
+      const cachedData = cache.get<Resource>(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+      
       const [resource] = await db.select()
         .from(resources)
         .where(
@@ -276,6 +391,11 @@ export class DatabaseStorage implements IStorage {
         (resource as any).resourceType = resource.category;
       }
       
+      // 결과 캐싱
+      if (resource) {
+        cache.set(cacheKey, resource);
+      }
+      
       return resource;
     } catch (error) {
       console.error(`Error getting resource with id ${id}:`, error);
@@ -288,11 +408,20 @@ export class DatabaseStorage implements IStorage {
     return this.getResourcesByCategory(type);
   }
 
-  async getResourcesByCategory(category: string): Promise<Resource[]> {
+  async getResourcesByCategory(category: string, limit?: number): Promise<Resource[]> {
     // Query only by the category column that exists in the database
     try {
+      // 캐시 키 생성
+      const cacheKey = generateCacheKey('resources_by_category', { category, limit });
+      
+      // 캐시에서 데이터 확인
+      const cachedData = staticCache.get<Resource[]>(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+      
       // Use sql to construct a query with only the columns that exist in the database
-      const query = db
+      let query = db
         .select()
         .from(resources)
         .where(
@@ -301,16 +430,26 @@ export class DatabaseStorage implements IStorage {
             sql`${resources.deletedAt} IS NULL` // 삭제되지 않은 리소스만 조회
           )
         );
+        
+      // 결과 제한
+      if (limit) {
+        query = query.limit(limit);
+      }
       
       const results = await query;
       
       // Add resourceType field to each resource for type compatibility
-      return results.map(resource => {
+      const processedResults = results.map(resource => {
         if (resource) {
           (resource as any).resourceType = category;
         }
         return resource;
       });
+      
+      // 결과 캐싱
+      staticCache.set(cacheKey, processedResults);
+      
+      return processedResults;
     } catch (error) {
       console.error(`Error getting resources by category '${category}':`, error);
       return []; // Return empty array instead of throwing error to avoid breaking the UI
