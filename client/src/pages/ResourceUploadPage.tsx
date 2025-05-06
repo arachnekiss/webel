@@ -551,8 +551,94 @@ export default function ResourceUploadPage() {
     }
   }, [form]);
 
+  // URL 정규화 함수 (util)
+  const normalizeUrl = useCallback((url: string): string => {
+    // null이나 undefined 처리
+    if (!url) return '';
+    
+    // Base64 URL일 경우 앞부분 일치 확인
+    if (url.startsWith('data:')) {
+      return url.split(',')[0]; // 메타데이터 부분만 비교
+    }
+    
+    try {
+      // URL 객체로 파싱하여 경로 부분만 추출 (쿼리, 해시 제거)
+      const urlObj = new URL(url);
+      return urlObj.origin + urlObj.pathname;
+    } catch (e) {
+      // URL 파싱 실패 시 원래 방식으로 폴백
+      return url.split('?')[0].split('#')[0];
+    }
+  }, []);
+  
+  // 미디어 아이템 추가 유틸리티 (단일 소스)
+  const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
+    console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
+    
+    setMediaItems(prev => {
+      const fieldMedia = prev[fieldName] || [];
+      // URL 기준으로 중복 확인
+      if (!fieldMedia.some(item => normalizeUrl(item.url) === normalizeUrl(media.url))) {
+        return {
+          ...prev,
+          [fieldName]: [...fieldMedia, media]
+        };
+      }
+      return prev;
+    });
+    
+    // 기존 uploadedMediaFiles 호환성 유지 (추후 제거 가능)
+    if (media.file || media.type === 'youtube') {
+      setUploadedMediaFiles(prev => {
+        const fieldFiles = prev[fieldName] || [];
+        
+        // 이미 존재하는지 확인
+        if (fieldFiles.some(file => file.preview === media.url)) {
+          return prev;
+        }
+        
+        // 새 FileWithPreview 객체 생성
+        const newFile = new File([], 
+          media.name || `${media.type}-${Date.now()}`, 
+          { type: `${media.type}/${media.type === 'youtube' ? 'mp4' : 'file'}` }) as FileWithPreview;
+        
+        newFile.preview = media.url;
+        // size는 읽기 전용이므로 Object.defineProperty 사용
+        if (media.size) {
+          Object.defineProperty(newFile, 'size', {
+            value: media.size,
+            writable: false
+          });
+        }
+        
+        return {
+          ...prev,
+          [fieldName]: [...fieldFiles, newFile]
+        };
+      });
+    }
+  }, [normalizeUrl]);
+  
+  // 미디어 아이템 제거 유틸리티 (단일 소스)
+  const removeMediaItem = useCallback((fieldName: string, url: string) => {
+    console.log(`미디어 아이템 제거: URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
+    
+    setMediaItems(prev => {
+      const fieldMedia = prev[fieldName] || [];
+      return {
+        ...prev,
+        [fieldName]: fieldMedia.filter(item => normalizeUrl(item.url) !== normalizeUrl(url))
+      };
+    });
+  }, [normalizeUrl]);
+  
+  // 에디터에서 미디어를 제거하고 빈 단락 정리하는 함수
+  const removeMediaAndCleanup = useCallback((fieldName: string, url: string) => {
+    return removeMediaFromEditor(fieldName, url);
+  }, [removeMediaFromEditor]);
+
   // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
-  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName?: string) => {
+  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video' | 'gif' | 'file' | 'youtube', fieldName?: string) => {
     console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}, 필드: ${fieldName || '미지정'}`);
     
     if (!src) {
@@ -563,26 +649,6 @@ export default function ResourceUploadPage() {
     // fieldName이 제공되지 않은 경우 현재 활성화된 에디터 필드 사용
     const targetField = fieldName || currentEditor || '';
     
-    // Base64 데이터 URL과 일반 URL을 모두 처리할 수 있도록 정규화
-    const normalizeUrl = (url: string): string => {
-      // null이나 undefined 처리
-      if (!url) return '';
-      
-      // Base64 URL일 경우 앞부분 일치 확인
-      if (url.startsWith('data:')) {
-        return url.split(',')[0]; // 메타데이터 부분만 비교
-      }
-      
-      try {
-        // URL 객체로 파싱하여 경로 부분만 추출 (쿼리, 해시 제거)
-        const urlObj = new URL(url);
-        return urlObj.origin + urlObj.pathname;
-      } catch (e) {
-        // URL 파싱 실패 시 원래 방식으로 폴백
-        return url.split('?')[0].split('#')[0];
-      }
-    };
-    
     const normalizedSrc = normalizeUrl(src);
     console.log(`정규화된 URL: ${normalizedSrc}`);
     
@@ -592,6 +658,12 @@ export default function ResourceUploadPage() {
       return;
     }
 
+    // 타임스탬프 기록 (중복 삭제 방지용)
+    window.lastEditorDeletionTimestamp = Date.now();
+    
+    // 단일 소스 상태 관리: mediaItems 상태에서 제거
+    removeMediaItem(targetField, src);
+    
     // 요청 시작 위치에 따라 동기화 결정
     const fromAttachedMedia = !window.lastEditorDeletionTimestamp || 
                               (Date.now() - window.lastEditorDeletionTimestamp > 500);
@@ -600,7 +672,7 @@ export default function ResourceUploadPage() {
     if (fromAttachedMedia) {
       console.log('첨부된 미디어에서 삭제 요청 -> 에디터 내용 동기화');
       // 에디터에서도 해당 미디어 삭제 
-      removeMediaFromEditor(targetField, src);
+      removeMediaAndCleanup(targetField, src);
     } else {
       console.log('에디터에서 삭제 요청 -> 첨부 미디어만 업데이트');
       // 에디터 내에서 삭제된 경우 타임스탬프 초기화
@@ -834,6 +906,15 @@ export default function ResourceUploadPage() {
     console.log("선택된 파일:", file.name, file.type, file.size);
     // 임시 URL 생성 (실제로는 서버에 업로드하고 URL을 받아야 함)
     const fileUrl = URL.createObjectURL(file);
+    
+    // 단일 소스 미디어 상태 관리: 미디어 아이템 추가
+    addMediaItem(currentEditor, {
+      url: fileUrl,
+      type: type as 'image' | 'video' | 'gif' | 'file',
+      name: file.name,
+      size: file.size,
+      file: file
+    });
 
     try {
       // TipTap 에디터 찾기
