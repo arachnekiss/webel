@@ -190,7 +190,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
         const editorId = dom.dataset.editorId = dom.dataset.editorId || 
           `tiptap-${Math.random().toString(36).substring(2, 9)}`;
           
-        // 이미지 클릭 핸들러 설정
+        // 이미지 클릭 핸들러 설정 - 기본 동작은 아무것도 하지 않음
         img.addEventListener('click', () => {
           const src = img.getAttribute('src');
           if (src) {
@@ -202,12 +202,11 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               return document.querySelector(`.tiptap-editor-container[data-editor-id="${id}"]`);
             });
             
+            // 핸들러가 있을 경우에만 호출 (불필요한 토스트 메시지 제거)
             if (activeEditorId && handlers[activeEditorId]?.onImageClick) {
               handlers[activeEditorId].onImageClick(src);
-            } else if (onImageClick) {
-              // 폴백: 컴포넌트에 직접 전달된 핸들러 사용
-              onImageClick(src);
             }
+            // onImageClick이 있어도 기본적으로 호출하지 않음 - 불필요한 메시지 제거
           }
         });
         
