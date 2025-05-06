@@ -56,6 +56,74 @@ const Video = Node.create({
       },
     } as any;
   },
+});
+
+// YouTube 노드 확장
+const YouTube = Node.create({
+  name: 'youtube',
+  group: 'block',
+  atom: true,
+  
+  addAttributes() {
+    return {
+      videoId: {
+        default: null,
+      },
+      width: {
+        default: '100%',
+      },
+      height: {
+        default: '315',
+      },
+    };
+  },
+  
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-youtube-id]',
+      },
+    ];
+  },
+  
+  renderHTML({ HTMLAttributes }) {
+    const { videoId } = HTMLAttributes;
+    
+    // If no videoId is provided, render an empty div
+    if (!videoId) {
+      return ['div', { class: 'youtube-embed-placeholder' }, 'Invalid YouTube video'];
+    }
+    
+    // Return the YouTube iframe wrapped in a div
+    return [
+      'div',
+      { class: 'youtube-embed', 'data-youtube-id': videoId },
+      [
+        'iframe',
+        {
+          width: HTMLAttributes.width || '100%',
+          height: HTMLAttributes.height || '315',
+          src: `https://www.youtube.com/embed/${videoId}`,
+          frameborder: '0',
+          allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+          allowfullscreen: 'true',
+        },
+      ],
+    ];
+  },
+  
+  addCommands() {
+    return {
+      insertYouTube: (attributes: Record<string, any>) => ({ chain }: { chain: any }) => {
+        return chain()
+          .insertContent({
+            type: this.name,
+            attrs: attributes,
+          })
+          .run();
+      },
+    } as any;
+  },
   
   // 비디오 노드를 위한 nodeView 추가
   addNodeView() {

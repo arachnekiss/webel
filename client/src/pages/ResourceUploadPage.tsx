@@ -127,6 +127,7 @@ function getYouTubeVideoId(url: string): string {
   
   let videoId = '';
   try {
+    // 표준 YouTube URL (youtube.com/watch?v=ID)
     if (url.includes('youtube.com/watch?v=')) {
       const match = url.match(/v=([^&]+)/);
       if (match && match[1]) videoId = match[1];
