@@ -8,7 +8,7 @@ import {
   transactions, type Transaction, type InsertTransaction,
   type Location
 } from "@shared/schema";
-import { db, pool } from "./db";
+import { db, pool, executeWithRetry } from "./db";
 import { eq, and, desc, asc, inArray, sql } from "drizzle-orm";
 
 import session from 'express-session';
