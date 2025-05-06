@@ -43,9 +43,9 @@ const Video = Node.create({
 
   // TipTap v2 형식으로 addCommands 수정
   addCommands() {
-    // @ts-ignore - TipTap 타입 정의 이슈 무시
+    // 명시적인 타입 정의를 추가하여 TypeScript 오류 방지
     return {
-      insertVideo: (attributes) => ({ chain }) => {
+      insertVideo: (attributes: Record<string, any>) => ({ chain }: { chain: any }) => {
         return chain()
           .insertContent({
             type: this.name,
@@ -53,7 +53,7 @@ const Video = Node.create({
           })
           .run();
       },
-    };
+    } as any;
   },
 });
 

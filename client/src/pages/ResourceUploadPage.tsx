@@ -2158,6 +2158,7 @@ export default function ResourceUploadPage() {
                                 placeholder="사용 방법과 특징을 설명해주세요."
                                 value={field.value || ""}
                                 onChange={(html) => field.onChange(html)}
+                                hideLinkButton={true}
                                 onImageClick={(src) => {
                                   toast({
                                     title: "이미지 선택됨",
