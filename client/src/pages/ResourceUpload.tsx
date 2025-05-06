@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 import TusUploader, { FileInfo } from '@/components/TusUploader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LucideArrowLeft, LucideImage, LucideFile3d, LucideFileArchive, LucideFileVideo } from 'lucide-react';
+import { LucideArrowLeft, LucideImage, LucideFile, LucideFileArchive, LucideFileVideo } from 'lucide-react';
 
 const ResourceUpload = () => {
   const [activeTab, setActiveTab] = useState('image');
   const [uploadedFile, setUploadedFile] = useState<FileInfo | null>(null);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   
   // 파일 유형에 따른 허용 확장자 매핑
   const fileTypesMap = {
@@ -55,7 +55,7 @@ const ResourceUpload = () => {
       case 'video':
         return <LucideFileVideo className="w-5 h-5 mr-2" />;
       case 'model3d':
-        return <LucideFile3d className="w-5 h-5 mr-2" />;
+        return <LucideFile className="w-5 h-5 mr-2" />;
       case 'archive':
         return <LucideFileArchive className="w-5 h-5 mr-2" />;
       default:
@@ -68,7 +68,7 @@ const ResourceUpload = () => {
       <div className="flex items-center mb-6">
         <Button 
           variant="ghost" 
-          onClick={() => navigate('/resources')}
+          onClick={() => setLocation('/resources')}
           className="mr-2"
         >
           <LucideArrowLeft className="w-4 h-4 mr-2" />
@@ -98,7 +98,7 @@ const ResourceUpload = () => {
                 동영상
               </TabsTrigger>
               <TabsTrigger value="model3d" className="flex items-center">
-                <LucideFile3d className="w-4 h-4 mr-2" />
+                <LucideFile className="w-4 h-4 mr-2" />
                 3D 모델
               </TabsTrigger>
               <TabsTrigger value="archive" className="flex items-center">
@@ -185,7 +185,7 @@ const ResourceUpload = () => {
                     다른 파일 업로드
                   </Button>
                   
-                  <Button onClick={() => navigate('/resources')}>
+                  <Button onClick={() => setLocation('/resources')}>
                     리소스 목록으로 이동
                   </Button>
                 </div>
