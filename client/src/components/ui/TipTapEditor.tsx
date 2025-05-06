@@ -145,12 +145,13 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
           img.setAttribute(key, String(value));
         });
         
-        // 삭제 버튼 추가
+        // 삭제 버튼 추가 (편집 모드일 때만)
         if (editor.isEditable) {
           const deleteButton = document.createElement('button');
           deleteButton.classList.add('tiptap-image-delete-button');
           deleteButton.innerHTML = '×';
-          deleteButton.addEventListener('click', () => {
+          deleteButton.addEventListener('click', (e) => {
+            e.stopPropagation(); // 이벤트 버블링 방지
             if (typeof getPos === 'function') {
               const pos = getPos();
               editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
@@ -162,6 +163,20 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
         } else {
           dom.appendChild(img);
         }
+        
+        // 이미지 노드의 onImageClick 핸들러 설정
+        // 전역 스토어에서 onImageClick 핸들러 가져오기
+        img.addEventListener('click', () => {
+          const src = img.getAttribute('src');
+          if (src) {
+            const handlers = (window as any).__TIPTAP_GLOBAL_HANDLERS;
+            const imageClickHandler = handlers && handlers[editor.id]?.onImageClick;
+            
+            if (imageClickHandler && typeof imageClickHandler === 'function') {
+              imageClickHandler(src);
+            }
+          }
+        });
         
         return {
           dom,
@@ -193,15 +208,6 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     editable,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
-    },
-    onSelectionUpdate: ({ editor }) => {
-      if (onImageClick) {
-        const selectedNode = editor.state.selection.$anchor.parent;
-        if (selectedNode.type.name === 'image') {
-          const attrs = selectedNode.attrs;
-          onImageClick(attrs.src);
-        }
-      }
     },
     editorProps: {
       handleClick: undefined,
@@ -273,6 +279,29 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       editor.commands.setContent(value || "");
     }
   }, [value, editor]);
+  
+  // 에디터가 초기화된 후 onImageClick 핸들러 등록
+  useEffect(() => {
+    if (editor && onImageClick) {
+      // 전역 스토어에 onImageClick 핸들러 저장
+      (window as any).__TIPTAP_GLOBAL_HANDLERS = {
+        ...(window as any).__TIPTAP_GLOBAL_HANDLERS || {},
+        [editor.id]: {
+          onImageClick
+        }
+      };
+    }
+    
+    return () => {
+      // 컴포넌트 언마운트 시 핸들러 제거
+      if (editor) {
+        const handlers = (window as any).__TIPTAP_GLOBAL_HANDLERS;
+        if (handlers && handlers[editor.id]) {
+          delete handlers[editor.id];
+        }
+      }
+    };
+  }, [editor, onImageClick]);
 
   // 이미지 파일 선택 핸들러
   const handleSelectImage = useCallback(() => {
@@ -406,18 +435,8 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       <EditorContent 
         editor={editor} 
         className={`tiptap-content ${!editable ? 'read-only' : ''}`} 
-        onClick={(e) => {
-          // 이미지 클릭 처리
-          if (onImageClick) {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'IMG') {
-              const src = target.getAttribute('src');
-              if (src) {
-                onImageClick(src);
-              }
-            }
-          }
-        }}
+        // 이미지 클릭 이벤트는 이제 이미지 노드뷰에서 처리하므로 onClick 제거
+        // onSelectionUpdate에서 이미지 노드 선택 시 onImageClick 호출됨
       />
     </div>
   );

@@ -163,30 +163,38 @@
   max-width: 100%;
 }
 
-.tiptap-content .tiptap-image-wrapper::after {
-  content: "×";
+.tiptap-content .tiptap-image-wrapper .tiptap-image-delete-button {
   position: absolute;
   top: 0.25rem;
   right: 0.25rem;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   color: #000;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.25rem;
   line-height: 1;
   font-weight: bold;
   cursor: pointer;
   z-index: 10;
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: scale(0.9);
 }
 
-.tiptap-content .tiptap-image-wrapper:hover::after {
+.tiptap-content .tiptap-image-wrapper:hover .tiptap-image-delete-button {
   opacity: 1;
+  transform: scale(1);
+}
+
+.tiptap-content .tiptap-image-wrapper .tiptap-image-delete-button:hover {
+  background-color: rgba(255, 70, 70, 0.95);
+  color: white;
 }
 
 .tiptap-image {
