@@ -224,7 +224,7 @@ export default function ResourceUploadPage() {
   // 단일 미디어 소스 관리 (MediaItem[])
   const [mediaItems, setMediaItems] = useState<{[key: string]: MediaItem[]}>({});
   
-  // 미디어 관리 함수들은 아래에서 normalizeUrl과 함께 구현됨
+  // 미디어 관리 함수들은 아래에서 normalizeUrl과 함께 구현됨 (addMediaItem, removeMediaItem)
   
   // TipTap 에디터 레퍼런스 관리
   const editorRefs = useRef<{ [fieldName: string]: React.RefObject<TipTapEditorHandle> }>({});

@@ -318,7 +318,14 @@ const ResourceDetail: React.FC = () => {
               <h2 className="text-xl font-semibold">리소스 설명</h2>
             </div>
             <div className="prose max-w-none">
-              <p className="whitespace-pre-line text-gray-700">{resource.description || '설명이 제공되지 않았습니다.'}</p>
+              {typeof resource.description === 'string' ? (
+                <div 
+                  className="prose max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: resource.description || '설명이 제공되지 않았습니다.' }}
+                />
+              ) : (
+                <p className="text-gray-700">설명이 제공되지 않았습니다.</p>
+              )}
             </div>
           </div>
 
@@ -330,7 +337,10 @@ const ResourceDetail: React.FC = () => {
             </div>
             {resource.howToUse ? (
               <div className="prose max-w-none">
-                <p className="whitespace-pre-line text-gray-700">{resource.howToUse}</p>
+                <div 
+                  className="prose max-w-none text-gray-700"
+                  dangerouslySetInnerHTML={{ __html: resource.howToUse }}
+                />
               </div>
             ) : (
               <Alert>
