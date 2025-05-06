@@ -12,7 +12,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE OR REPLACE FUNCTION normalize_ko(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 소문자 변환, 공백 정규화, 한글 정규화(NFC)
-  RETURN lower(regexp_replace(normalize(text, NFC), '\s+', ' ', 'g'));
+  RETURN lower(regexp_replace(normalize(text, 'NFC'), '\s+', ' ', 'g'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -28,7 +28,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_ja(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 일본어 문자 정규화, 소문자 변환 
-  RETURN lower(normalize(text, NFKC));
+  RETURN lower(normalize(text, 'NFKC'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -36,7 +36,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_zh(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 중국어 문자 정규화, 소문자 변환
-  RETURN lower(normalize(text, NFKC));
+  RETURN lower(normalize(text, 'NFKC'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -44,7 +44,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_es(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 스페인어 특수문자(악센트) 제거, 소문자 변환
-  RETURN lower(regexp_replace(normalize(text, NFC), '[^a-zA-Z0-9\s]', '', 'g'));
+  RETURN lower(regexp_replace(normalize(text, 'NFC'), '[^a-zA-Z0-9\s]', '', 'g'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 

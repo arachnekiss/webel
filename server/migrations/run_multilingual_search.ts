@@ -1,6 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { executeWithRetry, pool } from '../db';
+
+// Convert import.meta.url to a file path for ESM compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function runMultilingualSearchMigration() {
   console.log('Starting multilingual search migration...');
