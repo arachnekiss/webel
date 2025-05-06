@@ -85,6 +85,7 @@ export function RichMediaEditor({
       <div 
         className={`rich-editor-content ${isFocused ? 'focused' : ''}`}
         onClick={() => textareaRef.current?.focus()}
+        style={{ minHeight: '300px', height: 'auto', position: 'relative' }}
       >
         <textarea
           ref={textareaRef}
@@ -96,14 +97,24 @@ export function RichMediaEditor({
           disabled={!editable}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
+          style={{ height: '100%', minHeight: '300px' }}
         />
-        <MediaPreview 
-          content={value} 
-          className="rich-editor-preview"
-          onImageClick={handleImageClick}
-          onImageMove={handleImageMove}
-          editable={editable}
-        />
+        <div className="rich-editor-preview" style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0,
+          pointerEvents: 'none',
+          overflow: 'auto'
+        }}>
+          <MediaPreview 
+            content={value} 
+            onImageClick={handleImageClick}
+            onImageMove={handleImageMove}
+            editable={editable}
+          />
+        </div>
       </div>
     </div>
   );

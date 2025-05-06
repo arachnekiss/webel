@@ -257,6 +257,7 @@ function MediaPreview({
       className={`media-preview editor-preview ${className}`}
       data-testid="media-preview"
       data-content-length={content?.length || 0}
+      style={{ width: '100%', height: '100%', padding: '0.75rem' }}
     ></div>
   );
 };
