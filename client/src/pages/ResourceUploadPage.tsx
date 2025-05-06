@@ -127,16 +127,48 @@ function getYouTubeVideoId(url: string): string {
   
   let videoId = '';
   try {
-    // 표준 YouTube URL (youtube.com/watch?v=ID)
-    if (url.includes('youtube.com/watch?v=')) {
-      const match = url.match(/v=([^&]+)/);
-      if (match && match[1]) videoId = match[1];
-    } else if (url.includes('youtu.be/')) {
-      const match = url.match(/youtu\.be\/([^?&]+)/);
-      if (match && match[1]) videoId = match[1];
-    } else if (url.includes('youtube.com/embed/')) {
-      const match = url.match(/embed\/([^?&/]+)/);
-      if (match && match[1]) videoId = match[1];
+    // URL 객체로 변환 시도
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch (e) {
+      // 유효하지 않은 URL일 경우 빈 문자열 반환
+      return '';
+    }
+    
+    // 다양한 YouTube URL 형식 처리:
+    
+    // 1. 표준 형식: youtube.com/watch?v=ID
+    if (parsedUrl.hostname.includes('youtube.com') && parsedUrl.pathname === '/watch') {
+      videoId = parsedUrl.searchParams.get('v') || '';
+    } 
+    // 2. 단축 URL: youtu.be/ID
+    else if (parsedUrl.hostname.includes('youtu.be')) {
+      // /로 시작하는 경로에서 ID 추출
+      const path = parsedUrl.pathname;
+      if (path.length > 1) { // "/"보다 길이가 긴지 확인
+        videoId = path.substring(1); // 첫 번째 "/" 이후의 문자열
+      }
+    } 
+    // 3. 임베드 URL: youtube.com/embed/ID
+    else if (parsedUrl.hostname.includes('youtube.com') && parsedUrl.pathname.startsWith('/embed/')) {
+      videoId = parsedUrl.pathname.split('/embed/')[1] || '';
+    }
+    // 4. 공유 URL: youtube.com/shorts/ID
+    else if (parsedUrl.hostname.includes('youtube.com') && parsedUrl.pathname.startsWith('/shorts/')) {
+      videoId = parsedUrl.pathname.split('/shorts/')[1] || '';
+    }
+    
+    // 비디오 ID에서 추가 경로나 쿼리 파라미터 제거
+    if (videoId) {
+      // 첫 번째 '?' 또는 '&'나 '/' 이전까지의 문자열만 사용
+      videoId = videoId.split(/[?&/]/)[0];
+    }
+    
+    // 비디오 ID 검증 (기본적인 YouTube 비디오 ID 패턴 확인)
+    if (videoId && !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+      console.warn('비정상적인 YouTube 비디오 ID 형식:', videoId);
+      // 비정상이지만 일단 반환 (YouTube에서 처리)
     }
   } catch (error) {
     console.error('YouTube 비디오 ID 추출 중 오류:', error);

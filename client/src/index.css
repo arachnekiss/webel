@@ -39,6 +39,107 @@
   margin-top: -6px;
 }
 
+/* TipTap 에디터 YouTube 스타일 */
+.tiptap-youtube-wrapper {
+  position: relative;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.youtube-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #000;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0.375rem;
+}
+
+/* YouTube 및 비디오 삭제 버튼 */
+.tiptap-youtube-delete-button,
+.tiptap-video-delete-button {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tiptap-youtube-wrapper:hover .tiptap-youtube-delete-button,
+.tiptap-video-wrapper:hover .tiptap-video-delete-button {
+  opacity: 1;
+}
+
+/* 비디오 컨테이너 스타일 */
+.tiptap-video-wrapper {
+  position: relative;
+  margin: 1rem 0;
+  width: 100%;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tiptap-video-wrapper video {
+  width: 100%;
+  display: block;
+  border-radius: 0.375rem;
+}
+
+/* 일반 미디어 카드 (리소스 업로드 페이지) */
+.media-card {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.media-card.youtube-embed {
+  padding-bottom: 56.25%; /* 16:9 비율 */
+}
+
+.media-card.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 에디터 내에서 미디어 포커스 효과 */
+.tiptap-content:focus-within .tiptap-youtube-wrapper,
+.tiptap-content:focus-within .tiptap-video-wrapper,
+.tiptap-content:focus-within .tiptap-image-wrapper {
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
 .drop-after {
   border-bottom: 3px dashed #3b82f6 !important;
   padding-bottom: 6px;
