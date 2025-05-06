@@ -106,6 +106,25 @@ interface TipTapEditorProps {
   name?: string; // input name 속성
 }
 
+// 전역 이미지 클릭 핸들러 관리를 위한 인터페이스
+interface GlobalTipTapHandlers {
+  [editorId: string]: {
+    onImageClick?: (src: string) => void;
+  }
+}
+
+// 타입 선언이 없으므로 window에 전역 속성 추가
+declare global {
+  interface Window {
+    __TIPTAP_GLOBAL_HANDLERS: GlobalTipTapHandlers;
+  }
+}
+
+// 초기화
+if (typeof window !== 'undefined' && !window.__TIPTAP_GLOBAL_HANDLERS) {
+  window.__TIPTAP_GLOBAL_HANDLERS = {};
+}
+
 export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   value,
   onChange,
@@ -118,6 +137,9 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
 }, ref) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // 에디터 인스턴스를 식별하기 위한 고유 ID
+  const editorIdRef = useRef<string>(`tiptap-${Math.random().toString(36).substring(2, 9)}`);
 
   // 에디터 내 이미지 클릭 핸들링은 아래 EditorContent의 onClick 이벤트로 처리
   // TipTap API에서 요구하는 handleClick 함수 시그니처와 맞지 않아 제거함
@@ -164,16 +186,27 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
           dom.appendChild(img);
         }
         
-        // 이미지 노드의 onImageClick 핸들러 설정
-        // 전역 스토어에서 onImageClick 핸들러 가져오기
+        // 데이터 속성에 에디터 ID 저장
+        const editorId = dom.dataset.editorId = dom.dataset.editorId || 
+          `tiptap-${Math.random().toString(36).substring(2, 9)}`;
+          
+        // 이미지 클릭 핸들러 설정
         img.addEventListener('click', () => {
           const src = img.getAttribute('src');
           if (src) {
-            const handlers = (window as any).__TIPTAP_GLOBAL_HANDLERS;
-            const imageClickHandler = handlers && handlers[editor.id]?.onImageClick;
+            // 전역에서 해당 에디터에 설정된 이미지 클릭 핸들러 찾기
+            const handlers = window.__TIPTAP_GLOBAL_HANDLERS;
             
-            if (imageClickHandler && typeof imageClickHandler === 'function') {
-              imageClickHandler(src);
+            // 현재 포커스된 에디터의 핸들러 가져오기
+            const activeEditorId = Object.keys(handlers).find(id => {
+              return document.querySelector(`.tiptap-editor-container[data-editor-id="${id}"]`);
+            });
+            
+            if (activeEditorId && handlers[activeEditorId]?.onImageClick) {
+              handlers[activeEditorId].onImageClick(src);
+            } else if (onImageClick) {
+              // 폴백: 컴포넌트에 직접 전달된 핸들러 사용
+              onImageClick(src);
             }
           }
         });
@@ -284,9 +317,10 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   useEffect(() => {
     if (editor && onImageClick) {
       // 전역 스토어에 onImageClick 핸들러 저장
-      (window as any).__TIPTAP_GLOBAL_HANDLERS = {
-        ...(window as any).__TIPTAP_GLOBAL_HANDLERS || {},
-        [editor.id]: {
+      const editorId = editorIdRef.current;
+      window.__TIPTAP_GLOBAL_HANDLERS = {
+        ...window.__TIPTAP_GLOBAL_HANDLERS,
+        [editorId]: {
           onImageClick
         }
       };
@@ -294,11 +328,10 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     
     return () => {
       // 컴포넌트 언마운트 시 핸들러 제거
-      if (editor) {
-        const handlers = (window as any).__TIPTAP_GLOBAL_HANDLERS;
-        if (handlers && handlers[editor.id]) {
-          delete handlers[editor.id];
-        }
+      const editorId = editorIdRef.current;
+      const handlers = window.__TIPTAP_GLOBAL_HANDLERS;
+      if (handlers && handlers[editorId]) {
+        delete handlers[editorId];
       }
     };
   }, [editor, onImageClick]);
@@ -344,7 +377,10 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   }
 
   return (
-    <div className="tiptap-editor-container">
+    <div 
+      className="tiptap-editor-container" 
+      data-editor-id={editorIdRef.current}
+    >
       {editable && (
         <div className="tiptap-toolbar">
           <Button
