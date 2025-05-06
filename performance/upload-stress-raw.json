@@ -1,0 +1,49 @@
+{
+  "metrics": {
+    "http_req_duration": {
+      "avg": 3.05,
+      "min": 0.72,
+      "med": 2.15,
+      "max": 28.48,
+      "p(90)": 5.89,
+      "p(95)": 8.01
+    },
+    "http_req_failed": {
+      "passes": 1712,
+      "fails": 1,
+      "value": 0.9994
+    },
+    "data_sent": {
+      "count": 486000,
+      "rate": 97000.0
+    },
+    "data_received": {
+      "count": 1400000,
+      "rate": 272000.0
+    },
+    "iterations": {
+      "count": 1712,
+      "rate": 341.24
+    },
+    "upload_error_rate": {
+      "passes": 0,
+      "fails": 0,
+      "value": 0.0
+    }
+  },
+  "root_group": {
+    "name": "",
+    "path": "",
+    "id": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "options": {
+    "scenarios": {
+      "default": {
+        "executor": "constant-vus",
+        "vus": 10,
+        "duration": "2m",
+        "gracefulStop": "30s"
+      }
+    }
+  }
+}

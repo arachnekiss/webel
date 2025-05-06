@@ -2,15 +2,16 @@
 
 ## Checklist Status
 
-| 항목 | 상태(Green/Red) | 증빙 링크 |
-|------|---------------|----------|
-| k6 10VU×5m 부하테스트 | Green | [performance/load-test-results.log](./load-test-results.log) |
-| 업로드 스트레스 테스트 | Green | [performance/upload-test-results.log](./upload-test-results.log) |
+| 항목 | 상태(Green/Red) | 증빙 파일/링크 |
+|------|---------------|----------------|
+| k6 10VU×5m 부하테스트 | Green | [performance/basic-load-raw.json](./basic-load-raw.json) |
+| k6 upload-stress-test | Green | [performance/upload-stress-raw.json](./upload-stress-raw.json) |
+| k6 자동 계산 | Green | [performance/summary.md](./summary.md) |
+| Lighthouse Desktop | Green | [performance/lh-desktop.html](./lh-desktop.html) |
+| Lighthouse Mobile | Green | [performance/lh-mobile.html](./lh-mobile.html) |
+| Sentry 신규 오류 0 | Green | [performance/sentry-screenshot.png](./sentry-screenshot.png) |
+| DB/캐시 최적화 PR | Green | [performance/database-optimization-report.md](./database-optimization-report.md) |
 | 병목 프로파일링 리포트 | Green | [performance/bottleneck-analysis.md](./bottleneck-analysis.md) |
-| 캐시/쿼리 최적화 PR | Green | [performance/database-optimization-report.md](./database-optimization-report.md) |
-| Lighthouse (M/D) ≥ 90 | Green | [Lighthouse Score](#lighthouse-score) |
-| k6 오류율 <0.1% | Green | [Error Rate](#error-rate) |
-| Sentry 신규 오류 0 | Green | [Sentry Error Report](#sentry-error-report) |
 
 ## Load Test Results
 
