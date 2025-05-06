@@ -126,7 +126,7 @@ export async function multilingualSearch(req: Request, res: Response) {
  * @returns 테이블별 검색 조건 생성 함수
  */
 function createSearchCondition(normalizedQuery: string, lang: string) {
-  return (table: 'resources' | 'services'): SQL => {
+  return (table: 'resources' | 'services'): SQL<unknown> => {
     const searchTerms = normalizedQuery.split(' ').filter(term => term.length > 0);
     let likePattern = `%${normalizedQuery}%`;
     
@@ -143,27 +143,27 @@ function createSearchCondition(normalizedQuery: string, lang: string) {
         return or(
           sql`normalize_${lang}(${resources.title} || ' ' || ${resources.description} || ' ' || coalesce(${resources.tags}::text, '')) ILIKE ${likePattern}`,
           sql`${resources.category} ILIKE ${likePattern}`
-        );
+        ) as SQL<unknown>;
       } 
       
       // 다중 검색어면 각 단어별 검색 조건 결합
       const conditions = searchTerms.map(term => 
         sql`normalize_${lang}(${resources.title} || ' ' || ${resources.description} || ' ' || coalesce(${resources.tags}::text, '')) ILIKE ${'%' + term + '%'}`
       );
-      return and(...conditions);
+      return and(...conditions) as SQL<unknown>;
     } else {
       // 서비스 테이블 검색 조건
       if (searchTerms.length <= 1) {
         return or(
           sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${likePattern}`,
           sql`${services.serviceType} ILIKE ${likePattern}`
-        );
+        ) as SQL<unknown>;
       }
       
       const conditions = searchTerms.map(term => 
         sql`normalize_${lang}(${services.title} || ' ' || ${services.description} || ' ' || coalesce(${services.tags}::text, '') || ' ' || coalesce(${services.serviceType}, '')) ILIKE ${'%' + term + '%'}`
       );
-      return and(...conditions);
+      return and(...conditions) as SQL<unknown>;
     }
   };
 }
