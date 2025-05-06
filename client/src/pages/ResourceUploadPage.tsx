@@ -344,34 +344,60 @@ export default function ResourceUploadPage() {
   
   // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
   const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName: string) => {
-    console.log(`미디어 삭제: ${type}, ${src.substring(0, 30)}...`);
+    console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}`);
+    
+    if (!src) {
+      console.error(`미디어 삭제 실패: ${type} - 소스 URL이 없습니다.`);
+      return; // src가 없으면 처리 중단
+    }
     
     // Base64 데이터 URL과 일반 URL을 모두 처리할 수 있도록 정규화
     const normalizeUrl = (url: string): string => {
+      // null이나 undefined 처리
+      if (!url) return '';
+      
       // Base64 URL일 경우 앞부분 일치 확인
       if (url.startsWith('data:')) {
         return url.split(',')[0]; // 메타데이터 부분만 비교
       }
-      // 일반 URL일 경우 쿼리 파라미터 제거
-      return url.split('?')[0];
+      
+      try {
+        // URL 객체로 파싱하여 경로 부분만 추출 (쿼리, 해시 제거)
+        const urlObj = new URL(url);
+        return urlObj.origin + urlObj.pathname;
+      } catch (e) {
+        // URL 파싱 실패 시 원래 방식으로 폴백
+        return url.split('?')[0].split('#')[0];
+      }
     };
     
     const normalizedSrc = normalizeUrl(src);
+    console.log(`정규화된 URL: ${normalizedSrc}`);
     
     // 해당 필드의 미디어 파일 목록 업데이트
     setUploadedMediaFiles(prev => {
       const fieldFiles = prev[fieldName] || [];
+      console.log(`필드 ${fieldName}의 파일 수: ${fieldFiles.length}`);
       
       // URL을 정규화하여 비교 (동일한 파일 찾기)
       const updatedFiles = fieldFiles.filter(file => {
         if (!file.preview) return true;
+        
         const filePreviewUrl = normalizeUrl(file.preview);
         
         // URL이 일치하지 않으면 유지, 일치하면 제거
-        return filePreviewUrl !== normalizedSrc && 
-               !filePreviewUrl.includes(normalizedSrc) && 
-               !normalizedSrc.includes(filePreviewUrl);
+        const shouldKeep = filePreviewUrl !== normalizedSrc && 
+                          !filePreviewUrl.includes(normalizedSrc) && 
+                          !normalizedSrc.includes(filePreviewUrl);
+        
+        if (!shouldKeep) {
+          console.log(`미디어 파일 제거: ${file.name || '이름없음'}, 타입: ${type}`);
+        }
+        
+        return shouldKeep;
       });
+      
+      console.log(`필터링 후 파일 수: ${updatedFiles.length}`);
       
       return {
         ...prev,

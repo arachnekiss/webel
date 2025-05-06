@@ -81,22 +81,22 @@ const Video = Node.create({
             const pos = getPos();
             
             // 비디오 URL 가져오기 (onMediaDelete 콜백용)
-            // video 요소에서 src를 가져오는 대신 노드 속성에서 직접 가져옴
+            // 노드 속성에서 직접 URL 추출
             const src = node.attrs.src;
             
             // ProseMirror 트랜잭션으로 노드 삭제
-            const { tr } = editor.view.state;
+            const { state, dispatch } = editor.view;
+            const { tr } = state;
+            
+            // 노드 삭제
             tr.delete(pos, pos + node.nodeSize);
             
-            // 빈 단락 삽입하여 편집 가능하게 유지
-            const emptyParagraph = editor.schema.nodes.paragraph.create();
-            tr.insert(pos, emptyParagraph);
-            
-            // 삭제 후 커서 위치 설정
-            tr.setSelection(new TextSelection(tr.doc.resolve(pos + 1)));
+            // 불필요한 빈 단락이 생성되지 않도록 처리
+            // TextSelection.near 사용하여 가장 가까운 적절한 위치에 커서 배치
+            tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
             
             // 트랜잭션 적용
-            editor.view.dispatch(tr);
+            dispatch(tr);
             
             // 에디터 포커스
             setTimeout(() => {
@@ -105,10 +105,13 @@ const Video = Node.create({
             
             // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
             if (src) {
-              // editor.options에서 onMediaDelete 핸들러 가져오기
+              console.log('비디오 삭제:', src); // 디버깅용
+              // editor.options에서 onMediaDelete 핸들러와 fieldName 가져오기
               const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+              const fieldName = (editor.options as any)?.fieldName || '';
+              
               if (typeof mediaDeleteHandler === 'function') {
-                mediaDeleteHandler(src, 'video');
+                mediaDeleteHandler(src, 'video', fieldName);
               }
             }
           }
@@ -342,18 +345,18 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               const src = node.attrs.src;
               
               // ProseMirror 트랜잭션으로 노드 삭제
-              const { tr } = editor.view.state;
+              const { state, dispatch } = editor.view;
+              const { tr } = state;
+              
+              // 노드 삭제
               tr.delete(pos, pos + node.nodeSize);
               
-              // 빈 단락 삽입하여 편집 가능하게 유지
-              const emptyParagraph = editor.schema.nodes.paragraph.create();
-              tr.insert(pos, emptyParagraph);
-              
-              // 삭제 후 커서 위치 설정
-              tr.setSelection(new TextSelection(tr.doc.resolve(pos + 1)));
+              // 불필요한 빈 단락이 생성되지 않도록 처리
+              // TextSelection.near 사용하여 가장 가까운 적절한 위치에 커서 배치
+              tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
               
               // 트랜잭션 적용
-              editor.view.dispatch(tr);
+              dispatch(tr);
               
               // 에디터 포커스
               setTimeout(() => {
@@ -362,10 +365,13 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
               
               // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
               if (src) {
-                // editor.options에서 onMediaDelete 핸들러 가져오기
+                console.log('이미지 삭제:', src); // 디버깅용
+                // editor.options에서 onMediaDelete 핸들러와 fieldName 가져오기
                 const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+                const fieldName = (editor.options as any)?.fieldName || '';
+                
                 if (typeof mediaDeleteHandler === 'function') {
-                  mediaDeleteHandler(src, 'image');
+                  mediaDeleteHandler(src, 'image', fieldName);
                 }
               }
             }
@@ -444,9 +450,10 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     },
   });
   
-  // 에디터 인스턴스에 onMediaDelete 핸들러 추가 (타입 단언 사용)
+  // 에디터 인스턴스에 onMediaDelete 핸들러와 fieldName 추가 (타입 단언 사용)
   if (editor) {
     (editor as any).options.onMediaDelete = onMediaDelete;
+    (editor as any).options.fieldName = fieldName || '';
   }
 
   // 외부에서 에디터 기능에 접근할 수 있는 핸들 제공
