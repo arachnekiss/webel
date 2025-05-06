@@ -15,7 +15,7 @@ import { cache } from './cache';
 import { detectLanguageFromHeader, normalizeText } from './utils/normalizeText';
 
 // 지원하는 언어 목록 - 한국어, 영어, 일본어만 지원
-const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja'];
+const SUPPORTED_LANGUAGES = ['ko', 'en', 'ja']; // jp는 일본어 코드로 'ja'를 사용
 
 // 캐시 키 생성 함수
 function generateSearchCacheKey(query: string, lang: string, type?: string): string {

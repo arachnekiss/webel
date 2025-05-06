@@ -39,8 +39,11 @@ CREATE INDEX IF NOT EXISTS idx_svc_service_type ON services (service_type);
 CREATE INDEX IF NOT EXISTS idx_res_created_at ON resources (created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_svc_created_at ON services (created_at DESC);
 
+-- 먼저 기존 normalize_text 함수 삭제 후 재생성
+DROP FUNCTION IF EXISTS normalize_text(text, text);
+
 -- 다국어 정규화 함수 업데이트: zh/es 언어 제거 및 모든 언어를 위한 기본 정규화 함수 수정
-CREATE OR REPLACE FUNCTION normalize_text(text_input TEXT, lang TEXT DEFAULT 'en') RETURNS TEXT AS $$
+CREATE FUNCTION normalize_text(text_input TEXT, lang TEXT DEFAULT 'en') RETURNS TEXT AS $$
 BEGIN
   CASE lang
     WHEN 'ko' THEN
