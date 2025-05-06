@@ -518,31 +518,94 @@ export default function ResourceUploadPage() {
     // 임시 URL 생성 (실제로는 서버에 업로드하고 URL을 받아야 함)
     const fileUrl = URL.createObjectURL(file);
 
-    // 현재 폼 값 가져오기
-    const currentValue = form.getValues(currentEditor as any) || '';
-    
-    // TipTap 에디터와 호환되는 HTML 콘텐츠 생성
-    let newContent = '';
-    
-    // 미디어 타입에 따라 다른 HTML 컨텐츠 생성
-    switch (type) {
-      case 'image':
-      case 'gif':
-        // 기존 내용에 이미지 HTML 추가
-        newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" />`;
-        break;
-      case 'video':
-        // 비디오 HTML 태그 생성
-        newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div>`;
-        break;
-      case 'file':
-        // 파일 다운로드 링크 생성
-        newContent = currentValue + `<a href="${fileUrl}" download="${file.name}">${file.name} 다운로드</a>`;
-        break;
+    try {
+      // TipTap 에디터 찾기
+      const editorContainer = document.querySelector(`[data-field-name="${currentEditor}"]`);
+      if (!editorContainer) {
+        throw new Error("에디터 컨테이너를 찾을 수 없음");
+      }
+
+      // editorContainer 내부의 TipTap 인스턴스 찾기
+      const editorContent = editorContainer.querySelector('.ProseMirror');
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
+
+      // TipTap API를 사용하여 미디어 삽입
+      if (tiptapEditor) {
+        console.log("TipTap 에디터 인스턴스 찾음:", currentEditor);
+        
+        switch (type) {
+          case 'image':
+          case 'gif':
+            // 이미지 삽입 후 빈 단락 추가
+            tiptapEditor
+              .chain()
+              .focus()
+              .setImage({ src: fileUrl, alt: type === 'image' ? '이미지' : 'GIF' })
+              .insertContent('<p><br></p>')
+              .run();
+            break;
+          case 'video':
+            // 비디오 삽입 후 빈 단락 추가
+            const videoHtml = `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+            tiptapEditor
+              .chain()
+              .focus()
+              .insertContent(videoHtml)
+              .run();
+            break;
+          case 'file':
+            // 파일 링크 삽입 후 빈 단락 추가
+            const fileHtml = `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            tiptapEditor
+              .chain()
+              .focus()
+              .insertContent(fileHtml)
+              .run();
+            break;
+        }
+      } else {
+        console.warn("TipTap 에디터를 찾을 수 없어 기존 방식으로 폴백:", currentEditor);
+        // 폴백: 기존 방식으로 HTML 추가
+        const currentValue = form.getValues(currentEditor as any) || '';
+        let newContent = '';
+        
+        switch (type) {
+          case 'image':
+          case 'gif':
+            newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+            break;
+          case 'video':
+            newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+            break;
+          case 'file':
+            newContent = currentValue + `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            break;
+        }
+        
+        form.setValue(currentEditor as any, newContent, { shouldValidate: true });
+      }
+    } catch (error) {
+      console.error("TipTap 에디터 접근 중 오류:", error);
+      
+      // 오류 발생 시 폴백: 직접 HTML 문자열 조작
+      const currentValue = form.getValues(currentEditor as any) || '';
+      let newContent = '';
+      
+      switch (type) {
+        case 'image':
+        case 'gif':
+          newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+          break;
+        case 'video':
+          newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div><p><br></p>`;
+          break;
+        case 'file':
+          newContent = currentValue + `<p><a href="${fileUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+          break;
+      }
+      
+      form.setValue(currentEditor as any, newContent, { shouldValidate: true });
     }
-    
-    // 폼 값 업데이트
-    form.setValue(currentEditor as any, newContent, { shouldValidate: true });
     
     // 파일 입력 초기화
     if (e.target) e.target.value = '';
@@ -574,74 +637,176 @@ export default function ResourceUploadPage() {
       return;
     }
     
-    // YouTube URL 감지 및 처리
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-    const match = urlInput.match(youtubeRegex);
-
-    // 현재 에디터 내용 가져오기
-    const currentValue = form.getValues(currentEditor as any) || '';
-    
-    // 새 HTML 콘텐츠 준비
-    let newHtmlContent = '';
-    let mediaType = 'url';
-
-    if (match && match[1]) {
-      // YouTube 비디오 임베드
-      const videoId = match[1];
-      newHtmlContent = `<div class="youtube-embed">
-      <iframe 
-        width="100%" 
-        height="315" 
-        src="https://www.youtube.com/embed/${videoId}" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen
-      ></iframe>
-      </div>`;
-      mediaType = 'youtube';
-    } else {
-      // 이미지 URL 감지
-      const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
-      if (imageRegex.test(urlInput)) {
-        // 이미지 URL이면 HTML 태그로 추가
-        newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" />`;
-        mediaType = 'image';
+    try {
+      // TipTap 에디터 인스턴스 찾기
+      const editorContainer = document.querySelector(`[data-field-name="${currentEditor}"]`);
+      if (!editorContainer) {
+        throw new Error("에디터 컨테이너를 찾을 수 없음");
+      }
+      
+      // editorContainer 내부의 TipTap 인스턴스 찾기
+      const editorContent = editorContainer.querySelector('.ProseMirror');
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
+      
+      // YouTube URL 감지 및 처리
+      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+      const match = urlInput.match(youtubeRegex);
+      
+      if (tiptapEditor) {
+        console.log("TipTap 에디터 인스턴스 찾음 (URL 삽입):", currentEditor);
         
-        // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
-        const imageFile = new File([], "url-image.jpg") as FileWithPreview;
-        imageFile.preview = urlInput;
-        
-        setUploadedMediaFiles(prev => {
-          const fieldFiles = prev[currentEditor] || [];
-          return {
-            ...prev,
-            [currentEditor]: [...fieldFiles, imageFile]
-          };
-        });
-        
-        // 성공 토스트 표시
-        toast({
-          title: "이미지 추가 완료",
-          description: "이미지가 에디터에 삽입되었습니다.",
-        });
-      } else {
-        try {
-          // URL 정보 추출
-          const domainMatch = urlInput.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
-          const domain = domainMatch ? domainMatch[1] : urlInput;
+        if (match && match[1]) {
+          // YouTube 비디오인 경우
+          const videoId = match[1];
+          const youtubeHtml = `<div class="youtube-embed">
+            <iframe 
+              width="100%" 
+              height="315" 
+              src="https://www.youtube.com/embed/${videoId}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+            ></iframe>
+          </div><p><br></p>`;
           
+          tiptapEditor.chain().focus().insertContent(youtubeHtml).run();
+          
+        } else {
+          // 이미지 URL 감지
+          const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+          if (imageRegex.test(urlInput)) {
+            // 이미지 URL이면 이미지로 삽입
+            tiptapEditor
+              .chain()
+              .focus()
+              .setImage({ src: urlInput, alt: '이미지' })
+              .insertContent('<p><br></p>')
+              .run();
+            
+            // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
+            const imageFile = new File([], "url-image.jpg") as FileWithPreview;
+            imageFile.preview = urlInput;
+            
+            setUploadedMediaFiles(prev => {
+              const fieldFiles = prev[currentEditor] || [];
+              return {
+                ...prev,
+                [currentEditor]: [...fieldFiles, imageFile]
+              };
+            });
+          } else {
+            // 일반 URL은 링크로 추가
+            tiptapEditor
+              .chain()
+              .focus()
+              .setLink({ href: urlInput })
+              .insertContent(`<a href="${urlInput}" target="_blank" rel="noopener noreferrer">${urlInput}</a><p><br></p>`)
+              .run();
+          }
+        }
+      } else {
+        console.warn("TipTap 에디터를 찾을 수 없어 기존 방식으로 폴백 (URL):", currentEditor);
+        // 폴백: 기존 방식으로 HTML 추가
+        const currentValue = form.getValues(currentEditor as any) || '';
+        let newHtmlContent = '';
+        
+        if (match && match[1]) {
+          // YouTube 비디오 임베드
+          const videoId = match[1];
+          newHtmlContent = `<div class="youtube-embed">
+          <iframe 
+            width="100%" 
+            height="315" 
+            src="https://www.youtube.com/embed/${videoId}" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+          ></iframe>
+          </div><p><br></p>`;
+        } else {
+          // 이미지 URL 감지
+          const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+          if (imageRegex.test(urlInput)) {
+            // 이미지 URL이면 HTML 태그로 추가
+            newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" /><p><br></p>`;
+            
+            // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
+            const imageFile = new File([], "url-image.jpg") as FileWithPreview;
+            imageFile.preview = urlInput;
+            
+            setUploadedMediaFiles(prev => {
+              const fieldFiles = prev[currentEditor] || [];
+              return {
+                ...prev,
+                [currentEditor]: [...fieldFiles, imageFile]
+              };
+            });
+          } else {
+            // 일반 URL은 링크로 추가
+            newHtmlContent = `<a href="${urlInput}" target="_blank" rel="noopener noreferrer">${urlInput}</a><p><br></p>`;
+          }
+        }
+        
+        // 폼 값 업데이트
+        form.setValue(currentEditor as any, currentValue + newHtmlContent, { shouldValidate: true });
+      }
+    } catch (error) {
+      console.error("URL 삽입 중 오류:", error);
+      
+      // 오류 발생 시 폴백: 직접 HTML 삽입
+      const currentValue = form.getValues(currentEditor as any) || '';
+      let newHtmlContent = '';
+      
+      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+      const match = urlInput.match(youtubeRegex);
+      
+      if (match && match[1]) {
+        // YouTube 비디오 임베드
+        const videoId = match[1];
+        newHtmlContent = `<div class="youtube-embed">
+        <iframe 
+          width="100%" 
+          height="315" 
+          src="https://www.youtube.com/embed/${videoId}" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen
+        ></iframe>
+        </div><p><br></p>`;
+      } else {
+        // 이미지 URL 감지
+        const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
+        if (imageRegex.test(urlInput)) {
+          // 이미지 URL이면 HTML 태그로 추가
+          newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" /><p><br></p>`;
+          
+          // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
+          const imageFile = new File([], "url-image.jpg") as FileWithPreview;
+          imageFile.preview = urlInput;
+          
+          setUploadedMediaFiles(prev => {
+            const fieldFiles = prev[currentEditor] || [];
+            return {
+              ...prev,
+              [currentEditor]: [...fieldFiles, imageFile]
+            };
+          });
+        } else {
           // 일반 URL은 링크로 추가
-          newHtmlContent = `<a href="${urlInput}" target="_blank" rel="noopener noreferrer">${urlInput}</a>`;
-        } catch (e) {
-          // URL 파싱 오류 시 기본 링크 형태로 추가
-          newHtmlContent = `<a href="${urlInput}">${urlInput}</a>`;
+          newHtmlContent = `<a href="${urlInput}" target="_blank" rel="noopener noreferrer">${urlInput}</a><p><br></p>`;
         }
       }
+      
+      // 폼 값 업데이트
+      form.setValue(currentEditor as any, currentValue + newHtmlContent, { shouldValidate: true });
     }
-
-    // 폼 값 업데이트 (TipTap 에디터에 적용됨)
-    form.setValue(currentEditor as any, currentValue + newHtmlContent, { shouldValidate: true });
-
+    
+    // 토스트 표시
+    toast({
+      title: "URL 추가 완료",
+      description: "URL이 에디터에 삽입되었습니다."
+    });
+    
     setUrlInput('');
     setUrlInputActive(false);
   }, [urlInput, currentEditor, form, toast, setUploadedMediaFiles]);
@@ -1740,12 +1905,17 @@ export default function ResourceUploadPage() {
                               </div>
                             )}
                             <div className="flex flex-col relative">
-                              <AutoResizeTextarea
+                              <TipTapEditor
                                 name="howToUse"
+                                fieldName="howToUse"
                                 placeholder="설치 방법과 사용법을 설명해주세요."
                                 value={field.value || ""}
-                                onChange={async (e) => {
-                                  field.onChange(e.target.value);
+                                onChange={(html) => field.onChange(html)}
+                                onImageClick={(src) => {
+                                  toast({
+                                    title: "이미지 선택됨",
+                                    description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                  });
                                 }}
                               />
                               <AttachedMediaSummary fieldName="howToUse" />
