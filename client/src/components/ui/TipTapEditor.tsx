@@ -480,11 +480,19 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       // 직접 Video 명령 사용으로 변경
       if (src.includes('youtube.com') || src.includes('youtu.be')) {
         // YouTube 비디오인 경우 iframe 사용
-        const embedId = src.includes('youtu.be') 
-          ? src.split('/').pop() 
-          : src.includes('v=') 
-            ? new URLSearchParams(src.split('?')[1]).get('v') 
-            : null;
+        let embedId = null;
+        
+        // 글로벌 getYouTubeVideoId 함수 사용 시도 (ResourceUploadPage에서 정의)
+        if (typeof window !== 'undefined' && window.getYouTubeVideoId) {
+          embedId = window.getYouTubeVideoId(src);
+        } else {
+          // 폴백: 기존 방식
+          embedId = src.includes('youtu.be') 
+            ? src.split('/').pop() 
+            : src.includes('v=') 
+              ? new URLSearchParams(src.split('?')[1]).get('v') 
+              : null;
+        }
         
         if (embedId) {
           const youtubeHtml = `<div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${embedId}" frameborder="0" allowfullscreen></iframe></div><p><br></p>`;

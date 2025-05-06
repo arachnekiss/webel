@@ -1,0 +1,84 @@
+# ⏫ TipTap 멀티미디어 통합 – 최종 안정화 요청
+
+## 🔍 남은 핵심 문제
+1. **비디오 삭제 시 첨부 목록에 잔존**  
+   - 에디터 X 버튼으로 삭제 → `uploadedMediaFiles` 배열에서 제거되지 않음
+2. **파일 첨부가 텍스트 블록으로만 표시**  
+   - `파일` 버튼으로 PDF·ZIP 등 추가 시 에디터에 ‘파일명 링크’ 텍스트만 생김 → 다운로드 카드 또는 아이콘 노드뷰 필요
+3. **YouTube URL 삽입 불일치**  
+   - URL 버튼 → 첨부 목록에는 들어가지만 에디터에는 iframe 미표시  
+   - 반대로 에디터에서 X 삭제 시 첨부 목록에 남음
+4. **양방향 동기화 안정화**  
+   - 리스트 X → 에디터 노드 삭제 / 에디터 X → 리스트 제거가 100 % 동작해야 함  
+   - 삭제 후 불필요한 빈 `<p>` 생성 방지
+
+---
+
+## 🎯 요구 사항
+
+### A. 단일 소스(`media` state)로 동기화
+```ts
+type MediaItem = { url: string; type: 'image'|'video'|'gif'|'file'|'youtube' };
+
+const [media, setMedia] = useState<MediaItem[]>([]);
+const addMedia    = (m:MediaItem) => setMedia(prev => [...prev, m]);
+const removeMedia = (url:string)  => setMedia(prev => prev.filter(x => x.url !== url));
+TipTap 삽입/삭제, 첨부 리스트 모두 addMedia / removeMedia 호출
+
+B. 비디오·이미지 NodeView X
+삭제 시 removeMedia(src) + 트랜잭션으로 노드 제거
+
+삭제 후 tr.setSelection(TextSelection.near(...)) & 중복 빈 단락 제거
+
+C. 파일(attachment) Node 추가
+ts
+복사
+편집
+import { Node } from '@tiptap/core';
+
+const Attachment = Node.create({
+  name: 'attachment',
+  group: 'block',
+  draggable: true,
+  atom: true,
+  addAttributes() { return { src:{default:''}, name:{default:''} } },
+});
+NodeView: 📎 아이콘 + 파일명 + 다운 버튼
+
+fileButtons 클릭 → 업로드 → attachment 노드 + addMedia({url,type:'file'})
+
+D. YouTube 처리
+URL 붙여넣기 또는 입력 → getYouTubeVideoId(url) → iframe 노드 삽입 → addMedia({url, type:'youtube'})
+
+삭제 시 removeMedia(url)
+
+getYouTubeVideoId util 이미 구현 → 단축·임베드·표준 URL 모두 지원
+
+E. 리스트 X → 에디터 삭제
+ts
+복사
+편집
+const removeMediaFromEditor = (url:string) => {
+  editor.commands.command(({ tr, state }) => {
+    state.doc.descendants((node,pos) => {
+      if(node.attrs.src === url){ tr.delete(pos, pos+node.nodeSize); }
+    });
+    return true;
+  });
+}
+리스트 X 버튼 → removeMedia(url) + removeMediaFromEditor(url)
+
+F. 빈 단락 정리
+삭제 직후 인접 문단이 비어 있으면 tr.delete(...) 로 제거
+
+G. 통합 테스트 체크리스트 (완료 조건)
+ 이미지·비디오·GIF·PDF 업로드 시 에디터 + 리스트 동시 추가
+
+ 각각 X 버튼 → 양쪽 모두 삭제 & 빈 줄 없음
+
+ YouTube URL 붙여넣기 → iframe 노드 + 리스트 항목 생성
+삭제 시 양측 동기화
+
+ 파일(Node attachment) 카드 렌더 & 다운로드 작동
+
+ dev / build TS, ESLint 오류 0

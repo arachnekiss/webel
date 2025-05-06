@@ -96,6 +96,15 @@ interface FileWithPreview extends File {
   progress?: number;
 }
 
+// 미디어 아이템 타입 정의 (단일 소스로 관리)
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video' | 'gif' | 'file' | 'youtube';
+  name?: string;
+  size?: number;
+  file?: File;
+}
+
 // 폼 유효성 검사 스키마 - 모든 필드를 선택 사항으로 변경하고 최소 문자수 제한 제거
 const formSchema = z.object({
   title: z.string().optional(),
@@ -158,6 +167,9 @@ export default function ResourceUploadPage() {
   const [urlInput, setUrlInput] = useState("");
   const [currentEditor, setCurrentEditor] = useState<string | null>(null);
   const [uploadedMediaFiles, setUploadedMediaFiles] = useState<{[key: string]: FileWithPreview[]}>({});
+  
+  // 단일 미디어 소스 관리 (MediaItem[])
+  const [mediaItems, setMediaItems] = useState<{[key: string]: MediaItem[]}>({});
   
   // TipTap 에디터 레퍼런스 관리
   const editorRefs = useRef<{ [fieldName: string]: React.RefObject<TipTapEditorHandle> }>({});
@@ -954,15 +966,15 @@ export default function ResourceUploadPage() {
       const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
       
       // YouTube URL 감지 및 처리
-      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-      const match = urlInput.match(youtubeRegex);
+      const isYouTubeUrl = urlInput.includes('youtube.com') || urlInput.includes('youtu.be');
+      const videoId = isYouTubeUrl ? getYouTubeVideoId(urlInput) : '';
       
       if (tiptapEditor) {
         console.log("TipTap 에디터 인스턴스 찾음 (URL 삽입):", currentEditor);
         
-        if (match && match[1]) {
+        if (isYouTubeUrl && videoId) {
           // YouTube 비디오인 경우
-          const videoId = match[1];
+          console.log(`YouTube 비디오 ID 추출됨: ${videoId}`);
           const youtubeHtml = `<div class="youtube-embed">
             <iframe 
               width="100%" 
@@ -1028,9 +1040,13 @@ export default function ResourceUploadPage() {
         const currentValue = form.getValues(currentEditor as any) || '';
         let newHtmlContent = '';
         
-        if (match && match[1]) {
+        // YouTube URL 감지
+        const isYouTubeUrl = urlInput.includes('youtube.com') || urlInput.includes('youtu.be');
+        const videoId = isYouTubeUrl ? getYouTubeVideoId(urlInput) : '';
+        
+        if (isYouTubeUrl && videoId) {
           // YouTube 비디오 임베드
-          const videoId = match[1];
+          console.log(`폴백: YouTube 비디오 ID 추출됨: ${videoId}`);
           newHtmlContent = `<div class="youtube-embed">
           <iframe 
             width="100%" 
@@ -1088,12 +1104,13 @@ export default function ResourceUploadPage() {
       const currentValue = form.getValues(currentEditor as any) || '';
       let newHtmlContent = '';
       
-      const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-      const match = urlInput.match(youtubeRegex);
+      // YouTube URL 감지 및 처리 - 글로벌 함수 사용
+      const isYouTubeUrl = urlInput.includes('youtube.com') || urlInput.includes('youtu.be');
+      const videoId = isYouTubeUrl ? getYouTubeVideoId(urlInput) : '';
       
-      if (match && match[1]) {
+      if (isYouTubeUrl && videoId) {
         // YouTube 비디오 임베드
-        const videoId = match[1];
+        console.log(`폴백: YouTube 비디오 ID 추출됨: ${videoId}`);
         newHtmlContent = `<div class="youtube-embed">
         <iframe 
           width="100%" 
@@ -1296,16 +1313,16 @@ export default function ResourceUploadPage() {
             return `<img src="${match}" alt="이미지" class="editor-img" draggable="true" />`;
           }
           
-          // YouTube URL인지 확인
-          const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-          const youtubeMatch = match.match(youtubeRegex);
+          // YouTube URL인지 확인 - 글로벌 함수 사용
+          const isYouTubeUrl = match.includes('youtube.com') || match.includes('youtu.be');
+          const videoId = isYouTubeUrl ? getYouTubeVideoId(match) : '';
           
-          if (youtubeMatch && youtubeMatch[1]) {
+          if (isYouTubeUrl && videoId) {
             return `<div class="media-card youtube-embed">
               <iframe 
                 width="100%" 
                 height="200"
-                src="https://www.youtube.com/embed/${youtubeMatch[1]}" 
+                src="https://www.youtube.com/embed/${videoId}" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen
