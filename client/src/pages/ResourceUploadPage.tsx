@@ -1151,6 +1151,8 @@ export default function ResourceUploadPage() {
       description: "서버에 파일을 업로드하는 중입니다.",
     });
     
+    let uploadedUrl = "";
+    
     try {
       // 서버에 파일 업로드 - 파일 타입에 따라 적절한 API 엔드포인트 사용
       const formData = new FormData();
@@ -1179,64 +1181,79 @@ export default function ResourceUploadPage() {
       
       // 서버 응답에서 파일 URL 추출
       const data = await response.json();
-      const uploadedUrl = data.path || data.imageUrl || data.fileUrl;
+      uploadedUrl = data.path || data.imageUrl || data.fileUrl;
       
       if (!uploadedUrl) {
         throw new Error('서버에서 업로드된 파일 URL을 반환하지 않았습니다.');
       }
       
       console.log("서버 업로드 완료, 영구 URL:", uploadedUrl);
-      
-      // 단일 소스 미디어 상태 관리: 미디어 아이템 추가 (이제 영구 URL 사용)
-      addMediaItem(currentEditor, {
-        url: uploadedUrl, // blob URL 대신 서버 URL 사용
-        type: type as 'image' | 'video' | 'gif' | 'file',
-        name: file.name,
-        size: file.size,
-        file: file
+    } catch (error) {
+      console.error("파일 업로드 중 오류:", error);
+      toast({
+        title: "업로드 실패",
+        description: "파일 업로드 중 오류가 발생했습니다.",
+        variant: "destructive"
       });
+      
+      // 파일 입력 초기화하고 함수 종료
+      if (e.target) e.target.value = '';
+      return;
+    }
+    
+    // 여기까지 오면 uploadedUrl이 존재함
+    
+    // 단일 소스 미디어 상태 관리: 미디어 아이템 추가 (이제 영구 URL 사용)
+    addMediaItem(currentEditor, {
+      url: uploadedUrl, // 서버 URL 사용
+      type: type,
+      name: file.name,
+      size: file.size,
+      file: file
+    });
 
-      try {
-        // TipTap 에디터 찾기
-        const editorContainer = document.querySelector(`[data-field-name="${currentEditor}"]`);
-        if (!editorContainer) {
-          throw new Error("에디터 컨테이너를 찾을 수 없음");
-        }
+    // TipTap 에디터에 삽입 시도
+    try {
+      // TipTap 에디터 찾기
+      const editorContainer = document.querySelector(`[data-field-name="${currentEditor}"]`);
+      if (!editorContainer) {
+        throw new Error("에디터 컨테이너를 찾을 수 없음");
+      }
 
-        // editorContainer 내부의 TipTap 인스턴스 찾기
-        const editorContent = editorContainer.querySelector('.ProseMirror');
-        // Try to access editor from various possible locations
-        const tiptapEditor = (editorContent as any)?.__vue__?.$parent?._tiptapEditor || 
-                           (editorContent as any)?._tiptapEditor;
+      // editorContainer 내부의 TipTap 인스턴스 찾기
+      const editorContent = editorContainer.querySelector('.ProseMirror');
+      // Try to access editor from various possible locations
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?._tiptapEditor || 
+                         (editorContent as any)?._tiptapEditor;
 
-        // TipTap API를 사용하여 미디어 삽입
-        if (tiptapEditor) {
-          console.log("TipTap 에디터 인스턴스 찾음:", currentEditor);
-          
-          switch (type) {
-            case 'image':
-            case 'gif':
-              // 이미지 삽입 후 빈 단락 추가 (영구 URL 사용)
-              tiptapEditor
-                .chain()
-                .focus()
-                .setImage({ src: uploadedUrl, alt: type === 'image' ? '이미지' : 'GIF' })
-                .insertContent('<p><br></p>')
-                .run();
-              break;
-            case 'video':
-              // 비디오 삽입 후 빈 단락 추가 (영구 URL 사용)
-              const videoHtml = `<div><video controls width="100%" preload="metadata"><source src="${uploadedUrl}" type="${file.type}"></video></div><p><br></p>`;
-              tiptapEditor
-                .chain()
-                .focus()
-                .insertContent(videoHtml)
-                .run();
-              break;
-            case 'file':
-              // 파일 링크 삽입 후 빈 단락 추가 (영구 URL 사용)
-              const fileHtml = `<p><a href="${uploadedUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
-              tiptapEditor
+      // TipTap API를 사용하여 미디어 삽입
+      if (tiptapEditor) {
+        console.log("TipTap 에디터 인스턴스 찾음:", currentEditor);
+        
+        switch (type) {
+          case 'image':
+          case 'gif':
+            // 이미지 삽입 후 빈 단락 추가 (영구 URL 사용)
+            tiptapEditor
+              .chain()
+              .focus()
+              .setImage({ src: uploadedUrl, alt: type === 'image' ? '이미지' : 'GIF' })
+              .insertContent('<p><br></p>')
+              .run();
+            break;
+          case 'video':
+            // 비디오 삽입 후 빈 단락 추가 (영구 URL 사용)
+            const videoHtml = `<div><video controls width="100%" preload="metadata"><source src="${uploadedUrl}" type="${file.type}"></video></div><p><br></p>`;
+            tiptapEditor
+              .chain()
+              .focus()
+              .insertContent(videoHtml)
+              .run();
+            break;
+          case 'file':
+            // 파일 링크 삽입 후 빈 단락 추가 (영구 URL 사용)
+            const fileHtml = `<p><a href="${uploadedUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            tiptapEditor
               .chain()
               .focus()
               .insertContent(fileHtml)
@@ -1244,7 +1261,9 @@ export default function ResourceUploadPage() {
             break;
         }
       } else {
+        // TipTap 에디터를 찾을 수 없는 경우 폴백 방식 사용
         console.warn("TipTap 에디터를 찾을 수 없어 기존 방식으로 폴백:", currentEditor);
+        
         // 폴백: 기존 방식으로 HTML 추가
         const currentValue = form.getValues(currentEditor as any) || '';
         let newContent = '';
@@ -1252,55 +1271,69 @@ export default function ResourceUploadPage() {
         switch (type) {
           case 'image':
           case 'gif':
-            newContent = currentValue + `<img src="${blobUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+            newContent = currentValue + `<img src="${uploadedUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
             break;
           case 'video':
-            newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${blobUrl}" type="${file.type}"></video></div><p><br></p>`;
+            newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${uploadedUrl}" type="${file.type}"></video></div><p><br></p>`;
             break;
           case 'file':
-            newContent = currentValue + `<p><a href="${blobUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            newContent = currentValue + `<p><a href="${uploadedUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
             break;
         }
         
         form.setValue(currentEditor as any, newContent, { shouldValidate: true });
       }
     } catch (error) {
-      console.error("TipTap 에디터 접근 중 오류:", error);
+      console.error("에디터에 미디어 삽입 중 오류:", error);
       
       // 오류 발생 시 폴백: 직접 HTML 문자열 조작
-      const currentValue = form.getValues(currentEditor as any) || '';
-      let newContent = '';
-      
-      switch (type) {
-        case 'image':
-        case 'gif':
-          newContent = currentValue + `<img src="${blobUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
-          break;
-        case 'video':
-          newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${blobUrl}" type="${file.type}"></video></div><p><br></p>`;
-          break;
-        case 'file':
-          newContent = currentValue + `<p><a href="${blobUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
-          break;
+      try {
+        const currentValue = form.getValues(currentEditor as any) || '';
+        let newContent = '';
+        
+        switch (type) {
+          case 'image':
+          case 'gif':
+            newContent = currentValue + `<img src="${uploadedUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" /><p><br></p>`;
+            break;
+          case 'video':
+            newContent = currentValue + `<div><video controls width="100%" preload="metadata"><source src="${uploadedUrl}" type="${file.type}"></video></div><p><br></p>`;
+            break;
+          case 'file':
+            newContent = currentValue + `<p><a href="${uploadedUrl}" download="${file.name}" class="tiptap-file-link">${file.name} 다운로드</a></p><p><br></p>`;
+            break;
+        }
+        
+        form.setValue(currentEditor as any, newContent, { shouldValidate: true });
+      } catch (formError) {
+        console.error("폼 값 설정 중 오류:", formError);
+        toast({
+          title: "미디어 삽입 실패",
+          description: "에디터에 미디어를 삽입하는 데 오류가 발생했습니다.",
+          variant: "destructive"
+        });
       }
-      
-      form.setValue(currentEditor as any, newContent, { shouldValidate: true });
     }
     
     // 파일 입력 초기화
     if (e.target) e.target.value = '';
     
     // 업로드된 미디어 파일 추적
-    const fileWithPreview = file as FileWithPreview;
-    fileWithPreview.preview = blobUrl;
-    
-    setUploadedMediaFiles(prev => {
-      const fieldFiles = prev[currentEditor] || [];
-      return {
-        ...prev,
-        [currentEditor]: [...fieldFiles, fileWithPreview]
-      };
-    });
+    try {
+      const fileWithPreview = file as FileWithPreview;
+      // 업로드된 영구 URL을 미리보기로 사용
+      fileWithPreview.preview = uploadedUrl;
+      
+      setUploadedMediaFiles(prev => {
+        const fieldFiles = prev[currentEditor] || [];
+        return {
+          ...prev,
+          [currentEditor]: [...fieldFiles, fileWithPreview]
+        };
+      });
+    } catch (error) {
+      console.error("미디어 파일 추적 중 오류:", error);
+    }
     
     // 성공 토스트 표시
     toast({
