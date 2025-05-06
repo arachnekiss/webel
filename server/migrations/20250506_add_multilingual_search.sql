@@ -72,8 +72,8 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE INDEX IF NOT EXISTS idx_resources_title ON resources USING gin (title gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_resources_description ON resources USING gin (description gin_trgm_ops);
 
--- 언어별 특화 인덱스는 아래 간단한 인덱스로 대체
-CREATE INDEX IF NOT EXISTS idx_resources_tags ON resources USING gin ((tags::text) gin_trgm_ops);
+-- 태그와 카테고리 인덱스 추가
+CREATE INDEX IF NOT EXISTS idx_resources_category ON resources USING gin (category gin_trgm_ops);
 
 -- 서비스 테이블에도 동일하게 검색 인덱스 추가
 -- 기본 트리그램 인덱스
@@ -81,31 +81,8 @@ CREATE INDEX IF NOT EXISTS idx_services_title ON services USING gin (title gin_t
 CREATE INDEX IF NOT EXISTS idx_services_description ON services USING gin (description gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS idx_services_type ON services USING gin (service_type gin_trgm_ops);
 
--- 언어별 특화 인덱스
--- 한국어(ko) 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_ko ON services USING gin (
-  normalize_ko(title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
-
--- 영어(en) 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_en ON services USING gin (
-  normalize_en(title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
-
--- 일본어(ja) 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_ja ON services USING gin (
-  normalize_ja(title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
-
--- 중국어(zh) 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_zh ON services USING gin (
-  normalize_zh(title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
-
--- 스페인어(es) 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_es ON services USING gin (
-  normalize_es(title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
+-- 서비스 특화 인덱스 - location은 JSONB 타입이므로 GIN 인덱스 적용 (jsonb_path_ops)
+CREATE INDEX IF NOT EXISTS idx_services_location ON services USING gin (location jsonb_path_ops);
 
 -- VACUUM ANALYZE를 실행하여 새 인덱스에 대한 통계 정보 갱신
 VACUUM ANALYZE resources;
