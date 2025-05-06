@@ -9,7 +9,8 @@ import {
   GanttChart,
   Wrench,
   FileCode,
-  Database
+  Database,
+  CreditCard
 } from 'lucide-react';
 import { useDeviceDetect } from '@/lib/useDeviceDetect';
 import { useAuth } from '@/hooks/use-auth';
@@ -148,6 +149,33 @@ const Sidebar: React.FC = () => {
           </>
         )}
       </nav>
+      
+      {/* Development & Test Section */}
+      <div className="mt-4 mb-3 px-8">
+        <div className="h-px bg-slate-200"></div>
+        <h3 className="text-sm font-semibold text-slate-800 mt-3">
+          {language === 'ko' ? '개발 및 테스트' : 
+           language === 'jp' ? '開発とテスト' : 
+           'Development & Testing'}
+        </h3>
+      </div>
+      
+      <TopLink href="/payment-demo" showLoadingIndicator={true}>
+        <div className={`flex items-center px-4 py-3 my-1 rounded-lg text-base mx-4 ${
+          location === '/payment-demo' 
+            ? 'bg-primary/5 text-primary font-medium' 
+            : 'text-slate-600 hover:bg-slate-100 hover:text-primary'
+        } cursor-pointer transition-all`}>
+          <div className={`mr-3 transition-transform duration-300 ${location === '/payment-demo' ? 'text-primary scale-110' : 'text-slate-500'}`}>
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <span>
+            {language === 'ko' ? '결제 데모' : 
+             language === 'jp' ? '決済デモ' : 
+             'Payment Demo'}
+          </span>
+        </div>
+      </TopLink>
       
       <div className="px-6 mt-2 space-y-4">
         <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100">
