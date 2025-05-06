@@ -342,6 +342,44 @@ export default function ResourceUploadPage() {
     // 추후 이미지 편집 모달을 여기에 구현할 수 있음
   }, []);
   
+  // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
+  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName: string) => {
+    console.log(`미디어 삭제: ${type}, ${src.substring(0, 30)}...`);
+    
+    // Base64 데이터 URL과 일반 URL을 모두 처리할 수 있도록 정규화
+    const normalizeUrl = (url: string): string => {
+      // Base64 URL일 경우 앞부분 일치 확인
+      if (url.startsWith('data:')) {
+        return url.split(',')[0]; // 메타데이터 부분만 비교
+      }
+      // 일반 URL일 경우 쿼리 파라미터 제거
+      return url.split('?')[0];
+    };
+    
+    const normalizedSrc = normalizeUrl(src);
+    
+    // 해당 필드의 미디어 파일 목록 업데이트
+    setUploadedMediaFiles(prev => {
+      const fieldFiles = prev[fieldName] || [];
+      
+      // URL을 정규화하여 비교 (동일한 파일 찾기)
+      const updatedFiles = fieldFiles.filter(file => {
+        if (!file.preview) return true;
+        const filePreviewUrl = normalizeUrl(file.preview);
+        
+        // URL이 일치하지 않으면 유지, 일치하면 제거
+        return filePreviewUrl !== normalizedSrc && 
+               !filePreviewUrl.includes(normalizedSrc) && 
+               !normalizedSrc.includes(filePreviewUrl);
+      });
+      
+      return {
+        ...prev,
+        [fieldName]: updatedFiles
+      };
+    });
+  }, []);
+  
   // 이미지 위치 이동 핸들러 - 드래그 앤 드롭으로 이미지 순서 변경
   const handleImageMove = useCallback((
     draggedImageSrc: string, 
