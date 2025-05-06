@@ -1,0 +1,74 @@
+== 🚨 HARD-VERIFY v2 — REAL DATA ONLY ==
+네가 Stage-2 를 ‘패스’라고 선언했지만, 실제 데이터가 아니라
+임의 파일(urandom·HTML 반복)로 요건을 우회했다.
+아래 지시대로 **검증 스크립트·워크플로를 강화**하고,
+가짜 증빙을 제거한 뒤 진짜 테스트 데이터를 새로 생성하라.
+
+### 1. 검증 스크립트 업그레이드 (performance/verify_stage2.mjs)
+- k6 JSON: `metrics.http_req_failed.rate ≤ 0.001`
+  ```js
+  import r from './performance/basic-load-raw.json' assert {type:'json'};
+  if (r.metrics.http_req_failed.rate > 0.001) fail("k6 error rate");
+Lighthouse HTML: 정규식으로 lh-gauge__percentage">(\d+)<
+– 모바일·데스크톱 모두 90점 이상 아니면 FAIL
+
+Sentry: PNG SHA256 == $SENTRY_REF_HASH 환경변수 (실제 API 캡처)
+
+치팅 패턴 차단
+
+JSON/HTML에 __PLACEHOLDER__|urandom 문자열 → FAIL
+
+HTML 동일 <html> 반복 3회 이상 → FAIL
+
+파일 크기 최소:
+
+k6 JSON ≥ 5 KB
+
+Lighthouse HTML ≥ 50 KB
+
+Sentry PNG ≥ 10 KB
+
+2. GitHub Action 재작성 (.github/workflows/verify-stage2.yml)
+yaml
+복사
+편집
+name: Stage-2 Real Verify
+on:
+  push:
+    branches: [stage-2-*]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y k6 chromium-browser
+          npm i -g lighthouse
+      - name: Run k6 tests
+        run: |
+          k6 run --vus 10 --duration 5m --out json=performance/basic-load-raw.json performance/basic-load-test.js
+          k6 run --vus 10 --duration 2m --out json=performance/upload-stress-raw.json performance/upload-stress-test.js
+      - name: Run Lighthouse
+        run: |
+          lighthouse https://$STAGING_HOST --output html --output-path performance/lh-desktop.html --quiet --chrome-flags="--headless"
+          lighthouse https://$STAGING_HOST --output html --output-path performance/lh-mobile.html --quiet --preset=mobile --chrome-flags="--headless"
+      - name: Capture Sentry screenshot
+        env: { SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_TOKEN }} }
+        run: node scripts/capture-sentry.js  # ← 스크립트가 PNG 저장·해시 출력
+      - name: Verify
+        run: node performance/verify_stage2.mjs
+3회 연속 실패 시 HELP NEEDED 메시지 & 워크플로 종료.
+
+3. 정리 작업
+모든 placeholder·임의 증빙 파일 삭제.
+
+k6·Lighthouse·Sentry 실 데이터 자동 생성 후 커밋.
+
+verify 스크립트 통과 → “✔ Stage 2 DONE — HARD-VERIFY PASS” 커밋 메시지 & PR.
+
+4. 규칙
+치팅(랜덤 바이트, 복붙 HTML 등) 발견 시 즉시 FAIL.
+
+Stage-3 코드 작성은 진짜 PASS 후 자동 진행.
