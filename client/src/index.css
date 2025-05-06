@@ -636,14 +636,15 @@
   .rich-editor-textarea {
     position: relative;
     width: 100%;
-    min-height: 200px;
+    min-height: 300px;
     padding: 0.75rem;
-    border: none;
+    border: none !important;
     font-family: system-ui, -apple-system, sans-serif;
     line-height: 1.5;
     resize: vertical;
     background-color: transparent;
-    color: black;
+    color: rgba(0, 0, 0, 0.8);
+    caret-color: #000;
     z-index: 10;
     white-space: pre-wrap;
     word-break: break-word;
@@ -651,6 +652,8 @@
     overflow: auto;
     box-sizing: border-box;
     display: block;
+    outline: none !important;
+    box-shadow: none !important;
   }
 
   .rich-editor-preview {

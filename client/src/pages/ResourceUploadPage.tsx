@@ -787,7 +787,7 @@ export default function ResourceUploadPage() {
   );
 
   // 리치 미디어 에디터 컴포넌트
-  const RichMediaEditor = ({ 
+  const CustomMediaEditor = ({ 
     value, 
     onChange, 
     placeholder,
@@ -804,6 +804,7 @@ export default function ResourceUploadPage() {
     onImageMove?: (draggedImageSrc: string, targetImageSrc: string, direction: 'before' | 'after') => void;
     editable?: boolean;
   }) => {
+    const [inputHeight, setInputHeight] = useState<number>(300);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -862,7 +863,44 @@ export default function ResourceUploadPage() {
       return processedText;
     }, []);
     
-    // 텍스트 영역 크기 자동 조절 및 내용 설정
+    // 텍스트 영역 크기 자동 조절
+    useEffect(() => {
+      if (textareaRef.current) {
+        const adjustHeight = () => {
+          const textarea = textareaRef.current;
+          if (!textarea) return;
+          
+          // 실제 필요한 높이 계산
+          const newHeight = Math.max(textarea.scrollHeight, 300);
+          setInputHeight(newHeight);
+          
+          // 높이 설정
+          textarea.style.height = `${newHeight}px`;
+          
+          // 컨테이너 높이 설정
+          if (containerRef.current) {
+            containerRef.current.style.height = `${newHeight}px`;
+          }
+        };
+        
+        // 초기 높이 조정
+        adjustHeight();
+        
+        // 특히 긴 텍스트나 많은 콘텐츠가 있으면 setTimeout으로 조금 지연해서 한번 더 조정
+        setTimeout(adjustHeight, 0);
+        
+        // 이벤트 리스너 추가
+        textareaRef.current.addEventListener('input', adjustHeight);
+        
+        return () => {
+          if (textareaRef.current) {
+            textareaRef.current.removeEventListener('input', adjustHeight);
+          }
+        };
+      }
+    }, [value]);
+    
+    // 콘텐츠 처리 및 이벤트 설정
     useEffect(() => {
       const textarea = textareaRef.current;
       const overlay = overlayRef.current;
@@ -871,134 +909,134 @@ export default function ResourceUploadPage() {
       // 오버레이에 처리된 내용 표시
       overlay.innerHTML = processContent(value || "");
       
-      // 이미지 클릭 및 드래그 이벤트 설정
-      overlay.querySelectorAll('img').forEach(img => {
-        // 편집 가능한 경우만 이벤트 추가
-        if (editable) {
-          // 클릭 이벤트 설정
-          img.addEventListener('click', () => {
-            if (onImageClick) {
-              onImageClick(img.getAttribute('src') || "");
-            }
-          });
-          
-          // 드래그 이벤트 설정
-          img.addEventListener('dragstart', (e) => {
-            if (e.dataTransfer) {
-              // 드래그 중인 이미지 표시
-              img.classList.add('dragging-media');
-              
-              // 이미지 URL을 드래그 데이터로 전달
-              const src = img.getAttribute('src') || "";
-              e.dataTransfer.setData('text/plain', src);
-              
-              // 드래그 이미지 사용자 정의 (이미지의 작은 버전)
-              const dragImage = new Image();
-              dragImage.src = src;
-              dragImage.style.opacity = '0.7';
-              dragImage.style.width = '100px';
-              dragImage.style.height = 'auto';
-              dragImage.style.position = 'absolute';
-              dragImage.style.left = '-9999px';
-              dragImage.style.top = '-9999px';
-              
-              document.body.appendChild(dragImage);
-              e.dataTransfer.setDragImage(dragImage, 50, 30);
-              
-              // 1ms 후 드래그 이미지 제거
-              setTimeout(() => {
-                document.body.removeChild(dragImage);
-              }, 1);
-            }
-          });
-          
-          img.addEventListener('dragend', (e) => {
-            img.classList.remove('dragging-media');
-          });
-        }
-      });
+      // 이미지 클릭 및 드래그 이벤트
+      const setupImageEvents = () => {
+        overlay.querySelectorAll('img').forEach(img => {
+          // 편집 가능한 경우만 이벤트 추가
+          if (editable) {
+            // 클릭 이벤트 설정
+            img.addEventListener('click', () => {
+              if (onImageClick) {
+                onImageClick(img.getAttribute('src') || "");
+              }
+            });
+            
+            // 드래그 이벤트 설정
+            img.addEventListener('dragstart', (e) => {
+              if (e.dataTransfer) {
+                // 드래그 중인 이미지 표시
+                img.classList.add('dragging-media');
+                
+                // 이미지 URL을 드래그 데이터로 전달
+                const src = img.getAttribute('src') || "";
+                e.dataTransfer.setData('text/plain', src);
+                
+                // 드래그 이미지 사용자 정의 (이미지의 작은 버전)
+                const dragImage = new Image();
+                dragImage.src = src;
+                dragImage.style.opacity = '0.7';
+                dragImage.style.width = '100px';
+                dragImage.style.height = 'auto';
+                dragImage.style.position = 'absolute';
+                dragImage.style.left = '-9999px';
+                dragImage.style.top = '-9999px';
+                
+                document.body.appendChild(dragImage);
+                e.dataTransfer.setDragImage(dragImage, 50, 30);
+                
+                // 1ms 후 드래그 이미지 제거
+                setTimeout(() => {
+                  document.body.removeChild(dragImage);
+                }, 1);
+              }
+            });
+            
+            img.addEventListener('dragend', (e) => {
+              img.classList.remove('dragging-media');
+            });
+          }
+        });
+      };
       
-      // 이미지 드래그 앤 드롭 영역 설정 (컨테이너에 적용)
-      if (editable && onImageMove) {
-        // 드래그 오버 이벤트 (시각적 피드백)
-        overlay.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          
-          // 드롭 위치에 더 다양한 시각적 피드백을 제공할 수 있음
-          const target = e.target as HTMLElement;
-          if (target.tagName === 'IMG') {
-            const rect = target.getBoundingClientRect();
-            const middle = rect.top + rect.height / 2;
-            
-            // 마우스 위치에 따라 이미지 위/아래 표시
-            target.classList.remove('drop-before', 'drop-after');
-            if (e.clientY < middle) {
-              target.classList.add('drop-before');
-            } else {
-              target.classList.add('drop-after');
-            }
-          }
-        });
-        
-        // 드래그 리브 이벤트 (시각적 피드백 제거)
-        overlay.addEventListener('dragleave', (e) => {
-          const target = e.target as HTMLElement;
-          if (target.tagName === 'IMG') {
-            target.classList.remove('drop-before', 'drop-after');
-          }
-        });
-        
-        // 드롭 이벤트
-        overlay.addEventListener('drop', (e) => {
-          e.preventDefault();
-          
-          // 드롭된 텍스트 데이터 (이미지 URL) 가져오기
-          const draggedImageSrc = e.dataTransfer?.getData('text/plain');
-          if (!draggedImageSrc) return;
-          
-          // 드롭 대상 요소 찾기
-          const target = e.target as HTMLElement;
-          if (target.tagName === 'IMG') {
-            const targetImageSrc = target.getAttribute('src') || "";
-            
-            // 드롭 방향 계산 (이미지 위/아래)
-            const rect = target.getBoundingClientRect();
-            const middle = rect.top + rect.height / 2;
-            const direction = e.clientY < middle ? 'before' : 'after';
-            
-            // 콜백 호출
-            console.log(`이미지 이동: ${draggedImageSrc} -> ${targetImageSrc} (${direction})`);
-            onImageMove(draggedImageSrc, targetImageSrc, direction);
-            
-            // 시각적 피드백 제거
-            target.classList.remove('drop-before', 'drop-after');
-          }
-        });
-      }
-      
-      // 텍스트 영역 스크롤 이벤트 추가 (스크롤 동기화)
+      // 스크롤 동기화
       const syncScroll = () => {
         if (overlay) {
           overlay.scrollTop = textarea.scrollTop;
         }
       };
       
-      textarea.addEventListener('scroll', syncScroll);
-      
-      // 텍스트 영역 크기 자동 조절
-      const adjustHeight = () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${Math.max(textarea.scrollHeight, 200)}px`;
+      // 드롭 이벤트 설정
+      const setupDropEvents = () => {
+        if (editable && onImageMove) {
+          // 드래그 오버 이벤트 (시각적 피드백)
+          overlay.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            
+            // 드롭 위치에 시각적 피드백
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              const rect = target.getBoundingClientRect();
+              const middle = rect.top + rect.height / 2;
+              
+              // 마우스 위치에 따라 이미지 위/아래 표시
+              target.classList.remove('drop-before', 'drop-after');
+              if (e.clientY < middle) {
+                target.classList.add('drop-before');
+              } else {
+                target.classList.add('drop-after');
+              }
+            }
+          });
+          
+          // 드래그 리브 이벤트 (시각적 피드백 제거)
+          overlay.addEventListener('dragleave', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              target.classList.remove('drop-before', 'drop-after');
+            }
+          });
+          
+          // 드롭 이벤트
+          overlay.addEventListener('drop', (e) => {
+            e.preventDefault();
+            
+            // 드롭된 텍스트 데이터 (이미지 URL) 가져오기
+            const draggedImageSrc = e.dataTransfer?.getData('text/plain');
+            if (!draggedImageSrc) return;
+            
+            // 드롭 대상 요소 찾기
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              const targetImageSrc = target.getAttribute('src') || "";
+              
+              // 드롭 방향 계산 (이미지 위/아래)
+              const rect = target.getBoundingClientRect();
+              const middle = rect.top + rect.height / 2;
+              const direction = e.clientY < middle ? 'before' : 'after';
+              
+              // 콜백 호출
+              console.log(`이미지 이동: ${draggedImageSrc} -> ${targetImageSrc} (${direction})`);
+              onImageMove(draggedImageSrc, targetImageSrc, direction);
+              
+              // 시각적 피드백 제거
+              target.classList.remove('drop-before', 'drop-after');
+            }
+          });
+        }
       };
       
-      adjustHeight();
-      textarea.addEventListener('input', adjustHeight);
+      // 이벤트 설정 함수 호출
+      setupImageEvents();
+      setupDropEvents();
+      
+      // 스크롤 이벤트 리스너 추가
+      textarea.addEventListener('scroll', syncScroll);
       
       // 입력할 때마다 스크롤 동기화
       textarea.addEventListener('input', syncScroll);
       
+      // 정리 함수
       return () => {
-        textarea.removeEventListener('input', adjustHeight);
         textarea.removeEventListener('scroll', syncScroll);
         textarea.removeEventListener('input', syncScroll);
       };
@@ -1006,33 +1044,35 @@ export default function ResourceUploadPage() {
     
     return (
       <div 
-        className="rich-editor-content border rounded-md relative" 
-        ref={containerRef}
-        style={{ minHeight: '300px' }}
+        className="border rounded-md relative"
+        ref={containerRef} 
+        style={{ minHeight: '300px', height: `${inputHeight}px` }}
       >
         <textarea
           ref={textareaRef}
           name={name}
-          className="w-full min-h-[300px] h-full p-3 resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="w-full h-full p-3 resize-none border-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           style={{ 
-            display: 'block', 
-            position: 'relative', 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             zIndex: 10, 
             background: 'transparent',
-            overflow: 'auto'
+            color: 'inherit'
           }}
         />
         <div 
           ref={overlayRef} 
-          className="absolute top-0 left-0 right-0 bottom-0 p-3 media-preview"
+          className="absolute top-0 left-0 right-0 bottom-0 p-3 overflow-hidden pointer-events-none"
           data-testid={`${name}-overlay`}
           style={{ 
-            zIndex: 5, 
-            pointerEvents: 'none',
-            overflow: 'visible'
+            zIndex: 5,
+            height: '100%'
           }}
         />
       </div>
@@ -1113,9 +1153,9 @@ export default function ResourceUploadPage() {
       });
     };
     
-    // 리치 미디어 에디터로 전환
+    // 커스텀 미디어 에디터로 전환
     return (
-      <RichMediaEditor 
+      <CustomMediaEditor 
         value={value}
         onChange={onChange}
         placeholder={placeholder}
