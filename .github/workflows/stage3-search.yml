@@ -1,0 +1,73 @@
+name: "Stage 3 - Multilingual Search"
+
+on:
+  push:
+    branches: [main, develop, feature/*, release/*]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run database migrations
+        run: node scripts/run_search_performance_migration.js
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+      
+      - name: Lint check - ko, en, ja only
+        run: |
+          echo "Checking for zh/es references in code..."
+          ! grep -r --include="*.ts" --include="*.tsx" --include="*.js" "zh" ./src || exit 1
+          ! grep -r --include="*.ts" --include="*.tsx" --include="*.js" "es" ./src || exit 1
+          echo "Code is clean - no zh/es references found"
+          npm run lint
+      
+      - name: Build check
+        run: npm run build
+      
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+      
+      - name: Run search performance load tests
+        run: |
+          npm install -g k6
+          k6 run performance/multilingual-search-performance.js --vus 30 --duration 2m
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+      
+      - name: Run Lighthouse tests
+        run: |
+          npm install -g lighthouse
+          lighthouse http://localhost:5000 --output html --output-path ./lighthouse-report.html --chrome-flags="--headless --no-sandbox"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb

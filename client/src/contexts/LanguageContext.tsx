@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, ReactNode, useEffect, useCa
 import { useLocation } from 'wouter';
 import { getTranslation, TranslationKey, useTranslations } from '@/translations';
 
-// 지원하는 언어 타입
+// 지원하는 언어 타입 - 한국어(ko), 영어(en), 일본어(jp)만 지원
 export type Language = 'ko' | 'en' | 'jp';
 
 // 언어 컨텍스트 타입 정의
@@ -25,8 +25,8 @@ const defaultLanguageContext: LanguageContextType = {
   getPathInLanguage: (path: string, targetLang: Language) => path,
 };
 
-// 언어 컨텍스트 생성
-const LanguageContext = createContext<LanguageContextType>(defaultLanguageContext);
+// 언어 컨텍스트 생성 - 반드시 export 해야 함
+export const LanguageContext = createContext<LanguageContextType>(defaultLanguageContext);
 
 // 언어 컨텍스트 훅
 export const useLanguage = () => useContext(LanguageContext);

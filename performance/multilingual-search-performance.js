@@ -6,6 +6,7 @@ import { Trend } from 'k6/metrics';
 // 
 // 이 스크립트는 다국어 검색 API의 성능을 측정합니다.
 // Stage 3 요구사항에 맞게 p95 응답 시간이 50ms 이하인지 확인합니다.
+// 지원 언어: 한국어(ko), 영어(en), 일본어(ja)
 
 // 검색 응답 시간 측정을 위한 커스텀 메트릭
 const searchResponseTime = new Trend('search_response_time', true);
@@ -29,17 +30,17 @@ export const options = {
   },
 };
 
-// 테스트 데이터: 다양한 언어의 검색 쿼리
+// 테스트 데이터: 지원 언어(ko, en, ja)의 검색 쿼리
 const searchQueries = [
   { lang: 'ko', query: '엔지니어링', desc: 'Korean - Engineering' },
   { lang: 'en', query: 'engineering', desc: 'English - Engineering' },
   { lang: 'ja', query: 'エンジニアリング', desc: 'Japanese - Engineering' },
-  { lang: 'zh', query: '工程', desc: 'Chinese - Engineering' },
-  { lang: 'es', query: 'ingeniería', desc: 'Spanish - Engineering' },
   { lang: 'ko', query: '소프트웨어', desc: 'Korean - Software' },
   { lang: 'en', query: 'software', desc: 'English - Software' },
+  { lang: 'ja', query: 'ソフトウェア', desc: 'Japanese - Software' },
   { lang: 'en', query: 'open source', desc: 'English - Open Source' },
   { lang: 'ko', query: '오픈소스', desc: 'Korean - Open Source' },
+  { lang: 'ja', query: 'オープンソース', desc: 'Japanese - Open Source' },
   { lang: 'auto', query: 'hardware', desc: 'Auto - Hardware' },
 ];
 
