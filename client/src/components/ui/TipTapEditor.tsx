@@ -189,6 +189,7 @@ interface TipTapEditorProps {
   onImageUpload?: (file: File) => Promise<string>;
   fieldName?: string; // 필드 이름 (멀티미디어 추적용)
   name?: string; // input name 속성
+  hideLinkButton?: boolean; // 링크 버튼을 숨길지 여부
 }
 
 // 전역 이미지 클릭 핸들러 관리를 위한 인터페이스
@@ -219,6 +220,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   onImageUpload,
   fieldName,
   name,
+  hideLinkButton,
 }, ref) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -531,15 +533,17 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
             <AlignRight className="h-4 w-4" />
           </Button>
           
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            onClick={handleInsertLink}
-            className={`h-8 px-2 ${editor.isActive('link') ? 'bg-accent' : ''}`}
-          >
-            <Link2 className="h-4 w-4" />
-          </Button>
+          {!hideLinkButton && (
+            <Button
+              variant="ghost"
+              size="sm"
+              type="button"
+              onClick={handleInsertLink}
+              className={`h-8 px-2 ${editor.isActive('link') ? 'bg-accent' : ''}`}
+            >
+              <Link2 className="h-4 w-4" />
+            </Button>
+          )}
           
           {onImageUpload && (
             <>
