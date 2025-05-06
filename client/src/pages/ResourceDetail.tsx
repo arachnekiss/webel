@@ -367,6 +367,7 @@ const ResourceDetail: React.FC = () => {
                     <MediaPreview
                       content={resource.assemblyInstructions}
                       className="prose max-w-none text-gray-700 tiptap-content"
+                      editable={false}
                     />
                   </>
                 ) : (
