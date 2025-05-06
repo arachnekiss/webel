@@ -29,14 +29,5 @@ pool.on('error', (err) => {
 // 쿼리 로깅 및 성능 측정을 위한 미들웨어 설정
 export const db = drizzle(pool, { 
   schema,
-  logger: {
-    logQuery: process.env.NODE_ENV !== 'production' 
-      ? (query, params) => {
-          console.log('Query:', query);
-          if (params && params.length > 0) {
-            console.log('Params:', params);
-          }
-        }
-      : undefined
-  }
+  logger: process.env.NODE_ENV !== 'production'
 });

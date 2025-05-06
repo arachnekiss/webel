@@ -122,6 +122,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/verification/bank-account', isAuthenticated, registerBankAccount);
   app.get('/api/verification/status', isAuthenticated, getVerificationStatus);
   
+  // PayPal 결제 관련 라우트
+  app.get("/paypal/setup", async (req, res) => {
+    await loadPaypalDefault(req, res);
+  });
+  
+  app.post("/paypal/order", async (req, res) => {
+    await createPaypalOrder(req, res);
+  });
+  
+  app.post("/paypal/order/:orderID/capture", async (req, res) => {
+    await capturePaypalOrder(req, res);
+  });
+  
   // 특정 사용자 삭제 엔드포인트 (개발 환경에서만 사용 가능)
   app.delete('/api/dev/users/:username', deleteUserByUsername);
   // User routes

@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { LucideArrowLeft, LucideImage, LucideFile, LucideFileArchive, LucideFileVideo } from 'lucide-react';
+import { LucideArrowLeft, LucideImage, LucideFile, LucideFileArchive, LucideFileVideo, LucideUpload } from 'lucide-react';
 
 const ResourceUpload = () => {
   const [activeTab, setActiveTab] = useState('image');
@@ -81,7 +81,7 @@ const ResourceUpload = () => {
             onClick={() => setLocation('/resources/upload-test')}
             className="flex items-center gap-2"
           >
-            <LucideFileUp className="w-4 h-4" />
+            <LucideUpload className="w-4 h-4" />
             다국어 파일 테스트
           </Button>
         </div>
