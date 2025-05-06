@@ -858,11 +858,22 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   useImperativeHandle(ref, () => ({
     // 이미지 삽입
     insertImage: (src: string, alt: string = "이미지") => {
+      // blob URL 체크 및 처리
+      if (src.startsWith('blob:')) {
+        console.warn('blob: URL이 감지되었습니다. 이미지가 영구적으로 저장되지 않을 수 있습니다.');
+        // 여기서 추가 처리 가능 (예: 사용자에게 경고 표시)
+      }
       editor?.chain().focus().setImage({ src, alt }).insertContent('<p><br></p>').run();
     },
     
     // 비디오 삽입
     insertVideo: (src: string) => {
+      // blob URL 체크 및 처리
+      if (src.startsWith('blob:')) {
+        console.warn('blob: URL이 감지되었습니다. 비디오가 영구적으로 저장되지 않을 수 있습니다.');
+        // 여기서 추가 처리 가능 (예: 사용자에게 경고 표시)
+      }
+      
       // YouTube 비디오 여부 확인
       if (src.includes('youtube.com') || src.includes('youtu.be')) {
         // YouTube 비디오 ID 추출

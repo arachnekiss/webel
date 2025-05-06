@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { SimpleMediaPreview } from './SimpleMediaPreview';
-import { placeholderImageBase64 } from './ImagePlaceholder';
+import React, { useEffect, useRef } from 'react';
+import { MediaPreview } from './MediaPreview';
 
 interface ContentMediaPreviewProps {
   content: string;
@@ -9,145 +8,97 @@ interface ContentMediaPreviewProps {
 }
 
 /**
- * This component extracts media elements from HTML content and renders them
- * as plain, non-editable media without the editor functionality
+ * TipTap 에디터의 HTML 내용을 안전하게 보여주는 미디어 콘텐츠 프리뷰 컴포넌트
+ * - 미디어 요소(이미지, 비디오)에 대해 읽기 전용 설정
+ * - blob URL 대신 실제 업로드된 URL 사용
  */
-export function ContentMediaPreview({ content, className = "", readOnly = true }: ContentMediaPreviewProps) {
-  const [mediaItems, setMediaItems] = useState<Array<{ src: string; alt?: string; type: 'image' | 'video' | 'file' | 'youtube' }>>([]);
+const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({ 
+  content, 
+  className = "", 
+  readOnly = true 
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // 콘텐츠가 마운트된 후 미디어 요소 처리
   useEffect(() => {
-    if (!content) {
-      setMediaItems([]);
-      return;
-    }
-
-    // Create a parser to extract media elements from the HTML content
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
+    if (!containerRef.current) return;
     
-    // Extract all media elements
-    const extractedItems: Array<{ src: string; alt?: string; type: 'image' | 'video' | 'file' | 'youtube' }> = [];
+    const container = containerRef.current;
     
-    // Extract images
-    const images = doc.querySelectorAll('img');
+    // 이미지 요소 찾기 및 처리
+    const images = container.querySelectorAll('img');
     images.forEach(img => {
-      const src = img.getAttribute('src');
-      
-      // Skip blob URLs since they won't work in detail view
-      if (src && !src.startsWith('blob:')) {
-        extractedItems.push({
-          src,
-          alt: img.getAttribute('alt') || undefined,
-          type: 'image'
-        });
-      } else if (src && src.startsWith('blob:')) {
-        // For blob URLs, we'll replace with the placeholder
-        extractedItems.push({
-          src: placeholderImageBase64,
-          alt: img.getAttribute('alt') || '이미지',
-          type: 'image'
-        });
-        console.log('Replaced blob URL with placeholder', src);
-      }
-    });
-    
-    // Extract videos
-    const videos = doc.querySelectorAll('video');
-    videos.forEach(video => {
-      const src = video.getAttribute('src') || video.querySelector('source')?.getAttribute('src');
+      // blob URL 감지 및 처리
+      const src = img.getAttribute('src') || '';
       if (src) {
-        extractedItems.push({
-          src,
-          alt: video.getAttribute('title') || undefined,
-          type: 'video'
-        });
+        const imgWrapper = document.createElement('div');
+        imgWrapper.className = 'media-preview-wrapper';
+        
+        // 원본 이미지 대체
+        img.replaceWith(imgWrapper);
+        
+        // React로 MediaPreview 컴포넌트를 직접 렌더링할 수 없으므로
+        // DOM 조작으로 필요한 속성을 설정
+        const imgElement = document.createElement('img');
+        imgElement.src = src;
+        imgElement.alt = img.alt || '';
+        imgElement.className = 'reader-img';
+        imgElement.style.width = '100%';
+        imgElement.style.height = 'auto';
+        imgElement.style.cursor = 'default';
+        imgElement.style.pointerEvents = 'none';
+        imgElement.draggable = false;
+        
+        // 이미지 로드 실패 시 플레이스홀더 표시
+        imgElement.onerror = function() {
+          this.onerror = null;
+          this.src = '/static/placeholder.png';
+        };
+        
+        imgWrapper.appendChild(imgElement);
       }
     });
     
-    // Extract file links
-    const fileLinks = doc.querySelectorAll('a.tiptap-file-link');
-    fileLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (href) {
-        extractedItems.push({
-          src: href,
-          alt: link.textContent || undefined,
-          type: 'file'
-        });
+    // 비디오 요소 찾기 및 처리
+    const videos = container.querySelectorAll('video');
+    videos.forEach(video => {
+      const src = video.getAttribute('src') || '';
+      if (src) {
+        const videoWrapper = document.createElement('div');
+        videoWrapper.className = 'media-preview-wrapper';
+        
+        // 원본 비디오 대체
+        video.replaceWith(videoWrapper);
+        
+        // 새 비디오 요소 생성
+        const videoElement = document.createElement('video');
+        videoElement.src = src;
+        videoElement.controls = true;
+        videoElement.preload = 'metadata';
+        videoElement.className = 'reader-video';
+        videoElement.style.width = '100%';
+        videoElement.style.pointerEvents = 'none';
+        videoElement.draggable = false;
+        
+        videoWrapper.appendChild(videoElement);
       }
     });
     
-    // Extract YouTube iframes
-    const iframes = doc.querySelectorAll('iframe');
-    iframes.forEach(iframe => {
-      const src = iframe.getAttribute('src');
-      if (src && (src.includes('youtube.com') || src.includes('youtu.be'))) {
-        extractedItems.push({
-          src,
-          alt: iframe.getAttribute('title') || undefined,
-          type: 'youtube'
-        });
-      }
-    });
-    
-    setMediaItems(extractedItems);
   }, [content]);
-
-  if (!content || mediaItems.length === 0) {
-    return null;
-  }
-
-  // Process the content to prevent it from being editable
-  const processContentForDisplay = (htmlContent: string): string => {
-    // Remove blob URLs from images (they'll be shown separately above)
-    const processedContent = htmlContent
-      // Replace all blob: URLs in img tags with placeholder
-      .replace(/<img[^>]*src="blob:[^"]*"[^>]*>/g, '')
-      // Remove any contenteditable attributes
-      .replace(/contenteditable="[^"]*"/g, '')
-      // Remove tiptap-specific classes that might enable editing
-      .replace(/class="[^"]*tiptap-image[^"]*"/g, 'class="read-only-image"')
-      .replace(/class="[^"]*tiptap-content[^"]*"/g, 'class="read-only-content"');
-    
-    return processedContent;
-  };
 
   return (
     <div 
+      ref={containerRef}
       className={className}
+      dangerouslySetInnerHTML={{ __html: content }}
       contentEditable={false}
-      suppressContentEditableWarning={true}
       style={{
-        userSelect: 'text',
         cursor: 'default',
-        pointerEvents: 'auto'
+        WebkitUserSelect: readOnly ? 'text' : 'auto',
+        userSelect: readOnly ? 'text' : 'auto',
       }}
-    >
-      {/* Display non-blob media items at the top */}
-      {mediaItems.length > 0 && (
-        <div className="mb-6">
-          {mediaItems.map((item, index) => (
-            <div key={index} className="mb-4">
-              <SimpleMediaPreview {...item} />
-            </div>
-          ))}
-        </div>
-      )}
-      
-      {/* Display the content in a read-only way */}
-      <div 
-        dangerouslySetInnerHTML={{ __html: processContentForDisplay(content) }}
-        contentEditable={false}
-        suppressContentEditableWarning={true}
-        style={{
-          userSelect: 'text',
-          cursor: 'default',
-          pointerEvents: readOnly ? 'none' : 'auto'
-        }}
-        className="read-only-content"
-      />
-    </div>
+    />
   );
-}
+};
 
 export default ContentMediaPreview;

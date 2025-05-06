@@ -224,6 +224,20 @@
   box-shadow: 0 0 0 2px #3b82f6;
 }
 
+/* 읽기 전용 미디어 스타일 */
+.reader-img, .reader-video {
+  pointer-events: none !important;
+  user-drag: none !important;
+  -webkit-user-drag: none !important;
+  max-width: 100% !important;
+  border-radius: 0.375rem;
+  margin: 1rem 0;
+}
+
+.media-preview-wrapper {
+  margin: 1rem 0;
+}
+
 /* TipTap 에디터 스타일 */
 .tiptap-editor-container {
   margin-bottom: 1.5rem;
