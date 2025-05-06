@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import MediaPreview from "@/components/ui/MediaPreview";
 import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
-import TipTapEditor from "@/components/ui/TipTapEditor";
+import { TipTapEditor, TipTapEditorHandle } from "@/components/ui/TipTapEditor";
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
@@ -121,6 +121,9 @@ export default function ResourceUploadPage() {
   const [urlInput, setUrlInput] = useState("");
   const [currentEditor, setCurrentEditor] = useState<string | null>(null);
   const [uploadedMediaFiles, setUploadedMediaFiles] = useState<{[key: string]: FileWithPreview[]}>({});
+  
+  // TipTap 에디터 레퍼런스 관리
+  const editorRefs = useRef<{ [fieldName: string]: React.RefObject<TipTapEditorHandle> }>({});
 
   // 미디어 파일 입력 참조
   const mediaImageInputRef = useRef<HTMLInputElement>(null);

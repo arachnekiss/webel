@@ -41,15 +41,8 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageClick = (event: MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'IMG' && onImageClick) {
-      const src = target.getAttribute('src');
-      if (src) {
-        onImageClick(src);
-      }
-    }
-  };
+  // 에디터 내 이미지 클릭 핸들링은 아래 EditorContent의 onClick 이벤트로 처리
+  // TipTap API에서 요구하는 handleClick 함수 시그니처와 맞지 않아 제거함
 
   const editor = useEditor({
     extensions: [
@@ -82,7 +75,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       }
     },
     editorProps: {
-      handleClick: onImageClick ? handleImageClick : undefined,
+      handleClick: undefined,
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl max-w-none',
         'data-placeholder': placeholder,
@@ -268,6 +261,18 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       <EditorContent 
         editor={editor} 
         className={`tiptap-content ${!editable ? 'read-only' : ''}`} 
+        onClick={(e) => {
+          // 이미지 클릭 처리
+          if (onImageClick) {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG') {
+              const src = target.getAttribute('src');
+              if (src) {
+                onImageClick(src);
+              }
+            }
+          }
+        }}
       />
     </div>
   );
