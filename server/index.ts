@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import * as path from 'path';
+import { setupTusUpload } from './tus-upload';
 
 const app = express();
 app.use(express.json());
