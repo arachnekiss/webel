@@ -590,7 +590,25 @@ export default function ResourceUploadPage() {
           editor.insertVideo(media.url);
           break;
         case 'youtube':
-          editor.insertVideo(media.url); // insertVideo 메서드가 YouTube URL 감지 및 처리
+          // YouTube URL을 적절히 처리
+          const videoId = getYouTubeVideoId(media.url);
+          if (videoId) {
+            // YouTube 삽입 메서드 사용
+            const youtubeHtml = `
+            <div class="youtube-embed" data-youtube-id="${videoId}">
+              <iframe 
+                width="100%" 
+                height="315" 
+                src="https://www.youtube.com/embed/${videoId}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+              ></iframe>
+            </div>`;
+            editor.insertHtml(youtubeHtml);
+          } else {
+            editor.insertVideo(media.url);
+          }
           break;
         case 'file':
           editor.insertFile(media.url, media.name || '파일', media.size);
@@ -814,14 +832,35 @@ export default function ResourceUploadPage() {
   }, [form, normalizeUrl, removeMediaItem]);
   
   // 에디터에서 미디어를 제거하고 빈 단락 정리하는 함수
-  
-  // 에디터에서 미디어를 제거하고 빈 단락 정리하는 함수
   const removeMediaAndCleanup = useCallback((fieldName: string, url: string) => {
-    return removeMediaFromEditor(fieldName, url);
+    // 타임스탬프 업데이트 (중복 삭제 방지)
+    if (typeof window !== 'undefined') {
+      window.lastEditorDeletionTimestamp = Date.now();
+    }
+    
+    // 1. 에디터에서 해당 미디어 삭제
+    const result = removeMediaFromEditor(fieldName, url);
+    
+    // 2. 완료 후 빈 단락 정리
+    if (result) {
+      const editorRef = editorRefs.current[fieldName];
+      if (editorRef?.current) {
+        const editor = editorRef.current.getEditor();
+        if (editor) {
+          // 빈 단락 정리를 위한 커맨드 실행
+          editor.commands.command(({ tr, state }) => {
+            // tidyEmptyParagraph 함수 적용
+            return tidyEmptyParagraph(tr);
+          });
+        }
+      }
+    }
+    
+    return result;
   }, [removeMediaFromEditor]);
 
   // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
-  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video' | 'gif' | 'file' | 'youtube', fieldName?: string) => {
+  const handleMediaDelete = useCallback((src: string, type: string, fieldName?: string) => {
     console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}, 필드: ${fieldName || '미지정'}`);
     
     if (!src) {
