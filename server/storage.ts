@@ -125,14 +125,22 @@ export class DatabaseStorage implements IStorage {
       return cachedUser;
     }
     
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    
-    // 결과 캐싱
-    if (user) {
-      userCache.set(cacheKey, user);
+    try {
+      // 재시도 로직 사용
+      const [user] = await executeWithRetry(async () => {
+        return db.select().from(users).where(eq(users.id, id));
+      });
+      
+      // 결과 캐싱
+      if (user) {
+        userCache.set(cacheKey, user);
+      }
+      
+      return user;
+    } catch (error) {
+      console.error(`Error retrieving user with ID ${id}:`, error);
+      return undefined;
     }
-    
-    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
@@ -145,16 +153,24 @@ export class DatabaseStorage implements IStorage {
       return cachedUser;
     }
     
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    
-    // 결과 캐싱
-    if (user) {
-      userCache.set(cacheKey, user);
-      // ID 기반 캐싱도 추가
-      userCache.set(generateCacheKey('user', { id: user.id }), user);
+    try {
+      // 재시도 로직 사용
+      const [user] = await executeWithRetry(async () => {
+        return db.select().from(users).where(eq(users.username, username));
+      });
+      
+      // 결과 캐싱
+      if (user) {
+        userCache.set(cacheKey, user);
+        // ID 기반 캐싱도 추가
+        userCache.set(generateCacheKey('user', { id: user.id }), user);
+      }
+      
+      return user;
+    } catch (error) {
+      console.error(`Error retrieving user by username ${username}:`, error);
+      return undefined;
     }
-    
-    return user;
   }
   
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -167,24 +183,40 @@ export class DatabaseStorage implements IStorage {
       return cachedUser;
     }
     
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    
-    // 결과 캐싱
-    if (user) {
-      userCache.set(cacheKey, user);
-      // ID 기반 캐싱도 추가
-      userCache.set(generateCacheKey('user', { id: user.id }), user);
+    try {
+      // 재시도 로직 사용
+      const [user] = await executeWithRetry(async () => {
+        return db.select().from(users).where(eq(users.email, email));
+      });
+      
+      // 결과 캐싱
+      if (user) {
+        userCache.set(cacheKey, user);
+        // ID 기반 캐싱도 추가
+        userCache.set(generateCacheKey('user', { id: user.id }), user);
+      }
+      
+      return user;
+    } catch (error) {
+      console.error(`Error retrieving user by email ${email}:`, error);
+      return undefined;
     }
-    
-    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values({
-      ...insertUser,
-      isAdmin: false
-    }).returning();
-    return user;
+    try {
+      // 재시도 로직 사용
+      const [user] = await executeWithRetry(async () => {
+        return db.insert(users).values({
+          ...insertUser,
+          isAdmin: false
+        }).returning();
+      });
+      return user;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error; // Registration should fail if database operation fails
+    }
   }
   
   async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
