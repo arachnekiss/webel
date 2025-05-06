@@ -15,10 +15,51 @@ async function runMultilingualSearchMigration() {
     const migrationPath = path.join(__dirname, '20250506_add_multilingual_search.sql');
     const sql = fs.readFileSync(migrationPath, 'utf8');
     
-    // Split the SQL by ; to execute each statement separately
-    const statements = sql
-      .split(';')
-      .filter(statement => statement.trim().length > 0);
+    // Use a more robust approach for splitting SQL statements 
+    // This handles dollar-quoted blocks better
+    const statements = [];
+    let currentStatement = '';
+    let dollarQuoting = false;
+    let dollarTag = '';
+    
+    // Split the SQL correctly handling dollar-quoted blocks
+    const lines = sql.split('\n');
+    for (const line of lines) {
+      // Skip comment lines but include them in the statement
+      if (line.trim().startsWith('--')) {
+        currentStatement += line + '\n';
+        continue;
+      }
+      
+      // Add the line to the current statement
+      currentStatement += line + '\n';
+      
+      // Check for dollar quoting
+      if (!dollarQuoting) {
+        const match = line.match(/\$\$|\$[a-zA-Z0-9_]*\$/g);
+        if (match) {
+          dollarQuoting = true;
+          dollarTag = match[0];
+        }
+      } else if (line.includes(dollarTag)) {
+        dollarQuoting = false;
+        dollarTag = '';
+      }
+      
+      // If we hit a semicolon and we're not inside a dollar-quoted block, 
+      // we've completed a statement
+      if (!dollarQuoting && line.trim().endsWith(';')) {
+        if (currentStatement.trim().length > 0) {
+          statements.push(currentStatement);
+        }
+        currentStatement = '';
+      }
+    }
+    
+    // Add any remaining statement
+    if (currentStatement.trim().length > 0) {
+      statements.push(currentStatement);
+    }
     
     console.log(`Found ${statements.length} SQL statements to execute.`);
     

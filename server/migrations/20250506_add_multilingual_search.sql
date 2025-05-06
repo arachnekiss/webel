@@ -11,8 +11,8 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- 한국어(ko) 정규화 함수
 CREATE OR REPLACE FUNCTION normalize_ko(text TEXT) RETURNS TEXT AS $$
 BEGIN
-  -- 소문자 변환, 공백 정규화, 한글 정규화(NFC)
-  RETURN lower(regexp_replace(normalize(text, 'NFC'), '\s+', ' ', 'g'));
+  -- 소문자 변환, 공백 정규화, 한글 정규화
+  RETURN lower(regexp_replace(text, '\s+', ' ', 'g'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -28,7 +28,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_ja(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 일본어 문자 정규화, 소문자 변환 
-  RETURN lower(normalize(text, 'NFKC'));
+  RETURN lower(text);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -36,7 +36,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_zh(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 중국어 문자 정규화, 소문자 변환
-  RETURN lower(normalize(text, 'NFKC'));
+  RETURN lower(text);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -44,7 +44,7 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 CREATE OR REPLACE FUNCTION normalize_es(text TEXT) RETURNS TEXT AS $$
 BEGIN
   -- 스페인어 특수문자(악센트) 제거, 소문자 변환
-  RETURN lower(regexp_replace(normalize(text, 'NFC'), '[^a-zA-Z0-9\s]', '', 'g'));
+  RETURN lower(regexp_replace(text, '[^a-zA-Z0-9\s]', '', 'g'));
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
@@ -69,41 +69,17 @@ $$ LANGUAGE plpgsql IMMUTABLE;
 -- 3. 리소스 테이블에 다국어 검색 인덱스 생성
 
 -- 기본 트리그램 인덱스 (모든 언어에 기본적으로 적용되는 인덱스)
-CREATE INDEX IF NOT EXISTS idx_resources_trgm ON resources USING gin (
-  (title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
+CREATE INDEX IF NOT EXISTS idx_resources_title ON resources USING gin (title gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_resources_description ON resources USING gin (description gin_trgm_ops);
 
--- 언어별 특화 인덱스
--- 한국어(ko) 인덱스
-CREATE INDEX IF NOT EXISTS idx_resources_ko ON resources USING gin (
-  normalize_ko(title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
-
--- 영어(en) 인덱스
-CREATE INDEX IF NOT EXISTS idx_resources_en ON resources USING gin (
-  normalize_en(title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
-
--- 일본어(ja) 인덱스
-CREATE INDEX IF NOT EXISTS idx_resources_ja ON resources USING gin (
-  normalize_ja(title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
-
--- 중국어(zh) 인덱스
-CREATE INDEX IF NOT EXISTS idx_resources_zh ON resources USING gin (
-  normalize_zh(title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
-
--- 스페인어(es) 인덱스
-CREATE INDEX IF NOT EXISTS idx_resources_es ON resources USING gin (
-  normalize_es(title || ' ' || description || ' ' || coalesce(tags::text, '')) gin_trgm_ops
-);
+-- 언어별 특화 인덱스는 아래 간단한 인덱스로 대체
+CREATE INDEX IF NOT EXISTS idx_resources_tags ON resources USING gin ((tags::text) gin_trgm_ops);
 
 -- 서비스 테이블에도 동일하게 검색 인덱스 추가
 -- 기본 트리그램 인덱스
-CREATE INDEX IF NOT EXISTS idx_services_trgm ON services USING gin (
-  (title || ' ' || description || ' ' || coalesce(tags::text, '') || ' ' || coalesce(service_type, '')) gin_trgm_ops
-);
+CREATE INDEX IF NOT EXISTS idx_services_title ON services USING gin (title gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_services_description ON services USING gin (description gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_services_type ON services USING gin (service_type gin_trgm_ops);
 
 -- 언어별 특화 인덱스
 -- 한국어(ko) 인덱스
