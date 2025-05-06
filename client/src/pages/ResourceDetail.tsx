@@ -27,6 +27,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import RelatedResources from '@/components/RelatedResources';
+import MediaPreview from '@/components/ui/MediaPreview';
 
 // resource type 이름 맵핑 함수
 const getTypeName = (type: string): string => {
@@ -362,10 +363,12 @@ const ResourceDetail: React.FC = () => {
             {resource.assemblyInstructions ? (
               <div className="space-y-4">
                 {typeof resource.assemblyInstructions === 'string' ? (
-                  <div 
-                    className="prose max-w-none text-gray-700 tiptap-content"
-                    dangerouslySetInnerHTML={{ __html: resource.assemblyInstructions }}
-                  />
+                  <>
+                    <MediaPreview
+                      content={resource.assemblyInstructions}
+                      className="prose max-w-none text-gray-700 tiptap-content"
+                    />
+                  </>
                 ) : (
                   <div className="space-y-6">
                     {/* 구조화된 조립 지침 렌더링 */}
