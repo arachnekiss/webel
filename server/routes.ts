@@ -604,8 +604,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: '리소스를 찾을 수 없습니다.' });
       }
       
-      // 스토리지 인터페이스에 deleteResource 메서드 추가 필요
-      await db.delete(resources).where(eq(resources.id, resourceId));
+      // 소프트 삭제 사용 (deleted_at 필드 설정)
+      const deleted = await storage.deleteResource(resourceId);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: '리소스를 삭제할 수 없습니다.' });
+      }
       
       res.status(200).json({ message: '리소스가 성공적으로 삭제되었습니다.' });
     } catch (error) {
