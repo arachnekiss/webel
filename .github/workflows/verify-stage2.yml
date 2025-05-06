@@ -1,0 +1,39 @@
+name: Verify Stage 2
+on:
+  push:
+    branches: [stage-2-*]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run verification script
+        run: node performance/verify_stage2.mjs
+      - name: Add success comment
+        if: success()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            
+            // Find open PRs for this branch
+            const prs = await github.rest.pulls.list({
+              owner,
+              repo,
+              head: `${owner}:${context.ref.replace('refs/heads/', '')}`,
+              state: 'open'
+            });
+            
+            if (prs.data.length > 0) {
+              // Add comment to the first matching PR
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prs.data[0].number,
+                body: '✔ Stage 2 DONE — HARD-VERIFY PASS'
+              });
+            }

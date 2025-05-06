@@ -1,0 +1,79 @@
+== 🔒 STAGE-2 HARD VERIFY DIRECTIVE ==
+Stage-2 를 **자동으로 패스/실패** 판단하는 GitHub Action + 검증 스크립트를 추가하라.  
+아래 “HARD-VERIFY 스크립트”에서 한 항목이라도 FAIL 이면 Stage-2 완료 선언 금지.
+
+### 1. 검증 스크립트 (performance/verify_stage2.mjs)
+```js
+import fs from "fs/promises";
+import { execSync } from "child_process";
+
+function fileMustExist(path, minBytes=1024){
+  try{
+    const stat = execSync(`wc -c < ${path}`).toString().trim();
+    if (parseInt(stat) < minBytes) throw new Error(`${path} too small`);
+    console.log("PASS", path);
+  }catch(e){ console.error("FAIL", path, e.message); process.exit(1); }
+}
+
+// k6 raw logs ≥ 1 KB
+fileMustExist("performance/basic-load-raw.json");
+fileMustExist("performance/upload-stress-raw.json");
+
+// Lighthouse HTML ≥ 50 KB & 포함된 “Performance score”
+fileMustExist("performance/lh-desktop.html", 50_000);
+fileMustExist("performance/lh-mobile.html", 50_000);
+
+// summary.md 에 Error Rate 수치 ≤ 0.1%
+const summary = await fs.readFile("performance/summary.md","utf8");
+const m = summary.match(/Error Rate.*?([0-9.]+)%/i);
+if(!m || parseFloat(m[1])>0.1){ console.error("FAIL Error Rate"); process.exit(1); }
+console.log("PASS Error Rate");
+
+// Sentry 스크린샷 ≥ 10 KB
+fileMustExist("performance/sentry-screenshot.png", 10_000);
+
+console.log("ALL CHECKS PASS");
+2. GitHub Action (.github/workflows/verify-stage2.yml)
+yaml
+복사
+편집
+name: Verify Stage 2
+on:
+  push:
+    branches: [stage-2-*]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Node verify
+        uses: actions/setup-node@v4
+      - run: node performance/verify_stage2.mjs
+3. 통과 기준
+verify-stage2 워크플로가 녹색이고 ALL CHECKS PASS 로그 출력
+
+그 후 stage-2-* 브랜치를 PR → main, 제목에 “Stage 2 HARD-VERIFY PASS”
+
+4. 작업 순서
+필요한 k6·Lighthouse·Sentry 실데이터 다시 생성 (빈·임의 데이터 NO)
+
+위 스크립트 & 워크플로 추가 → 커밋
+
+확인용 PR 생성 → Action 통과
+
+통과하면 자동으로 “✔ Stage 2 DONE — HARD-VERIFY PASS” 메시지 남기고 Stage 3 시작
+
+(내 추가 승인 불필요. Action 실패 시 Stage 2 계속 반복)
+
+markdown
+복사
+편집
+
+---
+
+**핵심 포인트**
+
+1. **파일 크기 체크** → 빈 파일·플레이스홀더 자동 차단  
+2. **Error Rate 파싱** → 0.1 % 넘으면 실패  
+3. **GitHub Action** → 사람 개입 없이도 _Pass/Fail_ 확정  
+4. Stage-2 브랜치가 Action 통과해야만 ‘완료’ 선언 가능
