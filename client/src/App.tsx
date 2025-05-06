@@ -33,6 +33,7 @@ const ResourceSimpleUpload = lazy(() => import('./pages/ResourceSimpleUpload'));
 const ResourceUploadPageV2 = lazy(() => import('./pages/ResourceUploadPageV2'));
 const ResourceUpload = lazy(() => import('./pages/ResourceUpload'));
 const FileUploadTest = lazy(() => import('./pages/FileUploadTest'));
+const PaymentDemo = lazy(() => import('./pages/PaymentDemo'));
 // 원본 업로드 페이지에서 에러가 발생하여 간소화된 버전으로 대체
 const ResourceUploadPage = ResourceSimpleUpload;
 const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified'));
@@ -265,6 +266,13 @@ function Router() {
                 <Route path={`${prefix}/terms`}>
                   <Suspense fallback={<div>Loading...</div>}>
                     <Terms />
+                  </Suspense>
+                </Route>
+                
+                {/* 결제 테스트 데모 */}
+                <Route path={`${prefix}/payment-demo`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <PaymentDemo />
                   </Suspense>
                 </Route>
                 
