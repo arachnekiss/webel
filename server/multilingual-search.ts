@@ -32,7 +32,7 @@ function generateSearchCacheKey(query: string, lang: string, type?: string): str
  * @param {string} [type] - 검색 유형 (resources, services, all)
  * @param {number} [limit=20] - 반환할 최대 결과 수
  */
-export async function multilingualSearch(req: Request, res: Response): Promise<void> {
+export async function multilingualSearch(req: Request, res: Response) {
   try {
     const query = req.query.q as string;
     if (!query || query.trim().length === 0) {
@@ -175,7 +175,7 @@ function createSearchCondition(normalizedQuery: string, lang: string) {
  * 
  * @route GET /api/search/performance-test
  */
-export async function searchPerformanceTest(req: Request, res: Response): Promise<void> {
+export async function searchPerformanceTest(req: Request, res: Response) {
   try {
     // 성능 테스트용 샘플 쿼리
     const testQueries = [
@@ -203,7 +203,7 @@ export async function searchPerformanceTest(req: Request, res: Response): Promis
           .from(resources)
           .where(and(
             searchCondition('resources'),
-            isNull(resources.deleted_at)
+            isNull(resources.deletedAt)
           ))
           .limit(5);
       });
@@ -217,7 +217,7 @@ export async function searchPerformanceTest(req: Request, res: Response): Promis
         normalizedQuery,
         duration: `${duration}ms`,
         resultCount: resourceResults.length,
-        sampleResults: resourceResults.map(r => ({ id: r.id, title: r.title }))
+        sampleResults: resourceResults.map((r: any) => ({ id: r.id, title: r.title }))
       });
     }
     
