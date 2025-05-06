@@ -1069,17 +1069,14 @@ export default function ResourceUploadPage() {
           
           tiptapEditor.chain().focus().insertContent(youtubeHtml).run();
           
-          // YouTube 링크를 첨부된 미디어 목록에 추가
+          // YouTube 링크를 중앙 집중식 미디어 관리 시스템에 추가
           const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-          const videoFile = new File([], `youtube-${videoId}.mp4`, { type: 'video/mp4' }) as FileWithPreview;
-          videoFile.preview = youtubeUrl;
           
-          setUploadedMediaFiles(prev => {
-            const fieldFiles = prev[currentEditor] || [];
-            return {
-              ...prev,
-              [currentEditor]: [...fieldFiles, videoFile]
-            };
+          // 단일 소스 미디어 아이템 추가
+          addMediaItem(currentEditor, {
+            url: youtubeUrl,
+            type: 'youtube',
+            name: `YouTube 비디오: ${videoId}`
           });
           
         } else {
@@ -1094,16 +1091,11 @@ export default function ResourceUploadPage() {
               .insertContent('<p><br></p>')
               .run();
             
-            // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
-            const imageFile = new File([], "url-image.jpg") as FileWithPreview;
-            imageFile.preview = urlInput;
-            
-            setUploadedMediaFiles(prev => {
-              const fieldFiles = prev[currentEditor] || [];
-              return {
-                ...prev,
-                [currentEditor]: [...fieldFiles, imageFile]
-              };
+            // 이미지를 단일 소스 미디어 관리 시스템에 추가
+            addMediaItem(currentEditor, {
+              url: urlInput,
+              type: 'image',
+              name: 'URL 이미지'
             });
           } else {
             // 일반 URL은 링크로 추가
@@ -1139,17 +1131,14 @@ export default function ResourceUploadPage() {
           ></iframe>
           </div><p><br></p>`;
           
-          // YouTube 링크를 첨부된 미디어 목록에 추가
+          // YouTube 링크를 중앙 집중식 미디어 관리 시스템에 추가
           const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-          const videoFile = new File([], `youtube-${videoId}.mp4`, { type: 'video/mp4' }) as FileWithPreview;
-          videoFile.preview = youtubeUrl;
           
-          setUploadedMediaFiles(prev => {
-            const fieldFiles = prev[currentEditor] || [];
-            return {
-              ...prev,
-              [currentEditor]: [...fieldFiles, videoFile]
-            };
+          // 단일 소스 미디어 아이템 추가
+          addMediaItem(currentEditor, {
+            url: youtubeUrl,
+            type: 'youtube',
+            name: `YouTube 비디오: ${videoId}`
           });
         } else {
           // 이미지 URL 감지
@@ -1158,16 +1147,11 @@ export default function ResourceUploadPage() {
             // 이미지 URL이면 HTML 태그로 추가
             newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" /><p><br></p>`;
             
-            // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
-            const imageFile = new File([], "url-image.jpg") as FileWithPreview;
-            imageFile.preview = urlInput;
-            
-            setUploadedMediaFiles(prev => {
-              const fieldFiles = prev[currentEditor] || [];
-              return {
-                ...prev,
-                [currentEditor]: [...fieldFiles, imageFile]
-              };
+            // 이미지를 단일 소스 미디어 관리 시스템에 추가
+            addMediaItem(currentEditor, {
+              url: urlInput,
+              type: 'image',
+              name: 'URL 이미지'
             });
           } else {
             // 일반 URL은 링크로 추가
@@ -1202,6 +1186,16 @@ export default function ResourceUploadPage() {
           allowfullscreen
         ></iframe>
         </div><p><br></p>`;
+        
+        // YouTube 링크를 중앙 집중식 미디어 관리 시스템에 추가
+        const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        
+        // 단일 소스 미디어 아이템 추가
+        addMediaItem(currentEditor, {
+          url: youtubeUrl,
+          type: 'youtube',
+          name: `YouTube 비디오: ${videoId}`
+        });
       } else {
         // 이미지 URL 감지
         const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
@@ -1209,16 +1203,11 @@ export default function ResourceUploadPage() {
           // 이미지 URL이면 HTML 태그로 추가
           newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" /><p><br></p>`;
           
-          // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
-          const imageFile = new File([], "url-image.jpg") as FileWithPreview;
-          imageFile.preview = urlInput;
-          
-          setUploadedMediaFiles(prev => {
-            const fieldFiles = prev[currentEditor] || [];
-            return {
-              ...prev,
-              [currentEditor]: [...fieldFiles, imageFile]
-            };
+          // 이미지를 단일 소스 미디어 관리 시스템에 추가
+          addMediaItem(currentEditor, {
+            url: urlInput,
+            type: 'image',
+            name: 'URL 이미지'
           });
         } else {
           // 일반 URL은 링크로 추가
@@ -1238,7 +1227,7 @@ export default function ResourceUploadPage() {
     
     setUrlInput('');
     setUrlInputActive(false);
-  }, [urlInput, currentEditor, form, toast, setUploadedMediaFiles]);
+  }, [urlInput, currentEditor, form, toast, addMediaItem]);
 
   // 진행률 표시 컴포넌트
   const ProgressStatus = () => (
@@ -1268,14 +1257,66 @@ export default function ResourceUploadPage() {
     </div>
   );
   
-  // 첨부된 미디어 파일 요약 컴포넌트
+  // 중앙 집중식 미디어 아이템 요약 컴포넌트
+  const MediaItemsSummary = ({ fieldName }: { fieldName: string }) => {
+    const items = mediaItems[fieldName] || [];
+    if (items.length === 0) return null;
+    
+    return (
+      <div className="mt-2 border-t pt-2">
+        <p className="text-sm text-muted-foreground mb-2">첨부된 미디어 ({items.length}개)</p>
+        <div className="flex flex-wrap gap-2">
+          {items.map((item, index) => {
+            // 아이콘 및 스타일
+            let Icon = FileIcon;
+            let iconColor = "text-gray-500";
+            
+            if (item.type === 'image' || item.type === 'gif') {
+              Icon = ImageIcon;
+              iconColor = "text-blue-500";
+            } else if (item.type === 'video' || item.type === 'youtube') {
+              Icon = Video;
+              iconColor = "text-red-500";
+            }
+            
+            return (
+              <div key={index} className="relative group border rounded-md p-2 bg-muted/10 flex items-center space-x-2 text-xs">
+                <Icon className={`h-4 w-4 ${iconColor}`} />
+                <span className="truncate max-w-[120px]">{item.name || '미디어'}</span>
+                {item.size && (
+                  <span className="text-muted-foreground">
+                    {(item.size / 1024).toFixed(1)}KB
+                  </span>
+                )}
+                <button 
+                  type="button"
+                  className="ml-1 p-1 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // 미디어 삭제 함수 호출
+                    handleMediaDelete(item.url, item.type, fieldName);
+                  }}
+                  title="삭제"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+  
+  // 이전 방식 호환성을 위한 레거시 컴포넌트 (추후 제거 가능)
   const AttachedMediaSummary = ({ fieldName }: { fieldName: string }) => {
     const files = uploadedMediaFiles[fieldName] || [];
     if (files.length === 0) return null;
     
     return (
       <div className="mt-2 border-t pt-2">
-        <p className="text-sm text-muted-foreground mb-2">첨부된 미디어 ({files.length}개)</p>
+        <p className="text-sm text-muted-foreground mb-2">첨부된 미디어 (레거시 - {files.length}개)</p>
         <div className="flex flex-wrap gap-2">
           {files.map((file, index) => {
             // 파일 유형 확인
