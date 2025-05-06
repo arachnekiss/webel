@@ -231,13 +231,57 @@
 }
 
 /* 비디오 스타일링 */
-.tiptap-content video {
+.tiptap-content .tiptap-video-wrapper {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: block;
+  max-width: 100%;
+}
+
+.tiptap-content .tiptap-video-wrapper video {
   max-width: 100%;
   height: auto;
-  margin: 1rem 0;
   border-radius: 0.5rem;
   border: 1px solid #e5e7eb;
   display: block;
+}
+
+/* 비디오 삭제 버튼 */
+.tiptap-content .tiptap-video-wrapper .tiptap-video-delete-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #f43f5e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transform: scale(0.9);
+}
+
+.tiptap-content .tiptap-video-wrapper:hover .tiptap-video-delete-button {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tiptap-content .tiptap-video-wrapper .tiptap-video-delete-button:hover {
+  background-color: rgba(255, 70, 70, 0.95);
+  color: white;
 }
 
 /* 읽기 전용 모드 */

@@ -5,6 +5,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 import { keymap } from '@tiptap/pm/keymap';
+import { TextSelection } from '@tiptap/pm/state';
 import { useCallback, useEffect, useState, useRef, useImperativeHandle, forwardRef, ReactNode } from 'react';
 import { Button } from './button';
 import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link2, ImageIcon, X } from 'lucide-react';
@@ -54,6 +55,63 @@ const Video = Node.create({
           .run();
       },
     } as any;
+  },
+  
+  // 비디오 노드를 위한 nodeView 추가
+  addNodeView() {
+    return ({ HTMLAttributes, node, editor, getPos }) => {
+      const dom = document.createElement('div');
+      dom.classList.add('tiptap-video-wrapper');
+      
+      // 비디오 엘리먼트 생성
+      const video = document.createElement('video');
+      // HTMLAttributes에서 속성 적용
+      Object.entries(HTMLAttributes).forEach(([key, value]) => {
+        video.setAttribute(key, String(value));
+      });
+      
+      // 편집 모드일 때 삭제 버튼 추가
+      if (editor.isEditable) {
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('tiptap-video-delete-button');
+        deleteButton.innerHTML = '×';
+        deleteButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof getPos === 'function') {
+            const pos = getPos();
+            
+            // ProseMirror 트랜잭션으로 노드 삭제
+            const { tr } = editor.view.state;
+            tr.delete(pos, pos + node.nodeSize);
+            
+            // 빈 단락 삽입하여 편집 가능하게 유지
+            const emptyParagraph = editor.schema.nodes.paragraph.create();
+            tr.insert(pos, emptyParagraph);
+            
+            // 삭제 후 커서 위치 설정
+            tr.setSelection(new TextSelection(tr.doc.resolve(pos + 1)));
+            
+            // 트랜잭션 적용
+            editor.view.dispatch(tr);
+            
+            // 에디터 포커스
+            setTimeout(() => {
+              editor.view.focus();
+            }, 0);
+          }
+        });
+        
+        dom.appendChild(video);
+        dom.appendChild(deleteButton);
+      } else {
+        dom.appendChild(video);
+      }
+      
+      return {
+        dom,
+        contentDOM: null,
+      };
+    };
   },
 });
 
@@ -264,17 +322,23 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
             if (typeof getPos === 'function') {
               const pos = getPos();
               
-              // 1. 먼저 editor 명령으로 노드 삭제 (ProseMirror 문서에서 제거)
-              editor.commands.deleteNode('image');
+              // ProseMirror 트랜잭션으로 노드 삭제
+              const { tr } = editor.view.state;
+              tr.delete(pos, pos + node.nodeSize);
               
-              // 2. DOM 요소 제거 (화면에서 제거)
-              if (dom.parentNode) {
-                dom.parentNode.removeChild(dom);
-              }
+              // 빈 단락 삽입하여 편집 가능하게 유지
+              const emptyParagraph = editor.schema.nodes.paragraph.create();
+              tr.insert(pos, emptyParagraph);
               
-              // 3. 에디터 상태 업데이트 강제 적용
+              // 삭제 후 커서 위치 설정
+              tr.setSelection(new TextSelection(tr.doc.resolve(pos + 1)));
+              
+              // 트랜잭션 적용
+              editor.view.dispatch(tr);
+              
+              // 에디터 포커스
               setTimeout(() => {
-                editor.view.updateState(editor.state);
+                editor.view.focus();
               }, 0);
             }
           });
