@@ -13,7 +13,7 @@ console.log('=== Stage 3: Multilingual Search Optimization Migration ===');
 console.log('Running migration script...');
 
 // Execute the migration script using tsx
-const result = spawnSync('tsx', ['server/migrations/run_multilingual_search.ts'], {
+const result = spawnSync('npx', ['tsx', 'server/migrations/run_multilingual_search.ts'], {
   stdio: 'inherit',
   shell: true
 });

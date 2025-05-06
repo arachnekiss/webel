@@ -43,17 +43,15 @@ async function runMultilingualSearchMigration() {
   }
 }
 
-// Run the migration if this file is executed directly
-if (require.main === module) {
-  runMultilingualSearchMigration()
-    .then(() => {
-      console.log('Migration completed.');
-      process.exit(0);
-    })
-    .catch(error => {
-      console.error('Migration failed:', error);
-      process.exit(1);
-    });
-}
+// Run the migration function directly
+runMultilingualSearchMigration()
+  .then(() => {
+    console.log('Migration completed.');
+    process.exit(0);
+  })
+  .catch(error => {
+    console.error('Migration failed:', error);
+    process.exit(1);
+  });
 
 export { runMultilingualSearchMigration };
