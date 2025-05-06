@@ -335,17 +335,11 @@ const ResourceDetail: React.FC = () => {
               <h2 className="text-xl font-semibold">리소스 설명</h2>
             </div>
             <div className="prose max-w-none">
-              {typeof resource.description === 'string' ? (
-                <div 
-                  className="prose max-w-none text-gray-700 tiptap-content"
-                  dangerouslySetInnerHTML={{ __html: resource.description || '설명이 제공되지 않았습니다.' }}
-                  contentEditable={false}
-                  suppressContentEditableWarning
-                  style={{
-                    userSelect: 'text',
-                    cursor: 'default',
-                    pointerEvents: 'auto'
-                  }}
+              {typeof resource.description === 'string' && resource.description ? (
+                <ContentMediaPreview
+                  content={resource.description}
+                  className="prose max-w-none text-gray-700 read-only-content"
+                  readOnly={true}
                 />
               ) : (
                 <p className="text-gray-700">설명이 제공되지 않았습니다.</p>
@@ -361,16 +355,10 @@ const ResourceDetail: React.FC = () => {
             </div>
             {resource.howToUse ? (
               <div className="prose max-w-none">
-                <div 
-                  className="prose max-w-none text-gray-700 tiptap-content"
-                  dangerouslySetInnerHTML={{ __html: resource.howToUse }}
-                  contentEditable={false}
-                  suppressContentEditableWarning
-                  style={{
-                    userSelect: 'text',
-                    cursor: 'default',
-                    pointerEvents: 'auto'
-                  }}
+                <ContentMediaPreview
+                  content={resource.howToUse}
+                  className="prose max-w-none text-gray-700 read-only-content"
+                  readOnly={true}
                 />
               </div>
             ) : (
