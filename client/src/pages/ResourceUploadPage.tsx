@@ -573,7 +573,7 @@ export default function ResourceUploadPage() {
       let found = false;
       
       // 3.1 커맨드 생성 - tiptap 커맨드 API 사용
-      tiptapEditor.commands.command(({ tr, state }) => {
+      tiptapEditor.commands.command(({ tr, state }: { tr: any, state: any }) => {
         const { doc } = state;
         
         // 3.2 문서의 모든 노드 순회
@@ -983,7 +983,9 @@ export default function ResourceUploadPage() {
 
       // editorContainer 내부의 TipTap 인스턴스 찾기
       const editorContent = editorContainer.querySelector('.ProseMirror');
-      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
+      // Try to access editor from various possible locations
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?._tiptapEditor || 
+                         (editorContent as any)?._tiptapEditor;
 
       // TipTap API를 사용하여 미디어 삽입
       if (tiptapEditor) {
@@ -1102,7 +1104,9 @@ export default function ResourceUploadPage() {
       
       // editorContainer 내부의 TipTap 인스턴스 찾기
       const editorContent = editorContainer.querySelector('.ProseMirror');
-      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?.editor;
+      // Try to access editor from various possible locations
+      const tiptapEditor = (editorContent as any)?.__vue__?.$parent?._tiptapEditor || 
+                          (editorContent as any)?._tiptapEditor;
       
       // URL 검증 - 빈 URL이나 공백만 있는 경우 처리하지 않음
       if (!urlInput.trim()) {
