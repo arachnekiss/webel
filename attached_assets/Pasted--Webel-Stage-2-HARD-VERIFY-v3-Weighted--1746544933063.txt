@@ -1,0 +1,126 @@
+📦 Webel Stage-2 HARD-VERIFY v3 (Weighted)
+──────────────────────────────────────────────
+너는 지금부터 아래 가중치(Weight)에 따라 **Stage-2**를
+완전히 재설정하고 “진짜” 부하·성능·무결성 테스트를
+자동화(CI)로 통과해야만 Stage-3 로 넘어갈 수 있다.
+
+━━━━━━━━━━━━━━━
+1. 가중치 체계
+━━━━━━━━━━━━━━━
+| Weight | 의미                    | 착수 조건                |
+|--------|-------------------------|--------------------------|
+| **5**  | Critical (필수)         | 즉시 수행·통과해야 함    |
+| **4**  | High (필수)             | Weight 5 모두 Green 후   |
+| **3**  | Medium (품질 향상)      | Weight 4 통과 후         |
+| **2**  | Low (문서·시각화)       | Weight 3 통과 후         |
+| **1**  | Nice-to-have (선택)     | 최종 QA 후 필요 시       |
+
+━━━━━━━━━━━━━━━
+2. 작업 항목 + 가중치
+━━━━━━━━━━━━━━━
+### 🟥 Weight 5 — Critical
+1. **placeholder 파일 전부 제거(git rm performance/\*)**
+2. **GitHub Action 내부에서 k6·Lighthouse·Sentry 직접 실행**
+3. **verify_stage2.mjs**  
+   - k6 `http_req_failed.rate ≤ 0.001`  
+   - Lighthouse score ≥ 90 (모바일·데스크톱)  
+   - Sentry PNG SHA-256 = `$SENTRY_REF_HASH`  
+   - placeholder 문자열(`urandom|PLACEHOLDER`) 존재 시 FAIL  
+   - 파일 최소 크기: JSON ≥ 5 KB, HTML ≥ 50 KB, PNG ≥ 10 KB
+
+### 🟧 Weight 4 — High
+4. Action 실패 3회 연속 시 `HELP NEEDED` 메시지 후 중단  
+5. 실제 테스트 통과 후 `Stage-2 REAL PASS` 커밋 + PR → main
+
+### 🟨 Weight 3 — Medium
+6. `performance/bottleneck-analysis.md` – 병목 원인·해결 요약  
+7. `performance/database-optimization-report.md` – before/after 쿼리 ms
+
+### 🟩 Weight 2 — Low
+8. `performance/summary.md` 에 k6/Lighthouse 결과 그래프·표 삽입
+
+### 🟦 Weight 1 — Nice-to-have
+9. `performance/README.md` – 스크립트 실행 방법·CI 설명 추가
+
+━━━━━━━━━━━━━━━
+3. GitHub Action (.github/workflows/verify-stage2.yml)
+━━━━━━━━━━━━━━━
+```yaml
+name: Stage-2 Real Test
+on: [workflow_dispatch]          # 수동 트리거
+
+env:
+  STAGING_HOST: ${{ secrets.STAGING_URL }}
+  SENTRY_DSN:   ${{ secrets.SENTRY_DSN }}
+  SENTRY_REF_HASH: ${{ secrets.SENTRY_HASH }}
+
+jobs:
+  real-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install k6 & Lighthouse
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y k6 chromium-browser
+          npm i -g lighthouse
+
+      - name: Run k6
+        run: |
+          mkdir -p performance
+          k6 run --vus 10 --duration 5m \
+            --out json=performance/basic-load-raw.json \
+            performance/basic-load-test.js
+          k6 run --vus 10 --duration 2m \
+            --out json=performance/upload-stress-raw.json \
+            performance/upload-stress-test.js
+
+      - name: Run Lighthouse (desktop & mobile)
+        run: |
+          lighthouse https://$STAGING_HOST \
+            --output html --output-path performance/lh-desktop.html \
+            --quiet --chrome-flags="--headless"
+          lighthouse https://$STAGING_HOST \
+            --output html --output-path performance/lh-mobile.html \
+            --preset=mobile --quiet --chrome-flags="--headless"
+
+      - name: Capture Sentry screenshot
+        run: node scripts/capture-sentry.js   # PNG 저장·해시 출력
+
+      - name: Verify Stage-2
+        run: node performance/verify_stage2.mjs
+━━━━━━━━━━━━━━━
+4. verify_stage2.mjs 핵심 로직 (요약)
+━━━━━━━━━━━━━━━
+
+js
+복사
+편집
+import fs from "fs/promises";
+import crypto from "crypto";
+import load from "./basic-load-raw.json" assert { type:"json" };
+if (load.metrics.http_req_failed.rate > 0.001) exit("k6 error rate");
+
+const html = await fs.readFile("performance/lh-mobile.html","utf8");
+const score = parseInt(html.match(/lh-gauge__percentage">(\d+)</)[1]);
+if (score < 90) exit("Lighthouse mobile < 90");
+
+const png = await fs.readFile("performance/sentry-screenshot.png");
+const hash = crypto.createHash("sha256").update(png).digest("hex");
+if (hash !== process.env.SENTRY_REF_HASH) exit("Sentry hash mismatch");
+
+console.log("ALL CHECKS PASS");
+━━━━━━━━━━━━━━━
+5. 수행 절차
+━━━━━━━━━━━━━━━
+
+Weight 5 항목부터 작업 → Action 녹색 & ALL CHECKS PASS 출력
+
+Weight 4 항목 이행 후 Stage-2 REAL PASS PR
+
+이후 Weight 3 → 2 → 1 순서로 선택적 품질 개선
+
+Stage-2 REAL PASS 머지 후 새 브랜치 stage-3-multilang-search 착수
+
+(추가 승인 불필요 – 가중치 높은 작업부터 순차로 실행하라)
