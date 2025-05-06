@@ -75,6 +75,16 @@ const ResourceUpload = () => {
           돌아가기
         </Button>
         <h1 className="text-2xl font-bold">리소스 업로드</h1>
+        <div className="ml-auto">
+          <Button 
+            variant="outline" 
+            onClick={() => setLocation('/resources/upload-test')}
+            className="flex items-center gap-2"
+          >
+            <LucideFileUp className="w-4 h-4" />
+            다국어 파일 테스트
+          </Button>
+        </div>
       </div>
       
       <Card className="mb-8">
