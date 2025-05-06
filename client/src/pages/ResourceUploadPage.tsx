@@ -343,13 +343,16 @@ export default function ResourceUploadPage() {
   }, []);
   
   // 미디어 삭제 핸들러 - 에디터에서 삭제된 미디어를 첨부 파일 목록에서도 제거
-  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName: string) => {
-    console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}`);
+  const handleMediaDelete = useCallback((src: string, type: 'image' | 'video', fieldName?: string) => {
+    console.log(`미디어 삭제 요청: ${type}, URL: ${src ? src.substring(0, 50) + '...' : 'null'}, 필드: ${fieldName || '미지정'}`);
     
     if (!src) {
       console.error(`미디어 삭제 실패: ${type} - 소스 URL이 없습니다.`);
       return; // src가 없으면 처리 중단
     }
+    
+    // fieldName이 제공되지 않은 경우 현재 활성화된 에디터 필드 사용
+    const targetField = fieldName || currentEditor;
     
     // Base64 데이터 URL과 일반 URL을 모두 처리할 수 있도록 정규화
     const normalizeUrl = (url: string): string => {
@@ -374,10 +377,16 @@ export default function ResourceUploadPage() {
     const normalizedSrc = normalizeUrl(src);
     console.log(`정규화된 URL: ${normalizedSrc}`);
     
+    // 필드가 유효하지 않으면 처리 중단
+    if (!targetField) {
+      console.error('삭제할 미디어의 필드명이 없습니다.');
+      return;
+    }
+
     // 해당 필드의 미디어 파일 목록 업데이트
     setUploadedMediaFiles(prev => {
-      const fieldFiles = prev[fieldName] || [];
-      console.log(`필드 ${fieldName}의 파일 수: ${fieldFiles.length}`);
+      const fieldFiles = prev[targetField] || [];
+      console.log(`필드 ${targetField}의 파일 수: ${fieldFiles.length}`);
       
       // URL을 정규화하여 비교 (동일한 파일 찾기)
       const updatedFiles = fieldFiles.filter(file => {
@@ -401,7 +410,7 @@ export default function ResourceUploadPage() {
       
       return {
         ...prev,
-        [fieldName]: updatedFiles
+        [targetField]: updatedFiles
       };
     });
   }, []);
@@ -1261,6 +1270,8 @@ export default function ResourceUploadPage() {
           editable={editable}
           onImageClick={onImageClick}
           onImageUpload={handleImageUpload}
+          onMediaDelete={handleMediaDelete}
+          fieldName={name}
         />
       </div>
     );
@@ -1333,6 +1344,8 @@ export default function ResourceUploadPage() {
             });
           })}
           onImageUpload={handleImageUpload}
+          onMediaDelete={handleMediaDelete}
+          fieldName={name}
         />
       </div>
     );
