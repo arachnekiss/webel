@@ -43,6 +43,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // tus 업로드 시스템 설정
+  setupTusUpload(app);
+  
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
