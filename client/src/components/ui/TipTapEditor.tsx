@@ -41,19 +41,23 @@ const Video = Node.create({
     return ['video', mergeAttributes(HTMLAttributes)];
   },
 
+  // TipTap v2 형식으로 addCommands 수정
   addCommands() {
+    // @ts-ignore - TipTap 타입 정의 이슈 무시
     return {
-      setVideo: (options: { src: string, controls?: boolean, width?: string }) => ({ commands }: any) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
+      insertVideo: (attributes) => ({ chain }) => {
+        return chain()
+          .insertContent({
+            type: this.name,
+            attrs: attributes,
+          })
+          .run();
       },
     };
   },
 });
 
-// 이미지 자동 삭제 방지 확장
+// 이미지 및 미디어 노드 자동 삭제 방지 확장 (강화된 버전)
 const PreventImageNodeDeletion = Extension.create({
   name: 'preventImageNodeDeletion',
   
@@ -63,20 +67,101 @@ const PreventImageNodeDeletion = Extension.create({
         const { selection } = editor.state;
         const { empty, $anchor } = selection;
         
-        // 이미지 노드 앞에서 Backspace 눌렀을 때 이미지 삭제되지 않도록
-        if (empty && $anchor.nodeBefore && $anchor.nodeBefore.type.name === 'image') {
-          return true; // 기본 동작 취소
+        // 이미지 노드를 직접 선택한 경우가 아니고
+        // 이미지 노드 바로 앞에서 Backspace 눌렀을 때 이미지 삭제되지 않도록
+        if (empty && $anchor.nodeBefore) {
+          const nodeBeforeType = $anchor.nodeBefore.type.name;
+          // 미디어 노드 유형 목록 (필요시 추가)
+          const mediaNodeTypes = ['image', 'video'];
+          
+          if (mediaNodeTypes.includes(nodeBeforeType)) {
+            return true; // 기본 동작 취소
+          }
+          
+          // 이미지 또는 비디오를 포함하는 복합 노드 확인
+          if ($anchor.nodeBefore.content) {
+            let hasMediaNode = false;
+            $anchor.nodeBefore.descendants((node) => {
+              if (mediaNodeTypes.includes(node.type.name)) {
+                hasMediaNode = true;
+                return false; // 순회 중단
+              }
+              return true; // 계속 순회
+            });
+            
+            if (hasMediaNode) {
+              return true; // 기본 동작 취소
+            }
+          }
+        }
+        
+        // 현재 선택된 노드나 범위가 이미지/비디오를 포함하는지 확인
+        if (!empty) {
+          let hasMediaNode = false;
+          editor.state.doc.nodesBetween(selection.from, selection.to, (node) => {
+            if (node.type.name === 'image' || node.type.name === 'video') {
+              hasMediaNode = true;
+              return false; // 순회 중단
+            }
+            return true; // 계속 순회
+          });
+          
+          // 선택 범위에 미디어 노드가 포함된 경우 삭제 차단
+          if (hasMediaNode) {
+            return true; // 기본 동작 취소
+          }
         }
         
         return false; // 원래 동작 실행
       },
+      
       'Delete': ({ editor }) => {
         const { selection } = editor.state;
         const { empty, $head } = selection;
         
-        // 이미지 노드 뒤에서 Delete 눌렀을 때 이미지 삭제되지 않도록
-        if (empty && $head.nodeAfter && $head.nodeAfter.type.name === 'image') {
-          return true; // 기본 동작 취소
+        // 이미지 노드를 직접 선택한 경우가 아니고
+        // 이미지 노드 바로 뒤에서 Delete 눌렀을 때 이미지 삭제되지 않도록
+        if (empty && $head.nodeAfter) {
+          const nodeAfterType = $head.nodeAfter.type.name;
+          // 미디어 노드 유형 목록 (필요시 추가)
+          const mediaNodeTypes = ['image', 'video'];
+          
+          if (mediaNodeTypes.includes(nodeAfterType)) {
+            return true; // 기본 동작 취소
+          }
+          
+          // 이미지 또는 비디오를 포함하는 복합 노드 확인
+          if ($head.nodeAfter.content) {
+            let hasMediaNode = false;
+            $head.nodeAfter.descendants((node) => {
+              if (mediaNodeTypes.includes(node.type.name)) {
+                hasMediaNode = true;
+                return false; // 순회 중단
+              }
+              return true; // 계속 순회
+            });
+            
+            if (hasMediaNode) {
+              return true; // 기본 동작 취소
+            }
+          }
+        }
+        
+        // 현재 선택된 노드나 범위가 이미지/비디오를 포함하는지 확인
+        if (!empty) {
+          let hasMediaNode = false;
+          editor.state.doc.nodesBetween(selection.from, selection.to, (node) => {
+            if (node.type.name === 'image' || node.type.name === 'video') {
+              hasMediaNode = true;
+              return false; // 순회 중단
+            }
+            return true; // 계속 순회
+          });
+          
+          // 선택 범위에 미디어 노드가 포함된 경우 삭제 차단
+          if (hasMediaNode) {
+            return true; // 기본 동작 취소
+          }
         }
         
         return false; // 원래 동작 실행
@@ -176,7 +261,19 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
             e.stopPropagation(); // 이벤트 버블링 방지
             if (typeof getPos === 'function') {
               const pos = getPos();
-              editor.chain().focus().deleteRange({ from: pos, to: pos + node.nodeSize }).run();
+              
+              // 1. 먼저 editor 명령으로 노드 삭제 (ProseMirror 문서에서 제거)
+              editor.commands.deleteNode('image');
+              
+              // 2. DOM 요소 제거 (화면에서 제거)
+              if (dom.parentNode) {
+                dom.parentNode.removeChild(dom);
+              }
+              
+              // 3. 에디터 상태 업데이트 강제 적용
+              setTimeout(() => {
+                editor.view.updateState(editor.state);
+              }, 0);
             }
           });
           
