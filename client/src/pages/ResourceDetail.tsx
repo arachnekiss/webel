@@ -320,7 +320,7 @@ const ResourceDetail: React.FC = () => {
             <div className="prose max-w-none">
               {typeof resource.description === 'string' ? (
                 <div 
-                  className="prose max-w-none text-gray-700"
+                  className="prose max-w-none text-gray-700 tiptap-content"
                   dangerouslySetInnerHTML={{ __html: resource.description || '설명이 제공되지 않았습니다.' }}
                 />
               ) : (
@@ -338,7 +338,7 @@ const ResourceDetail: React.FC = () => {
             {resource.howToUse ? (
               <div className="prose max-w-none">
                 <div 
-                  className="prose max-w-none text-gray-700"
+                  className="prose max-w-none text-gray-700 tiptap-content"
                   dangerouslySetInnerHTML={{ __html: resource.howToUse }}
                 />
               </div>

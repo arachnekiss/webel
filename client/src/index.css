@@ -412,6 +412,23 @@
   font-size: 1rem;
 }
 
+/* 첨부 파일 노드 스타일 */
+.attachment-node {
+  display: inline-block;
+  margin: 0.5rem 0;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  transition: all 0.2s;
+}
+
+.attachment-node:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
 /* YouTube 임베드 컨테이너 */
 .tiptap-content .youtube-embed {
   margin: 1rem 0;
