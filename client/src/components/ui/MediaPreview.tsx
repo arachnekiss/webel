@@ -27,6 +27,33 @@ function MediaPreview({
   // URL 객체 정리용 레퍼런스
   const blobUrls = useRef<string[]>([]);
 
+  // Blob URL에서 파일명 추출
+  const getFileNameFromBlobUrl = (url: string, downloadAttr?: string): string => {
+    if (downloadAttr) return downloadAttr;
+    
+    // URL에서 마지막 부분만 추출
+    const urlParts = url.split('/');
+    const lastPart = urlParts[urlParts.length - 1];
+    
+    // 쿼리 파라미터 제거
+    return lastPart.split('?')[0] || '파일';
+  };
+
+  // 파일 다운로드 함수
+  const downloadFile = (url: string, filename: string = 'download') => {
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('파일 다운로드 중 오류:', error);
+    }
+  };
+
   // 마운트 시 및 content 변경 시 미디어를 처리합니다
   useEffect(() => {
     if (!containerRef.current) return;
@@ -40,17 +67,7 @@ function MediaPreview({
       return;
     }
     
-    // 기존 Blob URL 정리
-    blobUrls.current.forEach(url => {
-      try {
-        URL.revokeObjectURL(url);
-      } catch (e) {
-        console.error('Blob URL 정리 오류:', e);
-      }
-    });
-    blobUrls.current = [];
-    
-    // 콘텐츠에서 blob: URL 추출 (새로운 배열로 저장)
+    // 콘텐츠에서 blob: URL 추출
     const blobUrlPattern = /blob:[^"')]+/g;
     const matches = content.match(blobUrlPattern);
     if (matches) {
@@ -101,10 +118,11 @@ function MediaPreview({
     
     return () => {
       clearTimeout(timer);
-      // 컴포넌트 언마운트시 blob URL 정리
+      // 컴포넌트 언마운트시에만 blob URL 정리
       blobUrls.current.forEach(url => {
         try {
           URL.revokeObjectURL(url);
+          console.log('Blob URL 정리됨 (언마운트):', url);
         } catch (e) {
           console.error('Blob URL 정리 오류:', e);
         }
@@ -222,20 +240,12 @@ function MediaPreview({
       // 메타데이터 로드 이벤트
       video.addEventListener('loadedmetadata', (e) => {
         console.log('비디오 메타데이터 로드 완료:', video.src);
-        // 메타데이터 로드 후 비디오가 재생 가능함
         const videoElement = e.currentTarget as HTMLVideoElement;
         
-        // 프레임을 로드하기 위해 재생 후 즉시 일시 정지
-        videoElement.play().then(() => {
-          videoElement.pause();
-          // 타임라인 위치를 처음으로 설정
-          videoElement.currentTime = 0;
-          
-          mediaLoaded.current[video.src] = true;
-        }).catch(err => {
-          console.error('비디오 로드 오류:', err);
-          mediaLoaded.current[video.src] = true;
-        });
+        // 메타데이터가 로드된 후 비디오 로드 호출하여 첫 프레임 표시 보장
+        videoElement.load();
+        videoElement.pause();
+        mediaLoaded.current[video.src] = true;
       });
       
       // 오류 이벤트
@@ -245,9 +255,19 @@ function MediaPreview({
         video.poster = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_15ba800aa20%20text%20%7B%20fill%3A%23AAA%3Bfont-weight%3Anormal%3Bfont-family%3A%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans-serif%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_15ba800aa20%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23F5F5F5%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22279.2%22%20y%3D%22218.3%22%3E%EB%B9%84%EB%94%94%EC%98%A4%20%EC%98%A4%EB%A5%98%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';
         mediaLoaded.current[video.src] = true;
       });
-      
-      // preload 속성 설정
-      video.preload = 'metadata';
+    });
+    
+    // 첨부 파일 버튼 처리
+    const attachmentBtns = container.querySelectorAll('.attachment-btn');
+    attachmentBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const link = btn.getAttribute('data-href');
+        const filename = btn.getAttribute('data-filename');
+        if (link) {
+          downloadFile(link, filename || undefined);
+        }
+      });
     });
     
     // YouTube iframe 처리
@@ -294,53 +314,82 @@ function MediaPreview({
       }
     );
     
-    // 비디오 태그 처리 - <div><video...></video></div>
-    const videoWrapperPattern = /<div>\s*<video\s+controls\s+width="(.*?)">\s*<source\s+src="(.*?)"\s+type="(.*?)">\s*<\/video>\s*<\/div>/gi;
+    // 비디오 태그 처리 - preload="metadata" 속성 추가하고, source 사용하지 않고 직접 src 지정
+    // 형식 1: <div><video controls width="100%"><source src="..." type="..."></video></div>
+    const videoWrapperPattern = /<div>\s*<video(?:\s+controls|\s+width="([^"]*)"|\s+preload="([^"]*)")*>\s*<source\s+src="([^"]*)"\s+type="([^"]*)">\s*<\/video>\s*<\/div>/gi;
     processedContent = processedContent.replace(
       videoWrapperPattern,
-      (match, width, src, type) => {
+      (match, width, preload, src, type) => {
         return `<div class="video-container">
-          <video controls width="${width}" class="editor-video" preload="metadata">
-            <source src="${src}" type="${type}">
-          </video>
+          <video 
+            src="${src}"
+            controls 
+            width="${width || '100%'}" 
+            style="width: 100%; max-height: 400px" 
+            preload="metadata"
+            class="editor-video"
+          ></video>
         </div>`;
       }
     );
     
-    // 비디오 태그 처리 - 단독 <video> 태그
-    const videoPattern = /<video\s+controls\s+width="(.*?)">\s*<source\s+src="(.*?)"\s+type="(.*?)"><\/video>/gi;
+    // 형식 2: <video controls width="100%"><source src="..." type="..."></video>
+    const videoPattern = /<video(?:\s+controls|\s+width="([^"]*)"|\s+preload="([^"]*)")*>\s*<source\s+src="([^"]*)"\s+type="([^"]*)">\s*<\/video>/gi;
     processedContent = processedContent.replace(
       videoPattern,
-      (match, width, src, type) => {
+      (match, width, preload, src, type) => {
         return `<div class="video-container">
-          <video controls width="${width}" class="editor-video" preload="metadata">
-            <source src="${src}" type="${type}">
-          </video>
+          <video 
+            src="${src}"
+            controls 
+            width="${width || '100%'}" 
+            style="width: 100%; max-height: 400px" 
+            preload="metadata"
+            class="editor-video"
+          ></video>
         </div>`;
       }
     );
     
-    // 이미지 태그 처리 - alt 속성 확인하여 표시
-    const imgPattern = /<img\s+src="([^"]+)"\s+alt="([^"]*)"\s+class="([^"]*)"\s*[^>]*>/gi;
+    // 이미지 태그 처리 - 직접 src 속성으로 처리
+    const imgPattern = /<img(?:\s+src="([^"]+)"|\s+alt="([^"]*)"|\s+class="([^"]*)")*[^>]*>/gi;
     processedContent = processedContent.replace(
       imgPattern,
       (match, src, alt, cls) => {
-        return `<img src="${src}" alt="${alt || '이미지'}" class="${cls}" 
-                style="width: 100%; height: auto;" loading="eager"
-                onload="console.log('image loaded')">`;
+        if (!src) {
+          const srcMatch = match.match(/src="([^"]+)"/);
+          src = srcMatch ? srcMatch[1] : '';
+        }
+        
+        if (!src) return match; // src가 없으면 원본 반환
+        
+        return `<img 
+          src="${src}" 
+          alt="${alt || '이미지'}"
+          style="width: 100%; height: auto;" 
+          onError="this.onerror=null; this.src='/placeholder.png';"
+          onLoad="console.log('img loaded:', this.src);"
+        >`;
       }
     );
     
-    // 파일 다운로드 링크 처리
+    // 파일 다운로드 링크 처리 - 버튼 스타일로 변경
     const fileDownloadPattern = /<p><a\s+href="([^"]+)"\s+download="([^"]+)"\s+class="tiptap-file-link">([^<]+)<\/a><\/p>/gi;
     processedContent = processedContent.replace(
       fileDownloadPattern,
       (match, href, filename, text) => {
-        return `<div class="file-link">
-          <a href="${href}" download="${filename}" class="flex items-center p-2 border rounded-md hover:bg-muted/20 transition-colors">
-            <span class="file-icon">📎</span>
-            <span>${text}</span>
-          </a>
+        const fileSize = ''; // 파일 크기 정보는 이 시점에서 구할 수 없음
+        
+        return `<div class="attachment-preview">
+          <button 
+            class="attachment-btn flex items-center p-3 border rounded-md hover:bg-gray-100 transition-colors"
+            data-href="${href}" 
+            data-filename="${filename}"
+          >
+            <span class="mr-2">📎</span>
+            <span>${text || filename}</span>
+            ${fileSize ? `<span class="text-xs text-gray-500 ml-2">(${fileSize})</span>` : ''}
+          </button>
         </div>`;
       }
     );
