@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FileIcon, ImageIcon, Link2, Loader2 } from 'lucide-react';
-import PlaceholderImage from '@assets/placeholder.svg';
 
 interface MediaPreviewProps {
   content: string;
@@ -198,7 +197,7 @@ function MediaPreview({
         console.error('이미지 로드 실패:', img.src);
         img.style.display = 'block';
         // 오류가 발생한 이미지에 플레이스홀더 스타일 적용
-        img.src = PlaceholderImage;
+        img.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlPnRleHQge2ZpbGw6Izg4ODtmb250LXdlaWdodDpub3JtYWw7Zm9udC1mYW1pbHk6IkhlbHZldGljYSBOZXVlIiwgSGVsdmV0aWNhLCBBcmlhbCwgc2Fucy1zZXJpZjtmb250LXNpemU6MzBwdH08L3N0eWxlPjwvZGVmcz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI5MCIgeT0iMjE4Ij7snbTrr7jsp4Ag66+465+s67O06riwPC90ZXh0PjwvZz48L3N2Zz4=';
         img.alt = '이미지 오류';
         mediaLoaded.current[img.src] = true;
       });
@@ -310,7 +309,7 @@ function MediaPreview({
   const processContent = (text: string): string => {
     // Blob URL 패턴 처리 - blob: URL을 이미지 데이터 URL로 대체
     // 인라인 base64 플레이스홀더 이미지 사용
-    const blobImagePlaceholder = PlaceholderImage;
+    const blobImagePlaceholder = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlPnRleHQge2ZpbGw6Izg4ODtmb250LXdlaWdodDpub3JtYWw7Zm9udC1mYW1pbHk6IkhlbHZldGljYSBOZXVlIiwgSGVsdmV0aWNhLCBBcmlhbCwgc2Fucy1zZXJpZjtmb250LXNpemU6MzBwdH08L3N0eWxlPjwvZGVmcz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI5MCIgeT0iMjE4Ij7snbTrr7jsp4Ag66+465+s67O06riwPC90ZXh0PjwvZz48L3N2Zz4=';
     const blobVideoPlaceholder = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA9NtZGF0AAACmQYF//+X3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTIgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDEgbWU9dW1oIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz0zIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgdm05PTEgdnJlZj0yIGNtcD00NiBpbnRpYl85NyB2dXZfY21wPTE4IGNoaXBfc2l6ZT0wIHA4eDg9MCBwNHg0PTAgYmx1cj0wIG1heHJhdGU9MjUgYndoaW50PTAgYnJkb3E9NyBjcXBvZmZzZXQ9MCBxcHJpbz0wIHByZXA9MyBkZWFkend1PXNvdXJjZSB3cHJlZD0wIGhyYW5nZT0wIG1heHN0ZXA9MQ==';
     
     // Blob URL 이미지 패턴 처리 (다양한 패턴 대응)
@@ -383,7 +382,7 @@ function MediaPreview({
             <video 
               controls 
               width="100%" 
-              poster=${PlaceholderImage}
+              poster="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iNDAwIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlPnRleHQge2ZpbGw6Izg4ODtmb250LXdlaWdodDpub3JtYWw7Zm9udC1mYW1pbHk6IkhlbHZldGljYSBOZXVlIiwgSGVsdmV0aWNhLCBBcmlhbCwgc2Fucy1zZXJpZjtmb250LXNpemU6MzBwdH08L3N0eWxlPjwvZGVmcz48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI5MCIgeT0iMjE4Ij7snbTrr7jsp4Ag66+465+s67O06riwPC90ZXh0PjwvZz48L3N2Zz4=""
               style="width: 100%; max-height: 300px;" 
               preload="metadata"
               class="editor-video"
