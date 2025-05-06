@@ -1593,13 +1593,12 @@ export default function ResourceUploadPage() {
                                 </div>
                               )}
                               <div className="flex flex-col relative">
-                                <AutoResizeTextarea
+                                <TipTapEditor
                                   name="assemblyInstructions"
+                                  fieldName="assemblyInstructions"
                                   placeholder="단계별 조립 방법을 상세히 설명해주세요. 이미지 버튼을 클릭하여 이미지를 첨부할 수 있습니다."
                                   value={field.value || ""}
-                                  onChange={async (e) => {
-                                    field.onChange(e.target.value);
-                                  }}
+                                  onChange={(html) => field.onChange(html)}
                                   onImageClick={(src) => {
                                     toast({
                                       title: "이미지 선택됨",
@@ -1666,12 +1665,17 @@ export default function ResourceUploadPage() {
                                 </div>
                               )}
                               <div className="flex flex-col relative">
-                                <AutoResizeTextarea
+                                <TipTapEditor
                                   name="howToUse"
+                                  fieldName="howToUse"
                                   placeholder="하드웨어 사용 방법과 주의사항을 설명해주세요."
                                   value={field.value || ""}
-                                  onChange={async (e) => {
-                                    field.onChange(e.target.value);
+                                  onChange={(html) => field.onChange(html)}
+                                  onImageClick={(src) => {
+                                    toast({
+                                      title: "이미지 선택됨",
+                                      description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
+                                    });
                                   }}
                                 />
                                 <AttachedMediaSummary fieldName="howToUse" />

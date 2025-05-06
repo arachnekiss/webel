@@ -13,7 +13,10 @@ import {
   Link as LinkIcon,
   AlignLeft,
   AlignCenter,
-  AlignRight
+  AlignRight,
+  Video,
+  FileIcon,
+  Smile
 } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
@@ -25,6 +28,8 @@ interface TipTapEditorProps {
   editable?: boolean;
   onImageClick?: (src: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
+  fieldName?: string; // 필드 이름 (멀티미디어 추적용)
+  name?: string; // input name 속성
 }
 
 const MenuBar = ({ editor }: { editor: Editor | null }) => {
@@ -208,7 +213,9 @@ const TipTapEditor = ({
   placeholder = '내용을 입력하세요...', 
   editable = true,
   onImageClick,
-  onImageUpload
+  onImageUpload,
+  fieldName,
+  name
 }: TipTapEditorProps) => {
   const editor = useEditor({
     extensions: [
@@ -235,7 +242,18 @@ const TipTapEditor = ({
     content: value || '',
     editable,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      // 항상 콘텐츠가 비어있지 않도록 보장
+      let newContent = editor.getHTML();
+      
+      // 완전히 비어있는 경우 기본 <p><br></p>를 추가하여 입력 가능하게 함
+      if (newContent === '' || newContent === '<p></p>') {
+        newContent = '<p><br></p>';
+        setTimeout(() => {
+          editor.commands.setContent(newContent);
+        }, 0);
+      }
+      
+      onChange(newContent);
     },
     editorProps: {
       attributes: {
@@ -244,6 +262,92 @@ const TipTapEditor = ({
       },
     },
   });
+
+  // 이미지 삽입 메서드
+  const insertImage = useCallback((src: string, alt: string = '이미지') => {
+    if (editor) {
+      // 현재 커서 위치에 이미지 삽입 후 빈 단락 추가하여 입력 공간 확보
+      editor
+        .chain()
+        .focus()
+        .setImage({ src, alt })
+        .insertContent('<p><br></p>')
+        .run();
+    }
+  }, [editor]);
+
+  // 비디오 삽입 메서드
+  const insertVideo = useCallback((src: string, type: string) => {
+    if (editor) {
+      const videoHtml = `<div><video controls width="100%"><source src="${src}" type="${type}"></video></div><p><br></p>`;
+      editor
+        .chain()
+        .focus()
+        .insertContent(videoHtml)
+        .run();
+    }
+  }, [editor]);
+
+  // 파일 링크 삽입 메서드
+  const insertFileLink = useCallback((src: string, fileName: string) => {
+    if (editor) {
+      const fileLinkHtml = `<p><a href="${src}" download="${fileName}" class="tiptap-file-link">${fileName} 다운로드</a></p><p><br></p>`;
+      editor
+        .chain()
+        .focus()
+        .insertContent(fileLinkHtml)
+        .run();
+    }
+  }, [editor]);
+
+  // URL 삽입 메서드 (일반 URL 또는 YouTube)
+  const insertUrl = useCallback((url: string, isYoutube: boolean = false) => {
+    if (editor) {
+      if (isYoutube) {
+        // YouTube 비디오 ID 추출
+        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+        const match = url.match(youtubeRegex);
+        
+        if (match && match[1]) {
+          const videoId = match[1];
+          const youtubeHtml = `<div class="youtube-embed">
+            <iframe 
+              width="100%" 
+              height="315" 
+              src="https://www.youtube.com/embed/${videoId}" 
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+            ></iframe>
+          </div><p><br></p>`;
+          
+          editor.chain().focus().insertContent(youtubeHtml).run();
+        }
+      } else {
+        // 일반 URL 링크 삽입
+        editor
+          .chain()
+          .focus()
+          .setLink({ href: url })
+          .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a><p><br></p>`)
+          .run();
+      }
+    }
+  }, [editor]);
+
+  // 외부에서 미디어 삽입 메서드 노출 (멀티미디어 버튼에서 사용)
+  useEffect(() => {
+    if (editor) {
+      // @ts-ignore - 에디터에 사용자 정의 메서드 추가
+      editor.insertImage = insertImage;
+      // @ts-ignore
+      editor.insertVideo = insertVideo;
+      // @ts-ignore
+      editor.insertFileLink = insertFileLink;
+      // @ts-ignore
+      editor.insertUrl = insertUrl;
+    }
+  }, [editor, insertImage, insertVideo, insertFileLink, insertUrl]);
 
   // 이미지 클릭 이벤트
   useEffect(() => {
@@ -275,7 +379,7 @@ const TipTapEditor = ({
   }, [value, editor]);
 
   return (
-    <div className="tiptap-editor border rounded-md overflow-hidden">
+    <div className="tiptap-editor border rounded-md overflow-hidden" data-field-name={fieldName || name}>
       {editable && <MenuBar editor={editor} />}
       <EditorContent className="min-h-[200px]" editor={editor} />
     </div>
