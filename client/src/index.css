@@ -123,6 +123,62 @@
   box-shadow: 0 0 0 2px #3b82f6;
 }
 
+/* TipTap 에디터 스타일 */
+.tiptap-editor {
+  margin-bottom: 1.5rem;
+}
+
+.tiptap-content {
+  min-height: 200px;
+  padding: 1rem;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.tiptap-content p {
+  margin-bottom: 0.75rem;
+}
+
+.tiptap-content:focus {
+  outline: none;
+}
+
+.tiptap-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.375rem;
+  margin: 1rem 0;
+  display: block;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.tiptap-image:hover {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+.tiptap-link {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.ProseMirror {
+  min-height: 200px;
+  padding: 0.75rem;
+}
+
+.ProseMirror-focused {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-of-type::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
 /* 리치 에디터 스타일 */
 .rich-editor-content {
   position: relative;
