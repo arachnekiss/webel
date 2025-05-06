@@ -176,7 +176,16 @@ const ResourceDetail: React.FC = () => {
     : '';
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div 
+      className="container mx-auto py-8 px-4 max-w-6xl"
+      contentEditable={false}
+      suppressContentEditableWarning
+      style={{
+        userSelect: 'text',
+        cursor: 'default',
+        pointerEvents: 'auto'
+      }}
+    >
       {/* 뒤로 가기 버튼 */}
       <div className="mb-6">
         <Link href="/resources" className="inline-flex items-center text-gray-600 hover:text-primary">
@@ -215,6 +224,12 @@ const ResourceDetail: React.FC = () => {
                   src={resource.imageUrl} 
                   alt={resource.title} 
                   className="w-full h-auto object-contain max-h-[400px]"
+                  draggable={false}
+                  style={{ cursor: 'default' }}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = '/static/placeholder.png';
+                  }}
                 />
               ) : (
                 <div className="w-full h-64 flex items-center justify-center">
@@ -323,6 +338,13 @@ const ResourceDetail: React.FC = () => {
                 <div 
                   className="prose max-w-none text-gray-700 tiptap-content"
                   dangerouslySetInnerHTML={{ __html: resource.description || '설명이 제공되지 않았습니다.' }}
+                  contentEditable={false}
+                  suppressContentEditableWarning
+                  style={{
+                    userSelect: 'text',
+                    cursor: 'default',
+                    pointerEvents: 'auto'
+                  }}
                 />
               ) : (
                 <p className="text-gray-700">설명이 제공되지 않았습니다.</p>
@@ -341,6 +363,13 @@ const ResourceDetail: React.FC = () => {
                 <div 
                   className="prose max-w-none text-gray-700 tiptap-content"
                   dangerouslySetInnerHTML={{ __html: resource.howToUse }}
+                  contentEditable={false}
+                  suppressContentEditableWarning
+                  style={{
+                    userSelect: 'text',
+                    cursor: 'default',
+                    pointerEvents: 'auto'
+                  }}
                 />
               </div>
             ) : (
