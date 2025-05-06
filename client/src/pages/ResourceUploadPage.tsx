@@ -1005,19 +1005,35 @@ export default function ResourceUploadPage() {
     }, [value, processContent, onImageClick, onImageMove, editable]);
     
     return (
-      <div className="rich-editor-content border rounded-md" ref={containerRef}>
+      <div 
+        className="rich-editor-content border rounded-md relative" 
+        ref={containerRef}
+        style={{ minHeight: '300px' }}
+      >
         <textarea
           ref={textareaRef}
           name={name}
-          className="resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+          className="w-full min-h-[300px] h-full p-3 resize-y border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          style={{ 
+            display: 'block', 
+            position: 'relative', 
+            zIndex: 10, 
+            background: 'transparent',
+            overflow: 'auto'
+          }}
         />
         <div 
           ref={overlayRef} 
-          className="rich-editor-overlay media-preview"
+          className="absolute top-0 left-0 right-0 bottom-0 p-3 media-preview"
           data-testid={`${name}-overlay`}
+          style={{ 
+            zIndex: 5, 
+            pointerEvents: 'none',
+            overflow: 'visible'
+          }}
         />
       </div>
     );
