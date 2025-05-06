@@ -1,0 +1,78 @@
+# 🛠  Webel 멀티미디어 업로드 – “보이는 문제” 전면 수정 요청
+
+## 🔎 현행 버그 - 실제 화면 기준
+| 번호 | 증상 | 상세 |
+|----- |----- |----- |
+| 1 | **영상 X 삭제 → 첨부 리스트에 남음** | 에디터 블록은 지워지지만 `mediaItems` 미갱신 |
+| 2 | **파일 첨부가 본문에 `<a>텍스트`만** | Attachment NodeView 미존재·카드 UI 없음 |
+| 3 | **YouTube URL → 리스트만 등록, 본문 iframe 없음** | custom youtube-embed node 삽입 실패 |
+| 4 | **본문 저장 시 HTML 문자열 그대로 렌더** | `<img ...>` `<video ...>` 태그가 평문으로 보임 |
+| 5 | **에디터↔리스트 양방향 삭제 미동기화** | 리스트 X → 에디터 노드 남거나 그 반대 |
+| 6 | **삭제 후 빈 `<p><br>` 누적** | 다중 삭제 시 공백 줄 많음 |
+
+---
+
+## 🎯 반드시 구현해야 할 항목
+
+### 1. **단일 state(mediaItems) 강제 적용**
+```ts
+type MediaItem = { url:string; type:'image'|'video'|'gif'|'file'|'youtube'; field:string };
+const [mediaItems, setMediaItems] = useState<MediaItem[]>([]);
+const addMedia = (m:MediaItem)=>setMediaItems(p=>(p.some(x=>x.url===m.url)?p:[...p,m]));
+const removeMedia = (url:string)=>setMediaItems(p=>p.filter(x=>x.url!==url));
+업로드·삽입할 때는 반드시 addMedia,
+
+모든 삭제 경로(NodeView X, 리스트 X)에서는 removeMedia 호출.
+
+2. NodeView & 리스트 완전 동기화
+ts
+복사
+편집
+// 리스트 X
+onClick={()=>{ removeMedia(url); removeMediaFromEditor(url); }}
+// NodeView X
+onClick={()=>{ removeMedia(src); view.dispatch(tr.delete(pos,pos+node.nodeSize)); tidyEmptyPara(tr); }}
+3. Attachment Node 구현
+name, size 표기, 📎 아이콘 + 다운로드 링크 카드 UI.
+
+file 버튼 업로드 성공 → Attachment Node 삽입 + addMedia.
+
+4. YouTube Node 확정
+URL 입력 → getYouTubeVideoId → <iframe> Node 삽입 + addMedia.
+
+NodeView X → removeMedia.
+
+5. Rich Preview 렌더링
+리소스 상세 화면은 dangerouslySetInnerHTML 로 TipTap HTML 출력 렌더
+→ 지금처럼 <img ...> 문자열이 그대로 보이는 현상 제거.
+
+6. 빈 단락 정리 함수
+ts
+복사
+편집
+const tidyEmptyPara = (tr:Transaction)=>{
+  const $pos = tr.selection.$from;
+  const node = $pos.nodeAfter;
+  if(node?.type.name==='paragraph' && node.content.size===0){
+    tr.delete($pos.pos,$pos.pos+node.nodeSize);
+  }
+};
+모든 tr.delete 이후 tidyEmptyPara(tr) 호출.
+
+7. 검수용 체크리스트 (Done when…)
+ 이미지·MP4·PDF·YouTube 모두 본문 + 첨부리스트 동시 표시
+
+ 어느 쪽 X 눌러도 본문·리스트 동시 삭제, 빈 줄 없음
+
+ 파일은 카드 UI, 클릭 시 다운로드됨
+
+ 상세 페이지에서 HTML 렌더 정상(이미지·영상 보임)
+
+ npm run build 시 TS·ESLint 오류 0
+
+⚠️ 주의
+중복 함수·중복 선언 제거 후 컴파일 통과 확인.
+
+기존 코드 복원하지 말고 클린 재구성: 중복 normalizeUrl, removeMediaItem 삭제.
+
+새 기능 하나 완성할 때마다 playground에서 직접 업로드·삭제 테스트 후 커밋.
