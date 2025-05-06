@@ -417,22 +417,7 @@ export default function ResourceUploadPage() {
     }
   };
   
-  // 에디터에서 미디어 삭제될 때 호출되는 핸들러
-  const handleMediaDelete = useCallback((url: string, type: string, fieldName: string) => {
-    console.log(`에디터에서 미디어 삭제 감지: ${type}, URL: ${url.substring(0, 30)}..., 필드: ${fieldName}`);
-    
-    // 단일 소스 미디어 상태에서도 삭제
-    removeMediaItem(fieldName, url);
-  }, [removeMediaItem]);
-  
-  // 이미지 클릭 핸들러 - 클릭한 이미지 편집/관리 (예: 크기 조정, 삭제, 캡션 추가 등)
-  const handleImageClick = useCallback((imageSrc: string) => {
-    console.log("이미지 클릭됨:", imageSrc);
-    // 팝업 메시지 제거 - UX 개선을 위해 클릭 시 팝업 없음
-    // 추후 이미지 편집 모달을 여기에 구현할 수 있음
-  }, []);
-  
-  // ----- 미디어 관리 유틸리티 함수 ----- //
+  // 미디어 관리 유틸리티 함수 먼저 정의
   
   // URL 정규화 함수
   const normalizeUrl = useCallback((url: string): string => {
@@ -453,79 +438,6 @@ export default function ResourceUploadPage() {
       return url.split('?')[0].split('#')[0];
     }
   }, []);
-  
-  // 미디어 아이템 추가 유틸리티 (단일 소스)
-  const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
-    console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
-    
-    // 미디어 아이템 저장 (단일 소스)
-    setMediaItems(prev => {
-      const fieldMedia = prev[fieldName] || [];
-      // URL 기준으로 중복 확인
-      if (!fieldMedia.some(item => normalizeUrl(item.url) === normalizeUrl(media.url))) {
-        return {
-          ...prev,
-          [fieldName]: [...fieldMedia, media]
-        };
-      }
-      return prev;
-    });
-    
-    // 에디터 참조 가져오기 및 미디어 타입에 따른 삽입
-    const editorRef = editorRefs.current[fieldName];
-    if (editorRef?.current) {
-      const editor = editorRef.current;
-      
-      // 미디어 타입에 따라 적절한 삽입 방법 선택
-      switch(media.type) {
-        case 'image':
-          editor.insertImage(media.url, media.name || '이미지');
-          break;
-        case 'video':
-          editor.insertVideo(media.url);
-          break;
-        case 'youtube':
-          editor.insertVideo(media.url); // insertVideo 메서드가 YouTube URL 감지 및 처리
-          break;
-        case 'file':
-          editor.insertFile(media.url, media.name || '파일', media.size);
-          break;
-        default:
-          console.warn(`지원하지 않는 미디어 타입: ${media.type}`);
-      }
-    }
-    
-    // 기존 uploadedMediaFiles 호환성 유지 (필요시에만 사용)
-    if (media.file || media.type === 'youtube') {
-      setUploadedMediaFiles(prev => {
-        const fieldFiles = prev[fieldName] || [];
-        
-        // 이미 존재하는지 확인
-        if (fieldFiles.some(file => file.preview === media.url)) {
-          return prev;
-        }
-        
-        // 새 FileWithPreview 객체 생성
-        const newFile = new File([], 
-          media.name || `${media.type}-${Date.now()}`, 
-          { type: `${media.type}/${media.type === 'youtube' ? 'mp4' : 'file'}` }) as FileWithPreview;
-        
-        newFile.preview = media.url;
-        // size는 읽기 전용이므로 Object.defineProperty 사용
-        if (media.size) {
-          Object.defineProperty(newFile, 'size', {
-            value: media.size,
-            writable: false
-          });
-        }
-        
-        return {
-          ...prev,
-          [fieldName]: [...fieldFiles, newFile]
-        };
-      });
-    }
-  }, [normalizeUrl]);
   
   // 미디어 아이템 제거 유틸리티 (단일 소스)
   const removeMediaItem = useCallback((fieldName: string, url: string, mediaType?: string) => {
@@ -604,6 +516,107 @@ export default function ResourceUploadPage() {
           return false;
         });
       }
+    }
+  }, [normalizeUrl]);
+  
+  // 에디터 콜백 - TipTapEditor에서 미디어 삭제될 때 호출되는 핸들러
+  const handleMediaDeleteCallback = useCallback((url: string, type: string, fieldName?: string) => {
+    console.log(`에디터에서 미디어 삭제 감지: ${type}, URL: ${url.substring(0, 30)}..., 필드: ${fieldName || '미지정'}`);
+    
+    if (!fieldName) {
+      console.warn("필드명이 지정되지 않았습니다. 현재 활성 에디터를 사용합니다.");
+      // 필드명이 없는 경우 현재 활성화된 에디터 필드 사용
+      if (currentEditor) {
+        removeMediaItem(currentEditor, url, type);
+      } else {
+        console.error("활성화된 에디터가 없어 미디어를 삭제할 수 없습니다.");
+      }
+      return;
+    }
+    
+    // 단일 소스 미디어 상태에서도 삭제
+    removeMediaItem(fieldName, url, type);
+  }, [removeMediaItem, currentEditor]);
+  
+  // 이미지 클릭 핸들러 - 클릭한 이미지 편집/관리 (예: 크기 조정, 삭제, 캡션 추가 등)
+  const handleImageClick = useCallback((imageSrc: string) => {
+    console.log("이미지 클릭됨:", imageSrc);
+    // 팝업 메시지 제거 - UX 개선을 위해 클릭 시 팝업 없음
+    // 추후 이미지 편집 모달을 여기에 구현할 수 있음
+  }, []);
+  
+  // ----- 미디어 관리 유틸리티 함수 사용 ----- //
+  
+  // 미디어 아이템 추가 유틸리티 (단일 소스)
+  const addMediaItem = useCallback((fieldName: string, media: MediaItem) => {
+    console.log(`미디어 아이템 추가: ${media.type}, URL: ${media.url.substring(0, 30)}...`);
+    
+    // 미디어 아이템 저장 (단일 소스)
+    setMediaItems(prev => {
+      const fieldMedia = prev[fieldName] || [];
+      // URL 기준으로 중복 확인
+      if (!fieldMedia.some(item => normalizeUrl(item.url) === normalizeUrl(media.url))) {
+        return {
+          ...prev,
+          [fieldName]: [...fieldMedia, media]
+        };
+      }
+      return prev;
+    });
+    
+    // 에디터 참조 가져오기 및 미디어 타입에 따른 삽입
+    const editorRef = editorRefs.current[fieldName];
+    if (editorRef?.current) {
+      const editor = editorRef.current;
+      
+      // 미디어 타입에 따라 적절한 삽입 방법 선택
+      switch(media.type) {
+        case 'image':
+          editor.insertImage(media.url, media.name || '이미지');
+          break;
+        case 'video':
+          editor.insertVideo(media.url);
+          break;
+        case 'youtube':
+          editor.insertVideo(media.url); // insertVideo 메서드가 YouTube URL 감지 및 처리
+          break;
+        case 'file':
+          editor.insertFile(media.url, media.name || '파일', media.size);
+          break;
+        default:
+          console.warn(`지원하지 않는 미디어 타입: ${media.type}`);
+      }
+    }
+    
+    // 기존 uploadedMediaFiles 호환성 유지 (필요시에만 사용)
+    if (media.file || media.type === 'youtube') {
+      setUploadedMediaFiles(prev => {
+        const fieldFiles = prev[fieldName] || [];
+        
+        // 이미 존재하는지 확인
+        if (fieldFiles.some(file => file.preview === media.url)) {
+          return prev;
+        }
+        
+        // 새 FileWithPreview 객체 생성
+        const newFile = new File([], 
+          media.name || `${media.type}-${Date.now()}`, 
+          { type: `${media.type}/${media.type === 'youtube' ? 'mp4' : 'file'}` }) as FileWithPreview;
+        
+        newFile.preview = media.url;
+        // size는 읽기 전용이므로 Object.defineProperty 사용
+        if (media.size) {
+          Object.defineProperty(newFile, 'size', {
+            value: media.size,
+            writable: false
+          });
+        }
+        
+        return {
+          ...prev,
+          [fieldName]: [...fieldFiles, newFile]
+        };
+      });
     }
   }, [normalizeUrl]);
   

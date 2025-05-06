@@ -636,7 +636,7 @@ const PreventImageNodeDeletion = Extension.create({
 export interface TipTapEditorHandle {
   insertImage: (src: string, alt?: string) => void;
   insertVideo: (src: string) => void;
-  insertFile: (url: string, fileName: string) => void;
+  insertFile: (url: string, fileName: string, fileSize?: number) => void;
   insertLink: (url: string, text?: string) => void;
   insertHtml: (html: string) => void;
   getEditor: () => Editor | null;
@@ -649,7 +649,7 @@ interface TipTapEditorProps {
   editable?: boolean;
   onImageClick?: (src: string) => void;
   onImageUpload?: (file: File) => Promise<string>;
-  onMediaDelete?: (src: string, type: 'image' | 'video', fieldName?: string) => void; // 미디어 삭제 이벤트 핸들러
+  onMediaDelete?: (src: string, type: string, fieldName?: string) => void; // 미디어 삭제 이벤트 핸들러
   fieldName?: string; // 필드 이름 (멀티미디어 추적용)
   name?: string; // input name 속성
   hideLinkButton?: boolean; // 링크 버튼을 숨길지 여부
