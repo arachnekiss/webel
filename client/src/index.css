@@ -146,6 +146,23 @@
   margin-bottom: -6px;
 }
 
+/* 읽기 전용 콘텐츠 스타일 */
+.read-only-content {
+  cursor: default;
+}
+
+.read-only-content img,
+.read-only-content video {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.read-only-content * {
+  user-select: text;
+  -webkit-user-drag: none;
+}
+
 .media-preview .youtube-embed {
   margin: 1rem 0;
   width: 100%;

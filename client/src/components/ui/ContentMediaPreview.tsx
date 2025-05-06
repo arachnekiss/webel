@@ -94,7 +94,7 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
       const youtubeId = embed.getAttribute('data-youtube-id');
       if (youtubeId) {
         const iframe = embed.querySelector('iframe');
-        if (iframe && iframe instanceof HTMLElement) {
+        if (iframe instanceof HTMLIFrameElement) {
           // iframe의 상호작용 방지
           iframe.style.pointerEvents = 'none';
         }
