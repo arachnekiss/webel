@@ -41,8 +41,8 @@ export default function() {
   const fileName = `test-${randomString(8)}.jpg`;
   const fileType = 'image/jpeg';
   
-  // 파일 메타데이터를 base64 인코딩
-  const fileMetadata = btoa(`filename ${fileName}\nfiletype ${fileType}`);
+  // 파일 메타데이터 - k6에서는 인코딩 함수에 제한이 있으므로 미리 인코딩된 값 사용
+  const fileMetadata = "ZmlsZW5hbWUgdGVzdC1maWxlLmpwZwpmaWxldHlwZSBpbWFnZS9qcGVn";
   
   // 1. TUS 프로토콜 업로드 생성 요청
   const createStart = new Date().getTime();
