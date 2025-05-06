@@ -151,9 +151,16 @@
   cursor: default;
 }
 
-.read-only-content img,
-.read-only-content video {
+.read-only-content img {
   pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 비디오와 iframe은 상호작용 허용 */
+.read-only-content video,
+.read-only-content iframe {
+  pointer-events: auto;
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -242,8 +249,19 @@
 }
 
 /* 읽기 전용 미디어 스타일 */
-.reader-img, .reader-video {
+/* 읽기 전용 이미지는 상호작용 차단 */
+.reader-img {
   pointer-events: none !important;
+  user-drag: none !important;
+  -webkit-user-drag: none !important;
+  max-width: 100% !important;
+  border-radius: 0.375rem;
+  margin: 1rem 0;
+}
+
+/* 읽기 전용 비디오는 컨트롤 상호작용 허용 */
+.reader-video {
+  pointer-events: auto !important; /* 컨트롤 클릭 허용 */
   user-drag: none !important;
   -webkit-user-drag: none !important;
   max-width: 100% !important;

@@ -120,7 +120,7 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
           videoElement.preload = 'metadata';
           videoElement.className = 'reader-video';
           videoElement.style.width = '100%';
-          videoElement.style.pointerEvents = 'none';
+          videoElement.style.pointerEvents = 'auto'; // 비디오 컨트롤 상호작용 허용
           videoElement.draggable = false;
           
           videoWrapper.appendChild(videoElement);
@@ -135,8 +135,8 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
       if (youtubeId) {
         const iframe = embed.querySelector('iframe');
         if (iframe instanceof HTMLIFrameElement) {
-          // iframe의 상호작용 방지
-          iframe.style.pointerEvents = 'none';
+          // iframe 상호작용 허용 (YouTube 영상 컨트롤용)
+          iframe.style.pointerEvents = 'auto';
         }
       }
     });

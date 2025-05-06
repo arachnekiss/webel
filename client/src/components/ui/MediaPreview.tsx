@@ -40,7 +40,7 @@ export const MediaPreview = ({ src, alt, type }: Props) => {
           className="reader-video"
           style={{
             width: '100%',
-            pointerEvents: 'none'
+            pointerEvents: 'auto' // 비디오 컨트롤 클릭 허용
           }} 
           draggable={false}
         />
@@ -70,7 +70,7 @@ export const MediaPreview = ({ src, alt, type }: Props) => {
             frameBorder="0" 
             allowFullScreen
             style={{
-              pointerEvents: 'none'
+              pointerEvents: 'auto' // YouTube 상호작용 허용
             }}
           ></iframe>
         </div>
