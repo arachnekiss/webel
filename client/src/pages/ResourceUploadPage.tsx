@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import MediaPreview from "@/components/ui/MediaPreview";
 import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
+import TipTapEditor from "@/components/ui/TipTapEditor";
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
