@@ -2262,7 +2262,7 @@ export default function ResourceUploadPage() {
                                   }}
                                   onMediaDelete={(src, type) => handleMediaDelete(src, type, "assemblyInstructions")}
                                 />
-                                <AttachedMediaSummary fieldName="assemblyInstructions" />
+                                <MediaItemsSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
                           </FormControl>
@@ -2336,7 +2336,7 @@ export default function ResourceUploadPage() {
                                   }}
                                   onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                                 />
-                                <AttachedMediaSummary fieldName="howToUse" />
+                                <MediaItemsSummary fieldName="howToUse" />
                               </div>
                             </div>
                           </FormControl>
@@ -2413,7 +2413,7 @@ export default function ResourceUploadPage() {
                                 }}
                                 onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                               />
-                              <AttachedMediaSummary fieldName="howToUse" />
+                              <MediaItemsSummary fieldName="howToUse" />
                             </div>
                           </div>
                         </FormControl>
@@ -2511,7 +2511,7 @@ export default function ResourceUploadPage() {
                                   }}
                                   onMediaDelete={(src, type) => handleMediaDelete(src, type, "assemblyInstructions")}
                                 />
-                                <AttachedMediaSummary fieldName="assemblyInstructions" />
+                                <MediaItemsSummary fieldName="assemblyInstructions" />
                               </div>
                             </div>
                           </FormControl>
@@ -2585,7 +2585,7 @@ export default function ResourceUploadPage() {
                                   }}
                                   onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                                 />
-                                <AttachedMediaSummary fieldName="howToUse" />
+                                <MediaItemsSummary fieldName="howToUse" />
                               </div>
                             </div>
                           </FormControl>
@@ -2662,7 +2662,7 @@ export default function ResourceUploadPage() {
                                 }}
                                 onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                               />
-                              <AttachedMediaSummary fieldName="howToUse" />
+                              <MediaItemsSummary fieldName="howToUse" />
                             </div>
                           </div>
                         </FormControl>
