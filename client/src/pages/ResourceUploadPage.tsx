@@ -177,9 +177,21 @@ function getYouTubeVideoId(url: string): string {
   return videoId;
 }
 
+// 빈 단락 정리 함수
+const tidyEmptyParagraph = (tr: any) => {
+  const $pos = tr.selection.$from;
+  const node = $pos.nodeAfter;
+  if (node?.type.name === 'paragraph' && node.content.size === 0) {
+    tr.delete($pos.pos, $pos.pos + node.nodeSize);
+  }
+  return tr;
+};
+
 // 전역에서 함수 접근 가능하도록 설정
 if (typeof window !== 'undefined') {
   window.getYouTubeVideoId = getYouTubeVideoId;
+  // 타임스탬프 저장 - 중복 삭제 방지용
+  window.lastEditorDeletionTimestamp = 0;
 }
 
 export default function ResourceUploadPage() {

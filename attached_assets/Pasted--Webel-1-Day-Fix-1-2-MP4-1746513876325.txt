@@ -1,0 +1,104 @@
+# 🛠 Webel 멀티미디어 업로드 — “보이는 결과” 1-Day Fix
+
+> **※ 현상 재현 방법**  
+> 1) 리소스 업로드 페이지 이동  
+> 2) 이미지·MP4·PDF·YouTube URL 차례대로 추가  
+> 3) 본문에서 각 X 버튼 클릭  
+>    → ‼ 첨부 리스트에 항목이 남음  
+> 4) “제출” 후 상세 페이지 확인  
+>    → ‼ 모든 미디어가 **HTML 문자열**로 그대로 표시
+
+---
+
+## 🎯 오늘 반드시 해결할 4가지
+
+| 순서 | 반드시 고쳐야 할 증상 | 완료 기준(AC) |
+|----- |----------------------|---------------|
+| 1 | **에디터 X → 리스트 잔존** | 어느 쪽 X 눌러도 **본문·리스트 동시 삭제**, 빈 줄 없음 |
+| 2 | **파일 첨부가 텍스트 링크** | PDF·ZIP 첨부 → 본문에 **Attachment 카드**(📎+파일명+size) 표시 |
+| 3 | **YouTube URL 본문 미표시** | URL 붙여넣으면 즉시 **iframe 노드** 삽입, 삭제 연동 |
+| 4 | **상세 페이지에 태그 노출** | 리소스 상세 뷰에 미디어가 **렌더링**되고 HTML 원본 안 보임 |
+
+---
+
+## 구현 규칙
+
+1. ### 단일 상태
+   ```ts
+   const [media, setMedia] = useState<MediaItem[]>([]);
+   const add = (m:MediaItem)=>setMedia(p=>p.some(x=>x.url===m.url)?p:[...p,m]);
+   const remove = (url:string)=>setMedia(p=>p.filter(x=>x.url!==url));
+모든 업로드/삽입 → add
+
+모든 삭제(NodeView X, 리스트 X) → remove
+
+NodeView X
+ts
+복사
+편집
+onClick={()=>{
+  remove(src);
+  view.dispatch(tr.delete(pos,pos+node.nodeSize));
+  tidyEmpty(tr);
+}}
+Attachment Node
+group: block, atom
+
+NodeView = 📎 아이콘 + 파일명 (size, 다운로드 링크)
+
+업로드 후 삽입 + add({url,type:'file'})
+
+YouTube Node
+URL ⇒ getYouTubeVideoId ⇒ <iframe src="https://www.youtube.com/embed/{id}">
+
+add({url,type:'youtube'})
+
+NodeView X 동일 삭제 로직
+
+상세 뷰
+저장 시 TipTap → editor.getHTML()
+
+표시 페이지에서 dangerouslySetInnerHTML 로 그 HTML 렌더
+
+빈 단락 정리
+ts
+복사
+편집
+const tidyEmpty = (tr:Transaction)=>{
+  const $ = tr.selection.$from;
+  const n = $.nodeAfter;
+  if(n?.type.name==='paragraph' && n.content.size===0)
+    tr.delete($.pos,$.pos+n.nodeSize);
+}
+제출 전 체크리스트
+ 이미지/MP4/PDF/YouTube 모두 본문 + 리스트 동기
+
+ X 삭제 양방향 동기화 & 빈 줄 0
+
+ 첨부 카드 UI 동작 (파일 다운로드 OK)
+
+ 상세 뷰에서 미디어 렌더
+
+ npm run build 타입·ESLint 오류 0
+
+작업 순서 제안(권장)
+비디오/이미지 NodeView → remove() 연동만 먼저 완성 & 커밋
+
+Attachment Node 제작 → 업로드 연결 & 커밋
+
+YouTube Node 제작 → URL 폼·붙여넣기 연결 & 커밋
+
+상세 뷰 렌더 교체 & 빈 단락 정리 → 커밋
+
+QA 체크리스트 확인 후 PR
+
+커밋이 작동 가능한 최소 단위로(1,2,3,4번 순) 올라오지 않으면 리젝합니다.
+
+markdown
+복사
+편집
+
+**왜 이렇게?**  
+- “실제 재현 절차 → 버그 → 완료 기준”을 표로 명시해 **뭘 봐야 하는지** 분명히 했습니다.  
+- 기능을 **4개 작은 단계**로 쪼개 커밋 → 검수 → 피드백 가능.  
+- HTML 문자열 노출까지 포함해 “보이는 결과”가 꼭 바뀌어야 승인됩니다.
