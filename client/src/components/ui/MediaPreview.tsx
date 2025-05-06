@@ -169,8 +169,12 @@ function MediaPreview({
     
     // 이미지 로드 및 에러 처리
     images.forEach(img => {
-      // 이미지 스타일 및 드래그 설정
-      img.classList.add('editor-img');
+      // 이미지 스타일 설정 - 편집 모드에서만 editor-img 클래스 추가
+      if (editable) {
+        img.classList.add('editor-img');
+      } else {
+        img.classList.add('reader-img');
+      }
       
       // 로드 및 에러 이벤트 핸들러
       img.addEventListener('load', () => {
@@ -188,7 +192,9 @@ function MediaPreview({
         mediaLoaded.current[img.src] = true;
       });
       
+      // 편집 모드일 때만 드래그 및 클릭 이벤트 추가
       if (editable) {
+        console.log("드래그 가능한 이미지로 설정:", img.src);
         img.draggable = true;
         
         // 클릭 이벤트
@@ -229,6 +235,13 @@ function MediaPreview({
             e.target.classList.remove('dragging-media');
           }
         });
+      } else {
+        // 읽기 모드에서는 드래그 비활성화
+        img.draggable = false;
+        
+        // 클릭 이벤트도 추가하지 않음 
+        // (원래 있던 이벤트 리스너 제거 필요시 아래 코드 사용)
+        // img.removeEventListener('click', ...);
       }
     });
     
@@ -289,12 +302,56 @@ function MediaPreview({
     const blobImagePlaceholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgODAwIDQwMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+PGRlZnM+PHN0eWxlIHR5cGU9InRleHQvY3NzIj4jaG9sZGVyXzE1YmE4MDBhYTIwIHRleHQgeyBmaWxsOiNBQUE7Zm9udC13ZWlnaHQ6bm9ybWFsO2ZvbnQtZmFtaWx5OiJIZWx2ZXRpY2EgTmV1ZSIsIEhlbHZldGljYSwgQXJpYWwsIHNhbnMtc2VyaWY7Zm9udC1zaXplOjQwcHQgfSA8L3N0eWxlPjwvZGVmcz48ZyBpZD0iaG9sZGVyXzE1YmE4MDBhYTIwIj48cmVjdCB3aWR0aD0iODAwIiBoZWlnaHQ9IjQwMCIgZmlsbD0iI0Y1RjVGNSI+PC9yZWN0PjxnPjx0ZXh0IHg9IjI3OS4yIiB5PSIyMTguMyI+7IOB66Gc7KeAIOyYpOyLoTwvdGV4dD48L2c+PC9nPjwvc3ZnPg==';
     const blobVideoPlaceholder = 'data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA9NtZGF0AAACmQYF//+X3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE0MiByMjQ3OSBkZDc5YTYxIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxNCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTIgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MToweDEgbWU9dW1oIHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhlZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTAgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9tYV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz0zIGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0wIGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MCB3ZWlnaHRwPTAga2V5aW50PTI1MCBrZXlpbnRfbWluPTEgc2NlbmVjdXQ9NDAgaW50cmFfcmVmcmVzaD0wIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgdm05PTEgdnJlZj0yIGNtcD00NiBpbnRpYl85NyB2dXZfY21wPTE4IGNoaXBfc2l6ZT0wIHA4eDg9MCBwNHg0PTAgYmx1cj0wIG1heHJhdGU9MjUgYndoaW50PTAgYnJkb3E9NyBjcXBvZmZzZXQ9MCBxcHJpbz0wIHByZXA9MyBkZWFkend1PXNvdXJjZSB3cHJlZD0wIGhyYW5nZT0wIG1heHN0ZXA9MQ==';
     
-    // Blob URL 이미지 패턴 처리
-    const blobImgPattern = /<img(?:.*?)src="blob:([^"]+)"(?:.*?)(?:alt="([^"]*)")?(?:.*?)>/gi;
-    let processedContent = text.replace(
-      blobImgPattern,
+    // Blob URL 이미지 패턴 처리 (다양한 패턴 대응)
+    // 첫 번째 패턴: blob:url이 src 속성에 있는 경우
+    const blobImgPattern1 = /<img\s+src="blob:([^"]+)"[^>]*(?:alt="([^"]*)")?[^>]*>/gi;
+    // 두 번째 패턴: class="tiptap-image" 등의 클래스 속성이 포함된 경우
+    const blobImgPattern2 = /<img[^>]*src="blob:([^"]+)"[^>]*(?:class="[^"]*")[^>]*>/gi;
+    // 세 번째 패턴: 모든 종류의 img 태그 (가장 포괄적)
+    const blobImgPattern3 = /<img[^>]*blob:[^">]+[^>]*>/gi;
+
+    // 먼저 모든 blob: URL 이미지 추출
+    const allBlobImages = Array.from(text.matchAll(/blob:[^"')]+/g)).map(m => m[0]);
+    console.log('감지된 blob URL:', allBlobImages);
+    
+    // 플레이스홀더 이미지로 모든 blob: URL을 대체
+    let processedContent = text;
+    
+    // 첫 번째 패턴 처리
+    processedContent = processedContent.replace(
+      blobImgPattern1,
       (match, blobUrl, alt = '이미지') => {
-        // Blob URL을 플레이스홀더로 대체
+        console.log('패턴1 매칭:', match);
+        return `<img 
+          src="${blobImagePlaceholder}" 
+          alt="${alt || '이미지'}"
+          class="blob-image-placeholder"
+          style="width: 100%; height: auto; max-height: 400px; object-fit: contain; background-color: #f5f5f5; border-radius: 4px;"
+        >`;
+      }
+    );
+    
+    // 두 번째 패턴 처리
+    processedContent = processedContent.replace(
+      blobImgPattern2,
+      (match) => {
+        console.log('패턴2 매칭:', match);
+        const alt = match.match(/alt="([^"]*)"/)?.[1] || '이미지';
+        return `<img 
+          src="${blobImagePlaceholder}" 
+          alt="${alt}"
+          class="blob-image-placeholder"
+          style="width: 100%; height: auto; max-height: 400px; object-fit: contain; background-color: #f5f5f5; border-radius: 4px;"
+        >`;
+      }
+    );
+    
+    // 세 번째 패턴 처리 (보험용)
+    processedContent = processedContent.replace(
+      blobImgPattern3,
+      (match) => {
+        console.log('패턴3 매칭:', match);
+        const alt = match.match(/alt="([^"]*)"/)?.[1] || '이미지';
         return `<img 
           src="${blobImagePlaceholder}" 
           alt="${alt}"
@@ -483,7 +540,7 @@ function MediaPreview({
       )}
       <div 
         ref={containerRef} 
-        className={`media-preview editor-preview`}
+        className={`media-preview ${editable ? 'editor-preview' : 'reader-preview'}`}
         data-testid="media-preview"
         data-content-length={content?.length || 0}
         style={{ width: '100%', height: '100%', padding: '0.75rem' }}
