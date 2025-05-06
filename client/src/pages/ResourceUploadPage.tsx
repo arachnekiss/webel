@@ -1808,6 +1808,7 @@ export default function ResourceUploadPage() {
                                       description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                     });
                                   }}
+                                  onMediaDelete={(src, type) => handleMediaDelete(src, type, "assemblyInstructions")}
                                 />
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
@@ -1881,6 +1882,7 @@ export default function ResourceUploadPage() {
                                       description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                     });
                                   }}
+                                  onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                                 />
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
@@ -1957,6 +1959,7 @@ export default function ResourceUploadPage() {
                                     description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                   });
                                 }}
+                                onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                               />
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
@@ -2054,6 +2057,7 @@ export default function ResourceUploadPage() {
                                       description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                     });
                                   }}
+                                  onMediaDelete={(src, type) => handleMediaDelete(src, type, "assemblyInstructions")}
                                 />
                                 <AttachedMediaSummary fieldName="assemblyInstructions" />
                               </div>
@@ -2127,6 +2131,7 @@ export default function ResourceUploadPage() {
                                       description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                     });
                                   }}
+                                  onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                                 />
                                 <AttachedMediaSummary fieldName="howToUse" />
                               </div>
@@ -2203,6 +2208,7 @@ export default function ResourceUploadPage() {
                                     description: "이미지를 편집하는 기능은 곧 추가될 예정입니다.",
                                   });
                                 }}
+                                onMediaDelete={(src, type) => handleMediaDelete(src, type, "howToUse")}
                               />
                               <AttachedMediaSummary fieldName="howToUse" />
                             </div>
