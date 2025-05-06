@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SimpleMediaPreview } from './SimpleMediaPreview';
+import { placeholderImageBase64 } from './ImagePlaceholder';
 
 interface ContentMediaPreviewProps {
   content: string;
@@ -31,12 +32,22 @@ export function ContentMediaPreview({ content, className = "", readOnly = true }
     const images = doc.querySelectorAll('img');
     images.forEach(img => {
       const src = img.getAttribute('src');
-      if (src) {
+      
+      // Skip blob URLs since they won't work in detail view
+      if (src && !src.startsWith('blob:')) {
         extractedItems.push({
           src,
           alt: img.getAttribute('alt') || undefined,
           type: 'image'
         });
+      } else if (src && src.startsWith('blob:')) {
+        // For blob URLs, we'll replace with the placeholder
+        extractedItems.push({
+          src: placeholderImageBase64,
+          alt: img.getAttribute('alt') || '이미지',
+          type: 'image'
+        });
+        console.log('Replaced blob URL with placeholder', src);
       }
     });
     
@@ -86,6 +97,21 @@ export function ContentMediaPreview({ content, className = "", readOnly = true }
     return null;
   }
 
+  // Process the content to prevent it from being editable
+  const processContentForDisplay = (htmlContent: string): string => {
+    // Remove blob URLs from images (they'll be shown separately above)
+    const processedContent = htmlContent
+      // Replace all blob: URLs in img tags with placeholder
+      .replace(/<img[^>]*src="blob:[^"]*"[^>]*>/g, '')
+      // Remove any contenteditable attributes
+      .replace(/contenteditable="[^"]*"/g, '')
+      // Remove tiptap-specific classes that might enable editing
+      .replace(/class="[^"]*tiptap-image[^"]*"/g, 'class="read-only-image"')
+      .replace(/class="[^"]*tiptap-content[^"]*"/g, 'class="read-only-content"');
+    
+    return processedContent;
+  };
+
   return (
     <div 
       className={className}
@@ -97,15 +123,20 @@ export function ContentMediaPreview({ content, className = "", readOnly = true }
         pointerEvents: 'auto'
       }}
     >
-      {mediaItems.map((item, index) => (
-        <div key={index} className="mb-4">
-          <SimpleMediaPreview {...item} />
+      {/* Display non-blob media items at the top */}
+      {mediaItems.length > 0 && (
+        <div className="mb-6">
+          {mediaItems.map((item, index) => (
+            <div key={index} className="mb-4">
+              <SimpleMediaPreview {...item} />
+            </div>
+          ))}
         </div>
-      ))}
+      )}
       
-      {/* Also add the original content but make it non-editable */}
+      {/* Display the content in a read-only way */}
       <div 
-        dangerouslySetInnerHTML={{ __html: content }}
+        dangerouslySetInnerHTML={{ __html: processContentForDisplay(content) }}
         contentEditable={false}
         suppressContentEditableWarning={true}
         style={{
@@ -113,6 +144,7 @@ export function ContentMediaPreview({ content, className = "", readOnly = true }
           cursor: 'default',
           pointerEvents: readOnly ? 'none' : 'auto'
         }}
+        className="read-only-content"
       />
     </div>
   );

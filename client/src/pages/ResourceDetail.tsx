@@ -28,6 +28,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import RelatedResources from '@/components/RelatedResources';
 import MediaPreview from '@/components/ui/MediaPreview';
+import ContentMediaPreview from '@/components/ui/ContentMediaPreview';
 
 // resource type 이름 맵핑 함수
 const getTypeName = (type: string): string => {
@@ -393,11 +394,10 @@ const ResourceDetail: React.FC = () => {
               <div className="space-y-4">
                 {typeof resource.assemblyInstructions === 'string' ? (
                   <>
-                    <MediaPreview
+                    <ContentMediaPreview
                       content={resource.assemblyInstructions}
-                      className="prose max-w-none text-gray-700 tiptap-content"
-                      editable={false}
-                      disableEditorClasses={true}
+                      className="prose max-w-none text-gray-700 read-only-content"
+                      readOnly={true}
                     />
                   </>
                 ) : (

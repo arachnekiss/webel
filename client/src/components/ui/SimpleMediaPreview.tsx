@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { placeholderImageBase64 } from './ImagePlaceholder';
 
 type MediaPreviewProps = { 
   src: string; 
@@ -38,7 +39,7 @@ export function SimpleMediaPreview({ src, alt, type }: MediaPreviewProps) {
           style={{ width: '100%', height: 'auto', cursor: 'default' }}
           onError={e => {
             e.currentTarget.onerror = null;
-            e.currentTarget.src = '/static/placeholder.png';
+            e.currentTarget.src = placeholderImageBase64;
           }}
         />
       );
