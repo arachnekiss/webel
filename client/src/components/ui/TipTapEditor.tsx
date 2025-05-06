@@ -1,25 +1,21 @@
-import React, { useRef, useState, useCallback, useEffect } from 'react';
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import { Editor, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Image as ImageIcon, 
-  Link as LinkIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Video,
-  FileIcon,
-  Smile
-} from 'lucide-react';
+import { useCallback, useEffect, useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { Button } from './button';
-import { cn } from '@/lib/utils';
+import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Link2, ImageIcon } from 'lucide-react';
+
+// 에디터 인스턴스를 외부에서 참조하기 위한 핸들 타입 정의
+export interface TipTapEditorHandle {
+  insertImage: (src: string, alt?: string) => void;
+  insertVideo: (src: string) => void;
+  insertFile: (url: string, fileName: string) => void;
+  insertLink: (url: string, text?: string) => void;
+  insertHtml: (html: string) => void;
+  getEditor: () => Editor | null;
+}
 
 interface TipTapEditorProps {
   value: string;
@@ -32,358 +28,247 @@ interface TipTapEditorProps {
   name?: string; // input name 속성
 }
 
-const MenuBar = ({ editor }: { editor: Editor | null }) => {
-  const [linkUrl, setLinkUrl] = useState('');
-  const [showLinkInput, setShowLinkInput] = useState(false);
+export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
+  value,
+  onChange,
+  placeholder = "내용을 입력하세요...",
+  editable = true,
+  onImageClick,
+  onImageUpload,
+  fieldName,
+  name,
+}, ref) => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageClick = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'IMG' && onImageClick) {
+      const src = target.getAttribute('src');
+      if (src) {
+        onImageClick(src);
+      }
+    }
+  };
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Image,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer'
+        }
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right'],
+      }),
+    ],
+    content: value || "",
+    editable,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    onSelectionUpdate: ({ editor }) => {
+      if (onImageClick) {
+        const selectedNode = editor.state.selection.$anchor.parent;
+        if (selectedNode.type.name === 'image') {
+          const attrs = selectedNode.attrs;
+          onImageClick(attrs.src);
+        }
+      }
+    },
+    editorProps: {
+      handleClick: onImageClick ? handleImageClick : undefined,
+      attributes: {
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl max-w-none',
+        'data-placeholder': placeholder,
+        ...(fieldName ? { 'data-field-name': fieldName } : {}),
+        ...(name ? { 'name': name } : {}),
+      },
+    },
+  });
+
+  // 외부에서 에디터 기능에 접근할 수 있는 핸들 제공
+  useImperativeHandle(ref, () => ({
+    // 이미지 삽입
+    insertImage: (src: string, alt: string = "이미지") => {
+      editor?.chain().focus().setImage({ src, alt }).insertContent('<p><br></p>').run();
+    },
+    
+    // 비디오 삽입
+    insertVideo: (src: string) => {
+      const videoHtml = `<div><video controls width="100%"><source src="${src}"></video></div><p><br></p>`;
+      editor?.chain().focus().insertContent(videoHtml).run();
+    },
+    
+    // 파일 링크 삽입
+    insertFile: (url: string, fileName: string) => {
+      const fileHtml = `<p><a href="${url}" download="${fileName}" class="tiptap-file-link">${fileName} 다운로드</a></p><p><br></p>`;
+      editor?.chain().focus().insertContent(fileHtml).run();
+    },
+    
+    // 링크 삽입
+    insertLink: (url: string, text?: string) => {
+      if (text) {
+        editor?.chain().focus().insertContent(`<a href="${url}" target="_blank">${text}</a>`).run();
+      } else {
+        editor?.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      }
+    },
+    
+    // HTML 직접 삽입
+    insertHtml: (html: string) => {
+      editor?.chain().focus().insertContent(html).run();
+    },
+    
+    // 에디터 인스턴스 반환
+    getEditor: () => editor,
+  }));
+
+  // 에디터 내용이 외부에서 변경될 경우 업데이트
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value || "");
+    }
+  }, [value, editor]);
+
+  // 이미지 파일 선택 핸들러
+  const handleSelectImage = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  // 이미지 업로드 처리
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editor || !onImageUpload) return;
+
+    try {
+      setImageFile(file);
+      const imageUrl = await onImageUpload(file);
+      
+      // 이미지 삽입
+      editor.chain().focus().setImage({ src: imageUrl, alt: file.name }).run();
+      
+      // 입력 필드 초기화
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (error) {
+      console.error('Image upload failed:', error);
+    } finally {
+      setImageFile(null);
+    }
+  }, [editor, onImageUpload]);
+
+  // URL 삽입 핸들러
+  const handleInsertLink = useCallback(() => {
+    if (!editor) return;
+    
+    const url = window.prompt('URL을 입력하세요:');
+    if (url) {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    }
+  }, [editor]);
 
   if (!editor) {
     return null;
   }
 
-  // 이미지 업로드 핸들러
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files?.length) {
-      const file = event.target.files[0];
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        if (e.target?.result && typeof e.target.result === 'string') {
-          editor.chain().focus().setImage({ src: e.target.result }).run();
-        }
-      };
-      
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // 링크 추가 핸들러
-  const addLink = () => {
-    if (linkUrl) {
-      editor.chain().focus().setLink({ href: linkUrl }).run();
-      setLinkUrl('');
-      setShowLinkInput(false);
-    }
-  };
-
   return (
-    <div className="flex flex-wrap items-center p-2 gap-1 border-b bg-muted/10">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive('bold') ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().toggleBold().run()}
-      >
-        <Bold className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive('italic') ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-      >
-        <Italic className="h-4 w-4" />
-      </Button>
-      
-      <div className="mx-1 h-4 border-l border-muted-foreground/20"></div>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive('bulletList') ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-      >
-        <List className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive('orderedList') ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-      >
-        <ListOrdered className="h-4 w-4" />
-      </Button>
-      
-      <div className="mx-1 h-4 border-l border-muted-foreground/20"></div>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={() => {
-          if (fileInputRef.current) {
-            fileInputRef.current.click();
-          }
-        }}
-      >
-        <ImageIcon className="h-4 w-4" />
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          className="hidden" 
-          accept="image/*" 
-          onChange={handleImageUpload}
-        />
-      </Button>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive('link') ? 'bg-muted' : '')}
-        onClick={() => setShowLinkInput(!showLinkInput)}
-      >
-        <LinkIcon className="h-4 w-4" />
-      </Button>
-      
-      <div className="mx-1 h-4 border-l border-muted-foreground/20"></div>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive({ textAlign: 'left' }) ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().setTextAlign('left').run()}
-      >
-        <AlignLeft className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive({ textAlign: 'center' }) ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().setTextAlign('center').run()}
-      >
-        <AlignCenter className="h-4 w-4" />
-      </Button>
-      
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn('h-8 w-8', editor.isActive({ textAlign: 'right' }) ? 'bg-muted' : '')}
-        onClick={() => editor.chain().focus().setTextAlign('right').run()}
-      >
-        <AlignRight className="h-4 w-4" />
-      </Button>
-      
-      {showLinkInput && (
-        <div className="flex items-center gap-2 ml-auto">
-          <input
-            type="text"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            placeholder="URL 입력"
-            className="px-2 py-1 text-sm border rounded"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                addLink();
-              }
-            }}
-          />
-          <Button type="button" size="sm" onClick={addLink}>추가</Button>
-          <Button 
-            type="button" 
-            size="sm" 
-            variant="ghost" 
-            onClick={() => {
-              setShowLinkInput(false);
-              setLinkUrl('');
-            }}
+    <div className="tiptap-editor-container">
+      {editable && (
+        <div className="tiptap-toolbar">
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            disabled={!editor.can().toggleBold()}
+            className={`h-8 px-2 ${editor.isActive('bold') ? 'bg-accent' : ''}`}
           >
-            취소
+            <Bold className="h-4 w-4" />
           </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            disabled={!editor.can().toggleItalic()}
+            className={`h-8 px-2 ${editor.isActive('italic') ? 'bg-accent' : ''}`}
+          >
+            <Italic className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign('left').run()}
+            className={`h-8 px-2 ${editor.isActive({ textAlign: 'left' }) ? 'bg-accent' : ''}`}
+          >
+            <AlignLeft className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign('center').run()}
+            className={`h-8 px-2 ${editor.isActive({ textAlign: 'center' }) ? 'bg-accent' : ''}`}
+          >
+            <AlignCenter className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={() => editor.chain().focus().setTextAlign('right').run()}
+            className={`h-8 px-2 ${editor.isActive({ textAlign: 'right' }) ? 'bg-accent' : ''}`}
+          >
+            <AlignRight className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            type="button"
+            onClick={handleInsertLink}
+            className={`h-8 px-2 ${editor.isActive('link') ? 'bg-accent' : ''}`}
+          >
+            <Link2 className="h-4 w-4" />
+          </Button>
+          
+          {onImageUpload && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
+                onClick={handleSelectImage}
+                className="h-8 px-2"
+              >
+                <ImageIcon className="h-4 w-4" />
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*"
+                className="hidden"
+              />
+            </>
+          )}
         </div>
       )}
+      
+      <EditorContent 
+        editor={editor} 
+        className={`tiptap-content ${!editable ? 'read-only' : ''}`} 
+      />
     </div>
   );
-};
-
-const TipTapEditor = ({ 
-  value, 
-  onChange, 
-  placeholder = '내용을 입력하세요...', 
-  editable = true,
-  onImageClick,
-  onImageUpload,
-  fieldName,
-  name
-}: TipTapEditorProps) => {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Image.configure({
-        HTMLAttributes: {
-          class: 'tiptap-image',
-        },
-      }),
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: {
-          class: 'tiptap-link',
-          target: '_blank',
-          rel: 'noopener noreferrer',
-        },
-      }),
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-        alignments: ['left', 'center', 'right'],
-        defaultAlignment: 'left',
-      }),
-    ],
-    content: value || '',
-    editable,
-    onUpdate: ({ editor }) => {
-      // 항상 콘텐츠가 비어있지 않도록 보장
-      let newContent = editor.getHTML();
-      
-      // 완전히 비어있는 경우 기본 <p><br></p>를 추가하여 입력 가능하게 함
-      if (newContent === '' || newContent === '<p></p>') {
-        newContent = '<p><br></p>';
-        setTimeout(() => {
-          editor.commands.setContent(newContent);
-        }, 0);
-      }
-      
-      onChange(newContent);
-    },
-    editorProps: {
-      attributes: {
-        class: 'tiptap-content prose prose-sm sm:prose-base dark:prose-invert focus:outline-none',
-        style: 'min-height: 200px; padding: 1rem;'
-      },
-    },
-  });
-
-  // 이미지 삽입 메서드
-  const insertImage = useCallback((src: string, alt: string = '이미지') => {
-    if (editor) {
-      // 현재 커서 위치에 이미지 삽입 후 빈 단락 추가하여 입력 공간 확보
-      editor
-        .chain()
-        .focus()
-        .setImage({ src, alt })
-        .insertContent('<p><br></p>')
-        .run();
-    }
-  }, [editor]);
-
-  // 비디오 삽입 메서드
-  const insertVideo = useCallback((src: string, type: string) => {
-    if (editor) {
-      const videoHtml = `<div><video controls width="100%"><source src="${src}" type="${type}"></video></div><p><br></p>`;
-      editor
-        .chain()
-        .focus()
-        .insertContent(videoHtml)
-        .run();
-    }
-  }, [editor]);
-
-  // 파일 링크 삽입 메서드
-  const insertFileLink = useCallback((src: string, fileName: string) => {
-    if (editor) {
-      const fileLinkHtml = `<p><a href="${src}" download="${fileName}" class="tiptap-file-link">${fileName} 다운로드</a></p><p><br></p>`;
-      editor
-        .chain()
-        .focus()
-        .insertContent(fileLinkHtml)
-        .run();
-    }
-  }, [editor]);
-
-  // URL 삽입 메서드 (일반 URL 또는 YouTube)
-  const insertUrl = useCallback((url: string, isYoutube: boolean = false) => {
-    if (editor) {
-      if (isYoutube) {
-        // YouTube 비디오 ID 추출
-        const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
-        const match = url.match(youtubeRegex);
-        
-        if (match && match[1]) {
-          const videoId = match[1];
-          const youtubeHtml = `<div class="youtube-embed">
-            <iframe 
-              width="100%" 
-              height="315" 
-              src="https://www.youtube.com/embed/${videoId}" 
-              frameborder="0" 
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowfullscreen
-            ></iframe>
-          </div><p><br></p>`;
-          
-          editor.chain().focus().insertContent(youtubeHtml).run();
-        }
-      } else {
-        // 일반 URL 링크 삽입
-        editor
-          .chain()
-          .focus()
-          .setLink({ href: url })
-          .insertContent(`<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a><p><br></p>`)
-          .run();
-      }
-    }
-  }, [editor]);
-
-  // 외부에서 미디어 삽입 메서드 노출 (멀티미디어 버튼에서 사용)
-  useEffect(() => {
-    if (editor) {
-      // @ts-ignore - 에디터에 사용자 정의 메서드 추가
-      editor.insertImage = insertImage;
-      // @ts-ignore
-      editor.insertVideo = insertVideo;
-      // @ts-ignore
-      editor.insertFileLink = insertFileLink;
-      // @ts-ignore
-      editor.insertUrl = insertUrl;
-    }
-  }, [editor, insertImage, insertVideo, insertFileLink, insertUrl]);
-
-  // 이미지 클릭 이벤트
-  useEffect(() => {
-    if (editor && onImageClick) {
-      const handleImageClick = (event: MouseEvent) => {
-        const target = event.target as HTMLElement;
-        if (target.tagName === 'IMG') {
-          const src = target.getAttribute('src');
-          if (src) {
-            onImageClick(src);
-          }
-        }
-      };
-      
-      const element = editor.view.dom;
-      element.addEventListener('click', handleImageClick);
-      
-      return () => {
-        element.removeEventListener('click', handleImageClick);
-      };
-    }
-  }, [editor, onImageClick]);
-
-  // 외부에서 content가 변경될 때 에디터 내용 업데이트
-  useEffect(() => {
-    if (editor && value !== editor.getHTML()) {
-      editor.commands.setContent(value || '');
-    }
-  }, [value, editor]);
-
-  return (
-    <div className="tiptap-editor border rounded-md overflow-hidden" data-field-name={fieldName || name}>
-      {editable && <MenuBar editor={editor} />}
-      <EditorContent className="min-h-[200px]" editor={editor} />
-    </div>
-  );
-};
-
-export default TipTapEditor;
+});
