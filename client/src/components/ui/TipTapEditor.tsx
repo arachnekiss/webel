@@ -56,74 +56,6 @@ const Video = Node.create({
       },
     } as any;
   },
-});
-
-// YouTube 노드 확장
-const YouTube = Node.create({
-  name: 'youtube',
-  group: 'block',
-  atom: true,
-  
-  addAttributes() {
-    return {
-      videoId: {
-        default: null,
-      },
-      width: {
-        default: '100%',
-      },
-      height: {
-        default: '315',
-      },
-    };
-  },
-  
-  parseHTML() {
-    return [
-      {
-        tag: 'div[data-youtube-id]',
-      },
-    ];
-  },
-  
-  renderHTML({ HTMLAttributes }) {
-    const { videoId } = HTMLAttributes;
-    
-    // If no videoId is provided, render an empty div
-    if (!videoId) {
-      return ['div', { class: 'youtube-embed-placeholder' }, 'Invalid YouTube video'];
-    }
-    
-    // Return the YouTube iframe wrapped in a div
-    return [
-      'div',
-      { class: 'youtube-embed', 'data-youtube-id': videoId },
-      [
-        'iframe',
-        {
-          width: HTMLAttributes.width || '100%',
-          height: HTMLAttributes.height || '315',
-          src: `https://www.youtube.com/embed/${videoId}`,
-          frameborder: '0',
-          allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
-          allowfullscreen: 'true',
-        },
-      ],
-    ];
-  },
-  
-  addCommands() {
-    return {
-      insertYouTube: (attributes: Record<string, any>) => ({ chain }: { chain: any }) => {
-        return chain()
-          .insertContent({
-            type: this.name,
-            attrs: attributes,
-          })
-          .run();
-      },
-    } as any;
-  },
   
   // 비디오 노드를 위한 nodeView 추가
   addNodeView() {
@@ -177,7 +109,7 @@ const YouTube = Node.create({
               
               // 에디터에서 삭제 이벤트 발생 타임스탬프 기록
               if (typeof window !== 'undefined') {
-                (window as any).lastEditorDeletionTimestamp = Date.now();
+                window.lastEditorDeletionTimestamp = Date.now();
               }
               
               // editor.options에서 onMediaDelete 핸들러와 fieldName 가져오기
@@ -203,6 +135,165 @@ const YouTube = Node.create({
       };
     };
   },
+});
+
+// YouTube 노드 확장
+const YouTube = Node.create({
+  name: 'youtube',
+  group: 'block',
+  atom: true,
+  
+  addAttributes() {
+    return {
+      videoId: {
+        default: null,
+      },
+      width: {
+        default: '100%',
+      },
+      height: {
+        default: '315',
+      },
+    };
+  },
+  
+  parseHTML() {
+    return [
+      {
+        tag: 'div[data-youtube-id]',
+      },
+      // Legacy format
+      {
+        tag: 'div.youtube-embed',
+      },
+    ];
+  },
+  
+  renderHTML({ HTMLAttributes }) {
+    const { videoId } = HTMLAttributes;
+    
+    // If no videoId is provided, render an empty div
+    if (!videoId) {
+      return ['div', { class: 'youtube-embed-placeholder' }, 'Invalid YouTube video'];
+    }
+    
+    // Return the YouTube iframe wrapped in a div
+    return [
+      'div',
+      { class: 'youtube-embed', 'data-youtube-id': videoId },
+      [
+        'iframe',
+        {
+          width: HTMLAttributes.width || '100%',
+          height: HTMLAttributes.height || '315',
+          src: `https://www.youtube.com/embed/${videoId}`,
+          frameborder: '0',
+          allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+          allowfullscreen: 'true',
+        },
+      ],
+    ];
+  },
+  
+  addCommands() {
+    return {
+      insertYouTube: (attributes: Record<string, any>) => ({ chain }: { chain: any }) => {
+        return chain()
+          .insertContent({
+            type: this.name,
+            attrs: attributes,
+          })
+          .run();
+      },
+    } as any;
+  },
+  
+  // Add a nodeView for YouTube to handle deletion
+  addNodeView() {
+    return ({ HTMLAttributes, node, editor, getPos }) => {
+      const dom = document.createElement('div');
+      dom.classList.add('tiptap-youtube-wrapper');
+      
+      // Create the YouTube iframe container
+      const youtubeContainer = document.createElement('div');
+      youtubeContainer.classList.add('youtube-embed');
+      youtubeContainer.setAttribute('data-youtube-id', HTMLAttributes.videoId);
+      
+      // Create iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${HTMLAttributes.videoId}`;
+      iframe.width = HTMLAttributes.width || '100%';
+      iframe.height = HTMLAttributes.height || '315';
+      iframe.setAttribute('frameborder', '0');
+      iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+      iframe.setAttribute('allowfullscreen', 'true');
+      
+      youtubeContainer.appendChild(iframe);
+      
+      // Add delete button when editable
+      if (editor.isEditable) {
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('tiptap-youtube-delete-button');
+        deleteButton.innerHTML = '×';
+        deleteButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (typeof getPos === 'function') {
+            const pos = getPos();
+            
+            // Get videoId for deletion callback
+            const videoId = node.attrs.videoId;
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            
+            // Delete the node
+            const { state, dispatch } = editor.view;
+            const { tr } = state;
+            
+            tr.delete(pos, pos + node.nodeSize);
+            
+            // Fix cursor position
+            tr.setSelection(TextSelection.near(tr.doc.resolve(pos)));
+            
+            // Apply transaction
+            dispatch(tr);
+            
+            // Focus editor
+            setTimeout(() => {
+              editor.view.focus();
+            }, 0);
+            
+            // Call external delete handler
+            if (videoId) {
+              console.log('YouTube 비디오 삭제:', videoId);
+              
+              // Set timestamp for deletion tracking
+              if (typeof window !== 'undefined') {
+                window.lastEditorDeletionTimestamp = Date.now();
+              }
+              
+              // Get handler from editor options
+              const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
+              const fieldName = (editor.options as any)?.fieldName || '';
+              
+              if (typeof mediaDeleteHandler === 'function') {
+                mediaDeleteHandler(youtubeUrl, 'youtube', fieldName);
+              }
+            }
+          }
+        });
+        
+        dom.appendChild(youtubeContainer);
+        dom.appendChild(deleteButton);
+      } else {
+        dom.appendChild(youtubeContainer);
+      }
+      
+      return {
+        dom,
+        contentDOM: null,
+      };
+    };
+  },
+
 });
 
 // 이미지 및 미디어 노드 자동 삭제 방지 확장 (강화된 버전)
@@ -501,6 +592,7 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
       StarterKit,
       ImageWithDeleteButton,
       Video,
+      YouTube, // Add our YouTube extension
       PreventImageNodeDeletion,
       Link.configure({
         openOnClick: false,
@@ -545,31 +637,50 @@ export const TipTapEditor = forwardRef<TipTapEditorHandle, TipTapEditorProps>(({
     
     // 비디오 삽입
     insertVideo: (src: string) => {
-      // 직접 Video 명령 사용으로 변경
+      // YouTube 비디오 여부 확인
       if (src.includes('youtube.com') || src.includes('youtu.be')) {
-        // YouTube 비디오인 경우 iframe 사용
-        let embedId = null;
+        // YouTube 비디오 ID 추출
+        let videoId = null;
         
-        // 글로벌 getYouTubeVideoId 함수 사용 시도 (ResourceUploadPage에서 정의)
+        // 글로벌 getYouTubeVideoId 함수 사용 (ResourceUploadPage에서 정의)
         if (typeof window !== 'undefined' && window.getYouTubeVideoId) {
-          embedId = window.getYouTubeVideoId(src);
+          videoId = window.getYouTubeVideoId(src);
         } else {
-          // 폴백: 기존 방식
-          embedId = src.includes('youtu.be') 
+          // 폴백: 기본 ID 추출 방식
+          videoId = src.includes('youtu.be') 
             ? src.split('/').pop() 
             : src.includes('v=') 
               ? new URLSearchParams(src.split('?')[1]).get('v') 
               : null;
         }
         
-        if (embedId) {
-          const youtubeHtml = `<div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${embedId}" frameborder="0" allowfullscreen></iframe></div><p><br></p>`;
-          editor?.chain().focus().insertContent(youtubeHtml).run();
+        if (videoId) {
+          // YouTube 확장 사용 - 커맨드 직접 호출 대신 원시 노드 삽입
+          editor?.chain().focus().insertContent({
+            type: 'youtube',
+            attrs: {
+              videoId: videoId,
+              width: '100%',
+              height: '315'
+            }
+          }).run();
+          
+          // 빈 단락 삽입으로 커서 위치 조정
+          editor?.chain().focus().insertContent('<p><br></p>').run();
         }
       } else {
-        // 일반 비디오 파일인 경우 video 태그 사용
-        const videoHtml = `<video controls width="100%" src="${src}"></video><p><br></p>`;
-        editor?.chain().focus().insertContent(videoHtml).run();
+        // 일반 비디오 파일인 경우 video 태그 사용 - 커맨드 직접 호출 대신 원시 노드 삽입
+        editor?.chain().focus().insertContent({
+          type: 'video',
+          attrs: {
+            src: src, 
+            controls: true,
+            width: '100%' 
+          }
+        }).run();
+        
+        // 빈 단락 삽입으로 커서 위치 조정
+        editor?.chain().focus().insertContent('<p><br></p>').run();
       }
     },
     
