@@ -1,0 +1,107 @@
+0. 현재 치명적 상태 요약
+증상	원인 추정
+업로드 시 “서버 업로드 실패”	handleMediaFileUpload 수정 과정에서 문법/중괄호 오류 → API 호출 못함
+ResourceUploadPage 자체가 컴파일 에러	중복 함수·변수, blobUrl→fileUrl 치환 미완성, 중괄호 불일치
+ResourceDetail 에서 이미지·비디오 대신 “이미지 미리보기” 박스만 표시	① editor에 여전히 blob: URL 저장
+② 새 ContentMediaPreview에서 실제 src를 못 받아옴
+상세 페이지에서도 드래그/편집 커서	contentEditable/CSS 미비, editor 전용 class가 그대로 렌더링됨
+
+1. 즉시 롤백 + 파일 업로드 복구
+client/src/pages/ResourceUploadPage.tsx
+
+백업본(.bak)을 정식 파일로 되돌려서 우선 컴파일 오류를 없앤다.
+
+중복된 addMediaItem / removeMediaItem / normalizeUrl 등 임시 삽입 코드 전부 제거.
+
+업로드 API (server)
+
+POST /api/upload → { url:"/uploads/uuid.ext" } 반환하도록 확인.
+
+CORS·static serving (express.static("uploads")) 설정.
+
+handleMediaFileUpload (UploadPage)
+
+formData → API 호출 → uploadedUrl 받으면
+
+TipTap insertImage / insertVideo 호출 시 uploadedUrl 전달. (blob X)
+
+TipTapEditor
+
+insertImage(src:string) / insertVideo(src:string) 내부에서 src 그대로 사용
+
+blob URL 인지 시 경고만 & 삽입 금지.
+
+2. 읽기 전용 미디어 프리뷰 정리
+2-1 MediaPreview.tsx (단일 책임)
+tsx
+복사
+편집
+type Props={src:string; type:'image'|'video'|'file'|'youtube'; alt?:string};
+export const MediaPreview=({src,type,alt}:Props)=>{
+  const onError=(e:React.SyntheticEvent<HTMLImageElement>)=>{
+    e.currentTarget.onerror=null;
+    e.currentTarget.src='/static/placeholder.png';
+  };
+  switch(type){
+    case 'image': return <img src={src} alt={alt??''} onError={onError}
+       style={{width:'100%',pointerEvents:'none'}} draggable={false}/>;
+    case 'video': return <video src={src} controls preload="metadata"
+       style={{width:'100%'}} draggable={false}/>;
+    case 'file':  return <a href={src} download>{alt??'첨부파일 다운로드'}</a>;
+    case 'youtube': return <iframe src={src} width="100%" height="315"
+       allowFullScreen title="youtube" style={{pointerEvents:'none'}}/>;
+    default: return null;
+  }
+};
+2-2 ResourceDetail.tsx
+tsx
+복사
+편집
+<div className="reader" contentEditable={false} draggable={false}>
+  {parsedHtml.map(node => <MediaPreview {...node}/>)}
+</div>
+.reader img, .reader video { pointer-events:none; }
+
+3. 커서/드래그 완전 차단
+CSS
+
+css
+복사
+편집
+.reader { cursor: default; }
+.reader * { user-select:text; -webkit-user-drag:none; }
+TipTap 클래스 (ProseMirror, tiptap-editor) 렌더링 되지 않도록 → HTML 파싱 시 제거.
+
+4. 검증 시나리오 (모두 통과해야 ‘완료’)
+리소스 업로드
+
+이미지 JPG, MP4, zip 파일, YouTube URL 업로드 → 즉시 에디터에 미리보기 + 첨부목록.
+
+저장 후 새로고침
+
+상세 페이지에서 모든 미디어가 실제로 표시, placeholder 없음.
+
+읽기 전용
+
+커서 모양 변화 없음, 드래그 불가, 우클릭 저장만 가능.
+
+브라우저 새 세션
+
+blob: URL 존재 X, 네트워크 탭에 /uploads/uuid.ext 요청만 보임.
+
+에러 처리
+
+업로드 실패 시 toast “업로드 실패 – 파일 크기/네트워크 확인”.
+
+5. 작업 순서 요약
+UploadPage 롤백 → 정적 URL 삽입
+
+서버 /api/upload 및 static 경로 확인
+
+MediaPreview 컴포넌트 교체 후 ResourceDetail에 적용
+
+CSS로 read-only 차단
+
+최종 테스트 시나리오 체크 후 PR
+
+이 5단계만 반영하면 “파일 업로드 실패‧이미지 미리보기 박스‧편집커서” 전부 해결됩니다. 빠른 수정 부탁드립니다!
