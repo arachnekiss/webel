@@ -518,53 +518,31 @@ export default function ResourceUploadPage() {
     // 임시 URL 생성 (실제로는 서버에 업로드하고 URL을 받아야 함)
     const fileUrl = URL.createObjectURL(file);
 
-    // 현재 에디터 텍스트 영역 가져오기
-    console.log("현재 에디터:", currentEditor);
-    const textAreaElement = document.querySelector(`textarea[name="${currentEditor}"]`) as HTMLTextAreaElement;
-    if (!textAreaElement) {
-      console.error("텍스트 영역 요소를 찾을 수 없음:", currentEditor);
-      alert(`텍스트 영역을 찾을 수 없습니다: ${currentEditor}`);
-      return;
-    }
-
-    // 캐럿 위치 가져오기
+    // 현재 폼 값 가져오기
     const currentValue = form.getValues(currentEditor as any) || '';
-    const selectionStart = textAreaElement.selectionStart || currentValue.length;
-    const selectionEnd = textAreaElement.selectionEnd || currentValue.length;
     
-    // 미디어 타입에 따라 다른 마크다운 콘텐츠 생성
-    let markdownContent = '';
+    // TipTap 에디터와 호환되는 HTML 콘텐츠 생성
+    let newContent = '';
     
+    // 미디어 타입에 따라 다른 HTML 컨텐츠 생성
     switch (type) {
       case 'image':
       case 'gif':
-        // 이미지 마크다운 생성 (실제 렌더링될 형태)
-        markdownContent = `\n![${type === 'image' ? '이미지' : 'GIF'}](${fileUrl})\n`;
+        // 기존 내용에 이미지 HTML 추가
+        newContent = currentValue + `<img src="${fileUrl}" alt="${type === 'image' ? '이미지' : 'GIF'}" class="tiptap-image" />`;
         break;
       case 'video':
         // 비디오 HTML 태그 생성
-        markdownContent = `\n<video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video>\n`;
+        newContent = currentValue + `<div><video controls width="100%"><source src="${fileUrl}" type="${file.type}"></video></div>`;
         break;
       case 'file':
         // 파일 다운로드 링크 생성
-        markdownContent = `\n[파일 다운로드: ${file.name}](${fileUrl})\n`;
+        newContent = currentValue + `<a href="${fileUrl}" download="${file.name}">${file.name} 다운로드</a>`;
         break;
     }
     
-    // 마크다운을 커서 위치에 삽입
-    const newValue = currentValue.substring(0, selectionStart) + markdownContent + currentValue.substring(selectionEnd);
-    
-    // 폼 값 업데이트 및 캐럿 위치 조정
-    form.setValue(currentEditor as any, newValue, { shouldValidate: true });
-    
-    // 에디터에 포커스 복원 및 커서 위치 조정
-    setTimeout(() => {
-      if (textAreaElement) {
-        textAreaElement.focus();
-        const newCursorPosition = selectionStart + markdownContent.length;
-        textAreaElement.setSelectionRange(newCursorPosition, newCursorPosition);
-      }
-    }, 10);
+    // 폼 값 업데이트
+    form.setValue(currentEditor as any, newContent, { shouldValidate: true });
     
     // 파일 입력 초기화
     if (e.target) e.target.value = '';
@@ -588,28 +566,29 @@ export default function ResourceUploadPage() {
     });
   };
 
-  // URL 제출 핸들러 - URL 입력 시 텍스트 에디터에 삽입
+  // URL 제출 핸들러 - URL 입력 시 텍스트 에디터에 삽입 (TipTap 에디터 호환)
   const handleUrlSubmit = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     if (!urlInput.trim() || !currentEditor) {
       setUrlInputActive(false);
       return;
     }
-
-    // 텍스트 영역 엘리먼트 찾기
-    const textareaElement = document.querySelector(`textarea[name="${currentEditor}"]`) as HTMLTextAreaElement;
     
     // YouTube URL 감지 및 처리
     const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const match = urlInput.match(youtubeRegex);
 
-    let markdownContent = '';
+    // 현재 에디터 내용 가져오기
+    const currentValue = form.getValues(currentEditor as any) || '';
+    
+    // 새 HTML 콘텐츠 준비
+    let newHtmlContent = '';
     let mediaType = 'url';
 
     if (match && match[1]) {
       // YouTube 비디오 임베드
       const videoId = match[1];
-      markdownContent = `\n<div class="youtube-embed">
+      newHtmlContent = `<div class="youtube-embed">
       <iframe 
         width="100%" 
         height="315" 
@@ -618,14 +597,14 @@ export default function ResourceUploadPage() {
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen
       ></iframe>
-      </div>\n`;
+      </div>`;
       mediaType = 'youtube';
     } else {
       // 이미지 URL 감지
       const imageRegex = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i;
       if (imageRegex.test(urlInput)) {
-        // 이미지 URL이면 마크다운 이미지 형식으로 추가
-        markdownContent = `\n![이미지](${urlInput})\n`;
+        // 이미지 URL이면 HTML 태그로 추가
+        newHtmlContent = `<img src="${urlInput}" alt="이미지" class="tiptap-image" />`;
         mediaType = 'image';
         
         // 이미지를 미디어 파일 목록에 추가 (첨부된 미디어로 표시됨)
@@ -651,41 +630,17 @@ export default function ResourceUploadPage() {
           const domainMatch = urlInput.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
           const domain = domainMatch ? domainMatch[1] : urlInput;
           
-          // 일반 URL - 카드 형태로 표시 (MediaPreview에서 처리됨)
-          markdownContent = `\n${urlInput}\n`;
+          // 일반 URL은 링크로 추가
+          newHtmlContent = `<a href="${urlInput}" target="_blank" rel="noopener noreferrer">${urlInput}</a>`;
         } catch (e) {
           // URL 파싱 오류 시 기본 링크 형태로 추가
-          markdownContent = `\n[${urlInput}](${urlInput})\n`;
+          newHtmlContent = `<a href="${urlInput}">${urlInput}</a>`;
         }
       }
     }
 
-    // 현재 값과 선택 위치 가져오기
-    const currentValue = form.getValues(currentEditor as any) || '';
-    
-    // 텍스트 영역이 포커스 상태이고 선택 범위가 있으면 커서 위치에 삽입
-    if (textareaElement && document.activeElement === textareaElement) {
-      const start = textareaElement.selectionStart || 0;
-      const end = textareaElement.selectionEnd || 0;
-      
-      // 선택된 텍스트를 미디어로 대체하거나, 커서 위치에 미디어 삽입
-      const newValue = currentValue.substring(0, start) + markdownContent + currentValue.substring(end);
-      
-      // 필드 값 업데이트
-      form.setValue(currentEditor as any, newValue, { shouldValidate: true });
-      
-      // 커서 위치 업데이트
-      setTimeout(() => {
-        if (textareaElement) {
-          const newPosition = start + markdownContent.length;
-          textareaElement.focus();
-          textareaElement.setSelectionRange(newPosition, newPosition);
-        }
-      }, 0);
-    } else {
-      // 텍스트 영역이 포커스되어 있지 않거나 선택 범위가 없는 경우 끝에 추가
-      form.setValue(currentEditor as any, currentValue + markdownContent, { shouldValidate: true });
-    }
+    // 폼 값 업데이트 (TipTap 에디터에 적용됨)
+    form.setValue(currentEditor as any, currentValue + newHtmlContent, { shouldValidate: true });
 
     setUrlInput('');
     setUrlInputActive(false);
