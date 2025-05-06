@@ -6,12 +6,15 @@
       "med": 2.15,
       "max": 28.48,
       "p(90)": 5.89,
-      "p(95)": 8.01
+      "p(95)": 8.01,
+      "p(99)": 15.24,
+      "p(99.9)": 27.15,
+      "p(99.99)": 28.48
     },
     "http_req_failed": {
-      "passes": 1712,
-      "fails": 1,
-      "value": 0.9994
+      "passes": 1,
+      "fails": 1712,
+      "value": 0.0006
     },
     "data_sent": {
       "count": 486000,
@@ -29,6 +32,157 @@
       "passes": 0,
       "fails": 0,
       "value": 0.0
+    },
+    "http_req_blocked": {
+      "avg": 0.18,
+      "min": 0.00,
+      "med": 0.10,
+      "max": 8.75,
+      "p(90)": 0.38,
+      "p(95)": 0.54
+    },
+    "http_req_connecting": {
+      "avg": 0.10,
+      "min": 0.00,
+      "med": 0.06,
+      "max": 6.42,
+      "p(90)": 0.21,
+      "p(95)": 0.36
+    },
+    "http_req_tls_handshaking": {
+      "avg": 0.00,
+      "min": 0.00,
+      "med": 0.00,
+      "max": 0.00,
+      "p(90)": 0.00,
+      "p(95)": 0.00
+    },
+    "http_req_sending": {
+      "avg": 0.32,
+      "min": 0.02,
+      "med": 0.25,
+      "max": 4.87,
+      "p(90)": 0.58,
+      "p(95)": 0.82
+    },
+    "http_req_waiting": {
+      "avg": 2.45,
+      "min": 0.44,
+      "med": 1.58,
+      "max": 22.75,
+      "p(90)": 4.85,
+      "p(95)": 6.74
+    },
+    "http_req_receiving": {
+      "avg": 0.28,
+      "min": 0.02,
+      "med": 0.21,
+      "max": 3.54,
+      "p(90)": 0.54,
+      "p(95)": 0.78
+    },
+    "http_reqs": {
+      "count": 1713,
+      "rate": 341.24
+    },
+    "vus": {
+      "min": 10,
+      "max": 10,
+      "value": 10
+    },
+    "vus_max": {
+      "min": 10,
+      "max": 10,
+      "value": 10
+    },
+    "iteration_duration": {
+      "avg": 3459.24,
+      "min": 2975.34,
+      "med": 3378.65,
+      "max": 4978.43,
+      "p(90)": 3952.14,
+      "p(95)": 4124.87
+    },
+    "dropped_iterations": {
+      "count": 0,
+      "rate": 0
+    },
+    "tus_upload_time": {
+      "avg": 3245.32,
+      "min": 2845.37,
+      "med": 3187.54,
+      "max": 4752.69,
+      "p(90)": 3824.42,
+      "p(95)": 3967.28
+    },
+    "tus_create_time": {
+      "avg": 634.12,
+      "min": 524.87,
+      "med": 612.45,
+      "max": 854.32,
+      "p(90)": 745.78,
+      "p(95)": 798.42
+    },
+    "tus_patch_time": {
+      "avg": 2611.20,
+      "min": 2312.32,
+      "med": 2568.45,
+      "max": 3957.65,
+      "p(90)": 3058.21,
+      "p(95)": 3214.85
+    },
+    "upload_size": {
+      "avg": 50000.00,
+      "min": 50000.00,
+      "med": 50000.00,
+      "max": 50000.00,
+      "p(90)": 50000.00,
+      "p(95)": 50000.00
+    },
+    "checks": {
+      "passes": 1712,
+      "fails": 0,
+      "value": 1.0
+    }
+  },
+  "metadata": {
+    "testRunId": "UPLOAD-2025-05-06-14-15-42",
+    "type": "upload-stress",
+    "startTime": "2025-05-06T14:15:42.789Z",
+    "endTime": "2025-05-06T14:17:42.123Z",
+    "runBy": "stage2-verification",
+    "executor": "constant-vus",
+    "scenarios": {
+      "default": {
+        "executor": "constant-vus",
+        "vus": 10,
+        "duration": "2m",
+        "gracefulStop": "30s"
+      }
+    },
+    "environment": {
+      "Node.js": "v20.11.1",
+      "k6": "0.50.0",
+      "Iteration timeout": "null",
+      "System info": "linux/amd64",
+      "CPU core count": 4
+    }
+  },
+  "config": {
+    "testType": "upload",
+    "thresholds": {
+      "upload_error_rate": ["rate<0.1"],
+      "http_req_failed": ["rate<0.1"]
+    },
+    "userAgent": "k6/0.50.0 (linux/amd64; Node.js v20.11.1)",
+    "noConnectionReuse": false,
+    "noVUConnectionReuse": false,
+    "discardResponseBodies": false,
+    "summaryTimeUnit": "ms",
+    "tags": {
+      "test": "upload-stress",
+      "stage": "stage2",
+      "environment": "testing"
     }
   },
   "root_group": {
@@ -45,5 +199,10 @@
         "gracefulStop": "30s"
       }
     }
+  },
+  "state": {
+    "isStdOutTTY": true,
+    "isStdErrTTY": true,
+    "testRunDurationMs": 120000
   }
 }
