@@ -106,6 +106,12 @@ const Video = Node.create({
             // 외부 이벤트 핸들러 호출 (미디어 삭제 알림)
             if (src) {
               console.log('비디오 삭제:', src); // 디버깅용
+              
+              // 에디터에서 삭제 이벤트 발생 타임스탬프 기록
+              if (typeof window !== 'undefined') {
+                (window as any).lastEditorDeletionTimestamp = Date.now();
+              }
+              
               // editor.options에서 onMediaDelete 핸들러와 fieldName 가져오기
               const mediaDeleteHandler = (editor.options as any)?.onMediaDelete;
               const fieldName = (editor.options as any)?.fieldName || '';

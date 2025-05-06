@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import MediaPreview from "@/components/ui/MediaPreview";
 import { RichMediaEditor } from "@/components/ui/RichMediaEditor";
 import { TipTapEditor, TipTapEditorHandle } from "@/components/ui/TipTapEditor";
+import { TextSelection } from '@tiptap/pm/state';
 
 // UI 컴포넌트
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,13 @@ const detailCategoryOptions = [
   { value: "music", label: "음악" },
   { value: "other", label: "기타" },
 ];
+
+// window 전역 객체에 타임스탬프 추가 (삭제 소스 추적용)
+declare global {
+  interface Window {
+    lastEditorDeletionTimestamp?: number;
+  }
+}
 
 // 파일 타입 인터페이스
 interface FileWithPreview extends File {
@@ -395,7 +403,7 @@ export default function ResourceUploadPage() {
         }
       };
       
-      doc.descendants((node, pos) => {
+      doc.descendants((node: any, pos: number) => {
         // 이미지 노드 확인
         if (node.type.name === 'image') {
           if (matchesUrl(node.attrs.src, mediaUrl)) {
