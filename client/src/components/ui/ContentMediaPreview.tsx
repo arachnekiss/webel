@@ -63,7 +63,11 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
     const videos = container.querySelectorAll('video');
     videos.forEach(video => {
       const src = video.getAttribute('src') || '';
-      if (src) {
+      const sourceElement = video.querySelector('source');
+      const sourceSrc = sourceElement ? sourceElement.getAttribute('src') : '';
+      const finalSrc = src || sourceSrc;
+      
+      if (finalSrc) {
         const videoWrapper = document.createElement('div');
         videoWrapper.className = 'media-preview-wrapper';
         
@@ -72,7 +76,7 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
         
         // 새 비디오 요소 생성
         const videoElement = document.createElement('video');
-        videoElement.src = src;
+        videoElement.src = finalSrc;
         videoElement.controls = true;
         videoElement.preload = 'metadata';
         videoElement.className = 'reader-video';
@@ -82,6 +86,35 @@ const ContentMediaPreview: React.FC<ContentMediaPreviewProps> = ({
         
         videoWrapper.appendChild(videoElement);
       }
+    });
+    
+    // YouTube 임베드 찾기 및 처리
+    const youtubeEmbeds = container.querySelectorAll('.youtube-embed');
+    youtubeEmbeds.forEach(embed => {
+      const youtubeId = embed.getAttribute('data-youtube-id');
+      if (youtubeId) {
+        const iframe = embed.querySelector('iframe');
+        if (iframe) {
+          // iframe의 상호작용 방지
+          iframe.style.pointerEvents = 'none';
+        }
+      }
+    });
+    
+    // 파일 링크 찾기 및 처리
+    const fileLinks = container.querySelectorAll('a.tiptap-file-link');
+    fileLinks.forEach(link => {
+      // 링크의 상호작용 방지 (다운로드 비활성화)
+      link.style.pointerEvents = 'none';
+      link.style.color = 'gray';
+      link.style.cursor = 'default';
+      
+      // 읽기 전용 표시 추가
+      const readOnlySpan = document.createElement('span');
+      readOnlySpan.textContent = ' (읽기 전용)';
+      readOnlySpan.style.fontSize = '0.8em';
+      readOnlySpan.style.color = 'gray';
+      link.parentNode?.insertBefore(readOnlySpan, link.nextSibling);
     });
     
   }, [content]);
