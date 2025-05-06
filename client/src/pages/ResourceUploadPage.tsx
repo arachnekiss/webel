@@ -940,6 +940,21 @@ export default function ResourceUploadPage() {
                 <span className="text-muted-foreground">
                   {(file.size / 1024).toFixed(1)}KB
                 </span>
+                <button 
+                  type="button"
+                  className="ml-1 p-1 rounded-full hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // 미디어 삭제 함수 호출
+                    if (file.preview) {
+                      handleMediaDelete(file.preview, file.type.startsWith('image/') ? 'image' : 'video', fieldName);
+                    }
+                  }}
+                  title="삭제"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </div>
             );
           })}
