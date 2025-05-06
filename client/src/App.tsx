@@ -38,6 +38,7 @@ const RegisterServiceUnified = lazy(() => import('./pages/RegisterServiceUnified
 // 페이지 정보
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
+const ApiDocs = lazy(() => import('./pages/ApiDocs'));
 
 // 404 페이지
 const NotFound = lazy(() => import('./pages/not-found'));
@@ -251,6 +252,13 @@ function Router() {
                 <Route path={`${prefix}/terms`}>
                   <Suspense fallback={<div>Loading...</div>}>
                     <Terms />
+                  </Suspense>
+                </Route>
+                
+                {/* API 문서 */}
+                <Route path={`${prefix}/api-docs`}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <ApiDocs />
                   </Suspense>
                 </Route>
                 
