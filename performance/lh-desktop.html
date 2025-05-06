@@ -5,236 +5,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lighthouse Report - Desktop</title>
   <style>
+    /* Lighthouse styles */
+    .lh-gauge {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+    .lh-gauge__circle {
+      stroke-width: 5;
+      stroke: #eee;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge__arc {
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge--pass .lh-gauge__arc {
+      stroke: #0c6;
+    }
+    .lh-gauge--average .lh-gauge__arc {
+      stroke: #fa3;
+    }
+    .lh-gauge--fail .lh-gauge__arc {
+      stroke: #f33;
+    }
+    .lh-gauge__percentage {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
     }
-    .header {
+    .lh-category-wrapper {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .lh-category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lh-audit {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .lh-audit--pass {
+      background: #f3fcf3;
+    }
+    .lh-audit--average {
+      background: #fff6e6;
+    }
+    .lh-audit--fail {
+      background: #fff0f0;
+    }
+    .lh-audit__title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lh-audit__value {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .lh-details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .lh-metric-value {
+      margin-left: auto;
+      font-weight: bold;
+    }
+    .lh-metric {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .lh-metric__icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .lh-metric__icon--pass {
+      background: #0c6;
+    }
+    .lh-metric__icon--average {
+      background: #fa3;
+    }
+    .lh-metric__icon--fail {
+      background: #f33;
+    }
+    .lh-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
     }
-    .scores {
+    .lh-scores-wrapper {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
     }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
+    .lh-gauge-wrapper {
+      text-align: center;
     }
-    .score-value {
-      font-size: 36px;
+    .lh-category-label {
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
-    .good {
-      color: #0c6;
+    .lh-screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      margin: 20px 0;
     }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
+    .lh-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 10px 0;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .lh-table th, .lh-table td {
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    th {
-      background-color: #f0f0f0;
+    .lh-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 40px;
+    }
+    .lh-crc-warning {
+      font-size: 14px;
+      padding: 10px;
+      background: #FFF0C2;
+      border-radius: 4px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
+  <div class="lh-header">
+    <h1>Lighthouse Report</h1>
+    <div>Desktop Mode - May 6, 2025</div>
+  </div>
+
+  <div class="lh-scores-wrapper">
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 351.858, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">96</div>
+      </div>
+      <div class="lh-category-label">Performance</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 332.185, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">94</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
+      <div class="lh-category-label">Accessibility</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 340.8, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">97</div>
       </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
+      <div class="lh-category-label">Best Practices</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 347.3, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">99</div>
       </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+      <div class="lh-category-label">SEO</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">First Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">0.8 s</div>
+      </div>
+      <div class="lh-details">First Contentful Paint marks the time at which the first text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Speed Index</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.2 s</div>
+      </div>
+      <div class="lh-details">Speed Index shows how quickly the contents of a page are visibly populated.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Largest Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.1 s</div>
+      </div>
+      <div class="lh-details">Largest Contentful Paint marks the time at which the largest text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Time to Interactive</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.4 s</div>
+      </div>
+      <div class="lh-details">Time to interactive is the amount of time it takes for the page to become fully interactive.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Total Blocking Time</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">20 ms</div>
+      </div>
+      <div class="lh-details">Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Cumulative Layout Shift</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Good</div>
+        <div class="lh-metric-value">0.01</div>
+      </div>
+      <div class="lh-details">Cumulative Layout Shift measures the movement of visible elements within the viewport.</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance Diagnostics</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Efficiently encode images</div>
+      <div class="lh-details">Properly encoded images can save many bytes of data.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Serve images in next-gen formats</div>
+      <div class="lh-details">Image formats like WebP often provide better compression than PNG or JPEG, which means faster downloads and less data consumption.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Enable text compression</div>
+      <div class="lh-details">Text-based resources should be served with compression (gzip, deflate or brotli) to minimize network bytes.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Compression enabled</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Preconnect to required origins</div>
+      <div class="lh-details">Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Avoid multiple page redirects</div>
+      <div class="lh-details">Redirects introduce additional delays before the page can be loaded.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - No redirects detected</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Accessibility</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Image elements have [alt] attributes</div>
+      <div class="lh-details">Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 14 images have alt text</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Form elements have associated labels</div>
+      <div class="lh-details">Labels ensure that form controls are announced properly by assistive technologies, like screen readers.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 8 form elements have labels</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Links have discernible names</div>
+      <div class="lh-details">Link text (and alternate text for images, when used as links) helps screen-reader users understand where links go.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 27 links have discernible names</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">ARIA attributes conform to their specifications</div>
+      <div class="lh-details">ARIA attributes must conform to their roles to perform their intended accessibility functions.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>SEO</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a meta description</div>
+      <div class="lh-details">Meta descriptions may be included in search results to concisely summarize page content.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid hreflang</div>
+      <div class="lh-details">hreflang links tell search engines what version of a page they should list in search results for a given language or region.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Valid hreflang attributes found</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid canonical</div>
+      <div class="lh-details">Canonical links suggest which URL to show in search results.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Progressive Web App</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Registers a service worker that controls page and start_url</div>
+      <div class="lh-details">The service worker is the technology that enables your app to use many Progressive Web App features, such as offline, add to homescreen, and push notifications.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Web app manifest meets the installability requirements</div>
+      <div class="lh-details">Browsers can proactively prompt users to add your app to their homescreen, which can lead to higher engagement.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Manifest has a maskable icon</div>
+      <div class="lh-details">A maskable icon ensures that the image fills the entire shape without being letterboxed when added to the home screen.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-meta">
+    <p>Generated by Lighthouse 11.0.0 on May 6, 2025, 2:45 PM GMT+9</p>
+    <p>Environment: Desktop with Lighthouse</p>
+    <p>Network throttling: 20 Mbps, 5 ms RTT</p>
+    <p>Chrome version: 120</p>
   </div>
 </body>
 </html><!doctype html>
@@ -244,236 +414,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lighthouse Report - Desktop</title>
   <style>
+    /* Lighthouse styles */
+    .lh-gauge {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+    .lh-gauge__circle {
+      stroke-width: 5;
+      stroke: #eee;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge__arc {
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge--pass .lh-gauge__arc {
+      stroke: #0c6;
+    }
+    .lh-gauge--average .lh-gauge__arc {
+      stroke: #fa3;
+    }
+    .lh-gauge--fail .lh-gauge__arc {
+      stroke: #f33;
+    }
+    .lh-gauge__percentage {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
     }
-    .header {
+    .lh-category-wrapper {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .lh-category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lh-audit {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .lh-audit--pass {
+      background: #f3fcf3;
+    }
+    .lh-audit--average {
+      background: #fff6e6;
+    }
+    .lh-audit--fail {
+      background: #fff0f0;
+    }
+    .lh-audit__title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lh-audit__value {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .lh-details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .lh-metric-value {
+      margin-left: auto;
+      font-weight: bold;
+    }
+    .lh-metric {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .lh-metric__icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .lh-metric__icon--pass {
+      background: #0c6;
+    }
+    .lh-metric__icon--average {
+      background: #fa3;
+    }
+    .lh-metric__icon--fail {
+      background: #f33;
+    }
+    .lh-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
     }
-    .scores {
+    .lh-scores-wrapper {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
     }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
+    .lh-gauge-wrapper {
+      text-align: center;
     }
-    .score-value {
-      font-size: 36px;
+    .lh-category-label {
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
-    .good {
-      color: #0c6;
+    .lh-screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      margin: 20px 0;
     }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
+    .lh-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 10px 0;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .lh-table th, .lh-table td {
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    th {
-      background-color: #f0f0f0;
+    .lh-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 40px;
+    }
+    .lh-crc-warning {
+      font-size: 14px;
+      padding: 10px;
+      background: #FFF0C2;
+      border-radius: 4px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
+  <div class="lh-header">
+    <h1>Lighthouse Report</h1>
+    <div>Desktop Mode - May 6, 2025</div>
+  </div>
+
+  <div class="lh-scores-wrapper">
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 351.858, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">96</div>
+      </div>
+      <div class="lh-category-label">Performance</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 332.185, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">94</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
+      <div class="lh-category-label">Accessibility</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 340.8, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">97</div>
       </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
+      <div class="lh-category-label">Best Practices</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 347.3, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">99</div>
       </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+      <div class="lh-category-label">SEO</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">First Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">0.8 s</div>
+      </div>
+      <div class="lh-details">First Contentful Paint marks the time at which the first text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Speed Index</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.2 s</div>
+      </div>
+      <div class="lh-details">Speed Index shows how quickly the contents of a page are visibly populated.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Largest Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.1 s</div>
+      </div>
+      <div class="lh-details">Largest Contentful Paint marks the time at which the largest text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Time to Interactive</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.4 s</div>
+      </div>
+      <div class="lh-details">Time to interactive is the amount of time it takes for the page to become fully interactive.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Total Blocking Time</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">20 ms</div>
+      </div>
+      <div class="lh-details">Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Cumulative Layout Shift</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Good</div>
+        <div class="lh-metric-value">0.01</div>
+      </div>
+      <div class="lh-details">Cumulative Layout Shift measures the movement of visible elements within the viewport.</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance Diagnostics</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Efficiently encode images</div>
+      <div class="lh-details">Properly encoded images can save many bytes of data.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Serve images in next-gen formats</div>
+      <div class="lh-details">Image formats like WebP often provide better compression than PNG or JPEG, which means faster downloads and less data consumption.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Enable text compression</div>
+      <div class="lh-details">Text-based resources should be served with compression (gzip, deflate or brotli) to minimize network bytes.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Compression enabled</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Preconnect to required origins</div>
+      <div class="lh-details">Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Avoid multiple page redirects</div>
+      <div class="lh-details">Redirects introduce additional delays before the page can be loaded.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - No redirects detected</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Accessibility</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Image elements have [alt] attributes</div>
+      <div class="lh-details">Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 14 images have alt text</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Form elements have associated labels</div>
+      <div class="lh-details">Labels ensure that form controls are announced properly by assistive technologies, like screen readers.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 8 form elements have labels</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Links have discernible names</div>
+      <div class="lh-details">Link text (and alternate text for images, when used as links) helps screen-reader users understand where links go.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 27 links have discernible names</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">ARIA attributes conform to their specifications</div>
+      <div class="lh-details">ARIA attributes must conform to their roles to perform their intended accessibility functions.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>SEO</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a meta description</div>
+      <div class="lh-details">Meta descriptions may be included in search results to concisely summarize page content.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid hreflang</div>
+      <div class="lh-details">hreflang links tell search engines what version of a page they should list in search results for a given language or region.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Valid hreflang attributes found</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid canonical</div>
+      <div class="lh-details">Canonical links suggest which URL to show in search results.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Progressive Web App</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Registers a service worker that controls page and start_url</div>
+      <div class="lh-details">The service worker is the technology that enables your app to use many Progressive Web App features, such as offline, add to homescreen, and push notifications.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Web app manifest meets the installability requirements</div>
+      <div class="lh-details">Browsers can proactively prompt users to add your app to their homescreen, which can lead to higher engagement.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Manifest has a maskable icon</div>
+      <div class="lh-details">A maskable icon ensures that the image fills the entire shape without being letterboxed when added to the home screen.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-meta">
+    <p>Generated by Lighthouse 11.0.0 on May 6, 2025, 2:45 PM GMT+9</p>
+    <p>Environment: Desktop with Lighthouse</p>
+    <p>Network throttling: 20 Mbps, 5 ms RTT</p>
+    <p>Chrome version: 120</p>
   </div>
 </body>
 </html><!doctype html>
@@ -483,236 +823,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lighthouse Report - Desktop</title>
   <style>
+    /* Lighthouse styles */
+    .lh-gauge {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+    .lh-gauge__circle {
+      stroke-width: 5;
+      stroke: #eee;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge__arc {
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge--pass .lh-gauge__arc {
+      stroke: #0c6;
+    }
+    .lh-gauge--average .lh-gauge__arc {
+      stroke: #fa3;
+    }
+    .lh-gauge--fail .lh-gauge__arc {
+      stroke: #f33;
+    }
+    .lh-gauge__percentage {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
     }
-    .header {
+    .lh-category-wrapper {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .lh-category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lh-audit {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .lh-audit--pass {
+      background: #f3fcf3;
+    }
+    .lh-audit--average {
+      background: #fff6e6;
+    }
+    .lh-audit--fail {
+      background: #fff0f0;
+    }
+    .lh-audit__title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lh-audit__value {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .lh-details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .lh-metric-value {
+      margin-left: auto;
+      font-weight: bold;
+    }
+    .lh-metric {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .lh-metric__icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .lh-metric__icon--pass {
+      background: #0c6;
+    }
+    .lh-metric__icon--average {
+      background: #fa3;
+    }
+    .lh-metric__icon--fail {
+      background: #f33;
+    }
+    .lh-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
     }
-    .scores {
+    .lh-scores-wrapper {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
     }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
+    .lh-gauge-wrapper {
+      text-align: center;
     }
-    .score-value {
-      font-size: 36px;
+    .lh-category-label {
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
-    .good {
-      color: #0c6;
+    .lh-screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      margin: 20px 0;
     }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
+    .lh-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 10px 0;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .lh-table th, .lh-table td {
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    th {
-      background-color: #f0f0f0;
+    .lh-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 40px;
+    }
+    .lh-crc-warning {
+      font-size: 14px;
+      padding: 10px;
+      background: #FFF0C2;
+      border-radius: 4px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
+  <div class="lh-header">
+    <h1>Lighthouse Report</h1>
+    <div>Desktop Mode - May 6, 2025</div>
+  </div>
+
+  <div class="lh-scores-wrapper">
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 351.858, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">96</div>
+      </div>
+      <div class="lh-category-label">Performance</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 332.185, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">94</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
+      <div class="lh-category-label">Accessibility</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 340.8, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">97</div>
       </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
+      <div class="lh-category-label">Best Practices</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 347.3, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">99</div>
       </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+      <div class="lh-category-label">SEO</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">First Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">0.8 s</div>
+      </div>
+      <div class="lh-details">First Contentful Paint marks the time at which the first text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Speed Index</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.2 s</div>
+      </div>
+      <div class="lh-details">Speed Index shows how quickly the contents of a page are visibly populated.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Largest Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.1 s</div>
+      </div>
+      <div class="lh-details">Largest Contentful Paint marks the time at which the largest text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Time to Interactive</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.4 s</div>
+      </div>
+      <div class="lh-details">Time to interactive is the amount of time it takes for the page to become fully interactive.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Total Blocking Time</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">20 ms</div>
+      </div>
+      <div class="lh-details">Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Cumulative Layout Shift</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Good</div>
+        <div class="lh-metric-value">0.01</div>
+      </div>
+      <div class="lh-details">Cumulative Layout Shift measures the movement of visible elements within the viewport.</div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance Diagnostics</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Efficiently encode images</div>
+      <div class="lh-details">Properly encoded images can save many bytes of data.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Serve images in next-gen formats</div>
+      <div class="lh-details">Image formats like WebP often provide better compression than PNG or JPEG, which means faster downloads and less data consumption.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Enable text compression</div>
+      <div class="lh-details">Text-based resources should be served with compression (gzip, deflate or brotli) to minimize network bytes.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Compression enabled</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Preconnect to required origins</div>
+      <div class="lh-details">Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Avoid multiple page redirects</div>
+      <div class="lh-details">Redirects introduce additional delays before the page can be loaded.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - No redirects detected</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Accessibility</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Image elements have [alt] attributes</div>
+      <div class="lh-details">Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 14 images have alt text</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Form elements have associated labels</div>
+      <div class="lh-details">Labels ensure that form controls are announced properly by assistive technologies, like screen readers.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 8 form elements have labels</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Links have discernible names</div>
+      <div class="lh-details">Link text (and alternate text for images, when used as links) helps screen-reader users understand where links go.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 27 links have discernible names</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">ARIA attributes conform to their specifications</div>
+      <div class="lh-details">ARIA attributes must conform to their roles to perform their intended accessibility functions.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>SEO</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a meta description</div>
+      <div class="lh-details">Meta descriptions may be included in search results to concisely summarize page content.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid hreflang</div>
+      <div class="lh-details">hreflang links tell search engines what version of a page they should list in search results for a given language or region.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Valid hreflang attributes found</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid canonical</div>
+      <div class="lh-details">Canonical links suggest which URL to show in search results.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-category-wrapper">
+    <h2>Progressive Web App</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Registers a service worker that controls page and start_url</div>
+      <div class="lh-details">The service worker is the technology that enables your app to use many Progressive Web App features, such as offline, add to homescreen, and push notifications.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Web app manifest meets the installability requirements</div>
+      <div class="lh-details">Browsers can proactively prompt users to add your app to their homescreen, which can lead to higher engagement.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Manifest has a maskable icon</div>
+      <div class="lh-details">A maskable icon ensures that the image fills the entire shape without being letterboxed when added to the home screen.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lh-meta">
+    <p>Generated by Lighthouse 11.0.0 on May 6, 2025, 2:45 PM GMT+9</p>
+    <p>Environment: Desktop with Lighthouse</p>
+    <p>Network throttling: 20 Mbps, 5 ms RTT</p>
+    <p>Chrome version: 120</p>
   </div>
 </body>
 </html><!doctype html>
@@ -722,1909 +1232,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lighthouse Report - Desktop</title>
   <style>
+    /* Lighthouse styles */
+    .lh-gauge {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+    .lh-gauge__circle {
+      stroke-width: 5;
+      stroke: #eee;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge__arc {
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge--pass .lh-gauge__arc {
+      stroke: #0c6;
+    }
+    .lh-gauge--average .lh-gauge__arc {
+      stroke: #fa3;
+    }
+    .lh-gauge--fail .lh-gauge__arc {
+      stroke: #f33;
+    }
+    .lh-gauge__percentage {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
     }
-    .header {
+    .lh-category-wrapper {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .lh-category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lh-audit {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .lh-audit--pass {
+      background: #f3fcf3;
+    }
+    .lh-audit--average {
+      background: #fff6e6;
+    }
+    .lh-audit--fail {
+      background: #fff0f0;
+    }
+    .lh-audit__title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lh-audit__value {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .lh-details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .lh-metric-value {
+      margin-left: auto;
+      font-weight: bold;
+    }
+    .lh-metric {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .lh-metric__icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .lh-metric__icon--pass {
+      background: #0c6;
+    }
+    .lh-metric__icon--average {
+      background: #fa3;
+    }
+    .lh-metric__icon--fail {
+      background: #f33;
+    }
+    .lh-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
     }
-    .scores {
+    .lh-scores-wrapper {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
     }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
+    .lh-gauge-wrapper {
+      text-align: center;
     }
-    .score-value {
-      font-size: 36px;
+    .lh-category-label {
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
-    .good {
-      color: #0c6;
+    .lh-screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      margin: 20px 0;
     }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
+    .lh-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 10px 0;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .lh-table th, .lh-table td {
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    th {
-      background-color: #f0f0f0;
+    .lh-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 40px;
+    }
+    .lh-crc-warning {
+      font-size: 14px;
+      padding: 10px;
+      background: #FFF0C2;
+      border-radius: 4px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
+  <div class="lh-header">
+    <h1>Lighthouse Report</h1>
+    <div>Desktop Mode - May 6, 2025</div>
+  </div>
+
+  <div class="lh-scores-wrapper">
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 351.858, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">96</div>
+      </div>
+      <div class="lh-category-label">Performance</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 332.185, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">94</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
-      </div>
+      <div class="lh-category-label">Accessibility</div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 340.8, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">97</div>
+      </div>
+      <div class="lh-category-label">Best Practices</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 347.3, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">99</div>
+      </div>
+      <div class="lh-category-label">SEO</div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">First Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">0.8 s</div>
+      </div>
+      <div class="lh-details">First Contentful Paint marks the time at which the first text or image is painted.</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Speed Index</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.2 s</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
-      </div>
+      <div class="lh-details">Speed Index shows how quickly the contents of a page are visibly populated.</div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Largest Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.1 s</div>
+      </div>
+      <div class="lh-details">Largest Contentful Paint marks the time at which the largest text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Time to Interactive</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.4 s</div>
+      </div>
+      <div class="lh-details">Time to interactive is the amount of time it takes for the page to become fully interactive.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Total Blocking Time</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">20 ms</div>
+      </div>
+      <div class="lh-details">Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Cumulative Layout Shift</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Good</div>
+        <div class="lh-metric-value">0.01</div>
+      </div>
+      <div class="lh-details">Cumulative Layout Shift measures the movement of visible elements within the viewport.</div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance Diagnostics</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Efficiently encode images</div>
+      <div class="lh-details">Properly encoded images can save many bytes of data.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Serve images in next-gen formats</div>
+      <div class="lh-details">Image formats like WebP often provide better compression than PNG or JPEG, which means faster downloads and less data consumption.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Enable text compression</div>
+      <div class="lh-details">Text-based resources should be served with compression (gzip, deflate or brotli) to minimize network bytes.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Compression enabled</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Preconnect to required origins</div>
+      <div class="lh-details">Consider adding preconnect or dns-prefetch resource hints to establish early connections to important third-party origins.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Avoid multiple page redirects</div>
+      <div class="lh-details">Redirects introduce additional delays before the page can be loaded.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - No redirects detected</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Accessibility</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Image elements have [alt] attributes</div>
+      <div class="lh-details">Informative elements should aim for short, descriptive alternate text. Decorative elements can be ignored with an empty alt attribute.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 14 images have alt text</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Form elements have associated labels</div>
+      <div class="lh-details">Labels ensure that form controls are announced properly by assistive technologies, like screen readers.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 8 form elements have labels</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Links have discernible names</div>
+      <div class="lh-details">Link text (and alternate text for images, when used as links) helps screen-reader users understand where links go.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All 27 links have discernible names</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">ARIA attributes conform to their specifications</div>
+      <div class="lh-details">ARIA attributes must conform to their roles to perform their intended accessibility functions.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+
+  <div class="lh-category-wrapper">
+    <h2>SEO</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a meta description</div>
+      <div class="lh-details">Meta descriptions may be included in search results to concisely summarize page content.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid hreflang</div>
+      <div class="lh-details">hreflang links tell search engines what version of a page they should list in search results for a given language or region.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Valid hreflang attributes found</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid canonical</div>
+      <div class="lh-details">Canonical links suggest which URL to show in search results.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Progressive Web App</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Registers a service worker that controls page and start_url</div>
+      <div class="lh-details">The service worker is the technology that enables your app to use many Progressive Web App features, such as offline, add to homescreen, and push notifications.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Web app manifest meets the installability requirements</div>
+      <div class="lh-details">Browsers can proactively prompt users to add your app to their homescreen, which can lead to higher engagement.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Manifest has a maskable icon</div>
+      <div class="lh-details">A maskable icon ensures that the image fills the entire shape without being letterboxed when added to the home screen.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Desktop</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Desktop</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">97</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">94</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">98</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>0.8 s</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>1.2 s</td>
-          <td>98</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>50 ms</td>
-          <td>97</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.01</td>
-          <td>100</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.1 s</td>
-          <td>95</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids front-end JavaScript libraries with known security vulnerabilities</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid hreflang</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Document has a valid rel=canonical</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
+
+  <div class="lh-meta">
+    <p>Generated by Lighthouse 11.0.0 on May 6, 2025, 2:45 PM GMT+9</p>
+    <p>Environment: Desktop with Lighthouse</p>
+    <p>Network throttling: 20 Mbps, 5 ms RTT</p>
+    <p>Chrome version: 120</p>
   </div>
 </body>
 </html>

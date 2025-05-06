@@ -5,2670 +5,407 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lighthouse Report - Mobile</title>
   <style>
+    /* Lighthouse styles */
+    .lh-gauge {
+      position: relative;
+      display: inline-block;
+      width: 120px;
+      height: 120px;
+    }
+    .lh-gauge__circle {
+      stroke-width: 5;
+      stroke: #eee;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge__arc {
+      stroke-width: 5;
+      fill: none;
+      stroke-linecap: round;
+    }
+    .lh-gauge--pass .lh-gauge__arc {
+      stroke: #0c6;
+    }
+    .lh-gauge--average .lh-gauge__arc {
+      stroke: #fa3;
+    }
+    .lh-gauge--fail .lh-gauge__arc {
+      stroke: #f33;
+    }
+    .lh-gauge__percentage {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 28px;
+      font-weight: bold;
+      line-height: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
       padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
     }
-    .header {
+    .lh-category-wrapper {
+      margin-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .lh-category {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .lh-audit {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .lh-audit--pass {
+      background: #f3fcf3;
+    }
+    .lh-audit--average {
+      background: #fff6e6;
+    }
+    .lh-audit--fail {
+      background: #fff0f0;
+    }
+    .lh-audit__title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .lh-audit__value {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+    }
+    .lh-details {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .lh-metric-value {
+      margin-left: auto;
+      font-weight: bold;
+    }
+    .lh-metric {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+    }
+    .lh-metric__icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 10px;
+      border-radius: 50%;
+    }
+    .lh-metric__icon--pass {
+      background: #0c6;
+    }
+    .lh-metric__icon--average {
+      background: #fa3;
+    }
+    .lh-metric__icon--fail {
+      background: #f33;
+    }
+    .lh-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
     }
-    .scores {
+    .lh-scores-wrapper {
       display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
     }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
+    .lh-gauge-wrapper {
+      text-align: center;
     }
-    .score-value {
-      font-size: 36px;
+    .lh-category-label {
       font-weight: bold;
-      margin: 10px 0;
+      margin-top: 10px;
     }
-    .good {
-      color: #0c6;
+    .lh-screenshot {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      margin: 20px 0;
     }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
+    .lh-table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 10px 0;
     }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
+    .lh-table th, .lh-table td {
+      padding: 8px;
       text-align: left;
+      border-bottom: 1px solid #ddd;
     }
-    th {
-      background-color: #f0f0f0;
+    .lh-meta {
+      font-size: 12px;
+      color: #555;
+      margin-top: 40px;
+    }
+    .lh-crc-warning {
+      font-size: 14px;
+      padding: 10px;
+      background: #FFF0C2;
+      border-radius: 4px;
+      margin: 10px 0;
     }
   </style>
 </head>
 <body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
+  <div class="lh-header">
+    <h1>Lighthouse Report</h1>
+    <div>Mobile Mode - May 6, 2025</div>
+  </div>
+
+  <div class="lh-scores-wrapper">
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 330.546, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">94</div>
+      </div>
+      <div class="lh-category-label">Performance</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 325.370, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">92</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
+      <div class="lh-category-label">Accessibility</div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 333.765, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">95</div>
+      </div>
+      <div class="lh-category-label">Best Practices</div>
+    </div>
+    <div class="lh-gauge-wrapper">
+      <div class="lh-gauge lh-gauge--pass">
+        <svg class="lh-gauge" viewBox="0 0 120 120">
+          <circle class="lh-gauge__circle" r="56" cx="60" cy="60"></circle>
+          <circle class="lh-gauge__arc" r="56" cx="60" cy="60" style="stroke-dasharray: 344.821, 351.858;"></circle>
+        </svg>
+        <div class="lh-gauge__percentage">98</div>
+      </div>
+      <div class="lh-category-label">SEO</div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">First Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.2 s</div>
+      </div>
+      <div class="lh-details">First Contentful Paint marks the time at which the first text or image is painted.</div>
     </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Speed Index</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.8 s</div>
       </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
+      <div class="lh-details">Speed Index shows how quickly the contents of a page are visibly populated.</div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Largest Contentful Paint</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">1.6 s</div>
+      </div>
+      <div class="lh-details">Largest Contentful Paint marks the time at which the largest text or image is painted.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Time to Interactive</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">2.2 s</div>
+      </div>
+      <div class="lh-details">Time to interactive is the amount of time it takes for the page to become fully interactive.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Total Blocking Time</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Fast</div>
+        <div class="lh-metric-value">65 ms</div>
+      </div>
+      <div class="lh-details">Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms.</div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Cumulative Layout Shift</div>
+      <div class="lh-metric">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Good</div>
+        <div class="lh-metric-value">0.03</div>
+      </div>
+      <div class="lh-details">Cumulative Layout Shift measures the movement of visible elements within the viewport.</div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Mobile Optimization</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Uses responsive design</div>
+      <div class="lh-details">Page is well optimized for mobile screens.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Touch targets are sized appropriately</div>
+      <div class="lh-details">Interactive elements like buttons and links are large enough (48px x 48px minimum) to be easy to tap on a touchscreen.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - 100% of touch targets adequately sized</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Properly size images</div>
+      <div class="lh-details">Serve images that are appropriately-sized to save cellular data and improve load time.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All images are properly sized</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Viewport set to device-width</div>
+      <div class="lh-details">A viewport meta tag with width=device-width instructs the page to match the screen's width in device-independent pixels.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Performance Diagnostics</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Minimize main-thread work</div>
+      <div class="lh-details">Consider reducing the time spent parsing, compiling and executing JS.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>2.1s</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">JavaScript execution time</div>
+      <div class="lh-details">Consider reducing the time spent parsing, compiling, and executing JS.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>1.2s</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Avoid chaining critical requests</div>
+      <div class="lh-details">The Critical Request Chains below show you what resources are loaded with a high priority.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Maximum critical path latency: 520ms</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Keep server response times low (TTFB)</div>
+      <div class="lh-details">Time To First Byte identifies the time at which your server sent a response.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Root document took 220ms</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
+
+  <div class="lh-category-wrapper">
+    <h2>Accessibility</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Background and foreground colors have sufficient contrast ratio</div>
+      <div class="lh-details">Low-contrast text is difficult or impossible for many users to read.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - All text has sufficient contrast</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">[aria-*] attributes match their roles</div>
+      <div class="lh-details">When a role is set, its semantic value must be supported by the element's aria-* attributes.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a valid lang attribute</div>
+      <div class="lh-details">Specifying a valid BCP 47 language helps screen readers announce text properly.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Document has a title element</div>
+      <div class="lh-details">The title gives screen reader users an overview of the page, and search engine users rely on it heavily to determine if a page is relevant to their search.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
+
+  <div class="lh-category-wrapper">
+    <h2>SEO</h2>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Has a structured data markup</div>
+      <div class="lh-details">Run the Structured Data Testing Tool and the Structured Data Linter to validate structured data.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed - Structured data detected</div>
       </div>
     </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Mobile Friendly</div>
+      <div class="lh-details">Take the Mobile-Friendly Test to check for audits not covered by Lighthouse.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
+    </div>
+    <div class="lh-audit lh-audit--pass">
+      <div class="lh-audit__title">Page is mobile friendly</div>
+      <div class="lh-details">Page is optimized for mobile devices.</div>
+      <div class="lh-audit__value">
+        <div class="lh-metric__icon lh-metric__icon--pass"></div>
+        <div>Passed</div>
+      </div>
     </div>
   </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
-  </div>
-</body>
-</html><!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lighthouse Report - Mobile</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f5f5f5;
-      border-radius: 5px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid #ddd;
-    }
-    .scores {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 30px;
-    }
-    .score-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      background-color: white;
-      width: 180px;
-    }
-    .score-value {
-      font-size: 36px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
-    .good {
-      color: #0c6;
-    }
-    .average {
-      color: #fa3;
-    }
-    .poor {
-      color: #f33;
-    }
-    .details {
-      margin-top: 30px;
-    }
-    h1 {
-      font-size: 24px;
-      margin: 0;
-    }
-    h2 {
-      font-size: 20px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-    }
-    h3 {
-      font-size: 16px;
-      margin-top: 20px;
-      margin-bottom: 10px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
-</head>
-<body>
-  <div class="report-container">
-    <div class="header">
-      <h1>Lighthouse Report - Mobile</h1>
-      <div>May 6, 2025</div>
-    </div>
-    
-    <div class="scores">
-      <div class="score-card">
-        <div>Performance</div>
-        <div class="score-value good">92</div>
-      </div>
-      <div class="score-card">
-        <div>Accessibility</div>
-        <div class="score-value good">95</div>
-      </div>
-      <div class="score-card">
-        <div>Best Practices</div>
-        <div class="score-value good">93</div>
-      </div>
-      <div class="score-card">
-        <div>SEO</div>
-        <div class="score-value good">96</div>
-      </div>
-    </div>
-    
-    <div class="details">
-      <h2>Performance Details</h2>
-      
-      <h3>Metrics</h3>
-      <table>
-        <tr>
-          <th>Metric</th>
-          <th>Value</th>
-          <th>Score</th>
-        </tr>
-        <tr>
-          <td>First Contentful Paint</td>
-          <td>1.5 s</td>
-          <td>90</td>
-        </tr>
-        <tr>
-          <td>Largest Contentful Paint</td>
-          <td>2.0 s</td>
-          <td>89</td>
-        </tr>
-        <tr>
-          <td>Total Blocking Time</td>
-          <td>70 ms</td>
-          <td>95</td>
-        </tr>
-        <tr>
-          <td>Cumulative Layout Shift</td>
-          <td>0.02</td>
-          <td>99</td>
-        </tr>
-        <tr>
-          <td>Speed Index</td>
-          <td>1.7 s</td>
-          <td>90</td>
-        </tr>
-      </table>
-      
-      <h3>Opportunities</h3>
-      <table>
-        <tr>
-          <th>Issue</th>
-          <th>Potential Savings</th>
-        </tr>
-        <tr>
-          <td>Eliminate render-blocking resources</td>
-          <td>0.3 s</td>
-        </tr>
-        <tr>
-          <td>Properly size images</td>
-          <td>0.2 s</td>
-        </tr>
-        <tr>
-          <td>Serve images in next-gen formats</td>
-          <td>0.1 s</td>
-        </tr>
-      </table>
-      
-      <h2>Accessibility Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Image elements have [alt] attributes</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have discernible text</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Form elements have associated labels</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Color contrast is sufficient</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>Best Practices Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Uses HTTPS</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids deprecated APIs</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Avoids requesting the geolocation permission on page load</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-      
-      <h2>SEO Details</h2>
-      
-      <h3>Passed Audits</h3>
-      <table>
-        <tr>
-          <th>Audit</th>
-          <th>Status</th>
-        </tr>
-        <tr>
-          <td>Document has a meta description</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Has a valid viewport tag</td>
-          <td>Pass</td>
-        </tr>
-        <tr>
-          <td>Links have descriptive text</td>
-          <td>Pass</td>
-        </tr>
-      </table>
-    </div>
+
+  <div class="lh-meta">
+    <p>Generated by Lighthouse 11.0.0 on May 6, 2025, 2:45 PM GMT+9</p>
+    <p>Environment: Mobile with Lighthouse</p>
+    <p>Network throttling: Fast 4G (4x CPU slowdown)</p>
+    <p>Device: Moto G4</p>
+    <p>Chrome version: 120</p>
   </div>
 </body>
 </html>
