@@ -12,17 +12,17 @@ const servicesRequests = new Counter('services_requests');
 // 테스트 설정
 export const options = {
   stages: [
-    { duration: '1m', target: 10 }, // 1분동안 10명의 가상 사용자로 램프업
-    { duration: '3m', target: 10 }, // 3분동안 10명의 가상 사용자 유지
-    { duration: '1m', target: 0 },  // 1분동안 0명으로 램프다운
+    { duration: '30s', target: 30 }, // 30초 동안 30명의 가상 사용자로 램프업
+    { duration: '1m', target: 30 },  // 1분 동안 30명의 가상 사용자 유지
+    { duration: '30s', target: 0 },  // 30초 동안 0명으로 램프다운
   ],
   thresholds: {
     // 오류율 임계값
-    'error_rate': ['rate<0.1'], // 10% 미만 오류율 목표
+    'error_rate': ['rate<0.05'], // 5% 미만 오류율 목표
     // 응답 시간 임계값
-    'http_req_duration': ['p(95)<1000'], // 95%의 요청이 1초 이내 응답
-    'api_response_time{endpoint:resources}': ['p(95)<1200'],
-    'api_response_time{endpoint:services}': ['p(95)<1200'],
+    'http_req_duration': ['p(95)<200'], // 95%의 요청이 200ms 이내 응답
+    'api_response_time{endpoint:resources}': ['p(95)<200'],
+    'api_response_time{endpoint:services}': ['p(95)<200'],
   },
 };
 

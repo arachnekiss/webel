@@ -12,7 +12,7 @@ test.describe('Axe Accessibility Tests', () => {
   // 메인 페이지 접근성 테스트
   test('should pass accessibility checks on the main page', async ({ page }) => {
     // axe로 접근성 검사
-    await checkA11y(page, null, {
+    await checkA11y(page, undefined, {
       detailedReport: true,
       detailedReportOptions: { html: true },
     });
@@ -24,7 +24,7 @@ test.describe('Axe Accessibility Tests', () => {
     await injectAxe(page);
     
     // axe로 접근성 검사
-    await checkA11y(page, null, {
+    await checkA11y(page, undefined, {
       detailedReport: true,
       detailedReportOptions: { html: true },
     });
@@ -36,7 +36,7 @@ test.describe('Axe Accessibility Tests', () => {
     await injectAxe(page);
     
     // axe로 접근성 검사
-    await checkA11y(page, null, {
+    await checkA11y(page, undefined, {
       detailedReport: true,
       detailedReportOptions: { html: true },
     });
@@ -50,7 +50,7 @@ test.describe('Axe Accessibility Tests', () => {
     await injectAxe(page);
     
     // axe로 접근성 검사
-    await checkA11y(page, null, {
+    await checkA11y(page, undefined, {
       detailedReport: true,
       detailedReportOptions: { html: true },
     });
@@ -64,7 +64,7 @@ test.describe('Axe Accessibility Tests', () => {
     await injectAxe(page);
     
     // axe로 접근성 검사
-    await checkA11y(page, null, {
+    await checkA11y(page, undefined, {
       detailedReport: true,
       detailedReportOptions: { html: true },
     });
