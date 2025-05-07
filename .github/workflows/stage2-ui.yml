@@ -1,0 +1,36 @@
+name: Stage 2 - UI Accessibility Tests
+
+on: 
+  push:
+    branches: [ main, develop, stage-qa-e2e ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ui-accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      - name: Install axe-playwright
+        run: npm install axe-playwright
+      - name: Run UI Accessibility tests
+        run: npx playwright test tests/e2e/02_ui_accessibility.spec.ts tests/e2e/03_axe_accessibility.spec.ts
+        env:
+          CI: true
+          NODE_ENV: test
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-a11y-test-results
+          path: playwright-report/
+          retention-days: 7

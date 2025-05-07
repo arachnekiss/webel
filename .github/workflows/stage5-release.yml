@@ -1,0 +1,69 @@
+name: Stage 5 - Release
+
+on:
+  workflow_run:
+    workflows: ["Stage 1 - E2E Tests", "Stage 2 - UI Accessibility Tests", "Stage 3 - Performance Tests", "Stage 4 - Security Tests"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          echo "# Release Notes v1.0.0" > release-notes.md
+          echo "" >> release-notes.md
+          echo "## Features" >> release-notes.md
+          echo "- Full multilingual support (Korean, English, Japanese)" >> release-notes.md
+          echo "- Optimized search performance (p95 < 200ms)" >> release-notes.md
+          echo "- Comprehensive E2E test suite" >> release-notes.md
+          echo "- UI/Accessibility improvements" >> release-notes.md
+          echo "- Security hardening" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "## Performance" >> release-notes.md
+          echo "- Search queries: p95 < 200ms" >> release-notes.md
+          echo "- Lighthouse scores: ≥ 90 in all categories" >> release-notes.md
+          echo "" >> release-notes.md
+          echo "## Testing Coverage" >> release-notes.md
+          echo "- 19 E2E test cases covering core flows and accessibility" >> release-notes.md
+          echo "- Performance testing with 30 VU for 2 minutes" >> release-notes.md
+          echo "- OWASP ZAP security scan" >> release-notes.md
+      
+      - name: Create tag
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v1.0.0',
+              sha: context.sha
+            })
+            
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0
+          name: Multilingual Engineering Platform v1.0.0
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
