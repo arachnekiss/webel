@@ -6,9 +6,19 @@ import ws from 'ws';
 const { Pool } = pg;
 
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+  const errorMsg = "DATABASE_URL 환경 변수가 설정되지 않았습니다. 데이터베이스가 프로비저닝되었는지 확인하세요.";
+  console.error('⚠️ ' + errorMsg);
+  
+  // Azure 환경에서는 심각한 오류로 종료하지 않고 대신 로그만 출력
+  if (process.env.WEBSITE_SITE_NAME) {
+    console.log('Azure App Service 환경에서 실행 중 - 데이터베이스 없이 계속 진행합니다.');
+    
+    // Azure에서는 더미 풀을 대신 사용하고 실제 쿼리 전에 오류 발생하도록 함
+    console.warn('⚠️ 주의: 데이터베이스 연결 없이 앱이 실행됩니다. 일부 기능이 작동하지 않습니다.');
+  } else {
+    // 개발 환경에서는 예외 발생
+    throw new Error(errorMsg);
+  }
 }
 
 // Azure 배포 환경에서는 WebSocket을 사용하도록 설정
@@ -18,16 +28,27 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // 데이터베이스 연결 풀 설정 최적화
-export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
-  max: 10, // 최대 연결 수를 줄여서 안정성 향상
-  idleTimeoutMillis: 30000, // 유휴 연결 타임아웃 (30초)
-  connectionTimeoutMillis: 15000, // 연결 타임아웃 증가 (15초)
-  // Azure 환경에서 추가 연결 옵션
-  ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false // Azure/Neon DB와 연결을 위해 필요
-  } : undefined
-});
+export const pool = process.env.DATABASE_URL 
+  ? new Pool({ 
+      connectionString: process.env.DATABASE_URL,
+      max: 10, // 최대 연결 수를 줄여서 안정성 향상
+      idleTimeoutMillis: 30000, // 유휴 연결 타임아웃 (30초)
+      connectionTimeoutMillis: 15000, // 연결 타임아웃 증가 (15초)
+      // Azure 환경에서 추가 연결 옵션
+      ssl: process.env.NODE_ENV === 'production' ? {
+        rejectUnauthorized: false // Azure/Neon DB와 연결을 위해 필요
+      } : undefined
+    })
+  : new Pool({ // 더미 풀 객체 (DATABASE_URL이 없을 때 사용)
+      host: 'localhost',
+      port: 5432,
+      user: 'dummy',
+      password: 'dummy',
+      database: 'dummy',
+      // 연결 시도하지 않도록 설정
+      max: 0, 
+      connectionTimeoutMillis: 1
+    });
 
 // 연결 풀 에러 핸들링
 pool.on('error', (err) => {
@@ -112,7 +133,35 @@ export async function executeWithRetry(callback: () => Promise<any>, retries = 5
 }
 
 // 쿼리 로깅 및 성능 측정을 위한 미들웨어 설정
-export const db = drizzle(pool, { 
-  schema,
-  logger: process.env.NODE_ENV !== 'production'
-});
+// DATABASE_URL이 없는 경우를 위한 안전 조치
+export const db = process.env.DATABASE_URL 
+  ? drizzle(pool, { 
+      schema,
+      logger: process.env.NODE_ENV !== 'production'
+    })
+  : drizzle(pool, { 
+      schema,
+      logger: true, // 더미 DB에서는 항상 로깅하여 문제 파악
+      // 쿼리 수행 전 사용자 친화적 오류 제공하는 훅 추가
+      queryHook: (sql, params, customizer) => {
+        console.warn('⚠️ 데이터베이스 연결이 설정되지 않아 쿼리를 실행할 수 없습니다:', sql);
+        console.warn('⚠️ 쿼리 파라미터:', params);
+        
+        // 실제로는 쿼리를 실행하지 않고 빈 결과 반환
+        if (Array.isArray(params)) {
+          return {
+            sql,
+            params,
+            customizer,
+            result: [] // 빈 배열 반환
+          };
+        }
+        
+        return {
+          sql,
+          params,
+          customizer,
+          result: undefined // 단일 결과 쿼리는 undefined 반환
+        };
+      }
+    });

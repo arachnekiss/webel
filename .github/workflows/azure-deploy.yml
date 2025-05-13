@@ -49,7 +49,7 @@ jobs:
     - name: Run database migrations
       run: |
         # 데이터베이스 연결 문자열 직접 지정 (디버깅용)
-        export DATABASE_URL="postgresql://arachne@webel:passfor0.@webel.postgres.database.azure.com:5432/postgres?sslmode=require"
+        export DATABASE_URL="${{ secrets.DATABASE_URL }}"
         
         # 환경 변수 디버깅 출력
         echo "🔍 DATABASE_URL 확인:"
@@ -60,6 +60,7 @@ jobs:
         echo "🔄 .env.production 파일 생성 중..."
         echo "DATABASE_URL=$DATABASE_URL" > .env.production
         echo "NODE_ENV=production" >> .env.production
+        echo "SKIP_MIGRATION=true" >> .env.production  # Azure에서 마이그레이션 건너뛰기 플래그 추가
         
         # 파일 내용 확인 (민감 정보 마스킹하여 출력)
         echo "🔍 .env.production 파일 내용 확인:"
@@ -73,20 +74,39 @@ jobs:
         # 마이그레이션 환경 준비 확인
         ls -la drizzle.config.* || true
         
-        # 마이그레이션 실행
+        # drizzle-kit이 설치되어 있는지 확인 (global 설치 시도)
+        echo "🔍 drizzle-kit 설치 상태 확인..."
+        if ! npm list -g drizzle-kit &> /dev/null; then
+          echo "🔄 drizzle-kit을 글로벌로 설치합니다..."
+          npm install -g drizzle-kit
+          echo "✅ drizzle-kit 글로벌 설치 완료"
+        else
+          echo "✅ drizzle-kit이 이미 글로벌로 설치되어 있습니다."
+        fi
+        
+        # 마이그레이션 실행 (로컬 drizzle-kit 모듈 아니라 글로벌 drizzle-kit 사용)
         echo "🔄 데이터베이스 마이그레이션을 실행합니다..."
         
-        # 1. 기존 db:push 스크립트 사용
-        echo "방법 1: npm run db:push 실행"
-        DATABASE_URL="$DATABASE_URL" npm run db:push || true
+        # 1. 글로벌 drizzle-kit 직접 실행 
+        echo "방법 1: 글로벌 drizzle-kit push 실행"
+        DATABASE_URL="$DATABASE_URL" drizzle-kit push || true
         
-        # 2. drizzle-kit push 실행 (매개변수 최적화)
-        echo "방법 2: npx drizzle-kit push 최적화 실행"
-        NODE_OPTIONS="--no-warnings" DATABASE_URL="$DATABASE_URL" npx drizzle-kit push || true
+        # 2. SQL 마이그레이션 스크립트 생성 및 실행
+        echo "방법 2: SQL 마이그레이션 스크립트 생성 및 실행"
+        # SQL 마이그레이션 파일 생성
+        DATABASE_URL="$DATABASE_URL" drizzle-kit generate:pg --out=./migration.sql || true
         
-        # 3. 마이그레이션 스크립트 직접 실행
-        echo "방법 3: server/migrate.js 직접 실행"
-        DATABASE_URL="$DATABASE_URL" node server/migrate.js || true
+        # migration.sql 파일이 생성되었는지 확인
+        if [ -f "./migration.sql" ]; then
+          echo "✅ SQL 마이그레이션 스크립트 생성됨"
+          echo "💾 migration.sql 내용:"
+          cat ./migration.sql | grep -v 'password' || true
+          
+          # 마이그레이션 스크립트를 Azure에 포함시키기 위해 복사
+          cp ./migration.sql deployment/ || true
+        else
+          echo "⚠️ SQL 마이그레이션 스크립트 생성 실패 (이미 최신 상태일 수 있음)"
+        fi
         
         echo "✅ 마이그레이션 완료"
     
