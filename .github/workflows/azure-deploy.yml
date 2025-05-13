@@ -20,116 +20,108 @@ jobs:
     
     - name: Install dependencies and build
       run: |
-        echo "=== 1. 서버 및 클라이언트 종속성 설치 ==="
+        echo "📦 프로젝트 종속성 설치 중..."
         npm ci
+        echo "✅ 종속성 설치 완료"
         
-        echo "=== 2. 서버 및 클라이언트 빌드 ==="
-        # 프로젝트 빌드 (서버 측 dist/ 생성)
+        echo "🔨 프로젝트 빌드 중..."
         npm run build
         
-        # 빌드 결과 확인
+        echo "🔍 빌드 결과 확인 중..."
         if [ -d dist ]; then
-          echo "서버 빌드 완료: dist/ 디렉토리 생성됨"
-          ls -la dist/
+          echo "✅ 서버 빌드 완료"
+          echo "📁 dist/ 디렉토리 내용:"
+          ls -la dist/ | head -n 10
         else
-          echo "오류: 서버 빌드 실패. dist/ 디렉토리를 찾을 수 없음"
+          echo "⚠️ 주의: dist/ 디렉토리가 없습니다"
         fi
         
-        # 클라이언트 빌드 처리 확인
-        echo "=== 3. 클라이언트 빌드 결과 확인 ==="
         if [ -d client/dist ]; then
-          echo "클라이언트 빌드 완료: client/dist 디렉토리 존재함"
-          ls -la client/dist/
+          echo "✅ 클라이언트 빌드 완료"
+          echo "📁 client/dist/ 디렉토리 내용:"
+          ls -la client/dist/ | head -n 10
         else
-          echo "참고: client/dist 디렉토리가 없습니다. 대신 client/src를 사용합니다."
+          echo "ℹ️ 참고: client/dist/ 디렉토리가 없습니다. client/src를 사용합니다."
         fi
       env:
         CI: true
     
-    - name: Run database migrations
+    - name: Setup Database Environment
       run: |
-        # 데이터베이스 연결 문자열 직접 지정 (디버깅용)
+        echo "🔄 데이터베이스 환경 설정 시작..."
+        
+        # 데이터베이스 연결 문자열 가져오기
         export DATABASE_URL="${{ secrets.DATABASE_URL }}"
         
-        # 환경 변수 디버깅 출력
-        echo "🔍 DATABASE_URL 확인:"
-        echo "- 환경 변수에 DATABASE_URL 존재 여부: $(if [ -n "$DATABASE_URL" ]; then echo "있음"; else echo "없음"; fi)"
-        echo "- DATABASE_URL 길이: ${#DATABASE_URL} 글자"
+        # 환경 변수 확인 (민감 정보 마스킹)
+        if [ -n "$DATABASE_URL" ]; then
+          echo "✅ DATABASE_URL 환경 변수가 설정되어 있습니다"
+          echo "✅ 문자열 길이: ${#DATABASE_URL} 글자"
+        else
+          echo "⚠️ DATABASE_URL이 설정되지 않았습니다"
+        fi
         
-        # 환경 변수 파일 생성 (.env.production)
-        echo "🔄 .env.production 파일 생성 중..."
+        # 환경 변수 파일 생성
+        echo "🔄 환경 변수 파일 생성 중..."
         echo "DATABASE_URL=$DATABASE_URL" > .env.production
         echo "NODE_ENV=production" >> .env.production
-        echo "SKIP_MIGRATION=true" >> .env.production  # Azure에서 마이그레이션 건너뛰기 플래그 추가
+        echo "SKIP_MIGRATION=true" >> .env.production
         
-        # 파일 내용 확인 (민감 정보 마스킹하여 출력)
-        echo "🔍 .env.production 파일 내용 확인:"
-        grep -v "DATABASE_URL" .env.production || true
+        # 내용 확인 (민감 정보 제외)
+        echo "✅ 환경 변수 설정:"
+        grep -v "DATABASE_URL" .env.production
         echo "DATABASE_URL=********(설정됨)********"
         
-        # env.production 파일도 생성 (점 없는 버전, Azure에서 숨김 파일 문제 방지)
+        # env.production 파일도 생성 (Azure 호환성)
         cp .env.production env.production
-        echo "✅ env.production 파일도 생성 완료"
+        echo "✅ env.production 파일 생성 완료"
         
-        # 마이그레이션 환경 준비 확인
-        ls -la drizzle.config.* || true
+        # drizzle-kit 설치
+        echo "🔄 drizzle-kit 설치 중..."
+        npm install -g drizzle-kit
+        echo "✅ drizzle-kit 설치 완료"
         
-        # drizzle-kit이 설치되어 있는지 확인 (global 설치 시도)
-        echo "🔍 drizzle-kit 설치 상태 확인..."
-        if ! npm list -g drizzle-kit &> /dev/null; then
-          echo "🔄 drizzle-kit을 글로벌로 설치합니다..."
-          npm install -g drizzle-kit
-          echo "✅ drizzle-kit 글로벌 설치 완료"
-        else
-          echo "✅ drizzle-kit이 이미 글로벌로 설치되어 있습니다."
-        fi
+        # 마이그레이션 실행
+        echo "🔄 데이터베이스 마이그레이션 실행 중..."
         
-        # 마이그레이션 실행 (로컬 drizzle-kit 모듈 아니라 글로벌 drizzle-kit 사용)
-        echo "🔄 데이터베이스 마이그레이션을 실행합니다..."
+        # drizzle-kit push로 마이그레이션 실행
+        echo "실행: drizzle-kit push"
+        DATABASE_URL="$DATABASE_URL" drizzle-kit push:pg || echo "⚠️ 마이그레이션 push 중 오류 발생 (무시)"
         
-        # 1. 글로벌 drizzle-kit 직접 실행 
-        echo "방법 1: 글로벌 drizzle-kit push 실행"
-        DATABASE_URL="$DATABASE_URL" drizzle-kit push || true
+        # SQL 마이그레이션 스크립트 생성
+        echo "실행: SQL 마이그레이션 스크립트 생성"
+        DATABASE_URL="$DATABASE_URL" drizzle-kit generate:pg --out=./migration.sql || echo "⚠️ SQL 생성 중 오류 발생 (무시)"
         
-        # 2. SQL 마이그레이션 스크립트 생성 및 실행
-        echo "방법 2: SQL 마이그레이션 스크립트 생성 및 실행"
-        # SQL 마이그레이션 파일 생성
-        DATABASE_URL="$DATABASE_URL" drizzle-kit generate:pg --out=./migration.sql || true
-        
-        # migration.sql 파일이 생성되었는지 확인
         if [ -f "./migration.sql" ]; then
-          echo "✅ SQL 마이그레이션 스크립트 생성됨"
-          echo "💾 migration.sql 내용:"
-          cat ./migration.sql | grep -v 'password' || true
-          
-          # 마이그레이션 스크립트를 Azure에 포함시키기 위해 복사
-          cp ./migration.sql deployment/ || true
+          echo "✅ SQL 마이그레이션 스크립트 생성됨 (크기: $(stat -c%s './migration.sql') 바이트)"
+          mkdir -p deployment 2>/dev/null || true
+          cp ./migration.sql deployment/ 2>/dev/null || true
         else
-          echo "⚠️ SQL 마이그레이션 스크립트 생성 실패 (이미 최신 상태일 수 있음)"
+          echo "⚠️ SQL 마이그레이션 스크립트가 생성되지 않았습니다"
         fi
         
-        echo "✅ 마이그레이션 완료"
+        echo "✅ 데이터베이스 환경 설정 완료"
     
     - name: Prepare deployment package
       run: |
-        # 직접 ZIP 패키지 생성 (중간 폴더 없이)
+        echo "🔍 배포 패키지 준비 시작..."
         DEPLOY_DIR="deploy_package"
         rm -rf $DEPLOY_DIR || true
         mkdir -p $DEPLOY_DIR
         
-        echo "🔍 빌드 결과 확인:"
+        echo "🔍 빌드 결과 확인..."
         ls -la dist/ || echo "dist/ 디렉토리가 없습니다"
         ls -la client/ || echo "client/ 디렉토리가 없습니다"
         
-        # 1. 서버 빌드 파일 복사 (dist 내용물을 루트로 복사)
+        # 서버 빌드 파일 복사
         if [ -d dist ]; then
           cp -r dist/* $DEPLOY_DIR/
-          echo "✅ 서버 빌드 파일 복사 완료 (dist/* → $DEPLOY_DIR/)"
+          echo "✅ 서버 빌드 파일 복사 완료"
         else
-          echo "⚠️ 경고: dist 디렉토리가 없습니다. 빌드가 제대로 되었는지 확인하세요."
+          echo "⚠️ 경고: dist 디렉토리가 없습니다"
         fi
         
-        # 2. 클라이언트 파일 복사
+        # 클라이언트 파일 복사
         mkdir -p $DEPLOY_DIR/client
         if [ -d client/dist ]; then
           cp -r client/dist $DEPLOY_DIR/client/
@@ -140,64 +132,65 @@ jobs:
           echo "✅ 클라이언트 소스 파일 복사 완료"
         fi
         
-        # 3. 주요 파일들을 루트 디렉토리에 복사
+        # 주요 파일들을 루트 디렉토리에 복사
         cp package.json package-lock.json $DEPLOY_DIR/
         cp startup.js patch-helper.js $DEPLOY_DIR/
         cp web.config .deployment $DEPLOY_DIR/
         
-        # 4. 필수 디렉토리 생성 및 콘텐츠 복사
+        # 필수 디렉토리 생성 및 콘텐츠 복사
         mkdir -p $DEPLOY_DIR/public/images $DEPLOY_DIR/public/static
         mkdir -p $DEPLOY_DIR/server
         mkdir -p $DEPLOY_DIR/shared
         mkdir -p $DEPLOY_DIR/uploads $DEPLOY_DIR/temp
         
-        # 5. 마이그레이션 스크립트가 있으면 복사
+        # 마이그레이션 스크립트 복사
         if [ -f migration.sql ]; then
           cp migration.sql $DEPLOY_DIR/
           echo "✅ SQL 마이그레이션 스크립트 복사 완료"
         fi
         
-        # 6. drizzle.config.ts 파일 복사
+        # 설정 파일 복사
         cp drizzle.config.ts $DEPLOY_DIR/
         
-        # 7. shared 디렉토리 내용물 복사
+        # shared 디렉토리 복사
         cp -r shared/* $DEPLOY_DIR/shared/ || echo "shared 디렉토리 복사 중 오류 발생"
         
-        # 8. server/startup.js 호환성 파일 생성
+        # server/startup.js 호환성 파일 생성
         echo "// Azure Kudu 시작 스크립트 호환성 파일" > $DEPLOY_DIR/server/startup.js
         echo "import '../startup.js'; // 루트의 startup.js로 리디렉션" >> $DEPLOY_DIR/server/startup.js
         chmod +x $DEPLOY_DIR/server/startup.js
-        echo "✅ server/startup.js 파일 생성 완료 (실행 권한 부여됨)"
+        echo "✅ server/startup.js 파일 생성 완료"
         
-        # 9. startup.js에도 실행 권한 부여
+        # startup.js 실행 권한 부여
         chmod +x $DEPLOY_DIR/startup.js
         echo "✅ startup.js 파일에 실행 권한 부여됨"
         
-        # 10. 환경 변수 파일 복사
+        # 환경 변수 파일 복사
         if [ -f .env.production ]; then
           cp .env.production $DEPLOY_DIR/
-          cp .env.production $DEPLOY_DIR/env.production  # 점 없는 버전도 추가
+          cp .env.production $DEPLOY_DIR/env.production
           echo "✅ 환경 변수 파일 복사 완료"
         fi
         
-        # 11. public 디렉토리 내용물 복사
+        # public 디렉토리 복사
         if [ -d public ] && [ ! -f public ]; then
-          cp -r public/* $DEPLOY_DIR/public/ || echo "public 디렉토리 내용물 복사 중 오류 발생"
-          echo "✅ public 디렉토리 내용물 복사 완료"
+          cp -r public/* $DEPLOY_DIR/public/ || echo "public 디렉토리 복사 중 오류 발생"
+          echo "✅ public 디렉토리 복사 완료"
         fi
         
-        # 12. node_modules 복사
+        # node_modules 복사
         echo "📦 node_modules 복사 중..."
         cp -r node_modules $DEPLOY_DIR/
         echo "✅ node_modules 복사 완료"
         
-        # 13. 패키지 구조 확인 (주요 파일 목록)
-        echo "📋 최종 배포 패키지 주요 파일:"
+        # 패키지 구조 확인
+        echo "📋 최종 패키지 주요 파일:"
         find $DEPLOY_DIR -maxdepth 2 -type f | sort
         
-        # 14. 이 패키지를 deployment로 옮겨 배포 준비
+        # 이 패키지를 deployment로 옮기기
         rm -rf deployment || true
         mv $DEPLOY_DIR deployment
+        echo "✅ 배포 패키지 준비 완료"
     
     - name: Verify Azure CLI Installation
       run: |
@@ -240,24 +233,30 @@ jobs:
     
     - name: Create Custom ZIP Package
       run: |
-        # 루트 디렉토리에서 ZIP 파일 생성 (상대 경로로)
-        echo "📦 deploy.zip 패키지 생성 중..."
-        cd deployment
-        # node_modules 크기를 줄이기 위해 불필요한 파일 제거
-        find node_modules -name "*.md" -delete || true
-        find node_modules -name "*.d.ts" -delete || true
-        find node_modules -name "*.map" -delete || true
-        find node_modules -path "*/test/*" -delete || true
-        find node_modules -path "*/tests/*" -delete || true
-        find node_modules -path "*/docs/*" -delete || true
+        echo "📦 ZIP 패키지 생성 시작..."
         
-        # 최종 ZIP 패키지 생성 (개선된 압축)
+        # deployment 디렉토리로 이동
+        cd deployment
+        
+        # node_modules 최적화 (불필요한 파일 제거)
+        echo "🔧 node_modules 최적화 중..."
+        find node_modules -name "*.md" -delete 2>/dev/null || true
+        find node_modules -name "*.d.ts" -delete 2>/dev/null || true
+        find node_modules -name "*.map" -delete 2>/dev/null || true
+        find node_modules -path "*/test/*" -delete 2>/dev/null || true
+        find node_modules -path "*/tests/*" -delete 2>/dev/null || true
+        find node_modules -path "*/docs/*" -delete 2>/dev/null || true
+        echo "✅ node_modules 최적화 완료"
+        
+        # ZIP 패키지 생성
+        echo "📦 ZIP 파일 생성 중..."
         zip -r ../deploy.zip * -x "*.git*" "*.github*" "node_modules/.cache/*" "node_modules/.bin/*"
         cd ..
         
         # ZIP 파일 크기 확인
-        ls -lh deploy.zip
-        echo "✅ ZIP 패키지 생성 완료 (최적화됨)"
+        ZIP_SIZE=$(du -h deploy.zip | cut -f1)
+        echo "📊 ZIP 파일 크기: $ZIP_SIZE"
+        echo "✅ ZIP 패키지 생성 완료"
     
     - name: Verify ZIP Package (중요 파일 확인)
       run: |
@@ -341,12 +340,12 @@ jobs:
         
     - name: Verify Deployment
       run: |
-        echo "✅ Azure App Service에 배포가 완료되었습니다."
-        echo "📝 배포 후 확인 사항:"
-        echo "  1. Azure 포털에서 앱 서비스 로그 확인 (Kudu/Log stream)"
-        echo "  2. 배포된 앱이 정상적으로 시작되었는지 확인"
-        echo "  3. 시작 명령이 'node startup.js'인지 확인 (구성 > 일반 설정 > 시작 명령)"
-        echo "  4. 환경 변수가 올바르게 설정되어 있는지 확인 (구성 > 애플리케이션 설정)"
+        echo "💯 배포 프로세스가 성공적으로 완료되었습니다."
+        echo "📝 배포 후 체크리스트:"
+        echo "  1. Azure 포털 > App Service > 로그 확인"
+        echo "  2. 애플리케이션이 정상 시작되었는지 확인"
+        echo "  3. 시작 명령: 'node startup.js' 설정 확인"
+        echo "  4. 환경 변수 설정 확인"
         
-        # GitHub 로그에 배포 URL 출력
         echo "🌐 배포된 앱 URL: https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net"
+        echo "🚀 배포 완료! 애플리케이션이 곧 온라인 상태가 됩니다."
