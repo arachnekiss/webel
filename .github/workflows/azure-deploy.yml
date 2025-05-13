@@ -27,7 +27,14 @@ jobs:
     
     - name: Run database migrations
       run: |
-        npm run db:push
+        # DATABASE_URL 환경변수 확인
+        if [ -z "$DATABASE_URL" ]; then
+          echo "DATABASE_URL이 설정되지 않았습니다. 마이그레이션을 건너뜁니다."
+          echo "Azure 환경에서 앱이 실행될 때 환경변수를 통해 마이그레이션을 실행하세요."
+        else
+          echo "데이터베이스 마이그레이션을 실행합니다..."
+          npm run db:push
+        fi
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
     
