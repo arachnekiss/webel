@@ -23,17 +23,10 @@ export const pool = new Pool({
   max: 10, // 최대 연결 수를 줄여서 안정성 향상
   idleTimeoutMillis: 30000, // 유휴 연결 타임아웃 (30초)
   connectionTimeoutMillis: 15000, // 연결 타임아웃 증가 (15초)
-  // 트랜잭션 타임아웃 확장
-  statement_timeout: 20000, // 쿼리 타임아웃 확장 (20초)
-  query_timeout: 20000,   // 쿼리 타임아웃
   // Azure 환경에서 추가 연결 옵션
   ssl: process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false // Azure/Neon DB와 연결을 위해 필요
-  } : undefined,
-  // 풀링 동작 자체에 대한 추가 설정
-  application_name: 'engineering-platform-app',
-  keepAlive: true,        // TCP 연결 유지
-  keepAliveInitialDelayMillis: 10000  // 10초 후 첫 KeepAlive 보내기
+  } : undefined
 });
 
 // 연결 풀 에러 핸들링

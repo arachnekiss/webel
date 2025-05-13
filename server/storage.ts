@@ -302,15 +302,12 @@ export class DatabaseStorage implements IStorage {
     }
     
     // DB에서 가져오기
-    let query = db.select().from(services).orderBy(desc(services.createdAt));
+    const baseQuery = db.select().from(services).orderBy(desc(services.createdAt));
     
-    // 결과 제한
-    let limitedQuery = query;
-    if (limit) {
-      limitedQuery = query.limit(limit);
-    }
-    
-    const results = await limitedQuery;
+    // 결과 제한 - limit 적용을 위해 별도 실행
+    const results = limit 
+      ? await baseQuery.limit(limit) 
+      : await baseQuery;
     
     // 결과 캐싱
     cache.set(cacheKey, results);
@@ -349,15 +346,12 @@ export class DatabaseStorage implements IStorage {
     }
     
     // DB에서 가져오기
-    let query = db.select().from(services).where(eq(services.serviceType, type));
+    const baseQuery = db.select().from(services).where(eq(services.serviceType, type));
     
-    // 결과 제한
-    let limitedQuery = query;
-    if (limit) {
-      limitedQuery = query.limit(limit);
-    }
-    
-    const results = await limitedQuery;
+    // 결과 제한 - limit 적용을 위해 별도 실행
+    const results = limit 
+      ? await baseQuery.limit(limit) 
+      : await baseQuery;
     
     // 결과 캐싱
     staticCache.set(cacheKey, results);
@@ -501,17 +495,15 @@ export class DatabaseStorage implements IStorage {
       }
       
       // 삭제되지 않은 리소스만 가져오기 (deleted_at이 null인 경우)
-      let query = db.select()
+      const baseQuery = db.select()
         .from(resources)
         .where(sql`${resources.deletedAt} IS NULL`)
         .orderBy(desc(resources.createdAt));
         
-      // 결과 제한
-      if (limit) {
-        query = query.limit(limit);
-      }
-      
-      const results = await query;
+      // 결과 제한 - limit 적용을 위해 별도 실행
+      const results = limit 
+        ? await baseQuery.limit(limit) 
+        : await baseQuery;
       
       // Add resourceType field to match category for type safety
       const processedResults = results.map(resource => {
@@ -596,12 +588,15 @@ export class DatabaseStorage implements IStorage {
           )
         );
         
-      // 결과 제한
+      // 결과 제한 - 타입 문제 우회
+      let results;
       if (limit) {
-        query = query.limit(limit);
+        // 타입 시스템 우회를 위한 any 사용
+        const limitedQuery = query as any;
+        results = await limitedQuery.limit(limit);
+      } else {
+        results = await query;
       }
-      
-      const results = await query;
       
       // Add resourceType field to each resource for type compatibility
       const processedResults = results.map(resource => {
