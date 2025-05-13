@@ -304,10 +304,15 @@ export class DatabaseStorage implements IStorage {
     // DB에서 가져오기
     const baseQuery = db.select().from(services).orderBy(desc(services.createdAt));
     
-    // 결과 제한 - limit 적용을 위해 별도 실행
-    const results = limit 
-      ? await baseQuery.limit(limit) 
-      : await baseQuery;
+    // 결과 제한 - 타입 문제 우회
+    let results;
+    if (limit) {
+      // 타입 시스템 우회를 위한 any 사용
+      const limitedQuery = baseQuery as any;
+      results = await limitedQuery.limit(limit);
+    } else {
+      results = await baseQuery;
+    }
     
     // 결과 캐싱
     cache.set(cacheKey, results);
@@ -348,10 +353,15 @@ export class DatabaseStorage implements IStorage {
     // DB에서 가져오기
     const baseQuery = db.select().from(services).where(eq(services.serviceType, type));
     
-    // 결과 제한 - limit 적용을 위해 별도 실행
-    const results = limit 
-      ? await baseQuery.limit(limit) 
-      : await baseQuery;
+    // 결과 제한 - 타입 문제 우회
+    let results;
+    if (limit) {
+      // 타입 시스템 우회를 위한 any 사용
+      const limitedQuery = baseQuery as any;
+      results = await limitedQuery.limit(limit);
+    } else {
+      results = await baseQuery;
+    }
     
     // 결과 캐싱
     staticCache.set(cacheKey, results);
@@ -599,7 +609,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Add resourceType field to each resource for type compatibility
-      const processedResults = results.map(resource => {
+      const processedResults = results.map((resource: Resource) => {
         if (resource) {
           (resource as any).resourceType = category;
         }
