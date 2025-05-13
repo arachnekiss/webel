@@ -4,6 +4,7 @@
  */
 
 import path from 'path';
+import fs from 'fs';
 
 // 애플리케이션 기본 경로
 export const getBasePath = (): string => {
@@ -61,7 +62,6 @@ export const safePath = (...parts: (string | undefined)[]): string => {
 
 // 디렉토리 확인 및 생성 함수
 export const ensureDirectoryExists = (dirPath: string): void => {
-  const fs = require('fs');
   if (!fs.existsSync(dirPath)) {
     fs.mkdirSync(dirPath, { recursive: true });
   }

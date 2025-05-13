@@ -9,6 +9,32 @@
 // 환경 변수 설정
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
+// Azure 배포 환경을 위한 기본 경로 설정
+if (!process.env.BASE_PATH) {
+  process.env.BASE_PATH = process.cwd();
+  console.log('BASE_PATH 환경 변수 설정됨:', process.env.BASE_PATH);
+}
+
+if (!process.env.PUBLIC_PATH) {
+  process.env.PUBLIC_PATH = `${process.env.BASE_PATH}/public`;
+  console.log('PUBLIC_PATH 환경 변수 설정됨:', process.env.PUBLIC_PATH);
+}
+
+if (!process.env.UPLOAD_DIR) {
+  process.env.UPLOAD_DIR = `${process.env.BASE_PATH}/uploads`;
+  console.log('UPLOAD_DIR 환경 변수 설정됨:', process.env.UPLOAD_DIR);
+}
+
+if (!process.env.CLIENT_PATH) {
+  process.env.CLIENT_PATH = `${process.env.BASE_PATH}/client`;
+  console.log('CLIENT_PATH 환경 변수 설정됨:', process.env.CLIENT_PATH);
+}
+
+if (!process.env.TEMP_DIR) {
+  process.env.TEMP_DIR = `${process.env.BASE_PATH}/temp`;
+  console.log('TEMP_DIR 환경 변수 설정됨:', process.env.TEMP_DIR);
+}
+
 // Neon DB 관련 환경 변수 확인
 if (!process.env.DATABASE_URL) {
   console.log('경고: DATABASE_URL 환경 변수가 설정되지 않았습니다.');

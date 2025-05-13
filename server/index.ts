@@ -8,10 +8,17 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// 환경 변수에서 경로 설정 - 기본값 제공으로 안전성 확보
-const basePath = process.env.BASE_PATH || process.cwd() || '.';
-const uploadDir = process.env.UPLOAD_DIR || path.join(basePath, 'uploads');
-const publicPath = process.env.PUBLIC_PATH || path.join(basePath, 'public');
+// paths-helper 유틸리티 사용하여 안전한 경로 관리
+import { getUploadPath, getPublicPath, ensureDirectoryExists } from './utils/paths-helper';
+
+// 업로드 및 public 경로 
+const uploadDir = getUploadPath();
+const publicPath = getPublicPath();
+
+// 디렉토리 존재 확인 
+ensureDirectoryExists(uploadDir);
+ensureDirectoryExists(publicPath);
+ensureDirectoryExists(path.join(publicPath, 'images'));
 
 // uploads 및 public 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(uploadDir));
