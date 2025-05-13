@@ -1,0 +1,96 @@
+에러 메시지의 핵심은 이 부분입니다:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/zipdeploy/extracted/server/index.js'
+```
+
+즉, 배포된 ZIP 안에 `server/index.js` 파일이 없어서 Node가 불러올 수 없다는 뜻입니다.
+
+---
+
+## 원인 분석
+
+1. **잘못된 엔트리 포인트 경로**
+
+   * GitHub Action이나 Azure 설정에서 `node server/index.js`(혹은 `node --experimental-modules … ./server/index.js`)를 실행하도록 되어 있지만, 실제로는 빌드 산출물이 `server/index.js` 가 아니라 다른 디렉터리(e.g. `dist/index.js` 등)에 들어 있습니다.
+2. **빌드 후 결과물이 포함되지 않았거나, 잘못된 위치에 패키징**
+
+   * ZIP Deploy에 `dist/` 폴더를 포함하지 않았거나, 압축 경로가 `/server`를 기준으로 구성되지 않았습니다.
+3. **Startup Command 미스매치**
+
+   * Azure App Service의 “Startup Command” 혹은 `azure/webapps-deploy@v2` 액션의 `startup-command` 입력값이 실제 파일 구조와 맞지 않습니다.
+
+---
+
+## 해결 방법
+
+### 1. 올바른 엔트리 포인트 지정하기
+
+**가장 간단한 방법**은 Azure에 넘기는 시작 명령을 실제 파일 위치로 바꿔주는 겁니다. 예를 들어, 빌드 결과물이 `dist/index.js`에 있다면:
+
+```yaml
+- uses: azure/webapps-deploy@v2
+  with:
+    app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
+    publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+    package: './'                         # 또는 빌드 산출물이 있는 경로
+    startup-command: 'node dist/index.js' # 실제 엔트리 경로로 변경
+```
+
+혹은 Azure 포털 ▶ Configuration ▶ General settings ▶ Startup Command 에도 같은 커맨드를 넣어 주세요.
+
+---
+
+### 2. `package.json`의 start 스크립트 활용
+
+`package.json`에 올바른 `start` 스크립트를 정의하고, Azure가 `npm start`를 자동으로 호출하도록 할 수도 있습니다.
+
+```json
+{
+  "scripts": {
+    "build": "your build script here",
+    "start": "node dist/index.js"
+  },
+  "main": "dist/index.js"
+}
+```
+
+그리고 워크플로우에서는 startup-command 대신:
+
+```yaml
+    startup-command: 'npm start'
+```
+
+를 사용하면 경로 불일치 걱정을 줄일 수 있습니다.
+
+---
+
+### 3. 빌드 산출물 경로 확인 및 패키징
+
+* **빌드 단계**가 Action에 포함되어 있는지 확인하세요.
+
+  ```yaml
+  - name: Install dependencies
+    run: npm ci
+
+  - name: Build
+    run: npm run build
+  ```
+
+* ZIP Deploy에 **빌드 결과물**이 포함되도록 `package` 인자를 설정해야 합니다.
+
+  ```yaml
+  - uses: azure/webapps-deploy@v2
+    with:
+      package: './dist'  # dist 폴더만 압축해서 배포
+  ```
+
+---
+
+### 요약
+
+1. **실제 파일 위치**를 확인 (`dist/index.js` vs `server/index.js` 등)
+2. **startup-command** 또는 `package.json` ▶ `start` 스크립트를 그 위치에 맞춰 수정
+3. **빌드 산출물이 ZIP**에 포함되도록 워크플로우(`npm run build` → `package: './dist'`) 재구성
+
+이렇게 경로를 정렬하면 `ERR_MODULE_NOT_FOUND` 없이 정상적으로 배포됩니다.

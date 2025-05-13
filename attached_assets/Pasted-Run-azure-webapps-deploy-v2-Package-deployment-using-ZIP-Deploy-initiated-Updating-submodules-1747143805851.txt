@@ -1,0 +1,37 @@
+Run azure/webapps-deploy@v2
+  
+Package deployment using ZIP Deploy initiated.
+Updating submodules.
+Preparing deployment for commit id '8d6b76d7-c'.
+PreDeployment: context.CleanOutputPath False
+PreDeployment: context.OutputPath /home/site/wwwroot
+Running custom deployment command...
+Not setting execute permissions for node server/startup.js
+Running deployment command...
+Command: node server/startup.js
+실행 명령어: node --experimental-modules --es-module-specifier-resolution=node ./server/index.js
+(node:1161) ExperimentalWarning: The Node.js specifier resolution flag is experimental. It could change or be removed at any time.
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/errors:496
+프로세스 종료: 코드 1
+    ErrorCaptureStackTrace(err);
+    ^
+Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/zipdeploy/extracted/server/index.js' imported from /tmp/zipdeploy/extracted/
+    at new NodeError (node:internal/errors:405:5)
+    at finalizeResolution (node:internal/modules/esm/resolve:306:15)
+    at moduleResolve (node:internal/modules/esm/resolve:943:10)
+    at defaultResolve (node:internal/modules/esm/resolve:1129:11)
+    at nextResolve (node:internal/modules/esm/loader:163:28)
+    at ESMLoader.resolve (node:internal/modules/esm/loader:835:30)
+    at ESMLoader.getModuleJob (node:internal/modules/esm/loader:424:18)
+    at ESMLoader.import (node:internal/modules/esm/loader:524:22)
+    at node:internal/modules/run_main:58:28
+    at loadESM (node:internal/process/esm_loader:91:11) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+Node.js v18.17.1
+(node:1161) ExperimentalWarning: The Node.js specifier resolution flag is experimental. It could change or be removed at any time.\n(Use `node --trace-warnings ...` to show where the warning was created)\nnode:internal/errors:496\n    ErrorCaptureStackTrace(err);\n    ^\n\nError [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/zipdeploy/extracted/server/index.js' imported from /tmp/zipdeploy/extracted/\n    at new NodeError (node:internal/errors:405:5)\n    at finalizeResolution (node:internal/modules/esm/resolve:306:15)\n    at moduleResolve (node:internal/modules/esm/resolve:943:10)\n    at defaultResolve (node:internal/modules/esm/resolve:1129:11)\n    at nextResolve (node:internal/modules/esm/loader:163:28)\n    at ESMLoader.resolve (node:internal/modules/esm/loader:835:30)\n    at ESMLoader.getModuleJob (node:internal/modules/esm/loader:424:18)\n    at ESMLoader.import (node:internal/modules/esm/loader:524:22)\n    at node:internal/modules/run_main:58:28\n    at loadESM (node:internal/process/esm_loader:
+Deployment Failed. deployer = GITHUB_ZIP_DEPLOY deploymentPath = ZipDeploy. Extract zip.
+Error: Failed to deploy web package to App Service.
+Error: Deployment Failed, Package deployment using ZIP Deploy failed. Refer logs for more details.
+App Service Application URL: https://***-gcb2bxdbbphmbref.koreacentral-01.azurewebsites.net
