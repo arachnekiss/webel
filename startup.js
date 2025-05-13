@@ -99,33 +99,93 @@ console.log('===========================');
  * DATABASE_URL 환경 변수가 설정된 경우에만 실행
  */
 function runDatabaseMigration() {
+  // DATABASE_URL 상태 검증
   if (!process.env.DATABASE_URL) {
     console.warn('⚠️ DATABASE_URL이 설정되지 않았습니다. 마이그레이션을 건너뜁니다.');
     console.warn('Azure 환경에서 앱이 실행될 때 환경변수를 통해 마이그레이션을 실행하세요.');
     return false;
   }
   
+  // DATABASE_URL 디버깅 정보 (민감정보 부분 마스킹)
+  const dbUrlParts = process.env.DATABASE_URL.split('@');
+  const maskedDbUrl = dbUrlParts.length > 1 
+    ? `${dbUrlParts[0].split(':')[0]}:***@${dbUrlParts[1]}`
+    : '***형식오류***';
+  console.log(`📄 DATABASE_URL 형식: ${maskedDbUrl}`);
+  console.log(`📏 DATABASE_URL 길이: ${process.env.DATABASE_URL.length} 글자`);
+  
   try {
     console.log('🔄 데이터베이스 마이그레이션 실행 중...');
     
-    // 마이그레이션 코드를 여기서 실행
-    if (fs.existsSync('./drizzle.config.ts') || fs.existsSync('./drizzle.config.js')) {
-      try {
-        // drizzle-kit push 명령 실행
-        execSync('npx drizzle-kit push', { 
-          stdio: 'inherit',
-          env: process.env
-        });
-        console.log('✅ 마이그레이션 완료!');
-        return true;
-      } catch (error) {
-        console.error('❌ drizzle-kit push 실행 중 오류 발생:', error.message);
+    // drizzle 설정 파일 검색
+    const drizzleConfigFiles = ['./drizzle.config.ts', './drizzle.config.js'];
+    let configFound = false;
+    
+    for (const configFile of drizzleConfigFiles) {
+      if (fs.existsSync(configFile)) {
+        console.log(`✅ 발견된 설정 파일: ${configFile}`);
+        configFound = true;
+        break;
       }
-    } else {
-      console.warn('⚠️ drizzle.config.ts 또는 drizzle.config.js 파일을 찾을 수 없습니다.');
     }
     
-    return false;
+    if (!configFound) {
+      console.warn('⚠️ drizzle.config.ts 또는 drizzle.config.js 파일을 찾을 수 없습니다.');
+      // 설정 파일이 없더라도 다음 단계 시도
+    }
+    
+    try {
+      // 방법 1: npx drizzle-kit push 명령 실행
+      console.log('🔄 방법 1: npx drizzle-kit push 실행...');
+      
+      execSync('npx drizzle-kit push', { 
+        stdio: 'inherit',
+        env: {
+          ...process.env,
+          DATABASE_URL: process.env.DATABASE_URL
+        }
+      });
+      
+      console.log('✅ 마이그레이션 성공적으로 완료!');
+      return true;
+    } catch (error1) {
+      console.error('❓ 방법 1 실패, 다른 방법 시도:', error1.message);
+      
+      try {
+        // 방법 2: npm run db:push 명령 실행
+        console.log('🔄 방법 2: npm run db:push 실행...');
+        execSync('npm run db:push', {
+          stdio: 'inherit',
+          env: {
+            ...process.env,
+            DATABASE_URL: process.env.DATABASE_URL
+          }
+        });
+        
+        console.log('✅ 마이그레이션 성공적으로 완료!');
+        return true;
+      } catch (error2) {
+        console.error('❓ 방법 2 실패, 다음 방법 시도:', error2.message);
+        
+        try {
+          // 방법 3: drizzle-kit를 먼저 설치한 후 실행
+          console.log('🔄 방법 3: drizzle-kit 설치 후 실행...');
+          execSync('npm install -g drizzle-kit && npx drizzle-kit push', {
+            stdio: 'inherit',
+            env: {
+              ...process.env,
+              DATABASE_URL: process.env.DATABASE_URL
+            }
+          });
+          
+          console.log('✅ 마이그레이션 성공적으로 완료!');
+          return true;
+        } catch (error3) {
+          console.error('❌ 모든 마이그레이션 시도 실패:', error3.message);
+          return false;
+        }
+      }
+    }
   } catch (error) {
     console.error('❌ 마이그레이션 실행 중 오류 발생:', error);
     return false;

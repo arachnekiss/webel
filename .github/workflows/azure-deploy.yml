@@ -48,34 +48,46 @@ jobs:
     
     - name: Run database migrations
       run: |
-        # 환경 변수 확인
-        if [ -z "$DATABASE_URL" ]; then
-          echo "❌ DATABASE_URL이 설정되지 않았습니다!"
-          exit 1
-        fi
+        # 데이터베이스 연결 문자열 직접 지정 (디버깅용)
+        export DATABASE_URL="postgresql://arachne@webel:passfor0.@webel.postgres.database.azure.com:5432/postgres?sslmode=require"
+        
+        # 환경 변수 디버깅 출력
+        echo "🔍 DATABASE_URL 확인:"
+        echo "- 환경 변수에 DATABASE_URL 존재 여부: $(if [ -n "$DATABASE_URL" ]; then echo "있음"; else echo "없음"; fi)"
+        echo "- DATABASE_URL 길이: ${#DATABASE_URL} 글자"
         
         # 환경 변수 파일 생성 (.env.production)
         echo "🔄 .env.production 파일 생성 중..."
         echo "DATABASE_URL=$DATABASE_URL" > .env.production
         echo "NODE_ENV=production" >> .env.production
         
-        # 마이그레이션 실행
-        echo "🔄 데이터베이스 마이그레이션을 실행합니다..."
-        
-        # 1. dotenv와 함께 db:push 실행
-        echo "방법 1: npm run db:push 실행"
-        npm run db:push || true
-        
-        # 2. drizzle-kit push 직접 실행
-        echo "방법 2: npx drizzle-kit push 직접 실행"
-        npx drizzle-kit push || true
+        # 파일 내용 확인 (민감 정보 마스킹하여 출력)
+        echo "🔍 .env.production 파일 내용 확인:"
+        grep -v "DATABASE_URL" .env.production || true
+        echo "DATABASE_URL=********(설정됨)********"
         
         # env.production 파일도 생성 (점 없는 버전, Azure에서 숨김 파일 문제 방지)
         cp .env.production env.production
+        echo "✅ env.production 파일도 생성 완료"
+        
+        # 마이그레이션 환경 준비 확인
+        ls -la drizzle.config.* || true
+        
+        # 마이그레이션 실행
+        echo "🔄 데이터베이스 마이그레이션을 실행합니다..."
+        
+        # npx 최신 버전 강제 설치 (선택적)
+        npm install -g npx
+        
+        # 1. dotenv와 함께 db:push 실행
+        echo "방법 1: npm run db:push 실행"
+        DATABASE_URL="$DATABASE_URL" npm run db:push || true
+        
+        # 2. drizzle-kit push 직접 실행
+        echo "방법 2: npx drizzle-kit push 직접 실행"
+        DATABASE_URL="$DATABASE_URL" npx drizzle-kit push || true
         
         echo "✅ 마이그레이션 완료"
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
     
     - name: Prepare deployment package
       run: |
@@ -111,6 +123,11 @@ jobs:
         
         # 필수 파일 복사
         cp package.json package-lock.json startup.js patch-helper.js deployment/
+        
+        # 데이터베이스 마이그레이션 관련 파일 복사
+        cp drizzle.config.ts deployment/
+        mkdir -p deployment/shared
+        cp -r shared/* deployment/shared/ || echo "shared 디렉토리 복사 중 오류 발생"
         
         # .env.production 파일이 있으면 복사
         if [ -f .env.production ]; then
