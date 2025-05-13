@@ -5,10 +5,15 @@ import fs from 'fs';
 
 // 타입 문제를 해결하기 위해 FileStore를 직접 가져오는 대신 Server의 옵션을 활용
 
+// 환경 변수에서 경로 설정 - 기본값 제공으로 안전성 확보
+const basePath = process.env.BASE_PATH || process.cwd() || '.';
+const uploadDirEnv = process.env.UPLOAD_DIR || path.join(basePath, 'uploads');
+const tempDirEnv = process.env.TEMP_DIR || path.join(basePath, 'temp');
+
 // 저장 위치 설정
-const UPLOAD_PATH = path.join(process.cwd(), 'uploads');
+const UPLOAD_PATH = uploadDirEnv;
 // tus 임시 파일 저장 디렉토리
-const TUS_TEMP_PATH = path.join(process.cwd(), 'uploads', '.tus');
+const TUS_TEMP_PATH = path.join(uploadDirEnv, '.tus');
 
 // 임시 디렉토리가 없으면 생성
 if (!fs.existsSync(TUS_TEMP_PATH)) {

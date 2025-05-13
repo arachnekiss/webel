@@ -8,9 +8,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// 환경 변수에서 경로 설정 - 기본값 제공으로 안전성 확보
+const basePath = process.env.BASE_PATH || process.cwd() || '.';
+const uploadDir = process.env.UPLOAD_DIR || path.join(basePath, 'uploads');
+const publicPath = process.env.PUBLIC_PATH || path.join(basePath, 'public');
+
 // uploads 및 public 디렉토리를 정적 파일로 제공
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-app.use('/images', express.static(path.join(process.cwd(), 'public/images')));
+app.use('/uploads', express.static(uploadDir));
+app.use('/images', express.static(path.join(publicPath, 'images')));
 
 app.use((req, res, next) => {
   const start = Date.now();
