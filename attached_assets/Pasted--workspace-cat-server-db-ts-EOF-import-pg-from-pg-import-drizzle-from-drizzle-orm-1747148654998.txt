@@ -1,0 +1,103 @@
+~/workspace$ cat > server/db.ts << 'EOF'
+import pg from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import * as schema from "@shared/schema";
+import ws from 'ws';
+
+const { Pool } = pg;
+
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
+
+// Azure 배포 환경에서는 WebSocket을 사용하도록 설정
+// Neon DB를 사용하는 경우 필요
+if (process.env.NODE_ENV === 'production') {
+  (pg as any).WebSocketClass = ws;
+}
+
+// 데이터베이스 연결 풀 설정 최적화
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL,
+  max: 10, // 최대 연결 수를 줄여서 안정성 향상
+  idleTimeoutMillis: 30000, // 유휴 연결 타임아웃 (30초)
+  connectionTimeoutMillis: 10000, // 연결 타임아웃 증가 (10초)
+  // 트랜잭션 타임아웃 확장
+  statement_timeout: 15000, // 쿼리 타임아웃 확장 (15초)
+  // Azure 환경에서 추가 연결 옵션
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false // Azure/Neon DB와 연결을 위해 필요
+  } : undefined
+});
+
+// 연결 풀 에러 핸들링
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle database client', err);
+  // Don't exit the process on connection errors - just log them
+});
+
+// 재시도 로직이 포함된 쿼리 실행 함수
+export async function executeWithRetry(callback: () => Promise<any>, retries = 5, delay = 2000) {
+  try {
+    return await callback();
+  } catch (error: any) {
+    // 다시 시도할 수 있는 오류인지 확인
+    if (
+      error.code === 'ECONNREFUSED' || 
+      error.code === 'ETIMEDOUT' || 
+      error.code === '57P01' || // admin_shutdown
+EOFogger: process.env.NODE_ENV !== 'production'es - 1, delay * 1.5);}ms... (${retries} attempts left)`);
+~/workspace$ cat server/tus-upload.ts | head -50
+import path from 'path';
+import express, { Request, Response, NextFunction } from 'express';
+import { Server } from '@tus/server';
+import fs from 'fs';
+import { getUploadPath, getTempPath, ensureDirectoryExists } from './utils/paths-helper';
+
+// 타입 문제를 해결하기 위해 FileStore를 직접 가져오는 대신 Server의 옵션을 활용
+
+// 안전한 경로 설정 유틸리티 사용
+const UPLOAD_PATH = getUploadPath();
+// tus 임시 파일 저장 디렉토리
+const TUS_TEMP_PATH = path.join(UPLOAD_PATH, '.tus');
+
+// 임시 디렉토리가 없으면 생성
+if (!fs.existsSync(TUS_TEMP_PATH)) {
+  fs.mkdirSync(TUS_TEMP_PATH, { recursive: true });
+}
+
+// 업로드 디렉토리가 없으면 생성
+if (!fs.existsSync(UPLOAD_PATH)) {
+  fs.mkdirSync(UPLOAD_PATH, { recursive: true });
+}
+
+// tus 서버 설정
+// 라이브러리 내부 타입에 맞춰 서버 옵션을 구성
+const tusServer = new Server({
+  path: '/uploads',
+  // @ts-ignore - 타입 문제로 인해 무시
+  datastore: {
+    directory: TUS_TEMP_PATH
+  },
+  respectForwardedHeaders: true,
+  namingFunction: (req) => {
+    // 안전한 파일명 생성: 원본 파일명 유지하면서 충돌 방지
+    const uploadMetadata = req.headers['upload-metadata'];
+    const originalFilename = uploadMetadata && typeof uploadMetadata === 'string'
+      ? Buffer.from(
+          uploadMetadata
+            .split(',')
+            .find((item: string) => item.startsWith('filename'))
+            ?.split(' ')[1] || '', 
+          'base64'
+        ).toString()
+      : 'unknown_file';
+    
+    // 파일명에서 경로 구분자와 OS에서 금지된 문자 제거
+    const sanitizedFilename = decodeURIComponent(originalFilename)
+      .replace(/[\\/:*?"<>|]/g, '_')  // 윈도우와 유닉스 시스템에서 금지된 문자 제거
+      .replace(/\.\./g, '_')         // 상위 디렉토리 참조 방지
+      .trim();                       // 앞뒤 공백 제거
+~/workspace$ 
