@@ -130,15 +130,6 @@ console.log('===========================');
 // Azure Web App에서 PORT 환경 변수를 사용합니다
 const port = process.env.PORT || 8080;
 
-// ESM에서 사용할 모듈 가져오기
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-// 현재 파일의 디렉토리 얻기 (ESM에서는 __dirname이 없음)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 // 현재 디렉토리 출력 (디버깅용)
 console.log('현재 디렉토리:', process.cwd());
 console.log('디렉토리 내용:', fs.readdirSync('.').join(', '));
@@ -147,17 +138,25 @@ console.log('디렉토리 내용:', fs.readdirSync('.').join(', '));
 function listFilesRecursively(dir, depth = 0) {
   if (depth > 2) return; // 깊이 2까지만 탐색
   
-  const files = fs.readdirSync(dir);
-  files.forEach(file => {
-    const filePath = `${dir}/${file}`;
-    const stat = fs.statSync(filePath);
-    if (stat.isDirectory()) {
-      console.log(`[DIR] ${filePath}`);
-      listFilesRecursively(filePath, depth + 1);
-    } else {
-      console.log(`[FILE] ${filePath}`);
-    }
-  });
+  try {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+      try {
+        const filePath = `${dir}/${file}`;
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          console.log(`[DIR] ${filePath}`);
+          listFilesRecursively(filePath, depth + 1);
+        } else {
+          console.log(`[FILE] ${filePath}`);
+        }
+      } catch (error) {
+        console.error(`파일 ${dir}/${file} 읽기 실패:`, error.message);
+      }
+    });
+  } catch (error) {
+    console.error(`디렉토리 ${dir} 읽기 실패:`, error.message);
+  }
 }
 
 // IIS/Azure 호환성을 위한 HTTP 서버 직접 생성

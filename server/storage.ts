@@ -305,11 +305,12 @@ export class DatabaseStorage implements IStorage {
     let query = db.select().from(services).orderBy(desc(services.createdAt));
     
     // 결과 제한
+    let limitedQuery = query;
     if (limit) {
-      query = query.limit(limit);
+      limitedQuery = query.limit(limit);
     }
     
-    const results = await query;
+    const results = await limitedQuery;
     
     // 결과 캐싱
     cache.set(cacheKey, results);
@@ -351,11 +352,12 @@ export class DatabaseStorage implements IStorage {
     let query = db.select().from(services).where(eq(services.serviceType, type));
     
     // 결과 제한
+    let limitedQuery = query;
     if (limit) {
-      query = query.limit(limit);
+      limitedQuery = query.limit(limit);
     }
     
-    const results = await query;
+    const results = await limitedQuery;
     
     // 결과 캐싱
     staticCache.set(cacheKey, results);
