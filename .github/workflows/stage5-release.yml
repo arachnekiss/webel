@@ -1,11 +1,10 @@
-name: Stage 5 - Release
+# 이 워크플로우는 비활성화되었습니다.
+# Azure 배포를 위해 이전 테스트 워크플로우를 제거하였습니다.
+
+name: disabled-workflow
 
 on:
-  workflow_run:
-    workflows: ["Stage 1 - E2E Tests", "Stage 2 - UI Accessibility Tests", "Stage 3 - Performance Tests", "Stage 4 - Security Tests"]
-    types:
-      - completed
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   release:

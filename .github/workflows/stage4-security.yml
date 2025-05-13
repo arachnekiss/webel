@@ -1,10 +1,10 @@
-name: Stage 4 - Security Tests
+# 이 워크플로우는 비활성화되었습니다.
+# Azure 배포를 위해 이전 테스트 워크플로우를 제거하였습니다.
+
+name: disabled-workflow
 
 on:
-  push:
-    branches: [ main, develop, stage-qa-e2e ]
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
     
 jobs:
   security:
