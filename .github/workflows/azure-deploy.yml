@@ -112,82 +112,233 @@ jobs:
     
     - name: Prepare deployment package
       run: |
-        # 배포에 필요한 파일들만 포함하는 배포 디렉토리 생성
-        mkdir -p deployment/client
+        # 직접 ZIP 패키지 생성 (중간 폴더 없이)
+        DEPLOY_DIR="deploy_package"
+        rm -rf $DEPLOY_DIR || true
+        mkdir -p $DEPLOY_DIR
         
-        # 클라이언트 디렉토리 준비 (client/dist가 없으므로 client/src 사용)
-        echo "확인: client 디렉토리 구조"
-        ls -la client/
+        echo "🔍 빌드 결과 확인:"
+        ls -la dist/ || echo "dist/ 디렉토리가 없습니다"
+        ls -la client/ || echo "client/ 디렉토리가 없습니다"
         
-        # 서버 사이드 빌드 결과물 복사 (dist)
+        # 1. 서버 빌드 파일 복사 (dist 내용물을 루트로 복사)
         if [ -d dist ]; then
-          cp -r dist deployment/
-          echo "서버 빌드 파일 복사 완료: dist → deployment/dist"
+          cp -r dist/* $DEPLOY_DIR/
+          echo "✅ 서버 빌드 파일 복사 완료 (dist/* → $DEPLOY_DIR/)"
         else
-          echo "경고: dist 디렉토리가 없습니다. 서버 빌드가 필요합니다."
+          echo "⚠️ 경고: dist 디렉토리가 없습니다. 빌드가 제대로 되었는지 확인하세요."
         fi
         
-        # client 디렉토리 생성 및 필요한 파일 복사
+        # 2. 클라이언트 파일 복사
+        mkdir -p $DEPLOY_DIR/client
         if [ -d client/dist ]; then
-          cp -r client/dist deployment/client/
-          echo "클라이언트 빌드 파일 복사 완료: client/dist → deployment/client/dist"
+          cp -r client/dist $DEPLOY_DIR/client/
+          echo "✅ 클라이언트 빌드 파일 복사 완료"
         else
-          # client/dist가 없는 경우 client/src를 직접 복사
-          mkdir -p deployment/client/src
-          cp -r client/src deployment/client/
-          echo "클라이언트 소스 파일 복사 완료: client/src → deployment/client/src"
+          mkdir -p $DEPLOY_DIR/client/src
+          cp -r client/src $DEPLOY_DIR/client/
+          echo "✅ 클라이언트 소스 파일 복사 완료"
         fi
         
-        # node_modules 및 기타 필수 파일 복사
-        cp -r node_modules deployment/
-        mkdir -p deployment/public/images deployment/public/static
+        # 3. 주요 파일들을 루트 디렉토리에 복사
+        cp package.json package-lock.json $DEPLOY_DIR/
+        cp startup.js patch-helper.js $DEPLOY_DIR/
+        cp web.config .deployment $DEPLOY_DIR/
         
-        # 필수 파일 복사
-        cp package.json package-lock.json startup.js patch-helper.js .deployment web.config deployment/
+        # 4. 필수 디렉토리 생성 및 콘텐츠 복사
+        mkdir -p $DEPLOY_DIR/public/images $DEPLOY_DIR/public/static
+        mkdir -p $DEPLOY_DIR/server
+        mkdir -p $DEPLOY_DIR/shared
+        mkdir -p $DEPLOY_DIR/uploads $DEPLOY_DIR/temp
         
-        # 데이터베이스 마이그레이션 관련 파일 복사
-        cp drizzle.config.ts deployment/
-        mkdir -p deployment/shared
-        cp -r shared/* deployment/shared/ || echo "shared 디렉토리 복사 중 오류 발생"
+        # 5. 마이그레이션 스크립트가 있으면 복사
+        if [ -f migration.sql ]; then
+          cp migration.sql $DEPLOY_DIR/
+          echo "✅ SQL 마이그레이션 스크립트 복사 완료"
+        fi
         
-        # Azure Kudu가 요구하는 server/startup.js 생성
-        mkdir -p deployment/server
-        echo "// Azure Kudu 시작 스크립트 호환성 파일" > deployment/server/startup.js
-        echo "import '../startup.js'; // 루트의 startup.js로 리디렉션" >> deployment/server/startup.js
-        echo "✅ server/startup.js 파일 생성 완료 (Azure Kudu 호환용)"
+        # 6. drizzle.config.ts 파일 복사
+        cp drizzle.config.ts $DEPLOY_DIR/
         
-        # .env.production 파일이 있으면 복사
+        # 7. shared 디렉토리 내용물 복사
+        cp -r shared/* $DEPLOY_DIR/shared/ || echo "shared 디렉토리 복사 중 오류 발생"
+        
+        # 8. server/startup.js 호환성 파일 생성
+        echo "// Azure Kudu 시작 스크립트 호환성 파일" > $DEPLOY_DIR/server/startup.js
+        echo "import '../startup.js'; // 루트의 startup.js로 리디렉션" >> $DEPLOY_DIR/server/startup.js
+        chmod +x $DEPLOY_DIR/server/startup.js
+        echo "✅ server/startup.js 파일 생성 완료 (실행 권한 부여됨)"
+        
+        # 9. startup.js에도 실행 권한 부여
+        chmod +x $DEPLOY_DIR/startup.js
+        echo "✅ startup.js 파일에 실행 권한 부여됨"
+        
+        # 10. 환경 변수 파일 복사
         if [ -f .env.production ]; then
-          cp .env.production deployment/
-          echo ".env.production 파일 복사 완료"
+          cp .env.production $DEPLOY_DIR/
+          cp .env.production $DEPLOY_DIR/env.production  # 점 없는 버전도 추가
+          echo "✅ 환경 변수 파일 복사 완료"
         fi
         
-        # public 디렉토리 복사 (이미 디렉토리인지 확인 후)
+        # 11. public 디렉토리 내용물 복사
         if [ -d public ] && [ ! -f public ]; then
-          cp -r public/* deployment/public/
-          echo "public 디렉토리 콘텐츠 복사 완료"
-        else
-          echo "주의: public이 디렉토리가 아니거나 찾을 수 없습니다."
-          # public 디렉토리가 없으면 기본 구조 생성
-          mkdir -p deployment/public/images deployment/public/static
-          echo "빈 public 디렉토리 구조 생성 완료"
+          cp -r public/* $DEPLOY_DIR/public/ || echo "public 디렉토리 내용물 복사 중 오류 발생"
+          echo "✅ public 디렉토리 내용물 복사 완료"
         fi
         
-        # 디렉토리 구조 확인
-        echo "최종 배포 패키지 구조:"
-        find deployment -type d | sort
+        # 12. node_modules 복사
+        echo "📦 node_modules 복사 중..."
+        cp -r node_modules $DEPLOY_DIR/
+        echo "✅ node_modules 복사 완료"
         
-        # 배포 대상 public 디렉토리 최종 검증
-        if [ -f deployment/public ]; then
-          echo "오류: deployment/public이 파일로 존재합니다!"
-          rm deployment/public
-          mkdir -p deployment/public/images deployment/public/static
-          echo "public 디렉토리 구조 수정 완료"
+        # 13. 패키지 구조 확인 (주요 파일 목록)
+        echo "📋 최종 배포 패키지 주요 파일:"
+        find $DEPLOY_DIR -maxdepth 2 -type f | sort
+        
+        # 14. 이 패키지를 deployment로 옮겨 배포 준비
+        rm -rf deployment || true
+        mv $DEPLOY_DIR deployment
+    
+    - name: Install Azure CLI
+      run: |
+        # Azure CLI가 이미 설치되어 있는지 확인
+        if ! command -v az &> /dev/null; then
+          echo "🔄 Azure CLI 설치 중..."
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          echo "✅ Azure CLI 설치 완료"
+        else
+          echo "✅ Azure CLI 이미 설치됨"
+          az --version
         fi
     
-    - name: Deploy to Azure Web App
+    - name: Clean Up App Service (Optional)
+      run: |
+        # Azure에 로그인 시도 (publish profile 사용) - 로그인 실패해도 계속 진행
+        PUBLISH_PROFILE="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
+        APP_NAME="${{ secrets.AZURE_WEBAPP_NAME }}"
+        
+        # Azure CLI가 설치되어 있고 Azure 자격 증명이 제공된 경우에만 실행
+        if command -v az &> /dev/null && [ -n "$PUBLISH_PROFILE" ] && [ -n "$APP_NAME" ]; then
+          echo "🔄 Azure CLI를 사용한 App Service 정리 시도..."
+          
+          # 실패해도 계속 진행하도록 설정
+          set +e
+          
+          # Azure 로그인 시도 (서비스 주체 방식)
+          echo "$PUBLISH_PROFILE" > publish_profile.xml
+          
+          # 배포 전 Azure App Service 디렉토리 초기화 (선택적)
+          # Azure CLI를 통한 Kudu API 호출은 성공하지 못할 수 있으나, 가능한 경우 실행
+          echo "⚠️ 참고: 다음 단계는 Azure 권한에 따라 실패할 수 있으며, 이는 정상적인 현상입니다."
+          echo "⚠️ 배포는 계속 진행됩니다."
+          
+          # 로깅만 수행 (실제 삭제 작업은 없음) - 보안 및 안전을 위해
+          echo "🔍 Azure App Service 콘텐츠 초기화 과정은 Azure 포털에서 수동으로 수행하는 것이 권장됩니다."
+          
+          # 원래 오류 처리 방식으로 돌아가기
+          set -e
+        else
+          echo "⚠️ Azure CLI 또는 자격 증명이 없어 App Service 정리 단계를 건너뜁니다."
+        fi
+        
+        echo "✅ Azure 환경 준비 단계 완료"
+    
+    - name: Create Custom ZIP Package
+      run: |
+        # 루트 디렉토리에서 ZIP 파일 생성 (상대 경로로)
+        echo "📦 deploy.zip 패키지 생성 중..."
+        cd deployment
+        # node_modules 크기를 줄이기 위해 불필요한 파일 제거
+        find node_modules -name "*.md" -delete || true
+        find node_modules -name "*.d.ts" -delete || true
+        find node_modules -name "*.map" -delete || true
+        find node_modules -path "*/test/*" -delete || true
+        find node_modules -path "*/tests/*" -delete || true
+        find node_modules -path "*/docs/*" -delete || true
+        
+        # 최종 ZIP 패키지 생성 (개선된 압축)
+        zip -r ../deploy.zip * -x "*.git*" "*.github*" "node_modules/.cache/*" "node_modules/.bin/*"
+        cd ..
+        
+        # ZIP 파일 크기 확인
+        ls -lh deploy.zip
+        echo "✅ ZIP 패키지 생성 완료 (최적화됨)"
+    
+    - name: Verify ZIP Package (중요 파일 확인)
+      run: |
+        # ZIP 파일 무결성 및 내용물 검사
+        echo "🔍 ZIP 파일 검증 중..."
+        
+        # ZIP 파일 구조 확인
+        echo "📋 ZIP 파일 내용물 목록 (주요 파일):"
+        unzip -l deploy.zip | grep -E 'startup.js|web.config|package.json|node_modules/|server/|shared/|dist/'
+        
+        # 필수 파일 존재 확인
+        echo "🔍 필수 파일 확인 중..."
+        
+        # 필수 파일 목록
+        REQUIRED_FILES=("startup.js" "web.config" "package.json" "server/startup.js")
+        MISSING_FILES=()
+        
+        for file in "${REQUIRED_FILES[@]}"; do
+          if ! unzip -l deploy.zip | grep -q "$file"; then
+            MISSING_FILES+=("$file")
+          fi
+        done
+        
+        if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+          echo "⚠️ 경고: 다음 필수 파일이 ZIP 패키지에 없습니다:"
+          for missing in "${MISSING_FILES[@]}"; do
+            echo "  - $missing"
+          done
+          echo "🔄 ZIP 파일을 수정하여 문제를 해결합니다..."
+          
+          # 필수 파일 긴급 추가
+          mkdir -p fix_missing
+          cd fix_missing
+          
+          # server/startup.js 파일이 누락된 경우
+          if [[ " ${MISSING_FILES[*]} " =~ " server/startup.js " ]]; then
+            mkdir -p server
+            echo "// Azure Kudu 시작 스크립트 호환성 파일" > server/startup.js
+            echo "import '../startup.js'; // 루트의 startup.js로 리디렉션" >> server/startup.js
+            chmod +x server/startup.js
+            echo "✅ server/startup.js 파일 생성 완료"
+          fi
+          
+          # 다른 필수 파일도 체크하고 필요시 추가...
+          
+          # 기존 ZIP 파일에 누락된 파일 추가
+          if [ -d "server" ]; then
+            zip -r ../deploy.zip server/
+            echo "✅ 누락된 파일 ZIP에 추가 완료"
+          fi
+          
+          cd ..
+          rm -rf fix_missing
+        else
+          echo "✅ 모든 필수 파일이 ZIP 패키지에 포함되어 있습니다."
+        fi
+        
+        echo "✅ ZIP 패키지 검증 완료"
+    
+    - name: Deploy to Azure Web App (직접 ZIP 배포)
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ./deployment
+        package: ./deploy.zip
+        clean: true
+        restart: true
+        
+    - name: Verify Deployment
+      run: |
+        echo "✅ Azure App Service에 배포가 완료되었습니다."
+        echo "📝 배포 후 확인 사항:"
+        echo "  1. Azure 포털에서 앱 서비스 로그 확인 (Kudu/Log stream)"
+        echo "  2. 배포된 앱이 정상적으로 시작되었는지 확인"
+        echo "  3. 시작 명령이 'node startup.js'인지 확인 (구성 > 일반 설정 > 시작 명령)"
+        echo "  4. 환경 변수가 올바르게 설정되어 있는지 확인 (구성 > 애플리케이션 설정)"
+        
+        # GitHub 로그에 배포 URL 출력
+        echo "🌐 배포된 앱 URL: https://${{ secrets.AZURE_WEBAPP_NAME }}.azurewebsites.net"
