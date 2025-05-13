@@ -1,0 +1,66 @@
+2025-05-13T18:47:47.960044Z Documentation: http://aka.ms/webapp-linux
+2025-05-13T18:47:47.9600474Z NodeJS quickstart: https://aka.ms/node-qs
+2025-05-13T18:47:47.9600505Z NodeJS Version : v20.18.3
+2025-05-13T18:47:47.9600537Z Note: Any data outside '/home' is not persisted
+2025-05-13T18:47:47.9600577Z
+2025-05-13T18:47:48.8731453Z Starting OpenBSD Secure Shell server: sshd.
+2025-05-13T18:47:48.8840127Z WEBSITES_INCLUDE_CLOUD_CERTS is not set to true.
+2025-05-13T18:47:48.8931589Z Updating certificates in /etc/ssl/certs...
+2025-05-13T18:47:51.1712872Z rehash: warning: skipping ca-certificates.crt,it does not contain exactly one certificate or CRL
+2025-05-13T18:47:51.1864965Z 2 added, 0 removed; done.
+2025-05-13T18:47:51.1872628Z Running hooks in /etc/ca-certificates/update.d...
+2025-05-13T18:47:51.1896604Z done.
+2025-05-13T18:47:51.1954611Z CA certificates copied and updated successfully.
+2025-05-13T18:47:51.2566837Z Starting periodic command scheduler: cron.
+2025-05-13T18:47:51.3448645Z Found build manifest file at '/home/site/wwwroot/oryx-manifest.toml'. Deserializing it...
+2025-05-13T18:47:51.3465625Z Could not find operation ID in manifest. Generating an operation id...
+2025-05-13T18:47:51.347808Z Build Operation ID: d5940491-7ea0-4971-8e96-11e9afa236e3
+2025-05-13T18:47:51.8995492Z Environment Variables for Application Insight's IPA Codeless Configuration exists..
+2025-05-13T18:47:52.0230584Z Writing output script to '/opt/startup/startup.sh'
+2025-05-13T18:47:52.1554104Z Running #!/bin/sh
+2025-05-13T18:47:52.1554697Z
+2025-05-13T18:47:52.1554813Z # Enter the source directory to make sure the script runs where the user expects
+2025-05-13T18:47:52.1554858Z cd "/home/site/wwwroot"
+2025-05-13T18:47:52.1554887Z
+2025-05-13T18:47:52.155492Z export NODE_PATH=/usr/local/lib/node_modules:$NODE_PATH
+2025-05-13T18:47:52.1554951Z if [ -z "$PORT" ]; then
+2025-05-13T18:47:52.1554981Z 		export PORT=8080
+2025-05-13T18:47:52.155501Z fi
+2025-05-13T18:47:52.155505Z
+2025-05-13T18:47:52.1555083Z echo Found tar.gz based node_modules.
+2025-05-13T18:47:52.1555117Z extractionCommand="tar -xzf node_modules.tar.gz -C /node_modules"
+2025-05-13T18:47:52.155515Z echo "Removing existing modules directory from root..."
+2025-05-13T18:47:52.1555181Z rm -fr /node_modules
+2025-05-13T18:47:52.1555211Z mkdir -p /node_modules
+2025-05-13T18:47:52.1555242Z echo Extracting modules...
+2025-05-13T18:47:52.1555286Z $extractionCommand
+2025-05-13T18:47:52.1555333Z export NODE_PATH="/node_modules":$NODE_PATH
+2025-05-13T18:47:52.1555365Z export PATH=/node_modules/.bin:$PATH
+2025-05-13T18:47:52.1555397Z if [ -d node_modules ]; then
+2025-05-13T18:47:52.1555429Z     mv -f node_modules _del_node_modules || true
+2025-05-13T18:47:52.1555459Z fi
+2025-05-13T18:47:52.1555497Z
+2025-05-13T18:47:52.1555527Z if [ -d /node_modules ]; then
+2025-05-13T18:47:52.1555558Z     ln -sfn /node_modules ./node_modules
+2025-05-13T18:47:52.1555588Z fi
+2025-05-13T18:47:52.1555616Z
+2025-05-13T18:47:52.1555644Z echo "Done."
+2025-05-13T18:47:52.1555956Z PATH="$PATH:/home/site/wwwroot" node server/startup.js
+2025-05-13T18:47:52.1583053Z Found tar.gz based node_modules.
+2025-05-13T18:47:52.1583347Z Removing existing modules directory from root...
+2025-05-13T18:47:52.1639814Z Extracting modules...
+2025-05-13T18:47:58.6268514Z Done.
+2025-05-13T18:47:59.2360811Z node:internal/modules/cjs/loader:1228
+2025-05-13T18:47:59.2361478Z   throw err;
+2025-05-13T18:47:59.2361524Z   ^
+2025-05-13T18:47:59.2361558Z
+2025-05-13T18:47:59.2361597Z Error: Cannot find module '/home/site/wwwroot/server/startup.js'
+2025-05-13T18:47:59.2361697Z     at Module._resolveFilename (node:internal/modules/cjs/loader:1225:15)
+2025-05-13T18:47:59.2361736Z     at Module._load (node:internal/modules/cjs/loader:1051:27)
+2025-05-13T18:47:59.2361772Z     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:173:12)
+2025-05-13T18:47:59.2361805Z     at node:internal/main/run_main_module:28:49 {
+2025-05-13T18:47:59.2361837Z   code: 'MODULE_NOT_FOUND',
+2025-05-13T18:47:59.2361868Z   requireStack: []
+2025-05-13T18:47:59.2361911Z }
+2025-05-13T18:47:59.2361941Z
+2025-05-13T18:47:59.2361972Z Node.js v20.18.3

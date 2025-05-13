@@ -123,12 +123,18 @@ jobs:
         mkdir -p deployment/public/images deployment/public/static
         
         # 필수 파일 복사
-        cp package.json package-lock.json startup.js patch-helper.js deployment/
+        cp package.json package-lock.json startup.js patch-helper.js .deployment web.config deployment/
         
         # 데이터베이스 마이그레이션 관련 파일 복사
         cp drizzle.config.ts deployment/
         mkdir -p deployment/shared
         cp -r shared/* deployment/shared/ || echo "shared 디렉토리 복사 중 오류 발생"
+        
+        # Azure Kudu가 요구하는 server/startup.js 생성
+        mkdir -p deployment/server
+        echo "# Azure Kudu 시작 스크립트 호환성 파일
+import '../startup.js'; // 루트의 startup.js로 리디렉션" > deployment/server/startup.js
+        echo "✅ server/startup.js 파일 생성 완료 (Azure Kudu 호환용)"
         
         # .env.production 파일이 있으면 복사
         if [ -f .env.production ]; then
