@@ -192,10 +192,34 @@ function runDatabaseMigration() {
   }
 }
 
-// 마이그레이션 실행
+// 마이그레이션 실행 (환경 변수에 따라 조건부 실행)
 if (envLoaded) {
-  console.log('환경 변수가 로드되었으므로 마이그레이션을 실행합니다...');
-  runDatabaseMigration();
+  // SKIP_MIGRATION 환경 변수가 설정되었는지 확인
+  if (process.env.SKIP_MIGRATION === 'true') {
+    console.log('💡 SKIP_MIGRATION=true 설정으로 인해 마이그레이션을 건너뜁니다.');
+    console.log('💡 마이그레이션은 GitHub Actions CI/CD에서 이미 실행되었습니다.');
+  } else {
+    // Production 환경에서만 경고 표시 (dev/test 환경에서는 정상 실행)
+    if (process.env.NODE_ENV === 'production') {
+      console.log('⚠️ Production 환경에서 마이그레이션을 시도합니다.');
+      console.log('⚠️ GitHub Actions에서 사전 마이그레이션을 실행하는 것이 권장됩니다.');
+      console.log('⚠️ 설정: SKIP_MIGRATION=true 환경 변수를 추가하여 이 단계를 건너뛸 수 있습니다.');
+      
+      // Azure App Service에서 실행 중인지 확인
+      if (process.env.WEBSITE_SITE_NAME) {
+        console.log('🔍 Azure App Service에서 실행 중입니다.');
+        console.log('💡 안전한 실행을 위해 마이그레이션을 건너뜁니다.');
+        console.log('💡 GitHub Actions 워크플로우에서 마이그레이션을 실행하세요.');
+      } else {
+        console.log('환경 변수가 로드되었으므로 마이그레이션을 실행합니다...');
+        runDatabaseMigration();
+      }
+    } else {
+      // 개발/테스트 환경에서는 정상적으로 마이그레이션 실행
+      console.log('환경 변수가 로드되었으므로 마이그레이션을 실행합니다...');
+      runDatabaseMigration();
+    }
+  }
 } else {
   console.warn('환경 변수 로드에 실패했으므로 마이그레이션을 건너뜁니다.');
 }

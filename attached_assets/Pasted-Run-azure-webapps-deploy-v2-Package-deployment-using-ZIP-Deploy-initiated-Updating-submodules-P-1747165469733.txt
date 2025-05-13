@@ -1,0 +1,67 @@
+Run azure/webapps-deploy@v2
+Package deployment using ZIP Deploy initiated.
+Updating submodules.
+Preparing deployment for commit id 'e2da78c3-4'.
+PreDeployment: context.CleanOutputPath False
+PreDeployment: context.OutputPath /home/site/wwwroot
+Running custom deployment command...
+Not setting execute permissions for node startup.js
+Running deployment command...
+Command: node startup.js
+=== 환경 변수 초기 상태 ===
+NODE_ENV: production
+DATABASE_URL: 설정됨 (값 감춤)
+===========================
+🔄 환경 변수 파일 로드 중: ./.env.production
+✅ 환경 변수가 dotenv로 로드되었습니다: ./.env.production
+=== 환경 변수 로드 후 상태 ===
+DATABASE_URL: 설정됨 (값 감춤)
+===========================
+환경 변수가 로드되었으므로 마이그레이션을 실행합니다...
+📄 DATABASE_URL 형식: postgresql:***@***:passfor0.
+📏 DATABASE_URL 길이: 100 글자
+🔄 데이터베이스 마이그레이션 실행 중...
+✅ 발견된 설정 파일: ./drizzle.config.ts
+🔄 방법 1: npx drizzle-kit push 실행...
+/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found
+❓ 방법 1 실패, 다른 방법 시도: Command failed: npx drizzle-kit push
+🔄 방법 2: npm run db:push 실행...
+
+> rest-express@1.0.0 db:push
+> drizzle-kit push
+
+/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found
+❓ 방법 2 실패, 다음 방법 시도: Command failed: npm run db:push
+🔄 방법 3: 다른 인자와 함께 실행...
+/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found
+❌ 모든 마이그레이션 시도 실패: Command failed: NODE_OPTIONS="--no-warnings --use-openssl-ca" npx drizzle-kit push
+===== 디렉토리 구조 초기화 시작 =====
+파일 시스템 작업 안정화를 위해 1초 대기...
+===== 디렉토리 구조 초기화 완료 =====
+=== 최종 환경 변수 상태 ===
+NODE_ENV: production
+BASE_PATH: /home/site/wwwroot
+PUBLIC_PATH: /home/site/wwwroot/public
+UPLOAD_DIR: /home/site/wwwroot/uploads
+CLIENT_PATH: /home/site/wwwroot/client
+TEMP_DIR: /home/site/wwwroot/temp
+DATABASE_URL: 설정됨 (값 감춤)
+===========================
+현재 디렉토리: /tmp/zipdeploy/extracted
+디렉토리 내용: .deployment, .env.production, client, dist, drizzle.config.ts, node_modules, package-lock.json, package.json, patch-helper.js, public, server, shared, startup.js, web.config
+패치 헬퍼 로드 시도...
+=== patch-helper.js 실행 ===
+디렉토리 생성됨: ./uploads
+디렉토리 생성됨: ./temp
+디렉토리 생성됨: ./client/dist
+path.resolve() 함수 패치 완료
+=== patch-helper.js 완료 ===
+패치 헬퍼 로드 완료
+dist/index.js 파일 존재, 해당 파일을 실행합니다
+서버 모듈 로드 완료: []
+7:03:32 PM [express] serving on port 5000
+/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found\n❓ 방법 1 실패, 다른 방법 시도: Command failed: npx drizzle-kit push\n/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found\n❓ 방법 2 실패, 다음 방법 시도: Command failed: npm run db:push\n/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found\n❌ 모든 마이그레이션 시도 실패: Command failed: NODE_OPTIONS="--no-warnings --use-openssl-ca" npx drizzle-kit push\n/opt/Kudu/Scripts/starter.sh node startup.js
+Deployment Failed. deployer = GITHUB_ZIP_DEPLOY deploymentPath = ZipDeploy. Extract zip.
+Error: Failed to deploy web package to App Service.
+Error: Deployment Failed, Package deployment using ZIP Deploy failed. Refer logs for more details.
+App Service Application URL: https://***-gcb2bxdbbphmbref.koreacentral-01.azurewebsites.net

@@ -1,0 +1,78 @@
+Replit 에이전트, 이번 “drizzle-kit: bin.cjs not found” 오류를 근본적으로 해결하기 위해 다음 지시를 수행하세요:
+
+---
+
+### 🔴 에러 발생 내용
+
+```plaintext
+/tmp/zipdeploy/extracted/node_modules/.bin/drizzle-kit: 1: ../drizzle-kit/bin.cjs: not found
+❓ 방법 1 실패, 다른 방법 시도: Command failed: npx drizzle-kit push
+…  
+❌ 모든 마이그레이션 시도 실패: Command failed: NODE_OPTIONS="--no-warnings --use-openssl-ca" npx drizzle-kit push
+```
+
+---
+
+### ⚠️ 원인 분석
+
+1. **drizzle-kit이 devDependencies**로만 설치되어 있어, Azure App Service에서는 **production 모드로 설치된 node\_modules에 devDependencies가 포함되지 않아** 실행 파일이 누락됩니다.
+2. `node_modules/.bin/drizzle-kit`가 \*\*상대 경로(`../drizzle-kit/bin.cjs`)\*\*를 가리키지만, 실제 모듈이 없어서 `not found`가 발생합니다.
+
+---
+
+### ✅ 해결 방법 (수행해야 할 작업 지시)
+
+#### A. 마이그레이션을 CI에서 실행하도록 파이프라인 재구성 (권장)
+
+1. **`startup.js`에서 마이그레이션 호출 제거**
+
+   ```diff
+   - execSync('npx drizzle-kit push', ...)
+   ```
+2. **GitHub Actions 워크플로우에 마이그레이션 단계 추가**
+
+   ```yaml
+   jobs:
+     build-and-deploy:
+       runs-on: ubuntu-latest
+       steps:
+         - uses: actions/checkout@v3
+
+         - name: Install dependencies (incl. dev)
+           run: npm ci
+
+         - name: Run DB migrations
+           run: npx drizzle-kit push
+           env:
+             DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+         - name: Build
+           run: npm run build
+
+         - name: Deploy to Azure
+           uses: azure/webapps-deploy@v2
+           with:
+             app-name: ${{ secrets.AZURE_APP_NAME }}
+             publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+             package: .
+   ```
+3. **CI에서 성공 확인 후** Azure로는 “이미 마이그레이션 완료된” 상태의 빌드만 배포
+
+#### B. (대안) drizzle-kit을 production dependencies로 올리기
+
+1. `package.json`에서 devDependencies → dependencies로 이동:
+
+   ```diff
+   -"devDependencies": {
+   -  "drizzle-kit": "^x.y.z"
+   -},
+   +"dependencies": {
+   +  "drizzle-kit": "^x.y.z",
+   +  …
+   +}
+   ```
+2. 커밋 & 푸시 → Azure App Service 재배포 시 `npm install`이 `drizzle-kit`을 포함하여 설치
+
+---
+
+위 A 또는 B 방법 중 하나를 적용한 뒤, **drizzle-kit 명령이 정상 실행되는지** CI 및 배포 로그에서 확인하시고 보고 바랍니다.
