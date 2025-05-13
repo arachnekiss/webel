@@ -199,16 +199,16 @@ jobs:
         rm -rf deployment || true
         mv $DEPLOY_DIR deployment
     
-    - name: Install Azure CLI
+    - name: Verify Azure CLI Installation
       run: |
-        # Azure CLI가 이미 설치되어 있는지 확인
-        if ! command -v az &> /dev/null; then
-          echo "🔄 Azure CLI 설치 중..."
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-          echo "✅ Azure CLI 설치 완료"
+        echo "🔍 Azure CLI 설치 상태 확인 중..."
+        # GitHub Actions의 Ubuntu 환경에는 이미 Azure CLI가 설치되어 있음
+        if command -v az &> /dev/null; then
+          echo "✅ Azure CLI가 이미 설치되어 있습니다"
+          az --version | head -n 1
         else
-          echo "✅ Azure CLI 이미 설치됨"
-          az --version
+          echo "⚠️ Azure CLI가 설치되어 있지 않습니다"
+          echo "⚠️ 다음 단계에서는 Azure CLI 기능을 사용하지 않습니다"
         fi
     
     - name: Clean Up App Service (Optional)
@@ -217,23 +217,18 @@ jobs:
         PUBLISH_PROFILE="${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}"
         APP_NAME="${{ secrets.AZURE_WEBAPP_NAME }}"
         
+        echo "🔍 Azure App Service 환경 준비 중..."
+        
         # Azure CLI가 설치되어 있고 Azure 자격 증명이 제공된 경우에만 실행
         if command -v az &> /dev/null && [ -n "$PUBLISH_PROFILE" ] && [ -n "$APP_NAME" ]; then
-          echo "🔄 Azure CLI를 사용한 App Service 정리 시도..."
+          echo "🔄 Azure CLI 사용 가능, 자격 증명 확인됨"
           
-          # 실패해도 계속 진행하도록 설정
+          # 실패해도 계속 진행하도록 설정 (오류 발생 위치 수정)
           set +e
           
-          # Azure 로그인 시도 (서비스 주체 방식)
-          echo "$PUBLISH_PROFILE" > publish_profile.xml
-          
-          # 배포 전 Azure App Service 디렉토리 초기화 (선택적)
-          # Azure CLI를 통한 Kudu API 호출은 성공하지 못할 수 있으나, 가능한 경우 실행
-          echo "⚠️ 참고: 다음 단계는 Azure 권한에 따라 실패할 수 있으며, 이는 정상적인 현상입니다."
+          # 로깅만 수행 (실제 동작 없음) - 안전 모드로 유지
+          echo "⚠️ 참고: 실제 정리 작업은 Azure 포털에서 수동으로 수행하는 것이 권장됩니다."
           echo "⚠️ 배포는 계속 진행됩니다."
-          
-          # 로깅만 수행 (실제 삭제 작업은 없음) - 보안 및 안전을 위해
-          echo "🔍 Azure App Service 콘텐츠 초기화 과정은 Azure 포털에서 수동으로 수행하는 것이 권장됩니다."
           
           # 원래 오류 처리 방식으로 돌아가기
           set -e
@@ -269,9 +264,20 @@ jobs:
         # ZIP 파일 무결성 및 내용물 검사
         echo "🔍 ZIP 파일 검증 중..."
         
-        # ZIP 파일 구조 확인
+        # ZIP 파일 존재 확인
+        if [ ! -f "deploy.zip" ]; then
+          echo "⚠️ 오류: deploy.zip 파일이 존재하지 않습니다."
+          exit 1
+        fi
+        
+        # ZIP 파일 크기 확인
+        ZIP_SIZE=$(stat -c%s "deploy.zip")
+        echo "📊 ZIP 파일 크기: $ZIP_SIZE 바이트"
+        
+        # ZIP 파일 구조 확인 - 오류 방지를 위해 파이프라인 대신 명시적 임시 파일 사용
         echo "📋 ZIP 파일 내용물 목록 (주요 파일):"
-        unzip -l deploy.zip | grep -E 'startup.js|web.config|package.json|node_modules/|server/|shared/|dist/'
+        unzip -l deploy.zip > zip_contents.txt
+        grep -E 'startup.js|web.config|package.json|node_modules/|server/|shared/|dist/' zip_contents.txt || echo "⚠️ 주요 파일을 찾을 수 없습니다."
         
         # 필수 파일 존재 확인
         echo "🔍 필수 파일 확인 중..."
@@ -281,16 +287,20 @@ jobs:
         MISSING_FILES=()
         
         for file in "${REQUIRED_FILES[@]}"; do
-          if ! unzip -l deploy.zip | grep -q "$file"; then
+          if ! grep -q "$file" zip_contents.txt; then
             MISSING_FILES+=("$file")
           fi
         done
         
-        if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+        # 임시 파일 정리
+        rm zip_contents.txt
+        
+        if [ "${#MISSING_FILES[@]}" -gt 0 ]; then
           echo "⚠️ 경고: 다음 필수 파일이 ZIP 패키지에 없습니다:"
           for missing in "${MISSING_FILES[@]}"; do
             echo "  - $missing"
           done
+          
           echo "🔄 ZIP 파일을 수정하여 문제를 해결합니다..."
           
           # 필수 파일 긴급 추가
@@ -298,7 +308,7 @@ jobs:
           cd fix_missing
           
           # server/startup.js 파일이 누락된 경우
-          if [[ " ${MISSING_FILES[*]} " =~ " server/startup.js " ]]; then
+          if echo "${MISSING_FILES[@]}" | grep -q "server/startup.js"; then
             mkdir -p server
             echo "// Azure Kudu 시작 스크립트 호환성 파일" > server/startup.js
             echo "import '../startup.js'; // 루트의 startup.js로 리디렉션" >> server/startup.js
@@ -306,9 +316,7 @@ jobs:
             echo "✅ server/startup.js 파일 생성 완료"
           fi
           
-          # 다른 필수 파일도 체크하고 필요시 추가...
-          
-          # 기존 ZIP 파일에 누락된 파일 추가
+          # ZIP 파일에 필요한 파일 추가
           if [ -d "server" ]; then
             zip -r ../deploy.zip server/
             echo "✅ 누락된 파일 ZIP에 추가 완료"
