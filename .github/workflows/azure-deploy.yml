@@ -132,8 +132,10 @@ jobs:
         
         # Azure Kudu가 요구하는 server/startup.js 생성
         mkdir -p deployment/server
-        echo "# Azure Kudu 시작 스크립트 호환성 파일
-import '../startup.js'; // 루트의 startup.js로 리디렉션" > deployment/server/startup.js
+        cat > deployment/server/startup.js << 'EOF'
+// Azure Kudu 시작 스크립트 호환성 파일
+import '../startup.js'; // 루트의 startup.js로 리디렉션
+EOF
         echo "✅ server/startup.js 파일 생성 완료 (Azure Kudu 호환용)"
         
         # .env.production 파일이 있으면 복사
