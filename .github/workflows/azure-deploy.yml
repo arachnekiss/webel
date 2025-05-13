@@ -18,10 +18,31 @@ jobs:
         node-version: '20.x'
         cache: 'npm'
     
-    - name: npm install and build
+    - name: Install dependencies and build
       run: |
+        echo "=== 1. 서버 및 클라이언트 종속성 설치 ==="
         npm ci
+        
+        echo "=== 2. 서버 및 클라이언트 빌드 ==="
+        # 프로젝트 빌드 (서버 측 dist/ 생성)
         npm run build
+        
+        # 빌드 결과 확인
+        if [ -d dist ]; then
+          echo "서버 빌드 완료: dist/ 디렉토리 생성됨"
+          ls -la dist/
+        else
+          echo "오류: 서버 빌드 실패. dist/ 디렉토리를 찾을 수 없음"
+        fi
+        
+        # 클라이언트 빌드 처리 확인
+        echo "=== 3. 클라이언트 빌드 결과 확인 ==="
+        if [ -d client/dist ]; then
+          echo "클라이언트 빌드 완료: client/dist 디렉토리 존재함"
+          ls -la client/dist/
+        else
+          echo "참고: client/dist 디렉토리가 없습니다. 대신 client/src를 사용합니다."
+        fi
       env:
         CI: true
     
@@ -41,22 +62,62 @@ jobs:
     - name: Prepare deployment package
       run: |
         # 배포에 필요한 파일들만 포함하는 배포 디렉토리 생성
-        mkdir -p deployment
+        mkdir -p deployment/client
         
-        # 필수 파일 및 디렉토리 복사
-        cp -r dist deployment/
+        # 클라이언트 디렉토리 준비 (client/dist가 없으므로 client/src 사용)
+        echo "확인: client 디렉토리 구조"
+        ls -la client/
+        
+        # 서버 사이드 빌드 결과물 복사 (dist)
+        if [ -d dist ]; then
+          cp -r dist deployment/
+          echo "서버 빌드 파일 복사 완료: dist → deployment/dist"
+        else
+          echo "경고: dist 디렉토리가 없습니다. 서버 빌드가 필요합니다."
+        fi
+        
+        # client 디렉토리 생성 및 필요한 파일 복사
+        if [ -d client/dist ]; then
+          cp -r client/dist deployment/client/
+          echo "클라이언트 빌드 파일 복사 완료: client/dist → deployment/client/dist"
+        else
+          # client/dist가 없는 경우 client/src를 직접 복사
+          mkdir -p deployment/client/src
+          cp -r client/src deployment/client/
+          echo "클라이언트 소스 파일 복사 완료: client/src → deployment/client/src"
+        fi
+        
+        # node_modules 및 기타 필수 파일 복사
         cp -r node_modules deployment/
-        cp -r client/dist deployment/client
-        cp -r public deployment/
-        cp package.json package-lock.json startup.js .env.production patch-helper.js deployment/
+        mkdir -p deployment/public/images deployment/public/static
+        
+        # 필수 파일 복사
+        cp package.json package-lock.json startup.js patch-helper.js deployment/
+        
+        # .env.production 파일이 있으면 복사
+        if [ -f .env.production ]; then
+          cp .env.production deployment/
+          echo ".env.production 파일 복사 완료"
+        fi
+        
+        # public 디렉토리 복사 (이미 디렉토리인지 확인 후)
+        if [ -d public ] && [ ! -f public ]; then
+          cp -r public/* deployment/public/
+          echo "public 디렉토리 콘텐츠 복사 완료"
+        else
+          echo "주의: public이 디렉토리가 아니거나 찾을 수 없습니다."
+          # public 디렉토리가 없으면 기본 구조 생성
+          mkdir -p deployment/public/images deployment/public/static
+          echo "빈 public 디렉토리 구조 생성 완료"
+        fi
         
         # 디렉토리 구조 확인
-        echo "배포 패키지 구조:"
+        echo "최종 배포 패키지 구조:"
         find deployment -type d | sort
         
-        # 배포 대상 public 디렉토리 검증
+        # 배포 대상 public 디렉토리 최종 검증
         if [ -f deployment/public ]; then
-          echo "ERROR: deployment/public이 파일로 존재합니다!"
+          echo "오류: deployment/public이 파일로 존재합니다!"
           rm deployment/public
           mkdir -p deployment/public/images deployment/public/static
           echo "public 디렉토리 구조 수정 완료"
