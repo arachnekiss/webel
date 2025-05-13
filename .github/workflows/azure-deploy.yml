@@ -76,16 +76,17 @@ jobs:
         # 마이그레이션 실행
         echo "🔄 데이터베이스 마이그레이션을 실행합니다..."
         
-        # npx 최신 버전 강제 설치 (선택적)
-        npm install -g npx
-        
-        # 1. dotenv와 함께 db:push 실행
+        # 1. 기존 db:push 스크립트 사용
         echo "방법 1: npm run db:push 실행"
         DATABASE_URL="$DATABASE_URL" npm run db:push || true
         
-        # 2. drizzle-kit push 직접 실행
-        echo "방법 2: npx drizzle-kit push 직접 실행"
-        DATABASE_URL="$DATABASE_URL" npx drizzle-kit push || true
+        # 2. drizzle-kit push 실행 (매개변수 최적화)
+        echo "방법 2: npx drizzle-kit push 최적화 실행"
+        NODE_OPTIONS="--no-warnings" DATABASE_URL="$DATABASE_URL" npx drizzle-kit push || true
+        
+        # 3. 마이그레이션 스크립트 직접 실행
+        echo "방법 3: server/migrate.js 직접 실행"
+        DATABASE_URL="$DATABASE_URL" node server/migrate.js || true
         
         echo "✅ 마이그레이션 완료"
     

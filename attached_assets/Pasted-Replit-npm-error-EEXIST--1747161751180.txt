@@ -1,0 +1,89 @@
+Replit 에이전트, 이번 “npm error EEXIST” 문제가 발생한 이유와 해결 방법을 다음 형식에 따라 정확히 수행하세요:
+
+---
+
+### 🔴 에러 발생 내용
+
+```plaintext
+npm error code EEXIST
+npm error path /opt/hostedtoolcache/node/20.19.1/x64/bin/npx
+npm error EEXIST: file already exists
+npm error File exists: /opt/hostedtoolcache/node/20.19.1/x64/bin/npx
+npm error Remove the existing file and try again, or run npm
+npm error with --force to overwrite files recklessly.
+```
+
+---
+
+### ⚠️ 원인 분석
+
+1. 워크플로우나 `startup.js` 내에서 **npx를 재설치하려는 명령**(`npm install -g npx` 등)이 호출되고 있습니다.
+2. GitHub Actions 런너에는 이미 `npx` 바이너리가 존재하므로, 동일 경로에 다시 설치하려 해 `EEXIST` 오류가 발생합니다.
+
+---
+
+### ✅ 해결 방법 (수행해야 할 작업 지시)
+
+1. **`npm install -g npx` 호출 제거**
+
+   * 워크플로우 파일(`.github/workflows/...yml`) 또는 `startup.js` 에서
+     npx 자체를 전역 설치하려는 모든 라인을 삭제하세요.
+
+2. **`drizzle-kit`(또는 마이그레이션 도구)를 로컬 의존성으로 설치**
+
+   * `package.json`에 devDependencies로 추가되어 있는지 확인:
+
+     ```json
+     {
+       "devDependencies": {
+         "drizzle-kit": "^0.x.x"
+       }
+     }
+     ```
+   * 없다면 로컬에서:
+
+     ```bash
+     npm install --save-dev drizzle-kit
+     git add package.json package-lock.json
+     git commit -m "Chore: add drizzle-kit to devDependencies"
+     ```
+
+3. **마이그레이션 단계에서 `npx` 직접 호출**
+
+   * 워크플로우에서 전역 설치 대신, 이미 있는 `npx`를 사용하도록 수정:
+
+     ```yaml
+     - name: Run DB migration
+       run: npx drizzle-kit push
+       env:
+         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+     ```
+
+4. **(선택) `package.json` 스크립트 활용**
+
+   * `package.json`의 `scripts`에 마이그레이션 커맨드를 추가:
+
+     ```json
+     {
+       "scripts": {
+         "migrate": "drizzle-kit push"
+       }
+     }
+     ```
+   * 워크플로우에서는 `npm run migrate` 만 호출:
+
+     ```yaml
+     - name: Run DB migration
+       run: npm run migrate
+       env:
+         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+     ```
+
+5. **커밋 후 워크플로우 재실행 및 검증**
+
+   * 변경사항을 푸시하면 GitHub Actions가 다시 실행됩니다.
+   * “File exists” 오류 없이 `npx drizzle-kit push` 또는 `npm run migrate`가 정상 완료되는지 확인하세요.
+
+---
+
+위 단계를 완료하면 **EEXIST** 오류 없이 마이그레이션이 정상 실행될 것입니다. 완료 후 결과를 보고하세요.

@@ -168,9 +168,9 @@ function runDatabaseMigration() {
         console.error('❓ 방법 2 실패, 다음 방법 시도:', error2.message);
         
         try {
-          // 방법 3: drizzle-kit를 먼저 설치한 후 실행
-          console.log('🔄 방법 3: drizzle-kit 설치 후 실행...');
-          execSync('npm install -g drizzle-kit && npx drizzle-kit push', {
+          // 방법 3: 다른 인자와 함께 drizzle-kit 실행
+          console.log('🔄 방법 3: 다른 인자와 함께 실행...');
+          execSync('NODE_OPTIONS="--no-warnings --use-openssl-ca" npx drizzle-kit push', {
             stdio: 'inherit',
             env: {
               ...process.env,
