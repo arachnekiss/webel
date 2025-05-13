@@ -1,0 +1,47 @@
+Run # DATABASE_URL 환경변수 확인
+DATABASE_URL이 설정되지 않았습니다. 마이그레이션을 건너뜁니다.
+Azure 환경에서 앱이 실행될 때 환경변수를 통해 마이그레이션을 실행하세요.
+2s
+1m 16s
+Package deployment using ZIP Deploy initiated.
+Deploy logs can be viewed at https://***-gcb2bxdbbphmbref.scm.koreacentral-01.azurewebsites.net/api/deployments/ef891920-5922-438c-a112-6c50c4ecde1b/log
+Successfully deployed web package to App Service.
+App Service Application URL: https://***-gcb2bxdbbphmbref.koreacentral-01.azurewebsites.net
+3s
+Post job cleanup.
+/usr/bin/tar --posix -cf cache.tzst --exclude cache.tzst -P -C /home/runner/work/***/*** --files-from manifest.txt --use-compress-program zstdmt
+Sent 69533696 of 101464615 (68.5%), 66.2 MBs/sec
+Sent 101464615 of 101464615 (100.0%), 48.4 MBs/sec
+Cache saved with the key: node-cache-Linux-npm-41491607d7df65efe18a0c6602e32b6f1fa0afe7b196a97256c3650bcd305f97
+0s
+Post job cleanup.
+/usr/bin/git version
+git version 2.49.0
+Temporarily overriding HOME='/home/runner/work/_temp/ea76b6d3-b74c-4e66-9be1-9fdb9f135a08' before making global git config changes
+Adding repository directory to the temporary git global config as a safe directory
+/usr/bin/git config --global --add safe.directory /home/runner/work/***/***
+/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+http.https://github.com/.extraheader
+/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+0s
+Cleaning up orphan processes
+
+DEBUG CONSOLE | AZURE APP SERVICE ON LINUX
+
+Documentation: http://aka.ms/webapp-linux
+Kudu Version : 20250502.11
+Commit       : e32687b96fdab5e2f321f98f33b917df6606e460
+
+kudu_ssh_user@webel-kudu-f8faeca4:/$ cd site/wwwroot
+npx drizzle-kit push   # 또는 npx prisma migrate deploy
+Need to install the following packages:
+  drizzle-kit@0.31.1
+Ok to proceed? (y) y
+npm WARN deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+npm WARN deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+No config path provided, using default 'drizzle.config.json'
+/home/site/wwwroot/drizzle.config.json file does not exist
+kudu_ssh_user@webel-kudu-f8faeca4:~/site/wwwroot$ 

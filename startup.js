@@ -10,6 +10,8 @@
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import dotenv from 'dotenv'; // dotenv 가져오기
+import { execSync } from 'child_process';
 
 // 현재 파일의 디렉토리 얻기 (ESM에서는 __dirname이 없음)
 const __filename = fileURLToPath(import.meta.url);
@@ -21,51 +23,121 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 // 현재 환경 변수 상태 출력 (디버깅용)
 console.log('=== 환경 변수 초기 상태 ===');
 console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('BASE_PATH:', process.env.BASE_PATH);
-console.log('PUBLIC_PATH:', process.env.PUBLIC_PATH);
-console.log('UPLOAD_DIR:', process.env.UPLOAD_DIR);
-console.log('CLIENT_PATH:', process.env.CLIENT_PATH);
-console.log('TEMP_DIR:', process.env.TEMP_DIR);
 console.log('DATABASE_URL:', process.env.DATABASE_URL ? '설정됨 (값 감춤)' : '설정되지 않음');
 console.log('===========================');
 
-// .env.production 파일 로드 시도
-try {
-  // 점으로 시작하는 파일과 점 없는 파일 모두 시도
-  const dotenvPaths = ['./.env.production', './env.production'];
-  let loaded = false;
-  
-  for (const dotenvPath of dotenvPaths) {
-    if (fs.existsSync(dotenvPath)) {
-      console.log(`환경 변수 파일 발견: ${dotenvPath}, 수동으로 로드합니다.`);
-      const config = fs.readFileSync(dotenvPath, 'utf8').split('\n');
-      config.forEach(line => {
-        // 주석이나 빈 줄 제외
-        if (!line || line.startsWith('#')) return;
+/**
+ * 환경 변수 로드 함수
+ * .env.production 또는 env.production 파일에서 환경 변수를 로드합니다.
+ */
+function loadEnvironmentVariables() {
+  try {
+    // 점으로 시작하는 파일과 점 없는 파일 모두 시도
+    const dotenvPaths = ['./.env.production', './env.production'];
+    let loaded = false;
+    
+    for (const dotenvPath of dotenvPaths) {
+      if (fs.existsSync(dotenvPath)) {
+        console.log(`🔄 환경 변수 파일 로드 중: ${dotenvPath}`);
         
-        // KEY=VALUE 형식 파싱
-        const parts = line.split('=');
-        if (parts.length >= 2) {
-          const key = parts[0].trim();
-          // = 이후의 모든 부분을 값으로 처리 (=가 값에 포함될 수 있음)
-          const value = parts.slice(1).join('=').trim();
-          // 이미 설정된 환경 변수는 덮어쓰지 않음
-          if (!process.env[key]) {
-            process.env[key] = value;
-            console.log(`환경 변수 '${key}' 로드됨`);
+        // dotenv를 사용한 환경 변수 로드 시도
+        try {
+          const result = dotenv.config({ path: dotenvPath });
+          if (result.error) {
+            throw result.error;
           }
+          console.log(`✅ 환경 변수가 dotenv로 로드되었습니다: ${dotenvPath}`);
+          loaded = true;
+          break;
+        } catch (dotenvError) {
+          console.error(`❌ dotenv 로드 실패: ${dotenvError.message}`);
+          console.log(`🔄 수동으로 환경 변수 파일 로드 시도: ${dotenvPath}`);
+          
+          // 수동 로드 로직
+          const config = fs.readFileSync(dotenvPath, 'utf8').split('\n');
+          config.forEach(line => {
+            // 주석이나 빈 줄 제외
+            if (!line || line.startsWith('#')) return;
+            
+            // KEY=VALUE 형식 파싱
+            const parts = line.split('=');
+            if (parts.length >= 2) {
+              const key = parts[0].trim();
+              // = 이후의 모든 부분을 값으로 처리
+              const value = parts.slice(1).join('=').trim();
+              process.env[key] = value;
+            }
+          });
+          console.log(`✅ 환경 변수가 수동으로 로드되었습니다: ${dotenvPath}`);
+          loaded = true;
+          break;
         }
-      });
-      loaded = true;
-      break;
+      }
     }
+    
+    if (!loaded) {
+      console.log('⚠️ 환경 변수 파일을 찾을 수 없습니다. 시스템 환경 변수만 사용합니다.');
+    }
+    
+    return loaded;
+  } catch (error) {
+    console.error('❌ 환경 변수 로드 중 오류 발생:', error);
+    return false;
+  }
+}
+
+// 환경 변수 로드 실행
+const envLoaded = loadEnvironmentVariables();
+
+// 로드 후 환경 변수 확인
+console.log('=== 환경 변수 로드 후 상태 ===');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '설정됨 (값 감춤)' : '설정되지 않음');
+console.log('===========================');
+
+/**
+ * 데이터베이스 마이그레이션 실행 함수
+ * DATABASE_URL 환경 변수가 설정된 경우에만 실행
+ */
+function runDatabaseMigration() {
+  if (!process.env.DATABASE_URL) {
+    console.warn('⚠️ DATABASE_URL이 설정되지 않았습니다. 마이그레이션을 건너뜁니다.');
+    console.warn('Azure 환경에서 앱이 실행될 때 환경변수를 통해 마이그레이션을 실행하세요.');
+    return false;
   }
   
-  if (!loaded) {
-    console.log('환경 변수 파일을 찾을 수 없습니다. 시스템 환경 변수만 사용합니다.');
+  try {
+    console.log('🔄 데이터베이스 마이그레이션 실행 중...');
+    
+    // 마이그레이션 코드를 여기서 실행
+    if (fs.existsSync('./drizzle.config.ts') || fs.existsSync('./drizzle.config.js')) {
+      try {
+        // drizzle-kit push 명령 실행
+        execSync('npx drizzle-kit push', { 
+          stdio: 'inherit',
+          env: process.env
+        });
+        console.log('✅ 마이그레이션 완료!');
+        return true;
+      } catch (error) {
+        console.error('❌ drizzle-kit push 실행 중 오류 발생:', error.message);
+      }
+    } else {
+      console.warn('⚠️ drizzle.config.ts 또는 drizzle.config.js 파일을 찾을 수 없습니다.');
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('❌ 마이그레이션 실행 중 오류 발생:', error);
+    return false;
   }
-} catch (error) {
-  console.error('환경 변수 파일 로드 중 오류:', error);
+}
+
+// 마이그레이션 실행
+if (envLoaded) {
+  console.log('환경 변수가 로드되었으므로 마이그레이션을 실행합니다...');
+  runDatabaseMigration();
+} else {
+  console.warn('환경 변수 로드에 실패했으므로 마이그레이션을 건너뜁니다.');
 }
 
 // Azure 배포 환경을 위한 기본 경로 설정 (절대 경로로 강제 설정)
