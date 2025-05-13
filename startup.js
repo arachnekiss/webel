@@ -94,38 +94,74 @@ if (!process.env.TEMP_DIR) {
   console.log('TEMP_DIR 환경 변수 설정됨:', process.env.TEMP_DIR);
 }
 
-// 디렉토리가 있는지 확인하고 없으면 생성
-try {
-  // uploads 디렉토리 확인 및 생성
-  if (!fs.existsSync(process.env.UPLOAD_DIR)) {
-    fs.mkdirSync(process.env.UPLOAD_DIR, { recursive: true });
-    console.log(`디렉토리 생성됨: ${process.env.UPLOAD_DIR}`);
-  }
-  
-  // temp 디렉토리 확인 및 생성
-  if (!fs.existsSync(process.env.TEMP_DIR)) {
-    fs.mkdirSync(process.env.TEMP_DIR, { recursive: true });
-    console.log(`디렉토리 생성됨: ${process.env.TEMP_DIR}`);
-  }
-  
-  // public/images 디렉토리 확인 및 생성
-  const publicImagesPath = `${process.env.PUBLIC_PATH}/images`;
-  if (fs.existsSync(publicImagesPath)) {
-    // 경로가 존재하지만 디렉터리가 아닌 경우 (파일인 경우) 삭제
-    const stats = fs.statSync(publicImagesPath);
-    if (!stats.isDirectory()) {
-      console.log(`경로 ${publicImagesPath}이(가) 파일로 존재합니다. 파일을 삭제하고 디렉터리를 생성합니다.`);
-      fs.unlinkSync(publicImagesPath); // 파일 삭제
-      fs.mkdirSync(publicImagesPath, { recursive: true });
-      console.log(`디렉토리 생성됨: ${publicImagesPath}`);
+// 디렉토리 확인 및 생성 유틸리티 함수
+function ensureDir(dirPath) {
+  try {
+    // 경로가 존재하는 경우
+    if (fs.existsSync(dirPath)) {
+      const stats = fs.statSync(dirPath);
+      // 디렉터리가 아닌 경우 (파일인 경우) 삭제
+      if (!stats.isDirectory()) {
+        console.log(`경로 ${dirPath}이(가) 파일로 존재합니다. 파일을 삭제하고 디렉터리를 생성합니다.`);
+        fs.unlinkSync(dirPath); // 파일 삭제
+        fs.mkdirSync(dirPath, { recursive: true });
+        console.log(`디렉터리 생성됨: ${dirPath}`);
+      }
+    } else {
+      // 경로가 존재하지 않으면 디렉터리 생성
+      fs.mkdirSync(dirPath, { recursive: true });
+      console.log(`디렉토리 생성됨: ${dirPath}`);
     }
+    return true;
+  } catch (error) {
+    console.error(`디렉토리 ${dirPath} 생성 중 오류:`, error);
+    return false;
+  }
+}
+
+// 중요 경로 디렉터리 생성 (순서 중요)
+try {
+  // 초기화 플래그 확인 (한 번만 실행)
+  if (!process.env._PUBLIC_INIT_DONE) {
+    console.log('===== 디렉토리 구조 초기화 시작 =====');
+    
+    // 상위 디렉터리부터 확인하여 순차적으로 생성
+    const publicPath = process.env.PUBLIC_PATH;
+    
+    // 1. public 디렉터리 확인 및 생성 - 가장 먼저 처리
+    if (fs.existsSync(publicPath) && !fs.statSync(publicPath).isDirectory()) {
+      console.log(`파일로 존재하는 ${publicPath} 경로를 제거합니다`);
+      fs.unlinkSync(publicPath);
+    }
+    ensureDir(publicPath);
+    
+    // 잠시 대기 (파일 시스템 안정화)
+    console.log('파일 시스템 작업 안정화를 위해 1초 대기...');
+    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000);
+    
+    // 2. public/images 디렉터리 확인 및 생성
+    ensureDir(`${publicPath}/images`);
+    
+    // 3. public/static 디렉터리 확인 및 생성
+    ensureDir(`${publicPath}/static`);
+    
+    // 4. uploads 디렉터리 확인 및 생성
+    ensureDir(process.env.UPLOAD_DIR);
+    
+    // 5. temp 디렉터리 확인 및 생성
+    ensureDir(process.env.TEMP_DIR);
+    
+    // 6. TUS 업로드 디렉터리 확인 및 생성
+    ensureDir(`${process.env.UPLOAD_DIR}/.tus`);
+    
+    // 초기화 완료 플래그 설정
+    process.env._PUBLIC_INIT_DONE = 'true';
+    console.log('===== 디렉토리 구조 초기화 완료 =====');
   } else {
-    // 경로가 존재하지 않으면 디렉터리 생성
-    fs.mkdirSync(publicImagesPath, { recursive: true });
-    console.log(`디렉토리 생성됨: ${publicImagesPath}`);
+    console.log('디렉터리 구조가 이미 초기화되었습니다. 재실행하지 않습니다.');
   }
 } catch (error) {
-  console.error('디렉토리 생성 중 오류:', error);
+  console.error('디렉토리 구조 초기화 중 오류:', error);
 }
 
 // Neon DB 관련 환경 변수 확인

@@ -38,9 +38,33 @@ jobs:
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
     
+    - name: Prepare deployment package
+      run: |
+        # 배포에 필요한 파일들만 포함하는 배포 디렉토리 생성
+        mkdir -p deployment
+        
+        # 필수 파일 및 디렉토리 복사
+        cp -r dist deployment/
+        cp -r node_modules deployment/
+        cp -r client/dist deployment/client
+        cp -r public deployment/
+        cp package.json package-lock.json startup.js .env.production patch-helper.js deployment/
+        
+        # 디렉토리 구조 확인
+        echo "배포 패키지 구조:"
+        find deployment -type d | sort
+        
+        # 배포 대상 public 디렉토리 검증
+        if [ -f deployment/public ]; then
+          echo "ERROR: deployment/public이 파일로 존재합니다!"
+          rm deployment/public
+          mkdir -p deployment/public/images deployment/public/static
+          echo "public 디렉토리 구조 수정 완료"
+        fi
+    
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+        package: ./deployment

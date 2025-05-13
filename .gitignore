@@ -4,3 +4,11 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# public 디렉터리 관리 규칙 (파일-디렉터리 충돌 방지)
+/public
+!/public/
+!/public/images/
+!/public/images/**
+!/public/static/
+!/public/static/**

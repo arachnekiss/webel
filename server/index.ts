@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import * as path from 'path';
+import * as fs from 'fs';
 import { setupTusUpload } from './tus-upload';
 
 const app = express();
@@ -15,10 +16,22 @@ import { getUploadPath, getPublicPath, ensureDirectoryExists } from './utils/pat
 const uploadDir = getUploadPath();
 const publicPath = getPublicPath();
 
-// 디렉토리 존재 확인 
-ensureDirectoryExists(uploadDir);
+// 디렉토리 존재 확인 (안전 메커니즘)
+// 1. 상위 디렉터리부터 확인 (경로 충돌 방지)
 ensureDirectoryExists(publicPath);
-ensureDirectoryExists(path.join(publicPath, 'images'));
+
+// 2. 파일 시스템 안정성 확인 후 하위 디렉터리 생성
+// public 경로가 디렉터리인지 재확인
+if (fs.existsSync(publicPath) && fs.statSync(publicPath).isDirectory()) {
+  ensureDirectoryExists(path.join(publicPath, 'images'));
+  ensureDirectoryExists(path.join(publicPath, 'static'));
+} else {
+  console.error(`오류: ${publicPath} 경로가 디렉터리가 아닙니다. 실행을 중단합니다.`);
+  process.exit(1);
+}
+
+// 3. 업로드 디렉터리 생성
+ensureDirectoryExists(uploadDir);
 
 // uploads 및 public 디렉토리를 정적 파일로 제공
 app.use('/uploads', express.static(uploadDir));
