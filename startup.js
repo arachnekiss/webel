@@ -107,6 +107,23 @@ try {
     fs.mkdirSync(process.env.TEMP_DIR, { recursive: true });
     console.log(`디렉토리 생성됨: ${process.env.TEMP_DIR}`);
   }
+  
+  // public/images 디렉토리 확인 및 생성
+  const publicImagesPath = `${process.env.PUBLIC_PATH}/images`;
+  if (fs.existsSync(publicImagesPath)) {
+    // 경로가 존재하지만 디렉터리가 아닌 경우 (파일인 경우) 삭제
+    const stats = fs.statSync(publicImagesPath);
+    if (!stats.isDirectory()) {
+      console.log(`경로 ${publicImagesPath}이(가) 파일로 존재합니다. 파일을 삭제하고 디렉터리를 생성합니다.`);
+      fs.unlinkSync(publicImagesPath); // 파일 삭제
+      fs.mkdirSync(publicImagesPath, { recursive: true });
+      console.log(`디렉토리 생성됨: ${publicImagesPath}`);
+    }
+  } else {
+    // 경로가 존재하지 않으면 디렉터리 생성
+    fs.mkdirSync(publicImagesPath, { recursive: true });
+    console.log(`디렉토리 생성됨: ${publicImagesPath}`);
+  }
 } catch (error) {
   console.error('디렉토리 생성 중 오류:', error);
 }

@@ -1,0 +1,73 @@
+Run azure/webapps-deploy@v2
+  with:
+    app-name: ***
+    publish-profile: ***
+    package: .
+    slot-name: production
+Package deployment using ZIP Deploy initiated.
+Updating submodules.
+Preparing deployment for commit id '0b87ebf6-a'.
+PreDeployment: context.CleanOutputPath False
+PreDeployment: context.OutputPath /home/site/wwwroot
+Running custom deployment command...
+Not setting execute permissions for node startup.js
+Running deployment command...
+Command: node startup.js
+=== 환경 변수 초기 상태 ===
+NODE_ENV: production
+BASE_PATH: /home/site/wwwroot
+PUBLIC_PATH: /home/site/wwwroot/public
+UPLOAD_DIR: /home/site/wwwroot/uploads
+CLIENT_PATH: /home/site/wwwroot/client
+TEMP_DIR: /home/site/wwwroot/temp
+DATABASE_URL: 설정됨 (값 감춤)
+===========================
+환경 변수 파일 발견: ./.env.production, 수동으로 로드합니다.
+환경 변수 'CACHE_TTL' 로드됨
+환경 변수 'CACHE_CHECK_PERIOD' 로드됨
+환경 변수 'STATIC_CACHE_TTL' 로드됨
+환경 변수 'NODE_OPTIONS' 로드됨
+환경 변수 'ENABLE_MULTILINGUAL_SEARCH' 로드됨
+환경 변수 'MULTILINGUAL_SEARCH_CACHE_TTL' 로드됨
+환경 변수 'PERFORMANCE_LOGGING' 로드됨
+환경 변수 'API_REQUEST_TIMEOUT' 로드됨
+환경 변수 'REQUEST_BODY_LIMIT' 로드됨
+환경 변수 'WS_ENABLED' 로드됨
+디렉토리 생성됨: /home/site/wwwroot/uploads
+디렉토리 생성됨: /home/site/wwwroot/temp
+=== 최종 환경 변수 상태 ===
+NODE_ENV: production
+BASE_PATH: /home/site/wwwroot
+PUBLIC_PATH: /home/site/wwwroot/public
+UPLOAD_DIR: /home/site/wwwroot/uploads
+CLIENT_PATH: /home/site/wwwroot/client
+TEMP_DIR: /home/site/wwwroot/temp
+DATABASE_URL: 설정됨 (값 감춤)
+===========================
+현재 디렉토리: /tmp/zipdeploy/extracted
+디렉토리 내용: .deployment, .env.production, .git, .github, .gitignore, .replit, .zap, README-stage2-verify.md, attached_assets, client, components.json, cookies.txt, dist, drizzle.config.ts, env.production, generated-icon.png, lighthouse.config.js, migration.sql, node_modules, package-lock.json, package.json, patch-helper.js, performance, playwright-report, playwright.config.ts, postcss.config.js, public, replit_agent, scripts, server, shared, startup.js, tailwind.config.ts, temp, test-results, tests, tsconfig.json, uploads, vite-wrapper.js, vite.config.ts, web.config
+패치 헬퍼 로드 시도...
+=== patch-helper.js 실행 ===
+디렉토리 생성됨: ./client/dist
+path.resolve() 함수 패치 완료
+=== patch-helper.js 완료 ===
+패치 헬퍼 로드 완료
+dist/index.js 파일 존재, 해당 파일을 실행합니다
+디렉토리 생성됨: /home/site/wwwroot/uploads/.tus
+디렉토리 생성 중 오류 발생: /home/site/wwwroot/public/images Error: ENOTDIR: not a directory, mkdir '/home/site/wwwroot/public/images'
+서버 모듈 로드 완료: []
+    at Object.mkdirSync (node:fs:1398:3)
+    at ensureDirectoryExists (file:///tmp/zipdeploy/extracted/dist/index.js:3487:11)
+    at file:///tmp/zipdeploy/extracted/dist/index.js:3656:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25) {
+  errno: -20,
+  syscall: 'mkdir',
+  code: 'ENOTDIR',
+  path: '/home/site/wwwroot/public/images'
+}
+3:55:41 PM [express] serving on port 5000
+디렉토리 생성 중 오류 발생: /home/site/wwwroot/public/images Error: ENOTDIR: not a directory, mkdir '/home/site/wwwroot/public/images'\n    at Object.mkdirSync (node:fs:1398:3)\n    at ensureDirectoryExists (file:///tmp/zipdeploy/extracted/dist/index.js:3487:11)\n    at file:///tmp/zipdeploy/extracted/dist/index.js:3656:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:194:25) {\n  errno: -20,\n  syscall: 'mkdir',\n  code: 'ENOTDIR',\n  path: '/home/site/wwwroot/public/images'\n}\n/opt/Kudu/Scripts/starter.sh node startup.js
+Deployment Failed. deployer = GITHUB_ZIP_DEPLOY deploymentPath = ZipDeploy. Extract zip.
+Error: Failed to deploy web package to App Service.
+Error: Deployment Failed, Package deployment using ZIP Deploy failed. Refer logs for more details.
+App Service Application URL: https://***-gcb2bxdbbphmbref.koreacentral-01.azurewebsites.net

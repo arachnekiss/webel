@@ -81,11 +81,22 @@ export function getPublicPath(): string {
 
 /**
  * 디렉토리가 존재하는지 확인하고, 없으면 생성하는 유틸리티 함수
+ * 경로에 파일이 있는 경우 파일을 삭제하고 디렉터리를 생성
  * @param dirPath 디렉토리 경로
  */
 export function ensureDirectoryExists(dirPath: string): void {
   try {
-    if (!fs.existsSync(dirPath)) {
+    if (fs.existsSync(dirPath)) {
+      // 경로가 존재하지만 디렉터리가 아닌 경우 (파일인 경우) 삭제
+      const stats = fs.statSync(dirPath);
+      if (!stats.isDirectory()) {
+        console.log(`경로 ${dirPath}이(가) 파일로 존재합니다. 파일을 삭제하고 디렉터리를 생성합니다.`);
+        fs.unlinkSync(dirPath); // 파일 삭제
+        fs.mkdirSync(dirPath, { recursive: true });
+        console.log(`디렉토리 생성됨: ${dirPath}`);
+      }
+    } else {
+      // 경로가 존재하지 않으면 디렉터리 생성
       fs.mkdirSync(dirPath, { recursive: true });
       console.log(`디렉토리 생성됨: ${dirPath}`);
     }
