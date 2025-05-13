@@ -6,10 +6,69 @@
  * package.json에 "type": "module"이 설정되어 있어 ESM 모듈 문법을 사용합니다.
  */
 
+// ESM에서 사용할 모듈 가져오기
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+// 현재 파일의 디렉토리 얻기 (ESM에서는 __dirname이 없음)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 // 환경 변수 설정
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
-// Azure 배포 환경을 위한 기본 경로 설정
+// 현재 환경 변수 상태 출력 (디버깅용)
+console.log('=== 환경 변수 초기 상태 ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('BASE_PATH:', process.env.BASE_PATH);
+console.log('PUBLIC_PATH:', process.env.PUBLIC_PATH);
+console.log('UPLOAD_DIR:', process.env.UPLOAD_DIR);
+console.log('CLIENT_PATH:', process.env.CLIENT_PATH);
+console.log('TEMP_DIR:', process.env.TEMP_DIR);
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '설정됨 (값 감춤)' : '설정되지 않음');
+console.log('===========================');
+
+// .env.production 파일 로드 시도
+try {
+  // 점으로 시작하는 파일과 점 없는 파일 모두 시도
+  const dotenvPaths = ['./.env.production', './env.production'];
+  let loaded = false;
+  
+  for (const dotenvPath of dotenvPaths) {
+    if (fs.existsSync(dotenvPath)) {
+      console.log(`환경 변수 파일 발견: ${dotenvPath}, 수동으로 로드합니다.`);
+      const config = fs.readFileSync(dotenvPath, 'utf8').split('\n');
+      config.forEach(line => {
+        // 주석이나 빈 줄 제외
+        if (!line || line.startsWith('#')) return;
+        
+        // KEY=VALUE 형식 파싱
+        const parts = line.split('=');
+        if (parts.length >= 2) {
+          const key = parts[0].trim();
+          // = 이후의 모든 부분을 값으로 처리 (=가 값에 포함될 수 있음)
+          const value = parts.slice(1).join('=').trim();
+          // 이미 설정된 환경 변수는 덮어쓰지 않음
+          if (!process.env[key]) {
+            process.env[key] = value;
+            console.log(`환경 변수 '${key}' 로드됨`);
+          }
+        }
+      });
+      loaded = true;
+      break;
+    }
+  }
+  
+  if (!loaded) {
+    console.log('환경 변수 파일을 찾을 수 없습니다. 시스템 환경 변수만 사용합니다.');
+  }
+} catch (error) {
+  console.error('환경 변수 파일 로드 중 오류:', error);
+}
+
+// Azure 배포 환경을 위한 기본 경로 설정 (절대 경로로 강제 설정)
 if (!process.env.BASE_PATH) {
   process.env.BASE_PATH = process.cwd();
   console.log('BASE_PATH 환경 변수 설정됨:', process.env.BASE_PATH);
@@ -35,10 +94,38 @@ if (!process.env.TEMP_DIR) {
   console.log('TEMP_DIR 환경 변수 설정됨:', process.env.TEMP_DIR);
 }
 
+// 디렉토리가 있는지 확인하고 없으면 생성
+try {
+  // uploads 디렉토리 확인 및 생성
+  if (!fs.existsSync(process.env.UPLOAD_DIR)) {
+    fs.mkdirSync(process.env.UPLOAD_DIR, { recursive: true });
+    console.log(`디렉토리 생성됨: ${process.env.UPLOAD_DIR}`);
+  }
+  
+  // temp 디렉토리 확인 및 생성
+  if (!fs.existsSync(process.env.TEMP_DIR)) {
+    fs.mkdirSync(process.env.TEMP_DIR, { recursive: true });
+    console.log(`디렉토리 생성됨: ${process.env.TEMP_DIR}`);
+  }
+} catch (error) {
+  console.error('디렉토리 생성 중 오류:', error);
+}
+
 // Neon DB 관련 환경 변수 확인
 if (!process.env.DATABASE_URL) {
   console.log('경고: DATABASE_URL 환경 변수가 설정되지 않았습니다.');
 }
+
+// 최종 환경 변수 상태 출력
+console.log('=== 최종 환경 변수 상태 ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('BASE_PATH:', process.env.BASE_PATH);
+console.log('PUBLIC_PATH:', process.env.PUBLIC_PATH);
+console.log('UPLOAD_DIR:', process.env.UPLOAD_DIR);
+console.log('CLIENT_PATH:', process.env.CLIENT_PATH); 
+console.log('TEMP_DIR:', process.env.TEMP_DIR);
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? '설정됨 (값 감춤)' : '설정되지 않음');
+console.log('===========================');
 
 // Azure Web App에서 PORT 환경 변수를 사용합니다
 const port = process.env.PORT || 8080;
@@ -77,16 +164,47 @@ function listFilesRecursively(dir, depth = 0) {
 // Top-level await 대신 IIFE 사용
 (async function() {
   try {
+    // 경로 패치 헬퍼 로드 (path.resolve 문제 해결)
+    try {
+      console.log('패치 헬퍼 로드 시도...');
+      await import('./patch-helper.js');
+      console.log('패치 헬퍼 로드 완료');
+    } catch (patchError) {
+      console.warn('패치 헬퍼 로드 실패 (무시됨):', patchError.message);
+    }
+    
     // 빌드된 앱 시작 (dist/index.js)
     if (fs.existsSync('./dist/index.js')) {
       console.log('dist/index.js 파일 존재, 해당 파일을 실행합니다');
       
-      // ESM import를 사용해 동적으로 모듈 가져오기
-      const serverModule = await import('./dist/index.js');
-      
-      // 서버 모듈에 app 또는 default export가 있는지 확인
-      console.log('서버 모듈 로드 완료:', Object.keys(serverModule));
-      
+      try {
+        // ESM import를 사용해 동적으로 모듈 가져오기
+        const serverModule = await import('./dist/index.js');
+        
+        // 서버 모듈에 app 또는 default export가 있는지 확인
+        console.log('서버 모듈 로드 완료:', Object.keys(serverModule));
+      } catch (moduleError) {
+        console.error('서버 모듈 로드 중 오류 발생:', moduleError);
+        
+        // 오류 상세 정보 표시
+        if (moduleError.stack) {
+          console.error('스택 트레이스:', moduleError.stack);
+        }
+        
+        // dist/index.js 크기 확인
+        try {
+          const stats = fs.statSync('./dist/index.js');
+          console.log('dist/index.js 파일 크기:', stats.size, 'bytes');
+          
+          // 파일 내용 일부 확인 (문제 진단용)
+          const content = fs.readFileSync('./dist/index.js', 'utf8').substring(0, 500);
+          console.log('dist/index.js 파일 시작 부분:\n', content);
+        } catch (statsError) {
+          console.error('파일 정보 확인 중 오류:', statsError);
+        }
+        
+        throw moduleError; // 원래 오류 다시 던지기
+      }
     } else {
       console.log('dist/index.js 파일이 존재하지 않습니다');
       console.log('사용 가능한 파일 목록:');
@@ -97,10 +215,14 @@ function listFilesRecursively(dir, depth = 0) {
       if (fs.existsSync('./server/index.js')) {
         console.log('server/index.js 파일을 대신 실행합니다');
         
-        // ESM 방식으로 서버 모듈 가져오기
-        const serverModule = await import('./server/index.js');
-        console.log('서버 모듈 로드 완료:', Object.keys(serverModule));
-        
+        try {
+          // ESM 방식으로 서버 모듈 가져오기
+          const serverModule = await import('./server/index.js');
+          console.log('서버 모듈 로드 완료:', Object.keys(serverModule));
+        } catch (moduleError) {
+          console.error('서버 모듈 로드 중 오류 발생:', moduleError);
+          throw moduleError;
+        }
       } else {
         console.error('실행할 수 있는 서버 파일을 찾을 수 없습니다');
         throw new Error('서버 파일을 찾을 수 없습니다');
@@ -108,6 +230,10 @@ function listFilesRecursively(dir, depth = 0) {
     }
   } catch (error) {
     console.error('서버 시작 중 오류 발생:', error);
+    if (error instanceof Error) {
+      console.error('오류 메시지:', error.message);
+      console.error('오류 이름:', error.name);
+    }
     process.exit(1);
   }
 })();

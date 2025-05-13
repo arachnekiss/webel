@@ -1,0 +1,86 @@
+Replit 에이전트, 다음 지시에 따라 배포 에러를 정밀하게 진단하고 즉시 조치하십시오:
+
+---
+
+### 🔴 에러 발생 내용
+
+```plaintext
+TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received undefined
+    at Object.resolve (node:path:1097:7)
+    at file:///tmp/zipdeploy/extracted/dist/index.js:3318:18
+```
+
+---
+
+### ⚠️ 원인 분석
+
+* Node.js의 `path.resolve()` 함수가 `undefined` 값을 인자로 받으면서 발생한 오류입니다.
+* 이는 다음 중 하나 이상의 경우로 인해 발생합니다:
+
+  1. **환경 변수가 정의되지 않았거나 이름이 오타**로 잘못된 경우
+  2. **환경 변수 값을 조건 없이 바로 `path.resolve()`에 전달**한 경우
+  3. `.env.production`은 존재하지만 **실제로 해당 변수를 `process.env`로 읽지 못한 경우** (`dotenv` 적용 누락)
+
+---
+
+### ✅ 해결 방법 (수행해야 할 작업 지시)
+
+1. **에러 발생 코드 안전 처리**
+
+   * `dist/index.js`의 3318번째 줄 근처 코드에서 다음과 같은 구문을 찾고:
+
+   ```js
+   const resolved = path.resolve(process.env.UPLOAD_DIR);
+   ```
+
+   * 다음처럼 안전하게 대체하세요:
+
+   ```js
+   const uploadDir = process.env.UPLOAD_DIR || './uploads';
+   const resolved = path.resolve(uploadDir);
+   ```
+
+   * 또는 명확히 오류를 잡을 수 있도록:
+
+   ```js
+   if (!process.env.UPLOAD_DIR) throw new Error('UPLOAD_DIR 환경 변수가 설정되지 않았습니다.');
+   const resolved = path.resolve(process.env.UPLOAD_DIR);
+   ```
+
+2. **`.env.production`에 환경 변수 존재 여부 확인**
+
+   * 실제 배포 ZIP 내에 `.env.production` 파일이 존재하더라도, `dotenv.config()` 코드가 없으면 환경 변수는 로딩되지 않습니다.
+   * `dist/index.js` 빌드 전 소스 (`server/index.ts` 등) 상단에 다음 코드가 포함되어야 합니다:
+
+   ```ts
+   import dotenv from 'dotenv';
+   dotenv.config({ path: '.env.production' });
+   ```
+
+   * 위 코드가 빠져 있다면 빌드된 `dist` 코드에는 환경 변수가 전달되지 않으므로 반드시 확인 후 포함시키고 재빌드하세요.
+
+3. **Azure 환경 변수와의 중복 여부 확인**
+
+   * Azure 포털에 등록한 `UPLOAD_DIR`, `PUBLIC_PATH`, `TEMP_DIR` 등의 변수와 `.env.production`의 값이 충돌하거나 누락되지 않았는지 확인하십시오.
+   * 동일한 변수 이름으로 App Service 설정 → “애플리케이션 설정”에도 존재해야 확실하게 반영됩니다.
+
+4. **빌드 및 재배포**
+
+   * 위 조치를 적용한 후 `npm run build`를 다시 수행하고, GitHub Actions를 통해 ZIP Deploy를 재시작하세요.
+
+---
+
+### ✅ 참고: 테스트 코드 삽입 (권장)
+
+* 아래 코드를 `startup.js` 또는 초기 진입점에 삽입하여 변수 상태를 로그로 확인하십시오:
+
+```js
+console.log('UPLOAD_DIR:', process.env.UPLOAD_DIR);
+console.log('PUBLIC_PATH:', process.env.PUBLIC_PATH);
+```
+
+이 로그로 어떤 환경 변수가 `undefined` 상태인지 정확히 판단할 수 있습니다.
+
+---
+
+작업 완료 후에도 동일한 오류가 발생한다면 `dist/index.js:3318` 인근 코드를 전체 공유해 추가 분석을 요청하십시오.

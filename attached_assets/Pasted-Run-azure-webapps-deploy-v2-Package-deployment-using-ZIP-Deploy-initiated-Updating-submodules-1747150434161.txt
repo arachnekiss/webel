@@ -1,0 +1,27 @@
+Run azure/webapps-deploy@v2
+  
+Package deployment using ZIP Deploy initiated.
+Updating submodules.
+Preparing deployment for commit id '39a9c36e-b'.
+PreDeployment: context.CleanOutputPath False
+PreDeployment: context.OutputPath /home/site/wwwroot
+Running custom deployment command...
+Not setting execute permissions for node startup.js
+Running deployment command...
+Command: node startup.js
+현재 디렉토리: /tmp/zipdeploy/extracted
+디렉토리 내용: .deployment, .env.production, .git, .github, .gitignore, .replit, .zap, README-stage2-verify.md, attached_assets, client, components.json, cookies.txt, dist, drizzle.config.ts, generated-icon.png, lighthouse.config.js, migration.sql, node_modules, package-lock.json, package.json, performance, playwright-report, playwright.config.ts, postcss.config.js, public, replit_agent, scripts, server, shared, startup.js, tailwind.config.ts, temp, test-results, tests, tsconfig.json, uploads, vite-wrapper.js, vite.config.ts, web.config
+dist/index.js 파일 존재, 해당 파일을 실행합니다
+서버 시작 중 오류 발생: TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received undefined
+    at new NodeError (node:internal/errors:405:5)
+    at validateString (node:internal/validators:162:11)
+    at Object.resolve (node:path:1097:7)
+    at file:///tmp/zipdeploy/extracted/dist/index.js:3318:18
+    at ModuleJob.run (node:internal/modules/esm/module_job:194:25) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+서버 시작 중 오류 발생: TypeError [ERR_INVALID_ARG_TYPE]: The "paths[0]" argument must be of type string. Received undefined\n    at new NodeError (node:internal/errors:405:5)\n    at validateString (node:internal/validators:162:11)\n    at Object.resolve (node:path:1097:7)\n    at file:///tmp/zipdeploy/extracted/dist/index.js:3318:18\n    at ModuleJob.run (node:internal/modules/esm/module_job:194:25) {\n  code: 'ERR_INVALID_ARG_TYPE'\n}\n/opt/Kudu/Scripts/starter.sh node startup.js
+Deployment Failed. deployer = GITHUB_ZIP_DEPLOY deploymentPath = ZipDeploy. Extract zip.
+Error: Failed to deploy web package to App Service.
+Error: Deployment Failed, Package deployment using ZIP Deploy failed. Refer logs for more details.
+App Service Application URL: https://***-gcb2bxdbbphmbref.koreacentral-01.azurewebsites.net
