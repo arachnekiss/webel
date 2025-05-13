@@ -1,4 +1,3 @@
-// @ts-check
 /**
  * Azure Web App 시작 스크립트
  * 
@@ -17,40 +16,51 @@ if (!process.env.DATABASE_URL) {
 // Azure Web App에서 PORT 환경 변수를 사용합니다
 const port = process.env.PORT || 8080;
 
-// 서버 시작
-// 빌드된 dist 디렉토리의 index.js 파일을 실행합니다
-const { spawn } = require('child_process');
-
 // 현재 디렉토리 출력 (디버깅용)
 console.log('현재 디렉토리:', process.cwd());
 const fs = require('fs');
-console.log('디렉토리 내용:', fs.readdirSync('.'));
+console.log('디렉토리 내용:', fs.readdirSync('.').join(', '));
 
-// 실행할 명령어
-const cmd = 'node';
-const args = ['dist/index.js']; // 빌드된 dist 폴더의 index.js 사용
-
-console.log(`실행 명령어: ${cmd} ${args.join(' ')}`);
-
-// 자식 프로세스로 실행
-const childProcess = spawn(cmd, args, {
-  stdio: 'inherit', // 표준 입출력/오류를 부모 프로세스에 연결
-  env: process.env   // 환경 변수 전달
-});
-
-// 자식 프로세스 이벤트 핸들러
-childProcess.on('exit', (code) => {
-  console.log(`프로세스 종료: 코드 ${code}`);
-  process.exit(code || 0);
-});
-
-// 예기치 않은 종료 처리
-process.on('SIGINT', () => {
-  childProcess.kill('SIGINT');
-  process.exit(0);
-});
-
-process.on('SIGTERM', () => {
-  childProcess.kill('SIGTERM');
-  process.exit(0);
-});
+// IIS/Azure 호환성을 위한 HTTP 서버 직접 생성
+try {
+  // 빌드된 앱 시작 (dist/index.js)
+  if (fs.existsSync('./dist/index.js')) {
+    console.log('dist/index.js 파일 존재, 해당 파일을 실행합니다');
+    
+    // Express 앱 불러오기
+    require('./dist/index.js');
+  } else {
+    console.log('dist/index.js 파일이 존재하지 않습니다');
+    console.log('사용 가능한 파일 목록:');
+    
+    function listFilesRecursively(dir, depth = 0) {
+      if (depth > 2) return; // 깊이 2까지만 탐색
+      
+      const files = fs.readdirSync(dir);
+      files.forEach(file => {
+        const filePath = `${dir}/${file}`;
+        const stat = fs.statSync(filePath);
+        if (stat.isDirectory()) {
+          console.log(`[DIR] ${filePath}`);
+          listFilesRecursively(filePath, depth + 1);
+        } else {
+          console.log(`[FILE] ${filePath}`);
+        }
+      });
+    }
+    
+    listFilesRecursively('.');
+    
+    // 대안으로 서버/index.js 실행
+    if (fs.existsSync('./server/index.js')) {
+      console.log('server/index.js 파일을 대신 실행합니다');
+      require('./server/index.js');
+    } else {
+      console.error('실행할 수 있는 서버 파일을 찾을 수 없습니다');
+      throw new Error('서버 파일을 찾을 수 없습니다');
+    }
+  }
+} catch (error) {
+  console.error('서버 시작 중 오류 발생:', error);
+  process.exit(1);
+}
